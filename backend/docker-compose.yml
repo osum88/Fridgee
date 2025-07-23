@@ -1,0 +1,35 @@
+version: '3.8' 
+services:                                 # definuje jednotlivé kontejnery
+  db: 
+    image: postgres:17-alpine 
+    restart: always                       # kontejner se automaticky restartuje, pokud spadne
+    environment:                          # Proměnné prostředí
+      POSTGRES_DB: ${DB_NAME} 
+      POSTGRES_USER: ${DB_USER} 
+      POSTGRES_PASSWORD: ${DB_PASSWORD} 
+    ports:                                # Mapování portů mezi počítačem a kontejnerem
+      - "5432:5432"                       # První je port na počítač (localhost), druhý uvnitř DB kontejneru.
+    volumes:                              # Perzistentní ukládání dat databáze.
+      - db_data:/var/lib/postgresql/data  # Mapuje svazek 'db_data' na adresář uvnitř kontejneru, zabrání ztrátě dat po zastavení/smazání kontejneru
+    healthcheck:                          # Kontrola, zda je databáze připravená přijímat spojení.
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]     # Příkaz, který se spustí pro kontrolu.
+      interval: 5s                                                      # Jak často se má kontrola spouštět.
+      timeout: 5s                                                       # Maximální čas na provedení kontroly.
+      retries: 5                                                        # Kolikrát se má pokusit
+  backend:                                # Můj Node.js backend.
+    build: .                              # Řekne Dockeru, aby sestavil obraz pro tuto službu z Dockerfile
+    restart: always                       # Zajistí restart při pádu.
+    ports:                                # Mapování portů pro backend.
+      - "3001:3001"                       # První 3001 port na počítači, druhý 3001 uvnitř backend kontejneru              
+    environment:                          # Proměnné prostředí pro Node.js backend
+      SERVER_PORT: 3001
+      DB_HOST: db                         # Název služby databáze v síti Docker Compose
+      DB_USER: ${DB_USER} 
+      DB_PASSWORD: ${DB_PASSWORD} 
+      DB_NAME: ${DB_NAME} 
+      DB_PORT: 5432 
+    depends_on:                           # Zajistí pořadí spouštění služeb
+      db:
+        condition: service_healthy 
+volumes:                                  # Sekce pro definici perzistentních svazků
+  db_data:                                # Definice svazku 'db_data', který se pak použije u 'db'
