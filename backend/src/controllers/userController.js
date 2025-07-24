@@ -10,9 +10,9 @@ const handleResponse = (res, status, message, data = null) => {
 };
 
 export const createUser = async (req, res, next) => {
-    const { name, age } = req.body;
+    const { name, age, email } = req.body;
     try {
-        const newUser = await createUserService(name, age);
+        const newUser = await createUserService(name, parseInt(age), email);
         handleResponse(res, 201, "User created successfully", newUser);
     }
     catch(err){
@@ -48,13 +48,13 @@ export const getUserById = async (req, res, next) => {
 };
 
 export const updateUser = async (req, res, next) => {
-    const { name, age } = req.body;
+    const { name, age, email } = req.body;
     try {
         const id = parseInt(req.params.id);
         if (isNaN(id)) {
             return handleResponse(res, 400, "Invalid user ID provided.");
         }
-        const updatedUser = await updateUserService(id, name, age);
+        const updatedUser = await updateUserService(id, name, parseInt(age), email);
         if(!updatedUser) {
             return handleResponse(res, 404, "User not found");
         }

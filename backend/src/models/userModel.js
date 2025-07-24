@@ -1,26 +1,74 @@
-import pool from "../config/db.js"; 
+import prisma from '../utils/prisma.js';
 
-export const createUserService = async (name, age) => {
-    const result = await pool.query("INSERT INTO users (name, age) VALUES ($1, $2) RETURNING *", [name, age]);
-    return result.rows[0];
+export const createUserService = async (name, age, email) => {
+    try {
+        const newUser = await prisma.user.create({
+            data: {
+                name: name,
+                age: age,
+                email: email,
+            },
+        });
+        return newUser;
+    } catch (error) {
+        console.error("Error creating user:", error);
+        throw error;
+    }
 };
 
 export const getAllUsersService = async () => {
-    const result = await pool.query("SELECT * FROM users");
-    return result.rows;
+  try {
+    const users = await prisma.user.findMany();
+    return users;
+  } catch (error) {
+    console.error('Error fetching users:', error); 
+    throw error;
+  }
 };
 
 export const getUserByIdService = async (id) => {
-    const result = await pool.query("SELECT * FROM users WHERE id = $1", [id]);
-    return result.rows[0]; 
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+    });
+    return user;
+  } catch (error) {
+    console.error('Error fetching user by ID:', error); 
+    throw error;
+  }
 };
 
-export const updateUserService = async (id, name, age) => {
-    const result = await pool.query("UPDATE users SET name = $1, age = $2 WHERE id = $3 RETURNING *", [name, age, id]);
-    return result.rows[0]; 
+export const updateUserService = async (id, name, age, email) => {
+  try {
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: parseInt(id),
+      },
+      data: {
+        name: name,
+        age: age,
+        email: email,
+      },
+    });
+    return updatedUser;
+  } catch (error) {
+    console.error('Error updating user:', error); 
+    throw error;
+  }
 };
 
 export const deleteUserService = async (id) => {
-    const result = await pool.query("DELETE FROM users WHERE id = $1 RETURNING *", [id]);
-    return result.rows[0]; 
+  try {
+    const deletedUser = await prisma.user.delete({
+      where: {
+        id: parseInt(id),
+      },
+    });
+    return deletedUser;
+  } catch (error) {
+    console.error('Error deleting user:', error); 
+    throw error;
+  }
 };

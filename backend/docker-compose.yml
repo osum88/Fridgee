@@ -20,7 +20,9 @@ services:                                 # definuje jednotlivé kontejnery
     build: .                              # Řekne Dockeru, aby sestavil obraz pro tuto službu z Dockerfile
     restart: always                       # Zajistí restart při pádu.
     ports:                                # Mapování portů pro backend.
-      - "3001:3001"                       # První 3001 port na počítači, druhý 3001 uvnitř backend kontejneru              
+      - "3001:3001"                       # První 3001 port na počítači, druhý 3001 uvnitř backend kontejneru   
+    env_file:
+      - .env                              # Řekne Dockeru, aby načetl proměnné z .env            
     environment:                          # Proměnné prostředí pro Node.js backend
       SERVER_PORT: 3001
       DB_HOST: db                         # Název služby databáze v síti Docker Compose
@@ -31,5 +33,7 @@ services:                                 # definuje jednotlivé kontejnery
     depends_on:                           # Zajistí pořadí spouštění služeb
       db:
         condition: service_healthy 
+    volumes:
+      - .:/app
 volumes:                                  # Sekce pro definici perzistentních svazků
   db_data:                                # Definice svazku 'db_data', který se pak použije u 'db'
