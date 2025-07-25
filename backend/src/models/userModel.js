@@ -1,7 +1,12 @@
 import prisma from '../utils/prisma.js';
+import bcrypt from 'bcrypt';
 
-export const createUserService = async (name, surname, username, age, email, passwordHash, emailIsVerified, bankNumber, isAdmin) => {
+const SALT_ROUNDS = 11;
+
+export const createUserService = async (name, surname, username, age, email, password, emailIsVerified, bankNumber, isAdmin) => {
     try {
+        const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+        
         const newUser = await prisma.user.create({
             data: {
                 name: name,
@@ -9,13 +14,13 @@ export const createUserService = async (name, surname, username, age, email, pas
                 username: username,
                 age: age,
                 email: email,
-                passwordHash: passwordHash,
+                passwordHash: hashedPassword,
                 emailIsVerified: emailIsVerified,
                 bankNumber: bankNumber,    //tady se pak zasifruje encrypt(bankNumber)
                 isAdmin: isAdmin,
             },
         });
-        const { bankNumber: encryptedBankNumber, ...rest } = newUser; 
+        const { passwordHash: omittedPasswordHash, bankNumber: encryptedBankNumber, ...rest } = newUser; 
         return { ...rest, bankNumber: '***ENCRYPTED***' };
     } catch (error) {
         console.error("Error creating user:", error);
@@ -27,7 +32,7 @@ export const getAllUsersService = async () => {
   try {
     const users = await prisma.user.findMany();
     return users.map(user => {
-        const { bankNumber, ...rest } = user; 
+        const { passwordHash, bankNumber, ...rest } = user; 
         return rest; 
     });    
   } catch (error) {
@@ -44,7 +49,7 @@ export const getUserByIdService = async (id) => {
       },
     });
     if (user) {
-        const { bankNumber, ...rest } = user; 
+        const { passwordHash, bankNumber, ...rest } = user; 
         return rest; 
     }
     return null; 
@@ -54,26 +59,28 @@ export const getUserByIdService = async (id) => {
   }
 };
 
-export const updateUserService = async (id, name, surname, username, age, email, passwordHash, emailIsVerified, bankNumber, isAdmin) => {
+export const updateUserService = async (id, name, surname, username, age, email, password, emailIsVerified, bankNumber, isAdmin) => {
   try {
-    const updatedUser = await prisma.user.update({
-      where: {
-        id: parseInt(id),
-      },
-      data: {
-          name: name,
-          surname: surname,
-          username: username,
-          age: age,
-          email: email,
-          passwordHash: passwordHash,
-          emailIsVerified: emailIsVerified,
-          bankNumber: bankNumber,    //tady se pak zasifruje encrypt(bankNumber)
-          isAdmin: isAdmin,
-      },
-    });
-    const { bankNumber: encryptedBankNumber, ...rest } = updatedUser; 
-    return { ...rest, bankNumber: '***ENCRYPTED***' };
+      let updateData = {
+          name, surname, username, age, email, emailIsVerified, isAdmin
+      };
+
+      if (password) { 
+          updateData.passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+      }
+      if (bankNumber) { 
+          updateData.bankNumber = bankNumber;   //tady pak sifrovani
+      }
+
+      const updatedUser = await prisma.user.update({
+          where: {
+              id: parseInt(id),
+          },
+          data: updateData, 
+      });
+
+      const { passwordHash: omittedPasswordHash, bankNumber: encryptedBankNumber, ...rest } = updatedUser;
+      return { ...rest, bankNumber: '***ENCRYPTED***' };
   } catch (error) {
     console.error('Error updating user:', error); 
     throw error;
@@ -88,7 +95,7 @@ export const deleteUserService = async (id) => {
       },
     });
     if (deletedUser) {
-        const { bankNumber, ...rest } = deletedUser; 
+        const { passwordHash, bankNumber, ...rest } = deletedUser; 
         return rest; 
     }
     return null; 

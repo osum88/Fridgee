@@ -1,13 +1,6 @@
 import errorHandling from "../middlewares/errorHandler.js";
 import { createUserService, deleteUserService, getAllUsersService, getBankNumberService, getUserByIdService, updateUserService, getUserByEmailService, getUserByUsernameService } from "../models/userModel.js";
-
-const handleResponse = (res, status, message, data = null) => {
-    res.status(status).json({
-        status,
-        message,
-        data,
-    });
-};
+import handleResponse from "../utils/responseHandler.js"
 
 export const createUser = async (req, res, next) => {
     try {
@@ -17,23 +10,22 @@ export const createUser = async (req, res, next) => {
             username, 
             age, 
             email, 
-            passwordHash, 
+            password, 
             emailIsVerified, 
             bankNumber, 
             isAdmin 
         } = req.body;
-
         const existingUserByEmail = await getUserByEmailService(email);
         if (existingUserByEmail) {
-            return handleResponse(res, 409, "A user with this email already exists.."); 
+            return handleResponse(res, 409, "A user with this email already exists"); 
         }
 
         const existingUserByUsername = await getUserByUsernameService(username);
         if (existingUserByUsername) {
-            return handleResponse(res, 409, "A user with this username already exists.."); 
+            return handleResponse(res, 409, "A user with this username already exists"); 
         }
 
-        const newUser = await createUserService(name, surname, username, age, email, passwordHash, emailIsVerified, bankNumber, isAdmin);
+        const newUser = await createUserService(name, surname, username, age, email, password, emailIsVerified, bankNumber, isAdmin);
         handleResponse(res, 201, "User created successfully", newUser);
     }
     catch(err){
@@ -57,6 +49,7 @@ export const getUserById = async (req, res, next) => {
         if (isNaN(id)) {
             return handleResponse(res, 400, "Invalid user ID provided.");
         }
+        // tady pak autorizacni konrola admin nebo uzivatel
         const user = await getUserByIdService(id);
         if(!user) {
             return handleResponse(res, 404, "User not found");
@@ -80,13 +73,13 @@ export const updateUser = async (req, res, next) => {
             username, 
             age, 
             email, 
-            passwordHash, 
+            password, 
             emailIsVerified, 
             bankNumber, 
             isAdmin 
         } = req.body;
-
-        const updatedUser = await updateUserService(id, name, surname, username, age, email, passwordHash, emailIsVerified, bankNumber, isAdmin);
+        // tady pak autorizacni konrola admin nebo uzivatel
+        const updatedUser = await updateUserService(id, name, surname, username, age, email, password, emailIsVerified, bankNumber, isAdmin);
 
         if(!updatedUser) {
             return handleResponse(res, 404, "User not found");
@@ -104,6 +97,7 @@ export const deleteUser = async (req, res, next) => {
         if (isNaN(id)) {
             return handleResponse(res, 400, "Invalid user ID provided.");
         }
+        // tady pak autorizacni konrola admin nebo uzivatel
         const deletedUser = await deleteUserService(id);
         if(!deletedUser) {
             return handleResponse(res, 404, "User not found");
@@ -119,13 +113,13 @@ export const getBankNumber = async (req, res, next) => {
     try {
         const id = parseInt(req.params.id);
         if (isNaN(id)) {
-            return handleResponse(res, 400, "Invalid user ID provided.");
+            return handleResponse(res, 400, "Invalid user ID provided");
         }
 
-        //tady validace uzivatee aby ji mohl ziskat jen on
+        //tady validace uzivatee aby ji mohl ziskat jen on (ani admin nemuze)
         const bankNumber = await getBankNumberService(id);
         if (bankNumber === null) {
-            return handleResponse(res, 404, "Bank number not found for given user.");
+            return handleResponse(res, 404, "Bank number not found for given user");
         }
         handleResponse(res, 200, "Bank number fetched successfully", bankNumber);
     }

@@ -6,7 +6,7 @@ import { createUserSchema, updateUserSchema } from "../validation/userValidation
 const router = express.Router();
 
 router.post("/user", validate(createUserSchema), createUser);
-router.get("/user", getAllUsers);
+router.get("/user", getAllUsers);   //autorizace ze je uzivatel admin
 router.get("/user/:id", getUserById);
 router.put("/user/:id", validate(updateUserSchema), updateUser);
 router.delete("/user/:id", deleteUser);
