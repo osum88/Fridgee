@@ -1,5 +1,5 @@
 import errorHandling from "../middlewares/errorHandler.js";
-import { createUserService, deleteUserService, getAllUsersService, getUserByIdService, updateUserService } from "../models/userModel.js";
+import { createUserService, deleteUserService, getAllUsersService, getBankNumberService, getUserByIdService, updateUserService, getUserByEmailService, getUserByUsernameService } from "../models/userModel.js";
 
 const handleResponse = (res, status, message, data = null) => {
     res.status(status).json({
@@ -10,9 +10,30 @@ const handleResponse = (res, status, message, data = null) => {
 };
 
 export const createUser = async (req, res, next) => {
-    const { name, age, email } = req.body;
     try {
-        const newUser = await createUserService(name, parseInt(age), email);
+        const { 
+            name, 
+            surname, 
+            username, 
+            age, 
+            email, 
+            passwordHash, 
+            emailIsVerified, 
+            bankNumber, 
+            isAdmin 
+        } = req.body;
+
+        const existingUserByEmail = await getUserByEmailService(email);
+        if (existingUserByEmail) {
+            return handleResponse(res, 409, "A user with this email already exists.."); 
+        }
+
+        const existingUserByUsername = await getUserByUsernameService(username);
+        if (existingUserByUsername) {
+            return handleResponse(res, 409, "A user with this username already exists.."); 
+        }
+
+        const newUser = await createUserService(name, surname, username, age, email, passwordHash, emailIsVerified, bankNumber, isAdmin);
         handleResponse(res, 201, "User created successfully", newUser);
     }
     catch(err){
@@ -48,13 +69,25 @@ export const getUserById = async (req, res, next) => {
 };
 
 export const updateUser = async (req, res, next) => {
-    const { name, age, email } = req.body;
     try {
         const id = parseInt(req.params.id);
         if (isNaN(id)) {
             return handleResponse(res, 400, "Invalid user ID provided.");
         }
-        const updatedUser = await updateUserService(id, name, parseInt(age), email);
+        const { 
+            name, 
+            surname, 
+            username, 
+            age, 
+            email, 
+            passwordHash, 
+            emailIsVerified, 
+            bankNumber, 
+            isAdmin 
+        } = req.body;
+
+        const updatedUser = await updateUserService(id, name, surname, username, age, email, passwordHash, emailIsVerified, bankNumber, isAdmin);
+
         if(!updatedUser) {
             return handleResponse(res, 404, "User not found");
         }
@@ -76,6 +109,25 @@ export const deleteUser = async (req, res, next) => {
             return handleResponse(res, 404, "User not found");
         }
         handleResponse(res, 200, "User deleted successfully", deletedUser);
+    }
+    catch(err){
+        next(err);
+    }
+};
+
+export const getBankNumber = async (req, res, next) => {
+    try {
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) {
+            return handleResponse(res, 400, "Invalid user ID provided.");
+        }
+
+        //tady validace uzivatee aby ji mohl ziskat jen on
+        const bankNumber = await getBankNumberService(id);
+        if (bankNumber === null) {
+            return handleResponse(res, 404, "Bank number not found for given user.");
+        }
+        handleResponse(res, 200, "Bank number fetched successfully", bankNumber);
     }
     catch(err){
         next(err);
