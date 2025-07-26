@@ -78,6 +78,18 @@ export const updateUser = async (req, res, next) => {
             bankNumber, 
             isAdmin 
         } = req.body;
+        if (email){
+            const existingUserByEmail = await getUserByEmailService(email);
+            if (existingUserByEmail) {
+                return handleResponse(res, 409, "A user with this email already exists"); 
+            }
+        }
+        if (username){
+            const existingUserByUsername = await getUserByUsernameService(username);
+            if (existingUserByUsername) {
+                return handleResponse(res, 409, "A user with this username already exists"); 
+            }
+        }
         // tady pak autorizacni konrola admin nebo uzivatel
         const updatedUser = await updateUserService(id, name, surname, username, birthDate, email, password, emailIsVerified, bankNumber, isAdmin);
 

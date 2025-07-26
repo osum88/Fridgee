@@ -17,7 +17,7 @@ if (IV_KEY.length !== 32) {
 
 export const encrypt = (text) => {
     if (text == null || typeof text == "undefined" || text == "") {
-        console.warn("Attempted to encrypt null, undefined or empty text. Returning null.");
+        console.warn("Attempted to encrypt null, undefined or empty text");
         return null;
     }
     const key = Buffer.from(ENCRYPTION_KEY, "hex");
@@ -31,7 +31,7 @@ export const encrypt = (text) => {
 
 export const decrypt = (encryptedText) => {
     if (encryptedText == null || typeof encryptedText == "undefined" || encryptedText == "") {
-        console.warn("Attempted to decrypt null, undefined or empty text. Returning null.");
+        console.warn("Attempted to decrypt null, undefined or empty text");
         return null;
     }
     const key = Buffer.from(ENCRYPTION_KEY, "hex");

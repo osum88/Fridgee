@@ -133,7 +133,9 @@ export const getUserByEmailService = async (email) => {
                 email: email,
             },
             select: {
-                id: true, 
+                id: true,
+                passwordHash: true, 
+                isAdmin: true,
             },
         });
         return user; 
