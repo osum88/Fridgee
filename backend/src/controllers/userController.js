@@ -8,7 +8,7 @@ export const createUser = async (req, res, next) => {
             name, 
             surname, 
             username, 
-            age, 
+            birthDate, 
             email, 
             password, 
             emailIsVerified, 
@@ -25,7 +25,7 @@ export const createUser = async (req, res, next) => {
             return handleResponse(res, 409, "A user with this username already exists"); 
         }
 
-        const newUser = await createUserService(name, surname, username, age, email, password, emailIsVerified, bankNumber, isAdmin);
+        const newUser = await createUserService(name, surname, username, birthDate, email, password, emailIsVerified, bankNumber, isAdmin);
         handleResponse(res, 201, "User created successfully", newUser);
     }
     catch(err){
@@ -71,7 +71,7 @@ export const updateUser = async (req, res, next) => {
             name, 
             surname, 
             username, 
-            age, 
+            birthDate, 
             email, 
             password, 
             emailIsVerified, 
@@ -79,7 +79,7 @@ export const updateUser = async (req, res, next) => {
             isAdmin 
         } = req.body;
         // tady pak autorizacni konrola admin nebo uzivatel
-        const updatedUser = await updateUserService(id, name, surname, username, age, email, password, emailIsVerified, bankNumber, isAdmin);
+        const updatedUser = await updateUserService(id, name, surname, username, birthDate, email, password, emailIsVerified, bankNumber, isAdmin);
 
         if(!updatedUser) {
             return handleResponse(res, 404, "User not found");

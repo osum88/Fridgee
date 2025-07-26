@@ -14,18 +14,18 @@ datasource db {
 }
 
 model User {
-  id              Int      @id @default(autoincrement())
-  name            String?  @db.VarChar(150)
-  surname         String?  @db.VarChar(150)
-  username        String   @unique @db.VarChar(150)
-  age             Int?
-  email           String   @unique
-  passwordHash    String   @map("password_hash")
-  emailIsVerified Boolean  @default(false) @map("email_is_verified")
-  bankNumber      String?  @map("bank_number") @db.VarChar(50)
-  isAdmin         Boolean  @default(false) @map("is_admin")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id              Int       @id @default(autoincrement())
+  name            String?   @db.VarChar(150)
+  surname         String?   @db.VarChar(150)
+  username        String    @unique @db.VarChar(150)
+  birthDate       DateTime? @map("birth_date")
+  email           String    @unique
+  passwordHash    String    @map("password_hash")
+  emailIsVerified Boolean   @default(false) @map("email_is_verified")
+  bankNumber      String?   @map("bank_number") @db.VarChar(255)
+  isAdmin         Boolean   @default(false) @map("is_admin")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
   @@map("users")
 }

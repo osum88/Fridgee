@@ -1,9 +1,10 @@
-import prisma from '../utils/prisma.js';
-import bcrypt from 'bcrypt';
+import prisma from "../utils/prisma.js";
+import bcrypt from "bcrypt";
+import { encrypt, decrypt } from "../utils/encryption.js"
 
 const SALT_ROUNDS = 11;
 
-export const createUserService = async (name, surname, username, age, email, password, emailIsVerified, bankNumber, isAdmin) => {
+export const createUserService = async (name, surname, username, birthDate, email, password, emailIsVerified, bankNumber, isAdmin) => {
     try {
         const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
         
@@ -12,16 +13,16 @@ export const createUserService = async (name, surname, username, age, email, pas
                 name: name,
                 surname: surname,
                 username: username,
-                age: age,
+                birthDate: birthDate,
                 email: email,
                 passwordHash: hashedPassword,
                 emailIsVerified: emailIsVerified,
-                bankNumber: bankNumber,    //tady se pak zasifruje encrypt(bankNumber)
+                bankNumber: encrypt(bankNumber),   
                 isAdmin: isAdmin,
             },
         });
         const { passwordHash: omittedPasswordHash, bankNumber: encryptedBankNumber, ...rest } = newUser; 
-        return { ...rest, bankNumber: '***ENCRYPTED***' };
+        return { ...rest, bankNumber: "***ENCRYPTED***" };
     } catch (error) {
         console.error("Error creating user:", error);
         throw error;
@@ -36,7 +37,7 @@ export const getAllUsersService = async () => {
         return rest; 
     });    
   } catch (error) {
-    console.error('Error fetching users:', error); 
+    console.error("Error fetching users:", error); 
     throw error;
   }
 };
@@ -54,22 +55,22 @@ export const getUserByIdService = async (id) => {
     }
     return null; 
   } catch (error) {
-    console.error('Error fetching user by ID:', error); 
+    console.error("Error fetching user by ID:", error); 
     throw error;
   }
 };
 
-export const updateUserService = async (id, name, surname, username, age, email, password, emailIsVerified, bankNumber, isAdmin) => {
+export const updateUserService = async (id, name, surname, username, birthDate, email, password, emailIsVerified, bankNumber, isAdmin) => {
   try {
       let updateData = {
-          name, surname, username, age, email, emailIsVerified, isAdmin
+          name, surname, username, birthDate, email, emailIsVerified, isAdmin
       };
 
       if (password) { 
           updateData.passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
       }
       if (bankNumber) { 
-          updateData.bankNumber = bankNumber;   //tady pak sifrovani
+          updateData.bankNumber = encrypt(bankNumber);   
       }
 
       const updatedUser = await prisma.user.update({
@@ -80,9 +81,9 @@ export const updateUserService = async (id, name, surname, username, age, email,
       });
 
       const { passwordHash: omittedPasswordHash, bankNumber: encryptedBankNumber, ...rest } = updatedUser;
-      return { ...rest, bankNumber: '***ENCRYPTED***' };
+      return { ...rest, bankNumber: "***ENCRYPTED***" };
   } catch (error) {
-    console.error('Error updating user:', error); 
+    console.error("Error updating user:", error); 
     throw error;
   }
 };
@@ -100,7 +101,7 @@ export const deleteUserService = async (id) => {
     }
     return null; 
   } catch (error) {
-    console.error('Error deleting user:', error); 
+    console.error("Error deleting user:", error); 
     throw error;
   }
 };
@@ -118,9 +119,9 @@ export const getBankNumberService = async (id) => {
       if (!userWithBankNumber || !userWithBankNumber.bankNumber) {
           return null; 
       }
-      return userWithBankNumber.bankNumber;          //tady se bude desifrovat decrypt(user.bankNumber);
+      return decrypt(userWithBankNumber.bankNumber);          
   } catch (error) {
-    console.error('Error fetching and decrypting bank number:', error); 
+    console.error("Error fetching and decrypting bank number:", error); 
     throw error;
   }
 }
@@ -137,7 +138,7 @@ export const getUserByEmailService = async (email) => {
         });
         return user; 
     } catch (error) {
-        console.error('Error fetching user by email:', error);
+        console.error("Error fetching user by email:", error);
         throw error;
     }
 };
@@ -154,7 +155,7 @@ export const getUserByUsernameService = async (username) => {
         });
         return user; 
     } catch (error) {
-        console.error('Error fetching user by username:', error);
+        console.error("Error fetching user by username:", error);
         throw error;
     }
 };
