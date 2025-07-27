@@ -107,7 +107,7 @@ export const deleteUser = async (req, res, next) => {
     try {
         const id = parseInt(req.params.id);
         if (isNaN(id)) {
-            return handleResponse(res, 400, "Invalid user ID provided.");
+            return handleResponse(res, 400, "Invalid user ID provided");
         }
         // tady pak autorizacni konrola admin nebo uzivatel
         const deletedUser = await deleteUserService(id);

@@ -10,13 +10,15 @@ export const authenticateToken = (req, res, next) => {
     if (!token) {
         return handleResponse(res, 401, "Access denied: No token provided");
     }
-    const decoded = verifyToken(token);
+    const { decoded, error } = verifyToken(token, "access");
 
-    if (!decoded) {
-        return handleResponse(res, 403, "Access denied: Invalid or expired token");
+    if (error) {
+        if (error === 'TokenExpired') {
+            return handleResponse(res, 401, "Refresh token expired");
+        }
+        return handleResponse(res, 403, "Invalid refresh token");
     }
     req.user = decoded;             // decoded obsahuje payload tokenu (id, email, isAdmin, username)
-    console.log(decoded,"------------------------------------------------------------");
     next();
 };
 
