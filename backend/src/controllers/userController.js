@@ -49,7 +49,6 @@ export const getUserById = async (req, res, next) => {
         if (isNaN(id)) {
             return handleResponse(res, 400, "Invalid user ID provided.");
         }
-        // tady pak autorizacni konrola admin nebo uzivatel
         const user = await getUserByIdService(id);
         if(!user) {
             return handleResponse(res, 404, "User not found");
@@ -90,7 +89,6 @@ export const updateUser = async (req, res, next) => {
                 return handleResponse(res, 409, "A user with this username already exists"); 
             }
         }
-        // tady pak autorizacni konrola admin nebo uzivatel
         const updatedUser = await updateUserService(id, name, surname, username, birthDate, email, password, emailIsVerified, bankNumber, isAdmin);
 
         if(!updatedUser) {
@@ -109,7 +107,6 @@ export const deleteUser = async (req, res, next) => {
         if (isNaN(id)) {
             return handleResponse(res, 400, "Invalid user ID provided");
         }
-        // tady pak autorizacni konrola admin nebo uzivatel
         const deletedUser = await deleteUserService(id);
         if(!deletedUser) {
             return handleResponse(res, 404, "User not found");
@@ -127,8 +124,6 @@ export const getBankNumber = async (req, res, next) => {
         if (isNaN(id)) {
             return handleResponse(res, 400, "Invalid user ID provided");
         }
-
-        //tady validace uzivatee aby ji mohl ziskat jen on (ani admin nemuze)
         const bankNumber = await getBankNumberService(id);
         if (bankNumber === null) {
             return handleResponse(res, 404, "Bank number not found for given user");

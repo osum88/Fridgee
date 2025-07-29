@@ -28,3 +28,17 @@ export const authorizeAdmin = (req, res, next) => {
     }
     next();
 };
+
+export const authorizeUserOrAdmin = (req, res, next) => {
+    if (req.user.id != req.params.id && !req.user.isAdmin) {
+        return handleResponse(res, 403, "You are not authorized to use this service.");
+    }
+    next();
+};
+
+export const authorizeUser = (req, res, next) => {
+    if (req.user.id != req.params.id) {
+        return handleResponse(res, 403, "You are not authorized to use this service.");
+    }
+    next();
+};

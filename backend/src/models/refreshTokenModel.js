@@ -38,7 +38,7 @@ export const getValidRefreshTokensByUserIdService = async (userId) => {
     }
 };
 
-export const invalidateAllRefreshTokensByUserIdService = async (userId) => {
+export const deleteAllRefreshTokensByUserIdService = async (userId) => {
     try {
         const refreshTokens = await prisma.refreshToken.deleteMany({
             where: {
@@ -51,7 +51,7 @@ export const invalidateAllRefreshTokensByUserIdService = async (userId) => {
     }
 };
 
-export const invalidateRefreshTokenByIdService = async (id) => {
+export const deleteRefreshTokenByIdService = async (id) => {
     try {
         const refreshTokens = await prisma.refreshToken.delete({
             where: {

@@ -2,7 +2,7 @@ import { createUserService, getUserByEmailService, getUserByIdService, getUserBy
 import handleResponse from "../utils/responseHandler.js"
 import bcrypt from "bcrypt";
 import { generateAuthToken, verifyToken } from "../utils/token.js";
-import { createRefreshTokenService, getValidRefreshTokensByUserIdService, invalidateAllRefreshTokensByUserIdService, invalidateRefreshTokenByIdService } from "../models/refreshTokenModel.js";
+import { createRefreshTokenService, getValidRefreshTokensByUserIdService, deleteAllRefreshTokensByUserIdService, deleteRefreshTokenByIdService } from "../models/refreshTokenModel.js";
 
 export const signUp = async (req, res, next) => {
     try {
@@ -88,11 +88,11 @@ export const refresh = async (req, res, next ) => {
             }
         }
         if (!foundValidToken || !foundValidToken.isValid) {
-            await invalidateAllRefreshTokensByUserIdService(user.id);
+            await deleteAllRefreshTokensByUserIdService(user.id);
             return handleResponse(res, 403, "Invalid or revoked refresh token. Please log in again.");
         }
 
-        await invalidateRefreshTokenByIdService(foundValidToken.id);
+        await deleteRefreshTokenByIdService(foundValidToken.id);
 
         const newAccessToken = generateAuthToken(user, "access");
         const newRefreshToken = generateAuthToken(user, "refresh"); 
@@ -115,7 +115,7 @@ export const logout = async (req, res, next) => {
         if (!userId) {
             return handleResponse(res, 400, "Invalid user ID provided");
         }
-        await invalidateAllRefreshTokensByUserIdService(userId);
+        await deleteAllRefreshTokensByUserIdService(userId);
 
         return handleResponse(res, 200, "Logout successful");
     } catch (err) {

@@ -7,6 +7,7 @@ import authRoutes from "./routes/authRoutes.js";
 import helmet from "helmet";
 import cron from "node-cron";
 import { cleanExpiredRefreshTokens } from "./tasks/cleanExpiredTokens.js";
+import rateLimit from 'express-rate-limit';
 
 
 dotenv.config();
@@ -20,9 +21,26 @@ app.use(helmet());
 app.use(express.json());
 app.use(cors());
 
+//rate limit
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, 
+    max: 100, 
+    message: "Too many requests from this IP address, please try again later.", 
+    standardHeaders: true, 
+    legacyHeaders: false, 
+});
+
+const authLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000, 
+    max: 15, 
+    message: "Too many requests from this IP address, please try again in 5 minutes.",
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
 // routes
-app.use("/api", userRoutes);
-app.use("/api/auth", authRoutes);
+app.use("/api", apiLimiter, userRoutes);
+app.use("/api/auth", authLimiter, authRoutes);
 
 //not found
 app.use((req, res, next) => {
