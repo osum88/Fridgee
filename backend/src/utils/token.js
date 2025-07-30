@@ -24,7 +24,8 @@ export const generateAuthToken = (user, type) => {
 
     if (type === "access") {
         token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
-    } else { 
+    } 
+    if (type === "refresh") { 
         token = jwt.sign({ id: user.id }, JWT_REFRESH_SECRET, { expiresIn: "15d" });
     }
     return token;
@@ -35,7 +36,8 @@ export const verifyToken = (token, type) => {
         let decoded; 
         if (type === "access") {
             decoded = jwt.verify(token, JWT_SECRET);
-        } else { 
+        } 
+        if (type === "refresh") { 
             decoded = jwt.verify(token, JWT_REFRESH_SECRET); 
         }
         return { decoded, error: null };

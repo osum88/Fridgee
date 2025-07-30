@@ -33,7 +33,7 @@ export const getAllUsersService = async () => {
   try {
     const users = await prisma.user.findMany();
     return users.map(user => {
-        const { passwordHash, bankNumber, ...rest } = user; 
+        const { passwordHash, verificationToken, passwordResetToken, bankNumber, ...rest } = user; 
         return rest; 
     });    
   } catch (error) {
@@ -50,7 +50,7 @@ export const getUserByIdService = async (id) => {
       },
     });
     if (user) {
-        const { passwordHash, bankNumber, ...rest } = user; 
+        const { passwordHash, verificationToken, passwordResetToken, bankNumber, ...rest } = user; 
         return rest; 
     }
     return null; 
@@ -161,3 +161,87 @@ export const getUserByUsernameService = async (username) => {
         throw error;
     }
 };
+
+export const updateVerificationTokenService = async (id, verificationToken, tokenExpiresAt) => {
+  try {
+      const updatedVerificationToken = await prisma.user.update({
+          where: {
+              id: parseInt(id),
+          },
+          data: {
+            verificationToken: verificationToken,
+            tokenExpiresAt: tokenExpiresAt,
+          }, 
+      });
+      return updatedVerificationToken;
+  } catch (error) {
+    console.error("Error updating verification token:", error); 
+    throw error;
+  }
+};
+
+export const updatePasswordResetTokenService = async (id, passwordResetToken, passwordResetExpiresAt) => {
+  try {
+      const updatedPasswordResetToken = await prisma.user.update({
+          where: {
+              id: parseInt(id),
+          },
+          data: {
+            passwordResetToken: passwordResetToken,
+            passwordResetExpiresAt: passwordResetExpiresAt,
+          }, 
+      });
+      return updatedPasswordResetToken;
+  } catch (error) {
+    console.error("Error updating reset password token:", error); 
+    throw error;
+  }
+};
+
+export const getVerificationTokenService = async (id) => {
+  try {
+      const user = await prisma.user.findUnique({ 
+          where: {
+              id: parseInt(id),
+          },
+          select: {
+              verificationToken: true,
+              tokenExpiresAt: true,
+          },
+      });
+      if (!user || !user.verificationToken || !user.tokenExpiresAt) {
+          return null;
+      }
+      return {
+          token: user.verificationToken,
+          expiresAt: user.tokenExpiresAt
+      };          
+  } catch (error) {
+    console.error("Error fetching verification token:", error); 
+    throw error;
+  }
+}
+
+export const getPasswordResetTokenService = async (id) => {
+  try {
+      const user = await prisma.user.findUnique({ 
+          where: {
+              id: parseInt(id),
+          },
+          select: {
+              passwordResetToken: true,
+              passwordResetExpiresAt: true,
+          },
+      });
+      if (!user || !user.passwordResetToken || !user.passwordResetExpiresAt) {
+          return null;
+      }
+      return {
+          token: user.passwordResetToken,
+          expiresAt: user.passwordResetExpiresAt
+      };     
+  } catch (error) {
+    console.error("Error fetching password reset token:", error); 
+    throw error;
+  }
+}

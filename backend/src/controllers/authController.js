@@ -1,8 +1,9 @@
-import { createUserService, getUserByEmailService, getUserByIdService, getUserByUsernameService } from "../models/userModel.js";
+import { createUserService, getPasswordResetTokenService, getUserByEmailService, getUserByIdService, getUserByUsernameService, getVerificationTokenService, updatePasswordResetTokenService, updateVerificationTokenService } from "../models/userModel.js";
 import handleResponse from "../utils/responseHandler.js"
 import bcrypt from "bcrypt";
 import { generateAuthToken, verifyToken } from "../utils/token.js";
 import { createRefreshTokenService, getValidRefreshTokensByUserIdService, deleteAllRefreshTokensByUserIdService, deleteRefreshTokenByIdService } from "../models/refreshTokenModel.js";
+import { sendVerificationEmail } from "../utils/emailService.js";
 
 export const signUp = async (req, res, next) => {
     try {
@@ -42,6 +43,14 @@ export const login = async (req, res, next ) => {
         if(!isSame) {
             return handleResponse(res, 400, "Wrong email or password");
         }
+
+        /*
+        if (!user.emailIsVerified){
+            const verifyToken = "asa";
+            const verificationLink = `${process.env.WEB_URL}/api/auth/verify-email?token=${verifyToken}`;
+            await sendVerificationEmail("josefnovak738@gmail.com", verificationLink);
+            // await sendVerificationEmail(user.email, verificationLink);
+        }*/
 
         const accessToken = generateAuthToken(user, "access");
         const refreshToken = generateAuthToken(user, "refresh"); 

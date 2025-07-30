@@ -24,7 +24,7 @@ app.use(cors());
 //rate limit
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, 
-    max: 100, 
+    max: 500, 
     message: "Too many requests from this IP address, please try again later.", 
     standardHeaders: true, 
     legacyHeaders: false, 
