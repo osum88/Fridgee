@@ -1,9 +1,11 @@
-import { createUserService, getPasswordResetTokenService, getUserByEmailService, getUserByIdService, getUserByUsernameService, getVerificationTokenService, updatePasswordResetTokenService, updateVerificationTokenService } from "../models/userModel.js";
+import { createUserService, getUserByEmailService, getUserByIdService, getUserByUsernameService, getUserIdByVerificationTokenService, updateUserService, updateVerificationTokenService, verifyUserEmailInDbService } from "../models/userModel.js";
 import handleResponse from "../utils/responseHandler.js"
 import bcrypt from "bcrypt";
 import { generateAuthToken, verifyToken } from "../utils/token.js";
 import { createRefreshTokenService, getValidRefreshTokensByUserIdService, deleteAllRefreshTokensByUserIdService, deleteRefreshTokenByIdService } from "../models/refreshTokenModel.js";
+import crypto from "crypto"
 import { sendVerificationEmail } from "../utils/emailService.js";
+import { updateUser } from "./userController.js";
 
 export const signUp = async (req, res, next) => {
     try {
@@ -20,6 +22,16 @@ export const signUp = async (req, res, next) => {
         }
       
         const newUser = await createUserService(null, null, username, null, email, password, false, null, false);
+
+        //verifikace emailu
+        const verifyToken = crypto.randomBytes(32).toString('hex'); 
+        const tokenExpiresAt = new Date(Date.now() + 6 * 60 * 60 * 1000);   //token plati 6h
+        await updateVerificationTokenService(newUser.id, verifyToken, tokenExpiresAt);
+
+        const verificationLink = `${process.env.WEB_URL}/api/auth/verify-email?token=${verifyToken}`;
+        await sendVerificationEmail("josefnovak738@gmail.com", verificationLink);
+        // await sendVerificationEmail(newUser.email, verificationLink);
+
         const accessToken = generateAuthToken(newUser, "access");
         const refreshToken = generateAuthToken(newUser, "refresh");
 
@@ -44,13 +56,16 @@ export const login = async (req, res, next ) => {
             return handleResponse(res, 400, "Wrong email or password");
         }
 
-        /*
+        //verifikace emailu
         if (!user.emailIsVerified){
-            const verifyToken = "asa";
+            const verifyToken = crypto.randomBytes(32).toString('hex'); 
+            const tokenExpiresAt = new Date(Date.now() + 6 * 60 * 60 * 1000);   //token plati 6h
+            await updateVerificationTokenService(user.id, verifyToken, tokenExpiresAt);
+
             const verificationLink = `${process.env.WEB_URL}/api/auth/verify-email?token=${verifyToken}`;
-            await sendVerificationEmail("josefnovak738@gmail.com", verificationLink);
+            // await sendVerificationEmail("josefnovak738@gmail.com", verificationLink);
             // await sendVerificationEmail(user.email, verificationLink);
-        }*/
+        }
 
         const accessToken = generateAuthToken(user, "access");
         const refreshToken = generateAuthToken(user, "refresh"); 
@@ -129,6 +144,23 @@ export const logout = async (req, res, next) => {
         return handleResponse(res, 200, "Logout successful");
     } catch (err) {
         console.error("Error during logout:", err);
+        next(err);
+    }
+};
+
+export const verifyEmail = async (req, res, next) => {
+    try {
+        const { token } = req.query;
+        console.log(token);
+        const user = await getUserIdByVerificationTokenService(token);
+        if (!user) {
+            return handleResponse(res, 400, "Invalid, expired, or already used verification token.");
+        }
+        await verifyUserEmailInDbService(user.id);
+
+        return handleResponse(res, 200, "Email successfully verified! You can now log in.");
+    } catch (err) {
+        handleResponse(res, 500, "Server error during email verification");
         next(err);
     }
 };

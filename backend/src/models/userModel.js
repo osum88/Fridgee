@@ -198,29 +198,23 @@ export const updatePasswordResetTokenService = async (id, passwordResetToken, pa
   }
 };
 
-export const getVerificationTokenService = async (id) => {
+export const getUserIdByVerificationTokenService = async (token) => {
   try {
-      const user = await prisma.user.findUnique({ 
+      const user = await prisma.user.findFirst({ 
           where: {
-              id: parseInt(id),
-          },
-          select: {
-              verificationToken: true,
-              tokenExpiresAt: true,
+              verificationToken: token,
+              tokenExpiresAt: {
+                gte: new Date(), 
+              },
+              emailIsVerified: false, 
           },
       });
-      if (!user || !user.verificationToken || !user.tokenExpiresAt) {
-          return null;
-      }
-      return {
-          token: user.verificationToken,
-          expiresAt: user.tokenExpiresAt
-      };          
+      return { id: user.id };          
   } catch (error) {
-    console.error("Error fetching verification token:", error); 
+    console.error("Error fetching user ID:", error); 
     throw error;
   }
-}
+};
 
 export const getPasswordResetTokenService = async (id) => {
   try {
@@ -244,4 +238,30 @@ export const getPasswordResetTokenService = async (id) => {
     console.error("Error fetching password reset token:", error); 
     throw error;
   }
-}
+};
+
+
+export const verifyUserEmailInDbService = async (id) => {
+    try {
+        const verifyUserEmail = await prisma.user.update({
+            where: {
+                id: id, 
+            },
+            data: {
+                emailIsVerified: true,      
+                verificationToken: null,     
+                tokenExpiresAt: null,       
+            },
+            select: { 
+                id: true,
+                email: true,
+                emailIsVerified: true,
+                username: true 
+            }
+        });
+        return verifyUserEmail;
+    } catch (error) {
+        console.error("Error verifying user email:", error); 
+        throw error;
+    }
+};
