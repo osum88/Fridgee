@@ -1,10 +1,10 @@
-import { createUserService, getUserByEmailService, getUserByIdService, getUserByUsernameService, getUserIdByVerificationTokenService, updateUserService, updateVerificationTokenService, verifyUserEmailInDbService } from "../models/userModel.js";
+import { createUserService, getUserByEmailService, getUserByIdService, getUserByPasswordResetTokenService, getUserByUsernameService, getUserIdByVerificationTokenService, resetPasswordInDbService, updatePasswordResetTokenService, updateUserService, updateVerificationTokenService, verifyUserEmailInDbService } from "../models/userModel.js";
 import handleResponse from "../utils/responseHandler.js"
 import bcrypt from "bcrypt";
 import { generateAuthToken, verifyToken } from "../utils/token.js";
 import { createRefreshTokenService, getValidRefreshTokensByUserIdService, deleteAllRefreshTokensByUserIdService, deleteRefreshTokenByIdService } from "../models/refreshTokenModel.js";
 import crypto from "crypto"
-import { sendVerificationEmail } from "../utils/emailService.js";
+import { sendPasswordResetEmail, sendPasswordResetSuccessEmail, sendVerificationEmail } from "../utils/emailService.js";
 import { updateUser } from "./userController.js";
 
 export const signUp = async (req, res, next) => {
@@ -29,7 +29,7 @@ export const signUp = async (req, res, next) => {
         await updateVerificationTokenService(newUser.id, verifyToken, tokenExpiresAt);
 
         const verificationLink = `${process.env.WEB_URL}/api/auth/verify-email?token=${verifyToken}`;
-        await sendVerificationEmail("josefnovak738@gmail.com", verificationLink);
+        // await sendVerificationEmail("josefnovak738@gmail.com", verificationLink);
         // await sendVerificationEmail(newUser.email, verificationLink);
 
         const accessToken = generateAuthToken(newUser, "access");
@@ -151,7 +151,6 @@ export const logout = async (req, res, next) => {
 export const verifyEmail = async (req, res, next) => {
     try {
         const { token } = req.query;
-        console.log(token);
         const user = await getUserIdByVerificationTokenService(token);
         if (!user) {
             return handleResponse(res, 400, "Invalid, expired, or already used verification token.");
@@ -164,3 +163,46 @@ export const verifyEmail = async (req, res, next) => {
         next(err);
     }
 };
+
+export const forgotPassword = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+
+        const user = await getUserByEmailService(email);
+        if (!user) {
+            return handleResponse(res, 404, "User not found.");
+        }
+
+        const resetPasswordToken = crypto.randomBytes(32).toString('hex');
+        const tokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000); 
+        await updatePasswordResetTokenService(user.id, resetPasswordToken, tokenExpiresAt);
+
+        const resetLink = `${process.env.WEB_URL}/api/auth/reset-password?token=${resetPasswordToken}`;
+        await sendPasswordResetEmail("josefnovak738@gmail.com", resetLink);
+        // await sendPasswordResetEmail(email, resetLink);
+
+        return handleResponse(res, 200, "Password reset link has been sent.");
+    } catch (err) {
+        console.error("Forgot password error:", err); 
+        handleResponse(res, 500, "Server error during password reset request.");
+        next(err); 
+    }
+};
+
+export const resetPassword = async (req, res, next) => {
+    try {
+        const { token, newPassword } = req.body;
+
+        const user = await getUserByPasswordResetTokenService(token);
+        if (!user) {
+            return handleResponse(res, 400, "Invalid, expired, or already used verification token.");
+        }
+        await resetPasswordInDbService(user.id, newPassword);
+        await sendPasswordResetSuccessEmail(user.email);
+        return handleResponse(res, 200, "Password has been successfully reset.");
+    } catch (err) {
+        handleResponse(res, 500, "Server error during password reset.");
+        next(err); 
+    }
+};
+        

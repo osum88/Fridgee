@@ -198,6 +198,7 @@ export const updatePasswordResetTokenService = async (id, passwordResetToken, pa
   }
 };
 
+//vrati id uzivatele podle verifikačniho email tokenu
 export const getUserIdByVerificationTokenService = async (token) => {
   try {
       const user = await prisma.user.findFirst({ 
@@ -216,31 +217,54 @@ export const getUserIdByVerificationTokenService = async (token) => {
   }
 };
 
-export const getPasswordResetTokenService = async (id) => {
-  try {
-      const user = await prisma.user.findUnique({ 
-          where: {
-              id: parseInt(id),
-          },
-          select: {
-              passwordResetToken: true,
-              passwordResetExpiresAt: true,
-          },
-      });
-      if (!user || !user.passwordResetToken || !user.passwordResetExpiresAt) {
-          return null;
-      }
-      return {
-          token: user.passwordResetToken,
-          expiresAt: user.passwordResetExpiresAt
-      };     
-  } catch (error) {
-    console.error("Error fetching password reset token:", error); 
-    throw error;
-  }
+//vrati id uzivatele podle reset password tokenu
+export const getUserByPasswordResetTokenService = async (token) => {
+    try {
+        const user = await prisma.user.findFirst({
+            where: {
+                passwordResetToken: token,
+                passwordResetExpiresAt: {
+                    gte: new Date(), 
+                },
+            },
+            select: {
+                id: true,
+                email: true,
+            },
+        });
+        return user; 
+    } catch (error) {
+        console.error("Error fetching user by password reset token:", error);
+        throw error;
+    }
 };
 
+//resetuje heslo 
+export const resetPasswordInDbService = async (id, password) => {
+    try {
+        const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+        const resetPassword = await prisma.user.update({
+            where: {
+                id: id, 
+            },
+            data: {
+                passwordHash: passwordHash,      
+                passwordResetToken: null,     
+                passwordResetExpiresAt: null,       
+            },
+            select: { 
+                id: true,
+                email: true,
+            }
+        });
+        return resetPassword;
+    } catch (error) {
+        console.error("Error reset password:", error); 
+        throw error;
+    }
+};
 
+//nastavi overeni emailu
 export const verifyUserEmailInDbService = async (id) => {
     try {
         const verifyUserEmail = await prisma.user.update({
