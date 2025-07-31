@@ -30,6 +30,7 @@ model User {
   isAdmin                Boolean        @default(false) @map("is_admin")
   createdAt              DateTime       @default(now()) @map("created_at")
   updatedAt              DateTime       @updatedAt @map("updated_at")
+  preferredLanguage      String         @default("en") @map("preferred_language")
   refreshTokens          RefreshToken[]
 
   @@map("users")

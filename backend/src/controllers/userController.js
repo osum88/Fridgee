@@ -75,7 +75,8 @@ export const updateUser = async (req, res, next) => {
             password, 
             emailIsVerified, 
             bankNumber, 
-            isAdmin 
+            isAdmin,
+            preferredLanguage 
         } = req.body;
         if (email){
             const existingUserByEmail = await getUserByEmailService(email);
@@ -89,7 +90,7 @@ export const updateUser = async (req, res, next) => {
                 return handleResponse(res, 409, "A user with this username already exists"); 
             }
         }
-        const updatedUser = await updateUserService(id, name, surname, username, birthDate, email, password, emailIsVerified, bankNumber, isAdmin);
+        const updatedUser = await updateUserService(id, name, surname, username, birthDate, email, password, emailIsVerified, bankNumber, isAdmin, preferredLanguage);
 
         if(!updatedUser) {
             return handleResponse(res, 404, "User not found");

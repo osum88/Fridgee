@@ -1,11 +1,10 @@
-import { createUserService, getUserByEmailService, getUserByIdService, getUserByPasswordResetTokenService, getUserByUsernameService, getUserIdByVerificationTokenService, resetPasswordInDbService, updatePasswordResetTokenService, updateUserService, updateVerificationTokenService, verifyUserEmailInDbService } from "../models/userModel.js";
+import { createUserService, getPreferredLanguageByUserIdService, getUserByEmailService, getUserByIdService, getUserByPasswordResetTokenService, getUserByUsernameService, getUserIdByVerificationTokenService, resetPasswordInDbService, updatePasswordResetTokenService, updateUserService, updateVerificationTokenService, verifyUserEmailInDbService } from "../models/userModel.js";
 import handleResponse from "../utils/responseHandler.js"
 import bcrypt from "bcrypt";
 import { generateAuthToken, verifyToken } from "../utils/token.js";
 import { createRefreshTokenService, getValidRefreshTokensByUserIdService, deleteAllRefreshTokensByUserIdService, deleteRefreshTokenByIdService } from "../models/refreshTokenModel.js";
 import crypto from "crypto"
 import { sendPasswordResetEmail, sendPasswordResetSuccessEmail, sendVerificationEmail } from "../utils/emailService.js";
-import { updateUser } from "./userController.js";
 
 export const signUp = async (req, res, next) => {
     try {
@@ -29,8 +28,9 @@ export const signUp = async (req, res, next) => {
         await updateVerificationTokenService(newUser.id, verifyToken, tokenExpiresAt);
 
         const verificationLink = `${process.env.WEB_URL}/api/auth/verify-email?token=${verifyToken}`;
-        // await sendVerificationEmail("josefnovak738@gmail.com", verificationLink);
-        // await sendVerificationEmail(newUser.email, verificationLink);
+        const language = await getPreferredLanguageByUserIdService(newUser.id);
+        await sendVerificationEmail("josefnovak738@gmail.com", verificationLink, language);
+        // await sendVerificationEmail(newUser.email, verificationLink, language);
 
         const accessToken = generateAuthToken(newUser, "access");
         const refreshToken = generateAuthToken(newUser, "refresh");
@@ -63,8 +63,9 @@ export const login = async (req, res, next ) => {
             await updateVerificationTokenService(user.id, verifyToken, tokenExpiresAt);
 
             const verificationLink = `${process.env.WEB_URL}/api/auth/verify-email?token=${verifyToken}`;
-            // await sendVerificationEmail("josefnovak738@gmail.com", verificationLink);
-            // await sendVerificationEmail(user.email, verificationLink);
+            const language = await getPreferredLanguageByUserIdService(user.id);
+            // await sendVerificationEmail("josefnovak738@gmail.com", verificationLink, language);
+            // await sendVerificationEmail(user.email, verificationLink, language);
         }
 
         const accessToken = generateAuthToken(user, "access");
@@ -178,8 +179,9 @@ export const forgotPassword = async (req, res, next) => {
         await updatePasswordResetTokenService(user.id, resetPasswordToken, tokenExpiresAt);
 
         const resetLink = `${process.env.WEB_URL}/api/auth/reset-password?token=${resetPasswordToken}`;
-        await sendPasswordResetEmail("josefnovak738@gmail.com", resetLink);
-        // await sendPasswordResetEmail(email, resetLink);
+        const language = await getPreferredLanguageByUserIdService(user.id);
+        await sendPasswordResetEmail("josefnovak738@gmail.com", resetLink, language);
+        // await sendPasswordResetEmail(email, resetLink, language);
 
         return handleResponse(res, 200, "Password reset link has been sent.");
     } catch (err) {
@@ -198,7 +200,8 @@ export const resetPassword = async (req, res, next) => {
             return handleResponse(res, 400, "Invalid, expired, or already used verification token.");
         }
         await resetPasswordInDbService(user.id, newPassword);
-        await sendPasswordResetSuccessEmail(user.email);
+        const language = await getPreferredLanguageByUserIdService(user.id);
+        await sendPasswordResetSuccessEmail(user.email, language);
         return handleResponse(res, 200, "Password has been successfully reset.");
     } catch (err) {
         handleResponse(res, 500, "Server error during password reset.");

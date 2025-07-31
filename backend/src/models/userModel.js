@@ -4,6 +4,7 @@ import { encrypt, decrypt } from "../utils/encryption.js"
 
 const SALT_ROUNDS = 11;
 
+//vytvori uzivatele
 export const createUserService = async (name, surname, username, birthDate, email, password, emailIsVerified, bankNumber, isAdmin) => {
     try {
         const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
@@ -29,6 +30,7 @@ export const createUserService = async (name, surname, username, birthDate, emai
     }
 };
 
+//vrati vsechny uzivatele
 export const getAllUsersService = async () => {
   try {
     const users = await prisma.user.findMany();
@@ -42,6 +44,7 @@ export const getAllUsersService = async () => {
   }
 };
 
+//vrati uzivatele podle id
 export const getUserByIdService = async (id) => {
   try {
     const user = await prisma.user.findUnique({
@@ -60,10 +63,11 @@ export const getUserByIdService = async (id) => {
   }
 };
 
-export const updateUserService = async (id, name, surname, username, birthDate, email, password, emailIsVerified, bankNumber, isAdmin) => {
+//updatuje uzivatele podle id
+export const updateUserService = async (id, name, surname, username, birthDate, email, password, emailIsVerified, bankNumber, isAdmin, preferredLanguage) => {
   try {
       let updateData = {
-          name, surname, username, birthDate, email, emailIsVerified, isAdmin
+          name, surname, username, birthDate, email, emailIsVerified, isAdmin, preferredLanguage
       };
 
       if (password) { 
@@ -286,6 +290,24 @@ export const verifyUserEmailInDbService = async (id) => {
         return verifyUserEmail;
     } catch (error) {
         console.error("Error verifying user email:", error); 
+        throw error;
+    }
+};
+
+//vrati preferovany jazyk
+export const getPreferredLanguageByUserIdService = async (id) => {
+    try {
+        const user = await prisma.user.findUnique({ 
+            where: {
+                id: id,
+            },
+            select: {
+                preferredLanguage: true,
+            },
+        });
+        return user ? user.preferredLanguage : "en"; 
+    } catch (error) {
+        console.error("Error fetching preferred language:", error);
         throw error;
     }
 };
