@@ -21,7 +21,6 @@ export const generateAuthToken = (user, type) => {
         username: user.username,
     };
     let token; 
-
     if (type === "access") {
         token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
     } 
@@ -42,12 +41,12 @@ export const verifyToken = (token, type) => {
         }
         return { decoded, error: null };
     } catch (error) {
-        if (error.name === 'TokenExpiredError') {
-            return { decoded: null, error: 'TokenExpired' };
+        if (error.name === "TokenExpiredError") {
+            return { decoded: null, error: "TokenExpired" };
         }
-        if (error.name === 'JsonWebTokenError') {
-            return { decoded: null, error: 'InvalidToken' };
+        if (error.name === "JsonWebTokenError") {
+            return { decoded: null, error: "InvalidToken" };
         }
-        return { decoded: null, error: 'GenericError' };
+        return { decoded: null, error: "GenericError" };
     }
 };

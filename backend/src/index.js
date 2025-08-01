@@ -6,8 +6,9 @@ import errorHandling from "./middlewares/errorHandler.js";
 import authRoutes from "./routes/authRoutes.js";
 import helmet from "helmet";
 import cron from "node-cron";
+import cookieParser from "cookie-parser";
 import { cleanExpiredRefreshTokens } from "./tasks/cleanExpiredTokens.js";
-import rateLimit from 'express-rate-limit';
+import rateLimit from "express-rate-limit";
 
 
 dotenv.config();
@@ -18,8 +19,12 @@ const port = process.env.SERVER_PORT || 3001;
 app.use(helmet()); 
 
 // middlewares
+app.use(cookieParser());
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: process.env.FRONTEND_URL, 
+    credentials: true, 
+}));
 
 //rate limit
 const apiLimiter = rateLimit({
@@ -60,8 +65,8 @@ app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
    
     cleanExpiredRefreshTokens(); 
-    cron.schedule('0 3 * * *', () => {
-        console.log('Running daily refresh token cleanup task...');
+    cron.schedule("0 3 * * *", () => {
+        console.log("Running daily refresh token cleanup task...");
         cleanExpiredRefreshTokens();
     });
 });

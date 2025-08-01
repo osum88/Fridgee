@@ -5,7 +5,7 @@ import { encrypt, decrypt } from "../utils/encryption.js"
 const SALT_ROUNDS = 11;
 
 //vytvori uzivatele
-export const createUserService = async (name, surname, username, birthDate, email, password, emailIsVerified, bankNumber, isAdmin) => {
+export const createUserService = async (name, surname, username, birthDate, email, password, bankNumber) => {
     try {
         const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
         
@@ -17,9 +17,7 @@ export const createUserService = async (name, surname, username, birthDate, emai
                 birthDate: birthDate,
                 email: email,
                 passwordHash: hashedPassword,
-                emailIsVerified: emailIsVerified,
                 bankNumber: encrypt(bankNumber),   
-                isAdmin: isAdmin,
             },
         });
         const { passwordHash: omittedPasswordHash, bankNumber: encryptedBankNumber, ...rest } = newUser; 
@@ -64,10 +62,10 @@ export const getUserByIdService = async (id) => {
 };
 
 //updatuje uzivatele podle id
-export const updateUserService = async (id, name, surname, username, birthDate, email, password, emailIsVerified, bankNumber, isAdmin, preferredLanguage) => {
+export const updateUserService = async (id, name, surname, username, birthDate, email, password, bankNumber, preferredLanguage) => {
   try {
       let updateData = {
-          name, surname, username, birthDate, email, emailIsVerified, isAdmin, preferredLanguage
+          name, surname, username, birthDate, email, preferredLanguage
       };
 
       if (password) { 
@@ -138,6 +136,8 @@ export const getUserByEmailService = async (email) => {
             },
             select: {
                 id: true,
+                username: true,
+                email: true,
                 passwordHash: true, 
                 isAdmin: true,
             },

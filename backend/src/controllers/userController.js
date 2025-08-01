@@ -11,9 +11,7 @@ export const createUser = async (req, res, next) => {
             birthDate, 
             email, 
             password, 
-            emailIsVerified, 
-            bankNumber, 
-            isAdmin 
+            bankNumber
         } = req.body;
         const existingUserByEmail = await getUserByEmailService(email);
         if (existingUserByEmail) {
@@ -25,7 +23,7 @@ export const createUser = async (req, res, next) => {
             return handleResponse(res, 409, "A user with this username already exists"); 
         }
 
-        const newUser = await createUserService(name, surname, username, birthDate, email, password, emailIsVerified, bankNumber, isAdmin);
+        const newUser = await createUserService(name, surname, username, birthDate, email, password,bankNumber);
         handleResponse(res, 201, "User created successfully", newUser);
     }
     catch(err){
@@ -73,9 +71,7 @@ export const updateUser = async (req, res, next) => {
             birthDate, 
             email, 
             password, 
-            emailIsVerified, 
             bankNumber, 
-            isAdmin,
             preferredLanguage 
         } = req.body;
         if (email){
@@ -90,7 +86,7 @@ export const updateUser = async (req, res, next) => {
                 return handleResponse(res, 409, "A user with this username already exists"); 
             }
         }
-        const updatedUser = await updateUserService(id, name, surname, username, birthDate, email, password, emailIsVerified, bankNumber, isAdmin, preferredLanguage);
+        const updatedUser = await updateUserService(id, name, surname, username, birthDate, email, password, bankNumber, preferredLanguage);
 
         if(!updatedUser) {
             return handleResponse(res, 404, "User not found");
