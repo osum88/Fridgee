@@ -1,5 +1,5 @@
 import errorHandling from "../middlewares/errorHandler.js";
-import { createUserService, deleteUserService, getAllUsersService, getBankNumberService, getUserByIdService, updateUserService, getUserByEmailService, getUserByUsernameService } from "../models/userModel.js";
+import { createUserService, deleteUserService, getAllUsersService, getBankNumberService, getUserByIdService, updateUserService, getUserByEmailService, getUserByUsernameService, searchUsersService } from "../models/userModel.js";
 import handleResponse from "../utils/responseHandler.js"
 
 export const createUser = async (req, res, next) => {
@@ -126,6 +126,23 @@ export const getBankNumber = async (req, res, next) => {
             return handleResponse(res, 404, "Bank number not found for given user");
         }
         handleResponse(res, 200, "Bank number fetched successfully", bankNumber);
+    }
+    catch(err){
+        next(err);
+    }
+};
+
+export const searchUsers = async (req, res, next) => {
+    try {
+        const { username, limit = 10 } = req.query;
+
+        if (!username) {
+            return handleResponse(res, 400, "Username is required for search");
+        }
+        const sanitizedUsername = username.trim().replace(/\s+/g, "");
+        const users = await searchUsersService(sanitizedUsername, limit);
+
+        handleResponse(res, 200, "Search users successfully", users);
     }
     catch(err){
         next(err);

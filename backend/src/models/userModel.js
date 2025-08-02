@@ -311,3 +311,31 @@ export const getPreferredLanguageByUserIdService = async (id) => {
         throw error;
     }
 };
+
+export const searchUsersService = async (username, limit) => {
+    try {
+        const parsedLimit = parseInt(limit, 10) || 10; 
+        const users = await prisma.user.findMany({ 
+            where: {
+                username: {
+                    contains: username,
+                    mode: "insensitive", 
+                },
+            },
+            take: parsedLimit,
+            orderBy: {
+                username: "asc",
+            },
+            select: { 
+                id: true,
+                username: true,
+                name: true,
+                surname: true,
+            },
+        });
+        return users;
+    } catch (error) {
+        console.error("Error searching users:", error);
+        throw error;
+    }
+};  
