@@ -136,7 +136,7 @@ export const searchUsers = async (req, res, next) => {
     try {
         const { username, limit = 10 } = req.query;
 
-        if (!username) {
+        if (!username || username.trim() === "") {
             return handleResponse(res, 400, "Username is required for search");
         }
         const sanitizedUsername = username.trim().replace(/\s+/g, "");

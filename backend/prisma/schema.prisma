@@ -32,6 +32,8 @@ model User {
   updatedAt              DateTime       @updatedAt @map("updated_at")
   preferredLanguage      String         @default("en") @map("preferred_language")
   refreshTokens          RefreshToken[]
+  sentFriendships        Friendship[]   @relation("sentFriendships")
+  receivedFriendships    Friendship[]   @relation("receivedFriendships")
 
   @@map("users")
 }
@@ -46,4 +48,24 @@ model RefreshToken {
   isValid   Boolean  @default(true) @map("is_valid")
 
   @@map("refresh_token")
+}
+
+model Friendship {
+  id         Int              @id @default(autoincrement())
+  sender     User             @relation("sentFriendships", fields: [senderId], references: [id])
+  senderId   Int              @map("sender_id")
+  receiver   User             @relation("receivedFriendships", fields: [receiverId], references: [id])
+  receiverId Int              @map("receiver_id")
+  status     FriendshipStatus @default(PENDING)
+  createdAt  DateTime         @default(now()) @map("created_at")
+  updatedAt  DateTime         @updatedAt @map("updated_at")
+
+  @@unique([senderId, receiverId])
+  @@map("friendships")
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
 }

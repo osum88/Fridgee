@@ -90,21 +90,22 @@ export const updateUserService = async (id, name, surname, username, birthDate, 
   }
 };
 
+//smaze uzivatele
 export const deleteUserService = async (id) => {
-  try {
-    const deletedUser = await prisma.user.delete({
-      where: {
-        id: parseInt(id),
-      },
-    });
-    if (deletedUser) {
-        const { passwordHash, bankNumber, ...rest } = deletedUser; 
-        return rest; 
-    }
-    return null; 
-  } catch (error) {
-    console.error("Error deleting user:", error); 
-    throw error;
+    try {
+        const deletedUser = await prisma.friendship.delete({
+            where: {
+                id: parseInt(id),
+            },
+        });
+        if (deletedUser) {
+            const { passwordHash, bankNumber, ...rest } = deletedUser; 
+            return rest; 
+        }
+        return null; 
+    } catch (error) {
+        console.error("Error deleting user:", error); 
+        throw error;
   }
 };
 
@@ -312,6 +313,7 @@ export const getPreferredLanguageByUserIdService = async (id) => {
     }
 };
 
+//vyhledává
 export const searchUsersService = async (username, limit) => {
     try {
         const parsedLimit = parseInt(limit, 10) || 10; 

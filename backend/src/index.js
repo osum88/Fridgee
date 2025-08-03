@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import userRoutes from "./routes/userRoutes.js";
 import errorHandling from "./middlewares/errorHandler.js";
 import authRoutes from "./routes/authRoutes.js";
+import friendRoutes from "./routes/friendRoutes.js"
 import helmet from "helmet";
 import cron from "node-cron";
 import cookieParser from "cookie-parser";
@@ -46,6 +47,8 @@ const authLimiter = rateLimit({
 // routes
 app.use("/api", apiLimiter, userRoutes);
 app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/friends", apiLimiter, friendRoutes);
+
 
 //not found
 app.use((req, res, next) => {
