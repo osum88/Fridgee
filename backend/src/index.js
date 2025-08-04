@@ -5,6 +5,7 @@ import userRoutes from "./routes/userRoutes.js";
 import errorHandling from "./middlewares/errorHandler.js";
 import authRoutes from "./routes/authRoutes.js";
 import friendRoutes from "./routes/friendRoutes.js"
+import foodInventoryRoutes from "./routes/foodInventoryRoutes.js"
 import helmet from "helmet";
 import cron from "node-cron";
 import cookieParser from "cookie-parser";
@@ -48,6 +49,7 @@ const authLimiter = rateLimit({
 app.use("/api", apiLimiter, userRoutes);
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/friends", apiLimiter, friendRoutes);
+app.use("/api/food-inventory", apiLimiter, foodInventoryRoutes);
 
 
 //not found

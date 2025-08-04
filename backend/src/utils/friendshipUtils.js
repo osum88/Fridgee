@@ -19,7 +19,7 @@ const getFriendshipUserIds = (req) => {
         return { user1, user2 };
 
     } else {                    //pro bezne uzivatele
-        const friendId = parseInt(req.body.friendId || req.params.id, 10);
+        const friendId = parseInt(req.body.friendId, 10);
         
         if (isNaN(friendId)) {
             throw new Error("Invalid friend ID provided.");

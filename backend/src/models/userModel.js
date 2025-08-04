@@ -313,7 +313,7 @@ export const getPreferredLanguageByUserIdService = async (id) => {
     }
 };
 
-//vyhledává
+//vyhledává uzivatele podle username
 export const searchUsersService = async (username, limit) => {
     try {
         const parsedLimit = parseInt(limit, 10) || 10; 
@@ -341,3 +341,46 @@ export const searchUsersService = async (username, limit) => {
         throw error;
     }
 };  
+
+//updatuje url user profilovaho obrazku
+export const updateUserProfilePictureService = async (id, imageUrl) => {
+    try {
+        const updatedUser = await prisma.user.update({ 
+            where: {
+                id: id,
+            },
+            data: {
+                profilePictureUrl: imageUrl,
+            },
+            select: { 
+                id: true,
+                profilePictureUrl: true,
+            },
+        });
+        return updatedUser;
+    } catch (error) {
+        console.error("Error updating user profile image url:", error);
+        throw error;
+    }
+};
+
+export const updateLastLoginService = async (id) => {
+    try {
+        const updatedUser = await prisma.user.update({ 
+            where: {
+                id: id,
+            },
+            data: {
+                lastLogin: new Date(),
+            },
+            select: { 
+                id: true,
+                lastLogin: true,
+            },
+        });
+        return updatedUser;
+    } catch (error) {
+        console.error("Error updating last login:", error);
+        throw error;
+    }
+};

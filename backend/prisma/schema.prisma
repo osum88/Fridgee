@@ -13,31 +13,36 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+//uzivatele
 model User {
-  id                     Int            @id @default(autoincrement())
-  name                   String?        @db.VarChar(150)
-  surname                String?        @db.VarChar(150)
-  username               String         @unique @db.VarChar(150)
-  birthDate              DateTime?      @map("birth_date")
-  email                  String         @unique
-  passwordHash           String         @map("password_hash")
-  emailIsVerified        Boolean        @default(false) @map("email_is_verified")
-  verificationToken      String?        @unique @map("verification_token")
-  tokenExpiresAt         DateTime?      @map("token_expires_at")
-  passwordResetToken     String?        @unique @map("password_reset_token")
-  passwordResetExpiresAt DateTime?      @map("password_reset_expires_at")
-  bankNumber             String?        @map("bank_number") @db.VarChar(255)
-  isAdmin                Boolean        @default(false) @map("is_admin")
-  createdAt              DateTime       @default(now()) @map("created_at")
-  updatedAt              DateTime       @updatedAt @map("updated_at")
-  preferredLanguage      String         @default("en") @map("preferred_language")
+  id                     Int             @id @default(autoincrement())
+  name                   String?         @db.VarChar(150)
+  surname                String?         @db.VarChar(150)
+  username               String          @unique @db.VarChar(150)
+  birthDate              DateTime?       @map("birth_date")
+  email                  String          @unique
+  passwordHash           String          @map("password_hash")
+  profilePictureUrl      String?         @map("profile_picture_url")
+  emailIsVerified        Boolean         @default(false) @map("email_is_verified")
+  verificationToken      String?         @unique @map("verification_token")
+  tokenExpiresAt         DateTime?       @map("token_expires_at")
+  passwordResetToken     String?         @unique @map("password_reset_token")
+  passwordResetExpiresAt DateTime?       @map("password_reset_expires_at")
+  bankNumber             String?         @map("bank_number") @db.VarChar(255)
+  isAdmin                Boolean         @default(false) @map("is_admin")
+  createdAt              DateTime        @default(now()) @map("created_at")
+  lastLogin              DateTime        @default(now()) @map("last_login")
+  updatedAt              DateTime        @updatedAt @map("updated_at")
+  preferredLanguage      String          @default("en") @map("preferred_language")
   refreshTokens          RefreshToken[]
-  sentFriendships        Friendship[]   @relation("sentFriendships")
-  receivedFriendships    Friendship[]   @relation("receivedFriendships")
+  sentFriendships        Friendship[]    @relation("sentFriendships")
+  receivedFriendships    Friendship[]    @relation("receivedFriendships")
+  userInventory          InventoryUser[] @relation("userInventory")
 
   @@map("users")
 }
 
+// JWT refresh tokeny
 model RefreshToken {
   id        Int      @id @default(autoincrement())
   tokenHash String   @unique @map("token_hash")
@@ -50,6 +55,7 @@ model RefreshToken {
   @@map("refresh_token")
 }
 
+//pratelstvi
 model Friendship {
   id         Int              @id @default(autoincrement())
   sender     User             @relation("sentFriendships", fields: [senderId], references: [id])
@@ -68,4 +74,41 @@ enum FriendshipStatus {
   PENDING
   ACCEPTED
   BLOCKED
+}
+
+//inventar potravin, spolecny i soukromí
+model FoodInventory {
+  id             Int             @id @default(autoincrement())
+  title          String          @db.VarChar(100)
+  label          String?         @db.VarChar(150)
+  isArchived     Boolean         @default(false) @map("is_archived")
+  memberCount    Int             @default(0) @map("member_count")
+  lastActivityAt DateTime        @default(now()) @map("last_activity_at")
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+  inventory      InventoryUser[] @relation("inventory")
+
+  @@map("food_inventory")
+}
+
+//uzivatele jednoho inventare
+model InventoryUser {
+  id                   Int           @id @default(autoincrement())
+  user                 User          @relation("userInventory", fields: [userId], references: [id])
+  userId               Int           @map("user_id")
+  inventory            FoodInventory @relation("inventory", fields: [inventoryId], references: [id])
+  inventoryId          Int           @map("inventory_id")
+  role                 InventoryRole @default(USER)
+  joinedAt             DateTime      @default(now()) @map("joined_at")
+  updatedAt            DateTime      @updatedAt @map("updated_at")
+  notificationSettings Json          @default("{}") @map("notification_settings")
+
+  @@unique([userId, inventoryId])
+  @@map("inventory_users")
+}
+
+enum InventoryRole {
+  OWNER
+  EDITOR
+  USER
 }

@@ -1,5 +1,5 @@
 import errorHandling from "../middlewares/errorHandler.js";
-import { createUserService, deleteUserService, getAllUsersService, getBankNumberService, getUserByIdService, updateUserService, getUserByEmailService, getUserByUsernameService, searchUsersService } from "../models/userModel.js";
+import { createUserService, deleteUserService, getAllUsersService, getBankNumberService, getUserByIdService, updateUserService, getUserByEmailService, getUserByUsernameService, searchUsersService, updateUserProfilePictureService } from "../models/userModel.js";
 import handleResponse from "../utils/responseHandler.js"
 
 export const createUser = async (req, res, next) => {
@@ -145,6 +145,46 @@ export const searchUsers = async (req, res, next) => {
         handleResponse(res, 200, "Search users successfully", users);
     }
     catch(err){
+        next(err);
+    }
+};
+
+export const updateUserProfilePicture = async (req, res, next) => {
+    try {
+        if (!req.file) {
+            return handleResponse(res, 400, "No file uploaded.");
+        }
+        // const imageUrl = req.body.imageUrl;
+        const isAdmin = req.user.isAdmin;
+        let userId;
+
+        if (isAdmin){
+            userId = req.body.userId;
+
+            if (!userId) {
+                return handleResponse(res, 400, "For admin, a user ID is required.");
+            }
+
+            if (isNaN(userId)) {
+                return handleResponse(res, 400, "Invalid user ID provided.");
+            }
+
+            const user = await getUserByIdService(userId);
+            if (!user) {
+                return handleResponse(res, 404, "User not found.");
+            }
+        }
+        else{
+            userId = req.user.id;
+        }
+        const file = req.file;
+
+        const imageUrl = await uploadToStorageService(file);     //TODO nahrani na cloud
+
+        const updatedUser = await updateUserProfilePictureService(userId, imageUrl);
+
+        return handleResponse(res, 200, "Profile picture updated successfully.", updatedUser);
+    } catch (err) {
         next(err);
     }
 };

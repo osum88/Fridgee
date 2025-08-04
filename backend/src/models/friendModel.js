@@ -132,3 +132,52 @@ export const deleteAllFriendshipService = async (userId) => {
         throw error;
     }
 };
+
+export const getAllFriendService = async (userId) => {
+    try {
+        const allFriends = await prisma.friendship.findMany({
+            where: {
+                OR: [
+                    { senderId: userId },
+                    { receiverId: userId },
+                ],
+                status: "ACCEPTED",
+            },
+        });
+        return allFriends;
+    } catch (error) {
+        console.error("Error getting all friends:", error);
+        throw error;
+    }
+};
+
+export const getSentFriendRequestsService = async (userId) => {
+    try {
+        const sentRequests = await prisma.friendship.findMany({
+            where: {
+                senderId: userId,
+                status: "PENDING",
+            },
+        });
+        return sentRequests;
+    } catch (error) {
+        console.error("Error getting sent requests:", error);
+        throw error;
+    }
+};
+
+export const getReceivedFriendRequestsService = async (userId) => {
+    try {
+        const receivedRequests = await prisma.friendship.findMany({
+            where: {
+                receiverId: userId,
+                status: "PENDING",
+            },
+        });
+        return receivedRequests;
+    } catch (error) {
+        console.error("Error getting receiver requests:", error);
+        throw error;
+    }
+};
+

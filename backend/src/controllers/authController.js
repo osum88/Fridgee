@@ -1,4 +1,4 @@
-import { createUserService, getPreferredLanguageByUserIdService, getUserByEmailService, getUserByIdService, getUserByPasswordResetTokenService, getUserByUsernameService, getUserIdByVerificationTokenService, resetPasswordInDbService, updatePasswordResetTokenService, updateUserService, updateVerificationTokenService, verifyUserEmailInDbService } from "../models/userModel.js";
+import { createUserService, getPreferredLanguageByUserIdService, getUserByEmailService, getUserByIdService, getUserByPasswordResetTokenService, getUserByUsernameService, getUserIdByVerificationTokenService, resetPasswordInDbService, updateLastLoginService, updatePasswordResetTokenService, updateUserService, updateVerificationTokenService, verifyUserEmailInDbService } from "../models/userModel.js";
 import handleResponse from "../utils/responseHandler.js"
 import bcrypt from "bcrypt";
 import { generateAuthToken, verifyToken } from "../utils/token.js";
@@ -93,6 +93,8 @@ export const login = async (req, res, next ) => {
             // await sendVerificationEmail("josefnovak738@gmail.com", verificationLink, language);
             // await sendVerificationEmail(user.email, verificationLink, language);
         }
+
+        await updateLastLoginService(user.id);
 
         const accessToken = generateAuthToken(user, "access");
         const refreshToken = generateAuthToken(user, "refresh"); 
