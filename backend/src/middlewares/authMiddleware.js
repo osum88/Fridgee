@@ -27,6 +27,7 @@ export const authorizeAdmin = (req, res, next) => {
     if (!req.user || !req.user.isAdmin) {
         return handleResponse(res, 403, "Access denied: Administrator privileges required");
     }
+    req.adminRoute = true;
     next();
 };
 

@@ -1,10 +1,12 @@
 import prisma from "../utils/prisma.js";
+import { getUserByIdService } from "./userRepository.js";
 
 export const createFriendshipService = async (senderId, receiverId) => {
     try {
         if (senderId === receiverId) {
             throw new Error("Cannot send a friend request to yourself");
         }
+
         const existingFriendship = await prisma.friendship.findFirst({
             where: {
                 OR: [
@@ -31,6 +33,8 @@ export const createFriendshipService = async (senderId, receiverId) => {
 
 export const getStatusFriendshipService = async (senderId, receiverId) => {
     try {
+        await getUserByIdService(senderId);
+        await getUserByIdService(receiverId);
         const friendship = await prisma.friendship.findFirst({
             where: {
                 OR: [

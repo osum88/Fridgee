@@ -1,11 +1,12 @@
 import prisma from "../utils/prisma.js";
 import bcrypt from "bcrypt";
 import { encrypt, decrypt } from "../utils/encryption.js"
+import { NotFoundError } from "../errors/errors.js";
 
 const SALT_ROUNDS = 11;
 
 //vytvori uzivatele
-export const createUserService = async (name, surname, username, birthDate, email, password, bankNumber) => {
+export const createUserRepository = async (name, surname, username, birthDate, email, password, bankNumber) => {
     try {
         const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
         
@@ -30,35 +31,38 @@ export const createUserService = async (name, surname, username, birthDate, emai
 
 //vrati vsechny uzivatele
 export const getAllUsersService = async () => {
-  try {
-    const users = await prisma.user.findMany();
-    return users.map(user => {
-        const { passwordHash, verificationToken, passwordResetToken, bankNumber, ...rest } = user; 
+    try {
+        const users = await prisma.user.findMany();
+        if (!users) {
+            throw new NotFoundError("Users not found");
+        }
+        return users.map(user => {
+            const { passwordHash, verificationToken, passwordResetToken, bankNumber, ...rest } = user; 
         return rest; 
     });    
-  } catch (error) {
-    console.error("Error fetching users:", error); 
-    throw error;
-  }
+    } catch (error) {
+        console.error("Error fetching users:", error); 
+        throw error;
+    }
 };
 
 //vrati uzivatele podle id
 export const getUserByIdService = async (id) => {
-  try {
-    const user = await prisma.user.findUnique({
-      where: {
-        id: parseInt(id),
-      },
-    });
-    if (user) {
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: parseInt(id),
+            },
+        });
+        if (!user) {
+            throw new NotFoundError("User not found");
+        }
         const { passwordHash, verificationToken, passwordResetToken, bankNumber, ...rest } = user; 
         return rest; 
+    } catch (error) {
+        console.error("Error fetching user by ID:", error); 
+        throw error;
     }
-    return null; 
-  } catch (error) {
-    console.error("Error fetching user by ID:", error); 
-    throw error;
-  }
 };
 
 //updatuje uzivatele podle id
@@ -109,6 +113,7 @@ export const deleteUserService = async (id) => {
   }
 };
 
+//vraci bankovni cislo
 export const getBankNumberService = async (id) => {
   try {
       const userWithBankNumber = await prisma.user.findUnique({ 
@@ -129,7 +134,8 @@ export const getBankNumberService = async (id) => {
   }
 }
 
-export const getUserByEmailService = async (email) => {
+//vraci uzivatele podle emailu
+export const getUserByEmailRepository = async (email) => {
     try {
         const user = await prisma.user.findUnique({
             where: {
@@ -150,7 +156,8 @@ export const getUserByEmailService = async (email) => {
     }
 };
 
-export const getUserByUsernameService = async (username) => {
+//vraci uzivatele podle username
+export const getUserByUsernameRepository = async (username) => {
     try {
         const user = await prisma.user.findUnique({
             where: {
@@ -167,6 +174,7 @@ export const getUserByUsernameService = async (username) => {
     }
 };
 
+ 
 export const updateVerificationTokenService = async (id, verificationToken, tokenExpiresAt) => {
   try {
       const updatedVerificationToken = await prisma.user.update({

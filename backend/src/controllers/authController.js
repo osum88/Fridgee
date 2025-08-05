@@ -1,68 +1,38 @@
-import { createUserService, getPreferredLanguageByUserIdService, getUserByEmailService, getUserByIdService, getUserByPasswordResetTokenService, getUserByUsernameService, getUserIdByVerificationTokenService, resetPasswordInDbService, updateLastLoginService, updatePasswordResetTokenService, updateUserService, updateVerificationTokenService, verifyUserEmailInDbService } from "../models/userModel.js";
+import { createUserRepository, getPreferredLanguageByUserIdService, getUserByEmailRepository, getUserByIdService, getUserByPasswordResetTokenService, getUserByUsernameRepository, getUserIdByVerificationTokenService, resetPasswordInDbService, updateLastLoginService, updatePasswordResetTokenService, updateUserService, updateVerificationTokenService, verifyUserEmailInDbService } from "../repositories/userRepository.js";
 import handleResponse from "../utils/responseHandler.js"
 import bcrypt from "bcrypt";
 import { generateAuthToken, verifyToken } from "../utils/token.js";
-import { createRefreshTokenService, getValidRefreshTokensByUserIdService, deleteAllRefreshTokensByUserIdService, deleteRefreshTokenByIdService } from "../models/refreshTokenModel.js";
+import { createRefreshTokenService, getValidRefreshTokensByUserIdService, deleteAllRefreshTokensByUserIdService, deleteRefreshTokenByIdService } from "../repositories/refreshTokenService.js";
 import crypto from "crypto"
 import { sendPasswordResetEmail, sendPasswordResetSuccessEmail, sendVerificationEmail } from "../utils/emailService.js";
+import { signUpService } from "../services/authService.js";
 
 export const signUp = async (req, res, next) => {
     try {
         const { username, email, password } = req.body;
-
-        const sanitizedUsername = username.trim().replace(/\s+/g, "");
-
-        const existingUserByEmail = await getUserByEmailService(email);
-        if (existingUserByEmail) {
-            return handleResponse(res, 409, "A user with this email already exists"); 
-        }
-
-        const existingUserByUsername = await getUserByUsernameService(sanitizedUsername);
-        if (existingUserByUsername) {
-            return handleResponse(res, 409, "A user with this username already exists"); 
-        }
-      
-        const newUser = await createUserService(null, null, sanitizedUsername, null, email, password, null);
-
-        //verifikace emailu
-        const verifyToken = crypto.randomBytes(32).toString("hex"); 
-        const tokenExpiresAt = new Date(Date.now() + 6 * 60 * 60 * 1000);   //token plati 6h
-        await updateVerificationTokenService(newUser.id, verifyToken, tokenExpiresAt);
-
-        const verificationLink = `${process.env.FRONTEND_URL}/api/auth/verify-email?token=${verifyToken}`;
-        const language = await getPreferredLanguageByUserIdService(newUser.id);
-        // await sendVerificationEmail("josefnovak738@gmail.com", verificationLink, language);
-        // await sendVerificationEmail(newUser.email, verificationLink, language);
-
-        const accessToken = generateAuthToken(newUser, "access");
-        const refreshToken = generateAuthToken(newUser, "refresh");
-
-        await createRefreshTokenService(refreshToken, newUser.id);
-
         const clientType = req.headers["x-client-type"];
+
+        const responseData = await signUpService({ username, email, password, clientType});
 
         if (clientType === "mobile") {
             // pro mobil tokeny v JSON těle
             return handleResponse(res, 201, "User created successfully", { 
-                accessToken, 
-                refreshToken, 
-                user: newUser 
+                responseData
             });
         } 
         else { 
             // pro web se refresh token nastavi do HTTP-only cookie kvuli XSS utokum
-            res.cookie("refreshToken", refreshToken, {
+            res.cookie("refreshToken", responseData.accessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production", 
                 sameSite: "Lax",
                 maxAge: 15 * 24 * 60 * 60 * 1000 
             });
             return handleResponse(res, 201, "User created successfully", { 
-                accessToken, 
-                user: newUser 
+                accessToken: responseData.accessToken,
+                user: responseData.user
             });
         }
-        
     } 
     catch(err){
         next(err);
@@ -72,7 +42,7 @@ export const signUp = async (req, res, next) => {
 export const login = async (req, res, next ) => {
     try {
         const { email, password } = req.body;
-        const user = await getUserByEmailService(email);
+        const user = await getUserByEmailRepository(email);
         if (!user){
             return handleResponse(res, 400, "Wrong email or password");
         }
@@ -131,7 +101,7 @@ export const login = async (req, res, next ) => {
     }
 };
 
-export const refresh = async (req, res, next ) => {
+export const refresh = async (req, res, next) => {
     try {
         let refreshToken;
         const clientType = req.headers["x-client-type"];
@@ -250,7 +220,7 @@ export const forgotPassword = async (req, res, next) => {
     try {
         const { email } = req.body;
 
-        const user = await getUserByEmailService(email);
+        const user = await getUserByEmailRepository(email);
         if (!user) {
             return handleResponse(res, 404, "User not found.");
         }
@@ -294,7 +264,7 @@ export const changePassword = async (req, res, next) => {
     try {
         const { oldPassword, newPassword } = req.body;
 
-        const user = await getUserByEmailService(req.user.email);   //mozna vymenit za id
+        const user = await getUserByEmailRepository(req.user.email);   //mozna vymenit za id
         if (!user) {
             return handleResponse(res, 404, "User not found");
         }
@@ -310,7 +280,6 @@ export const changePassword = async (req, res, next) => {
         return handleResponse(res, 200, "Password has been successfully changed");
 
     } catch (err) {
-        console.error("Error during password reset:", err);
         next(err); 
     }
 };

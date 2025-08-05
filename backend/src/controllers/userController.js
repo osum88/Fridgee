@@ -1,5 +1,5 @@
 import errorHandling from "../middlewares/errorHandler.js";
-import { createUserService, deleteUserService, getAllUsersService, getBankNumberService, getUserByIdService, updateUserService, getUserByEmailService, getUserByUsernameService, searchUsersService, updateUserProfilePictureService } from "../models/userModel.js";
+import { createUserRepository, deleteUserService, getAllUsersService, getBankNumberService, getUserByIdService, updateUserService, getUserByEmailRepository, getUserByUsernameRepository, searchUsersService, updateUserProfilePictureService } from "../repositories/userRepository.js";
 import handleResponse from "../utils/responseHandler.js"
 
 export const createUser = async (req, res, next) => {
@@ -13,17 +13,17 @@ export const createUser = async (req, res, next) => {
             password, 
             bankNumber
         } = req.body;
-        const existingUserByEmail = await getUserByEmailService(email);
+        const existingUserByEmail = await getUserByEmailRepository(email);
         if (existingUserByEmail) {
             return handleResponse(res, 409, "A user with this email already exists"); 
         }
 
-        const existingUserByUsername = await getUserByUsernameService(username);
+        const existingUserByUsername = await getUserByUsernameRepository(username);
         if (existingUserByUsername) {
             return handleResponse(res, 409, "A user with this username already exists"); 
         }
 
-        const newUser = await createUserService(name, surname, username, birthDate, email, password,bankNumber);
+        const newUser = await createUserRepository(name, surname, username, birthDate, email, password,bankNumber);
         handleResponse(res, 201, "User created successfully", newUser);
     }
     catch(err){
@@ -75,13 +75,13 @@ export const updateUser = async (req, res, next) => {
             preferredLanguage 
         } = req.body;
         if (email){
-            const existingUserByEmail = await getUserByEmailService(email);
+            const existingUserByEmail = await getUserByEmailRepository(email);
             if (existingUserByEmail) {
                 return handleResponse(res, 409, "A user with this email already exists"); 
             }
         }
         if (username){
-            const existingUserByUsername = await getUserByUsernameService(username);
+            const existingUserByUsername = await getUserByUsernameRepository(username);
             if (existingUserByUsername) {
                 return handleResponse(res, 409, "A user with this username already exists"); 
             }
@@ -162,7 +162,7 @@ export const updateUserProfilePicture = async (req, res, next) => {
             userId = req.body.userId;
 
             if (!userId) {
-                return handleResponse(res, 400, "For admin, a user ID is required.");
+                return handleResponse(res, 400, "For admin, a userId is required.");
             }
 
             if (isNaN(userId)) {

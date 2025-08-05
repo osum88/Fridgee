@@ -5,15 +5,13 @@ import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFrien
 const router = express.Router();
 
 router.post("/add", authenticateToken, addFriend);
-router.delete('/cancel/', authenticateToken, cancelRequestFriend);          
-router.delete("/", authenticateToken, deleteFriend);              
-router.put("/accept", authenticateToken, acceptFriend);
+router.delete('/cancel/:friendId', authenticateToken, cancelRequestFriend);          
+router.delete("/:friendId", authenticateToken, deleteFriend);              
+router.put("/accept/:friendId", authenticateToken, acceptFriend);
 
-router.get('/requests/sent/:id', authenticateToken, getSentFriendRequests);
-router.get('/requests/sent/', authenticateToken, getSentFriendRequests);
-router.get('/requests/received/:id', authenticateToken, getReceivedFriendRequests);
-router.get('/requests/received/', authenticateToken, getReceivedFriendRequests);
-router.get('/:id', authenticateToken, getAllFriend);
+
+router.get('/requests/sent', authenticateToken, getSentFriendRequests);
+router.get('/requests/received', authenticateToken, getReceivedFriendRequests);
 router.get('/', authenticateToken, getAllFriend);
 
 export default router;
