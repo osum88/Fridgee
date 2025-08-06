@@ -30,7 +30,7 @@ export const createUserRepository = async (name, surname, username, birthDate, e
 };
 
 //vrati vsechny uzivatele
-export const getAllUsersService = async () => {
+export const getAllUsersRepository = async () => {
     try {
         const users = await prisma.user.findMany();
         if (!users) {
@@ -47,7 +47,7 @@ export const getAllUsersService = async () => {
 };
 
 //vrati uzivatele podle id
-export const getUserByIdService = async (id) => {
+export const getUserByIdRepository = async (id) => {
     try {
         const user = await prisma.user.findUnique({
             where: {
@@ -66,36 +66,35 @@ export const getUserByIdService = async (id) => {
 };
 
 //updatuje uzivatele podle id
-export const updateUserService = async (id, name, surname, username, birthDate, email, password, bankNumber, preferredLanguage) => {
-  try {
-      let updateData = {
-          name, surname, username, birthDate, email, preferredLanguage
-      };
-
-      if (password) { 
-          updateData.passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-      }
-      if (bankNumber) { 
-          updateData.bankNumber = encrypt(bankNumber);   
-      }
-
-      const updatedUser = await prisma.user.update({
-          where: {
-              id: parseInt(id),
-          },
-          data: updateData, 
-      });
-
-      const { passwordHash: omittedPasswordHash, bankNumber: encryptedBankNumber, ...rest } = updatedUser;
-      return { ...rest, bankNumber: "***ENCRYPTED***" };
-  } catch (error) {
-    console.error("Error updating user:", error); 
-    throw error;
-  }
+export const updateUserRepository = async (id, updateData) => {
+    if (updateData.password) {
+        updateData.passwordHash = await bcrypt.hash(updateData.password, SALT_ROUNDS);
+        delete updateData.password; 
+    }
+    if (updateData.bankNumber) {
+        updateData.bankNumber = encrypt(updateData.bankNumber);
+    }
+    const updatedUser = await prisma.user.update({
+        where: { id: id },
+        data: updateData,
+        select: {
+            id: true,
+            name: true,
+            surname: true,
+            username: true,
+            birthDate: true,
+            email: true,
+            bankNumber: true,
+            preferredLanguage: true,
+            isAdmin: true,
+        },
+    });
+    const { bankNumber, ...rest } = updatedUser;
+    return { ...rest, bankNumber: "***ENCRYPTED***" };
 };
 
 //smaze uzivatele
-export const deleteUserService = async (id) => {
+export const deleteUserRepository = async (id) => {
     try {
         const deletedUser = await prisma.friendship.delete({
             where: {
@@ -114,7 +113,7 @@ export const deleteUserService = async (id) => {
 };
 
 //vraci bankovni cislo
-export const getBankNumberService = async (id) => {
+export const getBankNumberRepository = async (id) => {
   try {
       const userWithBankNumber = await prisma.user.findUnique({ 
           where: {
@@ -147,6 +146,7 @@ export const getUserByEmailRepository = async (email) => {
                 email: true,
                 passwordHash: true, 
                 isAdmin: true,
+                emailIsVerified: true,
             },
         });
         return user; 
@@ -175,7 +175,7 @@ export const getUserByUsernameRepository = async (username) => {
 };
 
  
-export const updateVerificationTokenService = async (id, verificationToken, tokenExpiresAt) => {
+export const updateVerificationTokenRepository = async (id, verificationToken, tokenExpiresAt) => {
   try {
       const updatedVerificationToken = await prisma.user.update({
           where: {
@@ -193,7 +193,7 @@ export const updateVerificationTokenService = async (id, verificationToken, toke
   }
 };
 
-export const updatePasswordResetTokenService = async (id, passwordResetToken, passwordResetExpiresAt) => {
+export const updatePasswordResetTokenRepository = async (id, passwordResetToken, passwordResetExpiresAt) => {
   try {
       const updatedPasswordResetToken = await prisma.user.update({
           where: {
@@ -212,7 +212,7 @@ export const updatePasswordResetTokenService = async (id, passwordResetToken, pa
 };
 
 //vrati id uzivatele podle verifikačniho email tokenu
-export const getUserIdByVerificationTokenService = async (token) => {
+export const getUserIdByVerificationTokenRepository = async (token) => {
   try {
       const user = await prisma.user.findFirst({ 
           where: {
@@ -231,7 +231,7 @@ export const getUserIdByVerificationTokenService = async (token) => {
 };
 
 //vrati id uzivatele podle reset password tokenu
-export const getUserByPasswordResetTokenService = async (token) => {
+export const getUserByPasswordResetTokenRepository = async (token) => {
     try {
         const user = await prisma.user.findFirst({
             where: {
@@ -253,7 +253,7 @@ export const getUserByPasswordResetTokenService = async (token) => {
 };
 
 //resetuje heslo 
-export const resetPasswordInDbService = async (id, password) => {
+export const resetPasswordInDbRepository = async (id, password) => {
     try {
         const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
         const resetPassword = await prisma.user.update({
@@ -278,7 +278,7 @@ export const resetPasswordInDbService = async (id, password) => {
 };
 
 //nastavi overeni emailu
-export const verifyUserEmailInDbService = async (id) => {
+export const verifyUserEmailInDbRepository = async (id) => {
     try {
         const verifyUserEmail = await prisma.user.update({
             where: {
@@ -304,7 +304,7 @@ export const verifyUserEmailInDbService = async (id) => {
 };
 
 //vrati preferovany jazyk
-export const getPreferredLanguageByUserIdService = async (id) => {
+export const getPreferredLanguageByUserIdRepository = async (id) => {
     try {
         const user = await prisma.user.findUnique({ 
             where: {
@@ -322,7 +322,7 @@ export const getPreferredLanguageByUserIdService = async (id) => {
 };
 
 //vyhledává uzivatele podle username
-export const searchUsersService = async (username, limit) => {
+export const searchUsersRepository = async (username, limit) => {
     try {
         const parsedLimit = parseInt(limit, 10) || 10; 
         const users = await prisma.user.findMany({ 
@@ -351,7 +351,7 @@ export const searchUsersService = async (username, limit) => {
 };  
 
 //updatuje url user profilovaho obrazku
-export const updateUserProfilePictureService = async (id, imageUrl) => {
+export const updateUserProfilePictureRepository = async (id, imageUrl) => {
     try {
         const updatedUser = await prisma.user.update({ 
             where: {
@@ -372,7 +372,7 @@ export const updateUserProfilePictureService = async (id, imageUrl) => {
     }
 };
 
-export const updateLastLoginService = async (id) => {
+export const updateLastLoginRepository = async (id) => {
     try {
         const updatedUser = await prisma.user.update({ 
             where: {

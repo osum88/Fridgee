@@ -1,8 +1,12 @@
 import express from "express";
 import { authenticateToken, authorizeAdmin } from "../middlewares/authMiddleware.js";
 import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFriend, getReceivedFriendRequests, getSentFriendRequests } from "../controllers/friendController.js";
+import { getAllUsersAdmin, getUserByIdAdmin, updateUserAdmin } from "../controllers/userController.js";
+import validate from "../middlewares/validator.js";
+import { updateUserSchema } from "../validation/userValidation.js";
 
 const router = express.Router();
+
 
 //friendship
 router.post('/users/:id/friends/add/', authenticateToken, authorizeAdmin, addFriend);
@@ -17,6 +21,12 @@ router.get('/users/:id/friends', authenticateToken, authorizeAdmin, getAllFriend
 // router.post("/admin/inventory", authenticateToken, checkAdminRole, createFoodInventoryAsAdmin);
 // router.post('/admin/:inventoryId/users', authenticateToken, checkAdminRole, createInventoryUserAsAdmin);
 // router.patch('/admin/:inventoryId/users/:userId', authenticateToken, checkAdminRole, changeRoleInventoryUserAsAdmin);
+
+//users
+router.get("/users/:id", authenticateToken, authorizeAdmin, getUserByIdAdmin);   
+router.get("/users", authenticateToken, authorizeAdmin, getAllUsersAdmin);   
+router.put("/users/:id", validate(updateUserSchema), authenticateToken, authorizeAdmin, updateUserAdmin);
+
 
 
 export default router;

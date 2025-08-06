@@ -1,10 +1,11 @@
+import { ConflictError } from "../errors/errors.js";
 import prisma from "../utils/prisma.js";
-import { getUserByIdService } from "./userRepository.js";
+import { getUserByIdRepository } from "./userRepository.js";
 
 //vytvari inventar jidla s prvnim jeho uzivatelem (owner)
-export const createFoodInventoryService = async (userId, title, label) => {
+export const createFoodInventoryRepository = async (userId, title, label) => {
     try {
-        await getUserByIdService(userId);
+        await getUserByIdRepository(userId);
 
         const newFoodInventory = await prisma.foodInventory.create({
             data: {
@@ -30,13 +31,13 @@ export const createFoodInventoryService = async (userId, title, label) => {
 };
 
 // vytvori usera food inventare
-export const createInventoryUserService = async (userId, foodInventoryId, role) => {
+export const createInventoryUserRepository = async (userId, foodInventoryId, role) => {
     try {
-        await getUserByIdService(userId);
-        await getFoodInventoryService(foodInventoryId);
-        const user = await isUserInFoodInventoryService(userId, foodInventoryId);
+        await getUserByIdRepository(userId);
+        await getFoodInventoryRepository(foodInventoryId);
+        const user = await isUserInFoodInventoryRepository(userId, foodInventoryId);
         if (user) {
-            throw new Error("UserInInventoryAlreadyExist");
+            throw new ConflictError("User in inventory already exist");
         }
 
         const [newInventoryUser, updatedFoodInventory] = await prisma.$transaction([
@@ -66,7 +67,7 @@ export const createInventoryUserService = async (userId, foodInventoryId, role) 
 };
 
 // ziskani inventare podle id
-export const getFoodInventoryService = async (foodInventoryId) => {
+export const getFoodInventoryRepository = async (foodInventoryId) => {
     try {
         const existingFoodInventory = await prisma.foodInventory.findUnique({
             where: {
@@ -87,7 +88,7 @@ export const getFoodInventoryService = async (foodInventoryId) => {
 };
 
 // hleda user jestli je user v danem inventari podle id
-export const getFoodInventoryUserService  = async (userId, foodInventoryId) => {
+export const getFoodInventoryUserRepository  = async (userId, foodInventoryId) => {
     try {
         const user = await prisma.inventoryUser.findUnique({
             where: {
@@ -111,7 +112,7 @@ export const getFoodInventoryUserService  = async (userId, foodInventoryId) => {
 };
 
 // overi jestli uz je user v danem inventari podle id
-export const isUserInFoodInventoryService  = async (userId, foodInventoryId) => {
+export const isUserInFoodInventoryRepository  = async (userId, foodInventoryId) => {
     try {
         const user = await prisma.inventoryUser.findUnique({
             where: {
@@ -129,7 +130,7 @@ export const isUserInFoodInventoryService  = async (userId, foodInventoryId) => 
 };
 
 // zmena role user v inventari
-export const changeRoleInventoryUserService = async (userId, foodInventoryId, role) => {
+export const changeRoleInventoryUserRepository = async (userId, foodInventoryId, role) => {
     try {
         const updatedUser = await prisma.inventoryUser.update({
             where: {

@@ -1,0 +1,64 @@
+import { ConflictError } from "../errors/errors.js";
+import { createUserRepository, getUserByEmailRepository, getUserByIdRepository, getUserByUsernameRepository, updateUserRepository } from "../repositories/userRepository.js";
+
+export const createUserService = async (name, surname, username, birthDate, email, password, bankNumber) => {
+
+    const existingUserByEmail = await getUserByEmailRepository(email);
+    if (existingUserByEmail) {
+        throw new ConflictError("A user with this email already exists.");
+    }
+
+    const existingUserByUsername = await getUserByUsernameRepository(username);
+    if (existingUserByUsername) {
+        throw new ConflictError("A user with this username already exists.");
+    }
+
+    const newUser = await createUserRepository(
+        name,
+        surname,
+        username,
+        birthDate,
+        email,
+        password,
+        bankNumber
+    );
+
+    return newUser;
+};
+
+export const getUserByIdService = async (userId) => {
+    const user = await getUserByIdRepository(userId);
+    
+    if (!user) {
+        throw new NotFoundError("User not found.");
+    }
+    
+    return user;
+};
+
+export const updateUserService = async (id, updateData) => {
+    
+    const userToUpdate = await getUserByIdRepository(id);
+
+    if (updateData.email && updateData.email !== userToUpdate.email) {
+        const existingUserByEmail = await getUserByEmailRepository(updateData.email);
+        if (existingUserByEmail) {
+            throw new ConflictError("A user with this email already exists.");
+        }
+    }
+
+    if (updateData.username && updateData.username !== userToUpdate.username) {
+        const existingUserByUsername = await getUserByUsernameRepository(updateData.username);
+        if (existingUserByUsername) {
+            throw new ConflictError("A user with this username already exists.");
+        }
+    }
+
+    const updatedUser = await updateUserRepository(id, updateData);
+
+    if (!updatedUser) {
+        throw new NotFoundError("User not found after update.");
+    }
+
+    return updatedUser;
+};

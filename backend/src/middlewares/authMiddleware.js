@@ -10,7 +10,7 @@ export const authenticateToken = (req, res, next) => {
     if (!token) {
         return handleResponse(res, 401, "Access denied: No token provided");
     }
-    const { decoded, error } = verifyToken(token, "access");
+    const { decoded, error } = verifyToken(token);
 
     if (error) {
         if (error === "TokenExpired") {

@@ -1,29 +1,29 @@
 import bcrypt from "bcrypt";
 import prisma from "../utils/prisma.js";
+import { v4 as uuidv4 } from 'uuid';
 
 const SALT_ROUNDS = 11;
 const DAYS_15 = 15 * 24 * 60 * 60 * 1000;
 
-export const createRefreshTokenService = async (token, userId) => {
+export const createRefreshTokenRepository = async (tokenId, tokenHash, userId) => {
     try {
-        const tokenHash = await bcrypt.hash(token, SALT_ROUNDS);
-
-        const newRefreshToken = await prisma.refreshToken.create({
+        await prisma.refreshToken.create({
             data: {
+                id: tokenId,
                 tokenHash: tokenHash,
                 userId: userId,
                 expiresAt: new Date(Date.now() + DAYS_15),
                 isValid: true,
             },
         });
-        return newRefreshToken
+        return true; 
     } catch(error) {
-        console.error("Error creating refresh token:", error);
+        console.error("Error creating refresh token in repository:", error);
         throw error;
     }
 };
 
-export const getValidRefreshTokensByUserIdService = async (userId) => {
+export const getValidRefreshTokensByUserIdRepository = async (userId) => {
     try {
         const refreshTokens = await prisma.refreshToken.findMany({
             where: {
@@ -38,7 +38,7 @@ export const getValidRefreshTokensByUserIdService = async (userId) => {
     }
 };
 
-export const deleteAllRefreshTokensByUserIdService = async (userId) => {
+export const deleteAllRefreshTokensByUserIdRepository = async (userId) => {
     try {
         const refreshTokens = await prisma.refreshToken.deleteMany({
             where: {
@@ -51,7 +51,7 @@ export const deleteAllRefreshTokensByUserIdService = async (userId) => {
     }
 };
 
-export const deleteRefreshTokenByIdService = async (id) => {
+export const deleteRefreshTokenByIdRepository = async (id) => {
     try {
         const refreshTokens = await prisma.refreshToken.delete({
             where: {
@@ -60,6 +60,26 @@ export const deleteRefreshTokenByIdService = async (id) => {
         });
     } catch (error) {
         console.error("Error deleting token:", error); 
+        throw error;
+    }
+};
+
+export const findRefreshTokenByIdRepository = async (tokenId) => {
+    try {
+        const refreshTokens = await prisma.refreshToken.findUnique({
+        where: { 
+            id: tokenId, 
+        },
+        select: { 
+            userId: true,
+            tokenHash: true, 
+            expiresAt: true,
+            isValid: true,
+        },
+    });
+    return refreshTokens
+    } catch (error) {
+        console.error("Error finding refresh token:", error); 
         throw error;
     }
 };

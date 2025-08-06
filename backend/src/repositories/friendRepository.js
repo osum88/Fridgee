@@ -1,7 +1,7 @@
 import prisma from "../utils/prisma.js";
-import { getUserByIdService } from "./userRepository.js";
+import { getUserByIdRepository } from "./userRepository.js";
 
-export const createFriendshipService = async (senderId, receiverId) => {
+export const createFriendshipRepository = async (senderId, receiverId) => {
     try {
         if (senderId === receiverId) {
             throw new Error("Cannot send a friend request to yourself");
@@ -31,10 +31,10 @@ export const createFriendshipService = async (senderId, receiverId) => {
     }
 };
 
-export const getStatusFriendshipService = async (senderId, receiverId) => {
+export const getStatusFriendshipRepository = async (senderId, receiverId) => {
     try {
-        await getUserByIdService(senderId);
-        await getUserByIdService(receiverId);
+        await getUserByIdRepository(senderId);
+        await getUserByIdRepository(receiverId);
         const friendship = await prisma.friendship.findFirst({
             where: {
                 OR: [
@@ -53,7 +53,7 @@ export const getStatusFriendshipService = async (senderId, receiverId) => {
     }
 };
 
-export const getFriendshipService = async (senderId, receiverId) => {
+export const getFriendshipRepository = async (senderId, receiverId) => {
     try {
         const friendship = await prisma.friendship.findFirst({
             where: {
@@ -77,7 +77,7 @@ export const getFriendshipService = async (senderId, receiverId) => {
 };
 
 
-export const updateFriendshipStatusService = async (senderId, receiverId, status) => {
+export const updateFriendshipStatusRepository = async (senderId, receiverId, status) => {
     try {
         const updatedFriendship = await prisma.friendship.updateMany({
             where: {
@@ -100,7 +100,7 @@ export const updateFriendshipStatusService = async (senderId, receiverId, status
     }
 };
 
-export const deleteFriendshipService = async (senderId, receiverId) => {
+export const deleteFriendshipRepository = async (senderId, receiverId) => {
     try {
         const deletedFriendships = await prisma.friendship.deleteMany({
             where: {
@@ -120,7 +120,7 @@ export const deleteFriendshipService = async (senderId, receiverId) => {
     }
 };
 
-export const deleteAllFriendshipService = async (userId) => {
+export const deleteAllFriendshipRepository = async (userId) => {
     try {
         const deletedFriendships = await prisma.friendship.deleteMany({
             where: {
@@ -137,7 +137,7 @@ export const deleteAllFriendshipService = async (userId) => {
     }
 };
 
-export const getAllFriendService = async (userId) => {
+export const getAllFriendRepository = async (userId) => {
     try {
         const allFriends = await prisma.friendship.findMany({
             where: {
@@ -155,7 +155,7 @@ export const getAllFriendService = async (userId) => {
     }
 };
 
-export const getSentFriendRequestsService = async (userId) => {
+export const getSentFriendRequestsRepository = async (userId) => {
     try {
         const sentRequests = await prisma.friendship.findMany({
             where: {
@@ -170,7 +170,7 @@ export const getSentFriendRequestsService = async (userId) => {
     }
 };
 
-export const getReceivedFriendRequestsService = async (userId) => {
+export const getReceivedFriendRequestsRepository = async (userId) => {
     try {
         const receivedRequests = await prisma.friendship.findMany({
             where: {

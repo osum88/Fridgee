@@ -1,39 +1,23 @@
 import errorHandling from "../middlewares/errorHandler.js";
-import { createUserRepository, deleteUserService, getAllUsersService, getBankNumberService, getUserByIdService, updateUserService, getUserByEmailRepository, getUserByUsernameRepository, searchUsersService, updateUserProfilePictureService } from "../repositories/userRepository.js";
+import { createUserRepository, deleteUserRepository, getAllUsersRepository, getBankNumberRepository, getUserByIdRepository, updateUserRepository, getUserByEmailRepository, getUserByUsernameRepository, searchUsersRepository, updateUserProfilePictureRepository } from "../repositories/userRepository.js";
+import { createUserService, getUserByIdService, updateUserService } from "../services/userService.js";
 import handleResponse from "../utils/responseHandler.js"
 
 export const createUser = async (req, res, next) => {
     try {
-        const { 
-            name, 
-            surname, 
-            username, 
-            birthDate, 
-            email, 
-            password, 
-            bankNumber
-        } = req.body;
-        const existingUserByEmail = await getUserByEmailRepository(email);
-        if (existingUserByEmail) {
-            return handleResponse(res, 409, "A user with this email already exists"); 
-        }
+        const { name, surname, username, birthDate, email, password, bankNumber} = req.body;
 
-        const existingUserByUsername = await getUserByUsernameRepository(username);
-        if (existingUserByUsername) {
-            return handleResponse(res, 409, "A user with this username already exists"); 
-        }
+        const newUser = await createUserService(name, surname, username, birthDate, email, password, bankNumber);
 
-        const newUser = await createUserRepository(name, surname, username, birthDate, email, password,bankNumber);
-        handleResponse(res, 201, "User created successfully", newUser);
-    }
-    catch(err){
+        return handleResponse(res, 201, "User created successfully", newUser);
+    } catch (err) {
         next(err);
     }
 };
 
-export const getAllUsers = async (req, res, next) => {
+export const getAllUsersAdmin = async (req, res, next) => {
     try {
-        const users = await getAllUsersService();
+        const users = await getAllUsersRepository();
         handleResponse(res, 200, "Users fetched successfully", users);
     }
     catch(err){
@@ -43,57 +27,56 @@ export const getAllUsers = async (req, res, next) => {
 
 export const getUserById = async (req, res, next) => {
     try {
+        const userId = req.user.id; 
+        
+        const user = await getUserByIdService(userId);
+        
+        return handleResponse(res, 200, "User fetched successfully", user);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const getUserByIdAdmin = async (req, res, next) => {
+    try {
         const id = parseInt(req.params.id);
+        
         if (isNaN(id)) {
-            return handleResponse(res, 400, "Invalid user ID provided.");
+            throw new BadRequestError("Invalid user ID provided.");
         }
         const user = await getUserByIdService(id);
-        if(!user) {
-            return handleResponse(res, 404, "User not found");
-        }
-        handleResponse(res, 200, "User fetched successfully", user);
-    }
-    catch(err){
+        
+        return handleResponse(res, 200, "User fetched successfully", user);
+    } catch (err) {
         next(err);
     }
 };
 
 export const updateUser = async (req, res, next) => {
     try {
+        const id = req.user.id; 
+        const updateData = req.body;
+
+        const updatedUser = await updateUserService(id, updateData);
+
+        return handleResponse(res, 200, "User updated successfully", updatedUser);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const updateUserAdmin = async (req, res, next) => {
+    try {
         const id = parseInt(req.params.id);
         if (isNaN(id)) {
-            return handleResponse(res, 400, "Invalid user ID provided.");
-        }
-        const { 
-            name, 
-            surname, 
-            username, 
-            birthDate, 
-            email, 
-            password, 
-            bankNumber, 
-            preferredLanguage 
-        } = req.body;
-        if (email){
-            const existingUserByEmail = await getUserByEmailRepository(email);
-            if (existingUserByEmail) {
-                return handleResponse(res, 409, "A user with this email already exists"); 
-            }
-        }
-        if (username){
-            const existingUserByUsername = await getUserByUsernameRepository(username);
-            if (existingUserByUsername) {
-                return handleResponse(res, 409, "A user with this username already exists"); 
-            }
-        }
-        const updatedUser = await updateUserService(id, name, surname, username, birthDate, email, password, bankNumber, preferredLanguage);
+            throw new BadRequestError("Invalid user ID provided.");
+        } 
+        const updateData = req.body;
 
-        if(!updatedUser) {
-            return handleResponse(res, 404, "User not found");
-        }
-        handleResponse(res, 200, "User updated successfully", updatedUser);
-    }
-    catch(err){
+        const updatedUser = await updateUserService(id, updateData);
+
+        return handleResponse(res, 200, "User updated successfully", updatedUser);
+    } catch (err) {
         next(err);
     }
 };
@@ -104,7 +87,7 @@ export const deleteUser = async (req, res, next) => {
         if (isNaN(id)) {
             return handleResponse(res, 400, "Invalid user ID provided");
         }
-        const deletedUser = await deleteUserService(id);
+        const deletedUser = await deleteUserRepository(id);
         if(!deletedUser) {
             return handleResponse(res, 404, "User not found");
         }
@@ -121,7 +104,7 @@ export const getBankNumber = async (req, res, next) => {
         if (isNaN(id)) {
             return handleResponse(res, 400, "Invalid user ID provided");
         }
-        const bankNumber = await getBankNumberService(id);
+        const bankNumber = await getBankNumberRepository(id);
         if (bankNumber === null) {
             return handleResponse(res, 404, "Bank number not found for given user");
         }
@@ -140,7 +123,7 @@ export const searchUsers = async (req, res, next) => {
             return handleResponse(res, 400, "Username is required for search");
         }
         const sanitizedUsername = username.trim().replace(/\s+/g, "");
-        const users = await searchUsersService(sanitizedUsername, limit);
+        const users = await searchUsersRepository(sanitizedUsername, limit);
 
         handleResponse(res, 200, "Search users successfully", users);
     }
@@ -149,6 +132,8 @@ export const searchUsers = async (req, res, next) => {
     }
 };
 
+
+//dodelat servisu potom
 export const updateUserProfilePicture = async (req, res, next) => {
     try {
         if (!req.file) {
@@ -169,7 +154,7 @@ export const updateUserProfilePicture = async (req, res, next) => {
                 return handleResponse(res, 400, "Invalid user ID provided.");
             }
 
-            const user = await getUserByIdService(userId);
+            const user = await getUserByIdRepository(userId);
             if (!user) {
                 return handleResponse(res, 404, "User not found.");
             }
@@ -179,9 +164,9 @@ export const updateUserProfilePicture = async (req, res, next) => {
         }
         const file = req.file;
 
-        const imageUrl = await uploadToStorageService(file);     //TODO nahrani na cloud
+        const imageUrl = await uploadToStorageRepository(file);     //TODO nahrani na cloud
 
-        const updatedUser = await updateUserProfilePictureService(userId, imageUrl);
+        const updatedUser = await updateUserProfilePictureRepository(userId, imageUrl);
 
         return handleResponse(res, 200, "Profile picture updated successfully.", updatedUser);
     } catch (err) {

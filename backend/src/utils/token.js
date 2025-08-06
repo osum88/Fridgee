@@ -1,4 +1,7 @@
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
+import bcrypt from "bcrypt";
+import { v4 as uuidv4 } from 'uuid';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET; 
@@ -8,37 +11,29 @@ if (!JWT_SECRET) {
     process.exit(1);
 }
 
-if (!JWT_REFRESH_SECRET) {
-    console.error("Error: JWT_REFRESH_SECRET is not set");
-    process.exit(1);
-}
-
-export const generateAuthToken = (user, type) => {
+export const generateAccessToken = (user) => {
     const payload = {
         id: user.id,
         email: user.email,
         isAdmin: user.isAdmin,
         username: user.username,
     };
-    let token; 
-    if (type === "access") {
-        token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
-    } 
-    if (type === "refresh") { 
-        token = jwt.sign({ id: user.id }, JWT_REFRESH_SECRET, { expiresIn: "15d" });
-    }
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
     return token;
 };
 
-export const verifyToken = (token, type) => {
+export const generateRefreshToken = async (userId) => {
+    const tokenId = uuidv4();
+    const tokenSecret = crypto.randomBytes(32).toString("hex");
+    const fullToken = `${tokenId}.${tokenSecret}`;
+    const tokenHash = await bcrypt.hash(tokenSecret, 11);
+
+    return { fullToken, tokenId, tokenHash };
+};
+
+export const verifyToken = (token) => {
     try {
-        let decoded; 
-        if (type === "access") {
-            decoded = jwt.verify(token, JWT_SECRET);
-        } 
-        if (type === "refresh") { 
-            decoded = jwt.verify(token, JWT_REFRESH_SECRET); 
-        }
+        const decoded = jwt.verify(token, JWT_SECRET);
         return { decoded, error: null };
     } catch (error) {
         if (error.name === "TokenExpiredError") {

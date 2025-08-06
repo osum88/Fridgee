@@ -1,4 +1,4 @@
-import { createFoodInventoryService, createInventoryUserService } from "../repositories/foodInventoryService.js";
+import { createFoodInventoryRepository, createInventoryUserRepository } from "../repositories/foodInventoryRepository.js";
 import handleResponse from "../utils/responseHandler.js";
 
 export const createFoodInventory = async (req, res, next) => {
@@ -21,13 +21,10 @@ export const createFoodInventory = async (req, res, next) => {
             userId = req.user.id;
         }
 
-        const foodInventory = await createFoodInventoryService(userId, title, label);
+        const foodInventory = await createFoodInventoryRepository(userId, title, label);
         handleResponse(res, 201, "Food inventory created successfully", foodInventory);
     }
     catch(err){
-        if (err.message === "UserNotFound") {
-            return handleResponse(res, 404, "User not found.");
-        }
         next(err);
     }
 };
@@ -56,13 +53,10 @@ export const createInventoryUser = async (req, res, next) => {
         if (isNaN(inventoryId)) {
             return handleResponse(res, 400, "Invalid inventory ID provided.");
         }
-        const newInventoryUser = await createInventoryUserService(userId, inventoryId, role);
+        const newInventoryUser = await createInventoryUserRepository(userId, inventoryId, role);
         handleResponse(res, 201, "User added to inventory successfully", newInventoryUser);
     }
     catch(err){
-        if (err.message === "UserNotFound") {
-            return handleResponse(res, 404, "User not found.");
-        }
         if (err.message === "FoodInventoryNotFound") {
             return handleResponse(res, 404, "Food inventory not found.");
         }
@@ -99,13 +93,10 @@ export const changeRoleInventoryUser = async (req, res, next) => {
         if (isNaN(inventoryId)) {
             return handleResponse(res, 400, "Invalid inventory ID provided.");
         }
-        const newInventoryUser = await createInventoryUserService(userId, inventoryId, role);
+        const newInventoryUser = await createInventoryUserRepository(userId, inventoryId, role);
         handleResponse(res, 201, "User added to inventory successfully", newInventoryUser);
     }
     catch(err){
-        if (err.message === "UserNotFound") {
-            return handleResponse(res, 404, "User not found.");
-        }
         if (err.message === "FoodInventoryNotFound") {
             return handleResponse(res, 404, "Food inventory not found.");
         }

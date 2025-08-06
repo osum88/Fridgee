@@ -1,5 +1,5 @@
-import { createFriendshipService, deleteFriendshipService, getAllFriendService, getFriendshipService, getReceivedFriendRequestsService, getSentFriendRequestsService, updateFriendshipStatusService } from "../repositories/friendService.js";
-import { getUserByIdService } from "../repositories/userRepository.js";
+import { createFriendshipRepository, deleteFriendshipRepository, getAllFriendRepository, getFriendshipRepository, getReceivedFriendRequestsRepository, getSentFriendRequestsRepository, updateFriendshipStatusRepository } from "../repositories/friendRepository.js";
+import { getUserByIdRepository } from "../repositories/userRepository.js";
 import getFriendshipUserIds from "../utils/friendshipUtils.js";
 import handleResponse from "../utils/responseHandler.js";
 
@@ -20,8 +20,8 @@ export const addFriend = async (req, res, next) => {
             if (isNaN(user1Id) || isNaN(user2Id)) {
                 throw new Error("User IDs must be numbers.");
             }
-            await getUserByIdService(user1Id);
-            await getUserByIdService(user2Id);
+            await getUserByIdRepository(user1Id);
+            await getUserByIdRepository(user2Id);
 
         } else {                    //pro bezne uzivatele
             user1Id = req.user.id;
@@ -30,7 +30,7 @@ export const addFriend = async (req, res, next) => {
             if (isNaN(user2Id)) {
                 throw new Error("Invalid friend ID provided.");
             }
-            await getUserByIdService(user2Id);
+            await getUserByIdRepository(user2Id);
         }
         
         if (user1Id === user2Id) {
@@ -38,15 +38,15 @@ export const addFriend = async (req, res, next) => {
         }
 
         //pokud user2 uz o pratelstvi pozadal, ale user1 to ignoroval, ale neodmitl, a user1 zada o prateltvi, pak toto rovnou akceptuje zadost
-        const friendship = await getFriendshipService(user1Id, user2Id);
+        const friendship = await getFriendshipRepository(user1Id, user2Id);
         if (friendship) {
             if (friendship.status === "PENDING" && friendship.receiverId === user1Id) {
-                const acceptedFriendship = await updateFriendshipStatusService(friendship.senderId, friendship.receiverId, "ACCEPTED");
+                const acceptedFriendship = await updateFriendshipStatusRepository(friendship.senderId, friendship.receiverId, "ACCEPTED");
                 return handleResponse(res, 200, "Friendship accepted successfully.", acceptedFriendship);
             }
             return handleResponse(res, 409, "Friendship already exists or request is pending.");
         }
-        const newFriendship = await createFriendshipService(user1Id, user2Id);
+        const newFriendship = await createFriendshipRepository(user1Id, user2Id);
         return handleResponse(res, 200, "Friend request sent successfully.", newFriendship);
     }
     catch(err){
@@ -64,22 +64,22 @@ export const deleteFriend = async (req, res, next) => {
         const isAdmin = req.adminRoute;
 
         if (isAdmin){
-            await getUserByIdService(user1);
-            await getUserByIdService(user2);
+            await getUserByIdRepository(user1);
+            await getUserByIdRepository(user2);
         }
         else {
-            await getUserByIdService(user2);
+            await getUserByIdRepository(user2);
         }
         
         if (user1 === user2) {
             return handleResponse(res, 400, "You cannot remove yourself from friends.");
         }
-        const friendship = await getFriendshipService(user1, user2);
+        const friendship = await getFriendshipRepository(user1, user2);
         
         if (!friendship) {
             return handleResponse(res, 404, "Friendship not found");
         }
-        const deletedFriendship = await deleteFriendshipService(user1, user2);
+        const deletedFriendship = await deleteFriendshipRepository(user1, user2);
         
         return handleResponse(res, 200, "Friendship removed successfully", deletedFriendship);
         
@@ -99,16 +99,16 @@ export const acceptFriend = async (req, res, next) => {
         const isAdmin = req.adminRoute;
 
         if (isAdmin){
-            await getUserByIdService(user1);
-            await getUserByIdService(user2);
+            await getUserByIdRepository(user1);
+            await getUserByIdRepository(user2);
         }
         else {
-            await getUserByIdService(user2);
+            await getUserByIdRepository(user2);
         }
 
-        const friendship = await getFriendshipService(user1, user2);
+        const friendship = await getFriendshipRepository(user1, user2);
         if (!friendship) {
-            return handleResponse(res, 403, "Friendship doesns't exist");
+            return handleResponse(res, 403, "Friendship does not exist");
         }
 
         if (friendship.receiverId !== currentId && !isAdmin) {
@@ -116,7 +116,7 @@ export const acceptFriend = async (req, res, next) => {
         }
 
         if (friendship.status == "PENDING") {
-            const acceptedFriendship = await updateFriendshipStatusService(friendship.senderId, friendship.receiverId, "ACCEPTED");
+            const acceptedFriendship = await updateFriendshipStatusRepository(friendship.senderId, friendship.receiverId, "ACCEPTED");
             return handleResponse(res, 200, "Friendship accepted successfully", acceptedFriendship);
         }    
         return handleResponse(res, 400, "There is no pending friendship request to accept");
@@ -136,14 +136,14 @@ export const cancelRequestFriend = async (req, res, next) => {
         const isAdmin = req.adminRoute;
 
         if (isAdmin){
-            await getUserByIdService(user1);
-            await getUserByIdService(user2);
+            await getUserByIdRepository(user1);
+            await getUserByIdRepository(user2);
         }
         else {
-            await getUserByIdService(user2);
+            await getUserByIdRepository(user2);
         }
 
-        const friendship = await getFriendshipService(user1, user2);
+        const friendship = await getFriendshipRepository(user1, user2);
         if (!friendship) {
             return handleResponse(res, 404, "Friendship request not found");
         }
@@ -153,7 +153,7 @@ export const cancelRequestFriend = async (req, res, next) => {
         }
 
         if (friendship.status == "PENDING") {
-            const deletedFriendship = await deleteFriendshipService(friendship.senderId, friendship.receiverId);
+            const deletedFriendship = await deleteFriendshipRepository(friendship.senderId, friendship.receiverId);
             return handleResponse(res, 200, "Friendship request cancelled successfully", deletedFriendship);
         }    
         return handleResponse(res, 400, "There is no pending friendship request to cancel");
@@ -181,12 +181,12 @@ export const getAllFriend = async (req, res, next) => {
             if (isNaN(userId)) {
                 return handleResponse(res, 400, "Invalid user ID provided.");
             }
-            await getUserByIdService(userId);
+            await getUserByIdRepository(userId);
 
         } else {
             userId = req.user.id;
         }
-        const allFriend = await getAllFriendService(userId);
+        const allFriend = await getAllFriendRepository(userId);
 
         return handleResponse(res, 200, "Friends fetched successfully", allFriend);
     } catch (err) {
@@ -213,12 +213,12 @@ export const getSentFriendRequests = async (req, res, next) => {
             if (isNaN(userId)) {
                 return handleResponse(res, 400, "Invalid user ID provided.");
             }
-            await getUserByIdService(userId);
+            await getUserByIdRepository(userId);
 
         } else {
             userId = req.user.id;
         }
-        const sentRequests = await getSentFriendRequestsService(userId);
+        const sentRequests = await getSentFriendRequestsRepository(userId);
 
         return handleResponse(res, 200, "Sent requests fetched successfully", sentRequests);
     } catch (err) {
@@ -245,11 +245,11 @@ export const getReceivedFriendRequests = async (req, res, next) => {
             if (isNaN(userId)) {
                 return handleResponse(res, 400, "Invalid user ID provided.");
             }
-            await getUserByIdService(userId);
+            await getUserByIdRepository(userId);
         } else {
             userId = req.user.id;
         }
-        const receivedRequests = await getReceivedFriendRequestsService(userId);
+        const receivedRequests = await getReceivedFriendRequestsRepository(userId);
 
         return handleResponse(res, 200, "Received requests fetched successfully", receivedRequests);
     } catch (err) {

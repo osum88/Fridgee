@@ -1,4 +1,4 @@
-import prisma from '../utils/prisma.js';
+import prisma from "../utils/prisma.js";
 
 //uklizi expirovane a nevalidni tokeny po 24 hodinach zneplatneni
 export const cleanExpiredRefreshTokens = async () => {
