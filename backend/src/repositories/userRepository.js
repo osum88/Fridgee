@@ -96,7 +96,7 @@ export const updateUserRepository = async (id, updateData) => {
 //smaze uzivatele
 export const deleteUserRepository = async (id) => {
     try {
-        const deletedUser = await prisma.friendship.delete({
+        const deletedUser = await prisma.user.delete({
             where: {
                 id: parseInt(id),
             },

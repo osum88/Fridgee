@@ -1,5 +1,5 @@
 
-import handleResponse from "../utils/responseHandler.js";
+import { BadRequestError, ForbiddenError, UnauthorizedError } from "../errors/errors.js";
 import { verifyToken } from "../utils/token.js";
 
 export const authenticateToken = (req, res, next) => {    
@@ -8,24 +8,41 @@ export const authenticateToken = (req, res, next) => {
     const token = authHeader?.startsWith("Bearer") ? authHeader.split(" ")[1] : null; 
 
     if (!token) {
-        return handleResponse(res, 401, "Access denied: No token provided");
+        throw new UnauthorizedError("Access denied: No token provided");
     }
     const { decoded, error } = verifyToken(token);
 
     if (error) {
         if (error === "TokenExpired") {
-            return handleResponse(res, 401, "Access token expired");
+            throw new UnauthorizedError("Access token expired");
         }
-        return handleResponse(res, 403, "Invalid access token");
+        throw new ForbiddenError("Invalid access token");
     }
     
     req.user = decoded;             // decoded obsahuje payload tokenu (id, email, isAdmin, username)
     next();
 };
 
+//overi admina a nastavi id (pro admin routy)
 export const authorizeAdmin = (req, res, next) => {
     if (!req.user || !req.user.isAdmin) {
-        return handleResponse(res, 403, "Access denied: Administrator privileges required");
+        throw new ForbiddenError("Access denied: Administrator privileges required.");
+    }
+
+    const userId = parseInt(req.params.id);
+    if (isNaN(userId)) {
+        throw new BadRequestError("Invalid user ID provided.");
+    }
+
+    req.userId = userId;
+    req.adminRoute = true;
+    next();
+};
+
+// alouzi pro routu ktera nema v url id
+export const authorizeAdminWithOutId = (req, res, next) => {
+    if (!req.user || !req.user.isAdmin) {
+        throw new ForbiddenError("Access denied: Administrator privileges required.");
     }
     req.adminRoute = true;
     next();
@@ -33,14 +50,18 @@ export const authorizeAdmin = (req, res, next) => {
 
 export const authorizeUserOrAdmin = (req, res, next) => {
     if (req.user.id != parseInt(req.params.id) && !req.user.isAdmin) {
-        return handleResponse(res, 403, "You are not authorized to use this service.");
+        throw new ForbiddenError(res, 403, "You are not authorized to use this service.");
     }
     next();
 };     
 
+//overi uzivatele a ulozi id (pro user routy)
 export const authorizeUser = (req, res, next) => {
-    if (req.user.id != parseInt(req.params.id)) {
-        return handleResponse(res, 403, "You are not authorized to use this service.");
+    if (!req.user) {
+        throw new UnauthorizedError("Unauthorized: No user token provided.");
     }
+
+    req.userId = req.user.id;
+    req.adminRoute = false;
     next();
 };

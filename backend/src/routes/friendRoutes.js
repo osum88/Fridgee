@@ -1,18 +1,29 @@
 import express from "express";
-import { authenticateToken } from "../middlewares/authMiddleware.js";
-import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFriend, getReceivedFriendRequests, getSentFriendRequests } from "../controllers/friendController.js";
+import { authenticateToken, authorizeUser } from "../middlewares/authMiddleware.js";
+import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFriends, getReceivedFriendRequests, getSentFriendRequests } from "../controllers/friendController.js";
 
 const router = express.Router();
 
-router.post("/add", authenticateToken, addFriend);
-router.delete("/cancel/:friendId", authenticateToken, cancelRequestFriend);          
-router.delete("/:friendId", authenticateToken, deleteFriend);              
-router.put("/accept/:friendId", authenticateToken, acceptFriend);
+//pridani do pratel
+router.post("/add", authenticateToken, authorizeUser, addFriend);
 
+//zruseni zadosti
+router.delete("/cancel/:friendId", authenticateToken, authorizeUser, cancelRequestFriend);      
 
-router.get("/requests/sent", authenticateToken, getSentFriendRequests);
-router.get("/requests/received", authenticateToken, getReceivedFriendRequests);
-router.get("/", authenticateToken, getAllFriend);
+//odstraneni nekoho z pratel
+router.delete("/:friendId", authenticateToken, authorizeUser, deleteFriend);            
+
+//akceptovani zadosti
+router.put("/accept/:friendId", authenticateToken, authorizeUser, acceptFriend);
+
+//seznam vsech odeslanych zadosti
+router.get("/requests/sent", authenticateToken, authorizeUser, getSentFriendRequests);
+
+//seznam vsech prijatych zadosti
+router.get("/requests/received", authenticateToken, authorizeUser, getReceivedFriendRequests);
+
+//seznam vsech pratel
+router.get("/", authenticateToken, authorizeUser, getAllFriends);
 
 export default router;
 

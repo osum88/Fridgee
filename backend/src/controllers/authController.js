@@ -104,8 +104,8 @@ export const logout = async (req, res, next) => {
         if (clientType !== "mobile") {
             res.clearCookie("refreshToken", {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'Strict'
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "Strict"
             });
         }
         return handleResponse(res, 200, "Logout successful");

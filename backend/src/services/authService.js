@@ -11,8 +11,6 @@ export const signUpService = async ({username, email, password}) => {
 
     const sanitizedUsername = username.trim().replace(/\s+/g, "");
 
- 
-
     // vytvoreni uzivatele
     const newUser = await createUserService(null, null, sanitizedUsername, null, email, password, null);
 
@@ -88,7 +86,7 @@ export const refreshService = async (refreshToken) => {
         throw new UnauthorizedError("Missing refresh token. Please log in again.");
     }
 
-    const [tokenId, tokenSecret] = refreshToken.split('.');
+    const [tokenId, tokenSecret] = refreshToken.split(".");
     if (!tokenId || !tokenSecret) {
         throw new ForbiddenError("Invalid refresh token format.");
     }
@@ -126,7 +124,7 @@ export const logoutService = async (refreshToken) => {
         throw new UnauthorizedError("Missing refresh token. Cannot log out.");
     }
     
-    const [tokenId] = refreshToken.split('.');
+    const [tokenId] = refreshToken.split(".");
     
     if (tokenId) {
         await deleteRefreshTokenByIdRepository(tokenId);

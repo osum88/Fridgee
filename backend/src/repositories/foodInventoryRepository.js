@@ -1,4 +1,4 @@
-import { ConflictError } from "../errors/errors.js";
+import { ConflictError, NotFoundError } from "../errors/errors.js";
 import prisma from "../utils/prisma.js";
 import { getUserByIdRepository } from "./userRepository.js";
 
@@ -33,13 +33,6 @@ export const createFoodInventoryRepository = async (userId, title, label) => {
 // vytvori usera food inventare
 export const createInventoryUserRepository = async (userId, foodInventoryId, role) => {
     try {
-        await getUserByIdRepository(userId);
-        await getFoodInventoryRepository(foodInventoryId);
-        const user = await isUserInFoodInventoryRepository(userId, foodInventoryId);
-        if (user) {
-            throw new ConflictError("User in inventory already exist");
-        }
-
         const [newInventoryUser, updatedFoodInventory] = await prisma.$transaction([
             prisma.inventoryUser.create({
                 data: {
@@ -75,13 +68,10 @@ export const getFoodInventoryRepository = async (foodInventoryId) => {
             },
         });
         if (!existingFoodInventory) {
-            throw new Error("FoodInventoryNotFound");
+            throw new NotFoundError("Food inventory not found");
         }
         return existingFoodInventory;
     } catch (error) {
-        if (error.message === "FoodInventoryNotFound") {
-            throw error;
-        }
         console.error("Error fetching food inventory by Id:", error);
         throw error;
     }
@@ -99,13 +89,10 @@ export const getFoodInventoryUserRepository  = async (userId, foodInventoryId) =
             },
         });
         if (!user) {
-            throw new Error("UserNotFound");
+            throw new NotFoundError("User not found");
         }
         return user;
     } catch (error) {
-        if (error.message === "UserNotFound") {
-            throw error;
-        }
         console.error("Error fetching user in inventory by Id:", error);
         throw error;
     }

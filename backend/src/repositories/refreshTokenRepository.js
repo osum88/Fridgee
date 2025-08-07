@@ -1,6 +1,4 @@
-import bcrypt from "bcrypt";
 import prisma from "../utils/prisma.js";
-import { v4 as uuidv4 } from 'uuid';
 
 const SALT_ROUNDS = 11;
 const DAYS_15 = 15 * 24 * 60 * 60 * 1000;

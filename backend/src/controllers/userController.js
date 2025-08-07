@@ -1,6 +1,5 @@
-import errorHandling from "../middlewares/errorHandler.js";
-import { createUserRepository, deleteUserRepository, getAllUsersRepository, getBankNumberRepository, getUserByIdRepository, updateUserRepository, getUserByEmailRepository, getUserByUsernameRepository, searchUsersRepository, updateUserProfilePictureRepository } from "../repositories/userRepository.js";
-import { createUserService, getUserByIdService, updateUserService } from "../services/userService.js";
+import { getAllUsersRepository, getUserByIdRepository, updateUserProfilePictureRepository } from "../repositories/userRepository.js";
+import { createUserService, deleteUserService, getBankNumberService, getUserByIdService, searchUsersService, updateUserService } from "../services/userService.js";
 import handleResponse from "../utils/responseHandler.js"
 
 export const createUser = async (req, res, next) => {
@@ -27,24 +26,9 @@ export const getAllUsersAdmin = async (req, res, next) => {
 
 export const getUserById = async (req, res, next) => {
     try {
-        const userId = req.user.id; 
-        
+        const userId = req.userId;
+       
         const user = await getUserByIdService(userId);
-        
-        return handleResponse(res, 200, "User fetched successfully", user);
-    } catch (err) {
-        next(err);
-    }
-};
-
-export const getUserByIdAdmin = async (req, res, next) => {
-    try {
-        const id = parseInt(req.params.id);
-        
-        if (isNaN(id)) {
-            throw new BadRequestError("Invalid user ID provided.");
-        }
-        const user = await getUserByIdService(id);
         
         return handleResponse(res, 200, "User fetched successfully", user);
     } catch (err) {
@@ -54,26 +38,10 @@ export const getUserByIdAdmin = async (req, res, next) => {
 
 export const updateUser = async (req, res, next) => {
     try {
-        const id = req.user.id; 
+        const userId = req.userId;
         const updateData = req.body;
 
-        const updatedUser = await updateUserService(id, updateData);
-
-        return handleResponse(res, 200, "User updated successfully", updatedUser);
-    } catch (err) {
-        next(err);
-    }
-};
-
-export const updateUserAdmin = async (req, res, next) => {
-    try {
-        const id = parseInt(req.params.id);
-        if (isNaN(id)) {
-            throw new BadRequestError("Invalid user ID provided.");
-        } 
-        const updateData = req.body;
-
-        const updatedUser = await updateUserService(id, updateData);
+        const updatedUser = await updateUserService(userId, updateData);
 
         return handleResponse(res, 200, "User updated successfully", updatedUser);
     } catch (err) {
@@ -83,34 +51,23 @@ export const updateUserAdmin = async (req, res, next) => {
 
 export const deleteUser = async (req, res, next) => {
     try {
-        const id = parseInt(req.params.id);
-        if (isNaN(id)) {
-            return handleResponse(res, 400, "Invalid user ID provided");
-        }
-        const deletedUser = await deleteUserRepository(id);
-        if(!deletedUser) {
-            return handleResponse(res, 404, "User not found");
-        }
-        handleResponse(res, 200, "User deleted successfully", deletedUser);
-    }
-    catch(err){
+        const userId = req.userId;
+        
+        const deletedUser = await deleteUserService(userId, req.adminRoute);
+
+        return handleResponse(res, 200, "User deleted successfully", deletedUser);
+    } catch (err) {
         next(err);
     }
 };
 
 export const getBankNumber = async (req, res, next) => {
     try {
-        const id = parseInt(req.params.id);
-        if (isNaN(id)) {
-            return handleResponse(res, 400, "Invalid user ID provided");
-        }
-        const bankNumber = await getBankNumberRepository(id);
-        if (bankNumber === null) {
-            return handleResponse(res, 404, "Bank number not found for given user");
-        }
-        handleResponse(res, 200, "Bank number fetched successfully", bankNumber);
-    }
-    catch(err){
+        const userId = req.userId;
+        const bankNumber = await getBankNumberService(userId);
+        
+        return handleResponse(res, 200, "Bank number fetched successfully", bankNumber);
+    } catch (err) {
         next(err);
     }
 };
@@ -118,16 +75,11 @@ export const getBankNumber = async (req, res, next) => {
 export const searchUsers = async (req, res, next) => {
     try {
         const { username, limit = 10 } = req.query;
+        
+        const users = await searchUsersService(username, limit);
 
-        if (!username || username.trim() === "") {
-            return handleResponse(res, 400, "Username is required for search");
-        }
-        const sanitizedUsername = username.trim().replace(/\s+/g, "");
-        const users = await searchUsersRepository(sanitizedUsername, limit);
-
-        handleResponse(res, 200, "Search users successfully", users);
-    }
-    catch(err){
+        return handleResponse(res, 200, "Search users successfully", users);
+    } catch (err) {
         next(err);
     }
 };

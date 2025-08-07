@@ -58,9 +58,9 @@ model RefreshToken {
 //pratelstvi
 model Friendship {
   id         Int              @id @default(autoincrement())
-  sender     User             @relation("sentFriendships", fields: [senderId], references: [id])
+  sender     User             @relation("sentFriendships", fields: [senderId], references: [id], onDelete: Cascade)
   senderId   Int              @map("sender_id")
-  receiver   User             @relation("receivedFriendships", fields: [receiverId], references: [id])
+  receiver   User             @relation("receivedFriendships", fields: [receiverId], references: [id], onDelete: Cascade)
   receiverId Int              @map("receiver_id")
   status     FriendshipStatus @default(PENDING)
   createdAt  DateTime         @default(now()) @map("created_at")

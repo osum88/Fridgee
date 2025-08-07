@@ -7,16 +7,27 @@ import { authenticateToken, authorizeUser, authorizeUserOrAdmin } from "../middl
 
 const router = express.Router();
 
+//vytvoreni uzivatele
 router.post("/users", validate(createUserSchema), createUser);
-router.get("/users/search", authenticateToken, searchUsers);
-router.get("/users", authenticateToken, getUserById);
+
+//hledani podle username
+router.get("/users/search", authenticateToken, searchUsers);  
+//http://localhost:3001/api/users/search?username=josef&limit=2
+
+//vrati uzivatele podle id
+router.get("/users", authenticateToken, authorizeUser, getUserById);
 
 //TODO  middlevare pro profile picture
 router.put("/users/profile-image", authenticateToken, /*tady upload middleware,*/ updateUserProfilePicture);
 
-router.put("/users", validate(updateUserSchema), authenticateToken, updateUser);
-router.delete("/users/:id", authenticateToken, authorizeUserOrAdmin, deleteUser);
-router.get("/users/:id/bank-number", authenticateToken, authorizeUser, getBankNumber);
+//updatuje uzivatele
+router.put("/users", validate(updateUserSchema), authenticateToken, authorizeUser, updateUser);
+
+//smazani uzivatele
+router.delete("/users", authenticateToken, authorizeUser, deleteUser);
+
+//vrati bankovni cislo
+router.get("/users/bank-number", authenticateToken, authorizeUser, getBankNumber);
 
 
 

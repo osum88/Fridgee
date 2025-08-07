@@ -137,7 +137,7 @@ export const deleteAllFriendshipRepository = async (userId) => {
     }
 };
 
-export const getAllFriendRepository = async (userId) => {
+export const getAllFriendsRepository = async (userId) => {
     try {
         const allFriends = await prisma.friendship.findMany({
             where: {

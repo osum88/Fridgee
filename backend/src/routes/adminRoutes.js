@@ -1,31 +1,60 @@
 import express from "express";
-import { authenticateToken, authorizeAdmin } from "../middlewares/authMiddleware.js";
-import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFriend, getReceivedFriendRequests, getSentFriendRequests } from "../controllers/friendController.js";
-import { getAllUsersAdmin, getUserByIdAdmin, updateUserAdmin } from "../controllers/userController.js";
+import { authenticateToken, authorizeAdmin, authorizeAdminWithOutId } from "../middlewares/authMiddleware.js";
+import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFriends, getReceivedFriendRequests, getSentFriendRequests } from "../controllers/friendController.js";
+import { deleteUser, getAllUsersAdmin, getUserById, updateUser } from "../controllers/userController.js";
 import validate from "../middlewares/validator.js";
 import { updateUserSchema } from "../validation/userValidation.js";
+import { changeRoleInventoryUser, createFoodInventory, createInventoryUser } from "../controllers/foodInventoryController.js";
 
 const router = express.Router();
 
 
-//friendship
-router.post('/users/:id/friends/add/', authenticateToken, authorizeAdmin, addFriend);
-router.delete('/users/:id/friends/cancel/:friendId', authenticateToken, authorizeAdmin, cancelRequestFriend);
-router.delete('/users/:id/friends/:friendId', authenticateToken, authorizeAdmin, deleteFriend);
-router.put('/users/:id/friends/accept/:friendId', authenticateToken, authorizeAdmin, acceptFriend);
-router.get('/users/:id/friends/requests/sent', authenticateToken, authorizeAdmin, getSentFriendRequests);
-router.get('/users/:id/friends/requests/received', authenticateToken, authorizeAdmin, getReceivedFriendRequests);
-router.get('/users/:id/friends', authenticateToken, authorizeAdmin, getAllFriend);
+//                                 FRIENDSHIP
+//pridani do pratel
+router.post("/users/:id/friends/add", authenticateToken, authorizeAdmin, addFriend);
 
-//food inventory
-// router.post("/admin/inventory", authenticateToken, checkAdminRole, createFoodInventoryAsAdmin);
-// router.post('/admin/:inventoryId/users', authenticateToken, checkAdminRole, createInventoryUserAsAdmin);
-// router.patch('/admin/:inventoryId/users/:userId', authenticateToken, checkAdminRole, changeRoleInventoryUserAsAdmin);
+//zruseni zadosti
+router.delete("/users/:id/friends/cancel/:friendId", authenticateToken, authorizeAdmin, cancelRequestFriend);
 
-//users
-router.get("/users/:id", authenticateToken, authorizeAdmin, getUserByIdAdmin);   
-router.get("/users", authenticateToken, authorizeAdmin, getAllUsersAdmin);   
-router.put("/users/:id", validate(updateUserSchema), authenticateToken, authorizeAdmin, updateUserAdmin);
+//odstraneni nekoho z pratel
+router.delete("/users/:id/friends/:friendId", authenticateToken, authorizeAdmin, deleteFriend);
+
+//akceptovani zadosti
+router.put("/users/:id/friends/accept/:friendId", authenticateToken, authorizeAdmin, acceptFriend);
+
+//seznam vsech odeslanych zadosti
+router.get("/users/:id/friends/requests/sent", authenticateToken, authorizeAdmin, getSentFriendRequests);
+
+//seznam vsech prijatych zadosti
+router.get("/users/:id/friends/requests/received", authenticateToken, authorizeAdmin, getReceivedFriendRequests);
+
+//seznam vsech pratel
+router.get("/users/:id/friends", authenticateToken, authorizeAdmin, getAllFriends);
+
+
+//                               FOOD INVENTORY
+//vytvari inventar a inventory user nastaveny jako OWNER
+router.post("/users/:id/inventory", authenticateToken, authorizeAdmin, createFoodInventory);
+
+//inventory user nastaveny jako USER
+router.post("/users/:id/inventory/:inventoryId/users", authenticateToken, authorizeAdmin, createInventoryUser);
+
+//meni roli user v inventari
+router.patch("/users/:id/inventory/:inventoryId/users/:userId", authenticateToken, authorizeAdmin, changeRoleInventoryUser);
+
+
+//                                 USER
+//vrati uzivatele podle id
+router.get("/users/:id", authenticateToken, authorizeAdmin, getUserById);   
+
+//vrati vsechny uzivatele
+router.get("/users", authenticateToken, authorizeAdminWithOutId, getAllUsersAdmin);   
+
+//updatuje uzivatele
+router.put("/users/:id", validate(updateUserSchema), authenticateToken, authorizeAdmin, updateUser);
+
+//smaze uzivatele
+router.delete("/users/:id", authenticateToken, authorizeAdmin, deleteUser);
 
 
 

@@ -1,8 +1,7 @@
-import { ConflictError } from "../errors/errors.js";
-import { createUserRepository, getUserByEmailRepository, getUserByIdRepository, getUserByUsernameRepository, updateUserRepository } from "../repositories/userRepository.js";
+import { BadRequestError, ConflictError, NotFoundError } from "../errors/errors.js";
+import { createUserRepository, deleteUserRepository, getBankNumberRepository, getUserByEmailRepository, getUserByIdRepository, getUserByUsernameRepository, searchUsersRepository, updateUserRepository } from "../repositories/userRepository.js";
 
 export const createUserService = async (name, surname, username, birthDate, email, password, bankNumber) => {
-
     const existingUserByEmail = await getUserByEmailRepository(email);
     if (existingUserByEmail) {
         throw new ConflictError("A user with this email already exists.");
@@ -22,7 +21,6 @@ export const createUserService = async (name, surname, username, birthDate, emai
         password,
         bankNumber
     );
-
     return newUser;
 };
 
@@ -61,4 +59,40 @@ export const updateUserService = async (id, updateData) => {
     }
 
     return updatedUser;
+};
+
+export const deleteUserService = async (id, admin) => {
+
+    if (admin){
+        const user = await getUserByIdRepository(id);
+    }
+    const deletedUser = await deleteUserRepository(id);
+    if (!deletedUser) {
+        throw new NotFoundError("User not found.");
+    }
+    
+    return deletedUser;
+};
+
+export const getBankNumberService = async (id) => {
+
+    const bankNumber = await getBankNumberRepository(id);
+    
+    if (bankNumber === null) {
+        throw new NotFoundError("Bank number not found for given user.");
+    }
+
+    return bankNumber;
+};
+
+export const searchUsersService = async (username, limit = 10) => {
+    if (!username || username.trim() === "") {
+        throw new BadRequestError("Username is required for search.");
+    }
+    
+    const sanitizedUsername = username.trim().replace(/\s+/g, "");
+    
+    const users = await searchUsersRepository(sanitizedUsername, parseInt(limit, 10));
+
+    return users;
 };
