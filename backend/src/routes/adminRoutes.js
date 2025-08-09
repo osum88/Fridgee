@@ -4,7 +4,8 @@ import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFrien
 import { deleteUser, getAllUsersAdmin, getUserById, updateUser } from "../controllers/userController.js";
 import validate from "../middlewares/validator.js";
 import { updateUserSchema } from "../validation/userValidation.js";
-import { changeRoleInventoryUser, createFoodInventory, createInventoryUser } from "../controllers/foodInventoryController.js";
+import { changeRoleInventoryUser, createFoodInventory, createInventoryUser, deleteOtherFoodInventoryUser } from "../controllers/foodInventoryController.js";
+import { changeRoleAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteOtherAdminSchema } from "../validation/foodInventoryValidation.js";
 
 const router = express.Router();
 
@@ -34,13 +35,16 @@ router.get("/users/:id/friends", authenticateToken, authorizeAdmin, getAllFriend
 
 //                               FOOD INVENTORY
 //vytvari inventar a inventory user nastaveny jako OWNER
-router.post("/users/:id/inventory", authenticateToken, authorizeAdmin, createFoodInventory);
+router.post("/users/:id/inventory", validate(createFoodInventoryAdminSchema), authenticateToken, authorizeAdmin, createFoodInventory);
 
-//inventory user nastaveny jako USER
-router.post("/users/:id/inventory/:inventoryId/users", authenticateToken, authorizeAdmin, createInventoryUser);
+//vytvori inventory user nastaveny jako USER
+router.post("/users/:id/inventory/:inventoryId/users", validate(createInventoryUserAdminSchema),  authenticateToken, authorizeAdmin, createInventoryUser);
 
 //meni roli user v inventari
-router.patch("/users/:id/inventory/:inventoryId/users/:userId", authenticateToken, authorizeAdmin, changeRoleInventoryUser);
+router.patch("/users/:id/inventory/:inventoryId/users/:targetUserId", validate(changeRoleAdminSchema), authenticateToken, authorizeAdmin, changeRoleInventoryUser);
+
+//smaze jineho uzivatele z inventare
+router.delete("/users/:id/inventory/:inventoryId/users/:targetUserId", validate(deleteOtherAdminSchema), authenticateToken, authorizeAdmin, deleteOtherFoodInventoryUser);
 
 
 //                                 USER

@@ -15,36 +15,38 @@ datasource db {
 
 //uzivatele
 model User {
-  id                     Int             @id @default(autoincrement())
-  name                   String?         @db.VarChar(150)
-  surname                String?         @db.VarChar(150)
-  username               String          @unique @db.VarChar(150)
-  birthDate              DateTime?       @map("birth_date")
-  email                  String          @unique
-  passwordHash           String          @map("password_hash")
-  profilePictureUrl      String?         @map("profile_picture_url")
-  emailIsVerified        Boolean         @default(false) @map("email_is_verified")
-  verificationToken      String?         @unique @map("verification_token")
-  tokenExpiresAt         DateTime?       @map("token_expires_at")
-  passwordResetToken     String?         @unique @map("password_reset_token")
-  passwordResetExpiresAt DateTime?       @map("password_reset_expires_at")
-  bankNumber             String?         @map("bank_number") @db.VarChar(255)
-  isAdmin                Boolean         @default(false) @map("is_admin")
-  createdAt              DateTime        @default(now()) @map("created_at")
-  lastLogin              DateTime        @default(now()) @map("last_login")
-  updatedAt              DateTime        @updatedAt @map("updated_at")
-  preferredLanguage      String          @default("en") @map("preferred_language")
-  refreshTokens          RefreshToken[]
-  sentFriendships        Friendship[]    @relation("sentFriendships")
-  receivedFriendships    Friendship[]    @relation("receivedFriendships")
-  userInventory          InventoryUser[] @relation("userInventory")
+  id                           Int                   @id @default(autoincrement())
+  name                         String?               @db.VarChar(150)
+  surname                      String?               @db.VarChar(150)
+  username                     String                @unique @db.VarChar(150)
+  birthDate                    DateTime?             @map("birth_date")
+  email                        String                @unique
+  passwordHash                 String                @map("password_hash")
+  profilePictureUrl            String?               @map("profile_picture_url")
+  emailIsVerified              Boolean               @default(false) @map("email_is_verified")
+  verificationToken            String?               @unique @map("verification_token")
+  tokenExpiresAt               DateTime?             @map("token_expires_at")
+  passwordResetToken           String?               @unique @map("password_reset_token")
+  passwordResetExpiresAt       DateTime?             @map("password_reset_expires_at")
+  bankNumber                   String?               @map("bank_number") @db.VarChar(255)
+  isAdmin                      Boolean               @default(false) @map("is_admin")
+  createdAt                    DateTime              @default(now()) @map("created_at")
+  lastLogin                    DateTime              @default(now()) @map("last_login")
+  updatedAt                    DateTime              @updatedAt @map("updated_at")
+  preferredLanguage            String                @default("en") @map("preferred_language")
+  refreshTokens                RefreshToken[]
+  sentFriendships              Friendship[]          @relation("sentFriendships")
+  receivedFriendships          Friendship[]          @relation("receivedFriendships")
+  userInventory                InventoryUser[]       @relation("userInventory")
+  sentInventoryInvitations     InventoryInvitation[] @relation("sentInvitations")
+  receivedInventoryInvitations InventoryInvitation[] @relation("receivedInvitations")
 
   @@map("users")
 }
 
 // JWT refresh tokeny
 model RefreshToken {
-  id        String   @id 
+  id        String   @id
   tokenHash String   @unique @map("token_hash")
   userId    Int      @map("user_id")
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -78,15 +80,16 @@ enum FriendshipStatus {
 
 //inventar potravin, spolecny i soukromí
 model FoodInventory {
-  id             Int             @id @default(autoincrement())
-  title          String          @db.VarChar(100)
-  label          String?         @db.VarChar(150)
-  isArchived     Boolean         @default(false) @map("is_archived")
-  memberCount    Int             @default(0) @map("member_count")
-  lastActivityAt DateTime        @default(now()) @map("last_activity_at")
-  createdAt      DateTime        @default(now()) @map("created_at")
-  updatedAt      DateTime        @updatedAt @map("updated_at")
-  inventory      InventoryUser[] @relation("inventory")
+  id              Int                   @id @default(autoincrement())
+  title           String                @db.VarChar(100)
+  label           String?               @db.VarChar(150)
+  isArchived      Boolean               @default(false) @map("is_archived")
+  memberCount     Int                   @default(0) @map("member_count")
+  lastActivityAt  DateTime              @default(now()) @map("last_activity_at")
+  createdAt       DateTime              @default(now()) @map("created_at")
+  updatedAt       DateTime              @updatedAt @map("updated_at")
+  inventory       InventoryUser[]       @relation("inventory")
+  sentInvitations InventoryInvitation[] @relation("inventoryInvitations")
 
   @@map("food_inventory")
 }
@@ -111,4 +114,25 @@ enum InventoryRole {
   OWNER
   EDITOR
   USER
+}
+
+model InventoryInvitation {
+  id          Int              @id @default(autoincrement())
+  sender      User             @relation("sentInvitations", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId    Int              @map("sender_id")
+  receiver    User             @relation("receivedInvitations", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId  Int              @map("receiver_id")
+  inventory   FoodInventory    @relation("inventoryInvitations", fields: [inventoryId], references: [id], onDelete: Cascade)
+  inventoryId Int              @map("inventory_id")
+  role        InventoryRole    @default(USER)
+  status      InvitationStatus @default(PENDING)
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  @@unique([senderId, receiverId, inventoryId])
+  @@map("inventory_invitations")
+}
+
+enum InvitationStatus {
+  PENDING
 }

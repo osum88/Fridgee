@@ -37,3 +37,11 @@ export class ConflictError extends Error {
         this.statusCode = 409;
     }
 }
+
+export class InternalServerError extends Error {
+    constructor(message = "Internal Server Error") {
+        super(message);
+        this.name = "InternalServerError";
+        this.status = 500;
+    }
+}

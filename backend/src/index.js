@@ -50,7 +50,7 @@ const authLimiter = rateLimit({
 app.use("/api", apiLimiter, userRoutes);
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/friends", apiLimiter, friendRoutes);
-app.use("/api/food-inventory", apiLimiter, foodInventoryRoutes);
+app.use("/api/inventory", apiLimiter, foodInventoryRoutes);
 app.use("/api/admin", adminRoutes);
 
 

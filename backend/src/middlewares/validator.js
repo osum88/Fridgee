@@ -1,16 +1,18 @@
 const validate = (schema) => (req, res, next) => {
-    const { error, value } = schema.validate(req.body, { abortEarly: false });
+    const validationObject = { ...req.body, ...req.params, ...req.query };
+    const { error, value } = schema.validate(validationObject, { abortEarly: false });
 
     if (error) {
-        const errors = error.details.map((detail) => detail.message);
+        const errorMessages = error.details.map((detail) => detail.message);
         return res.status(400).json({
             status: 400,
             message: "Validation failed",
-            errors: errors, 
+            errors: errorMessages,
         });
     }
     req.body = value;
-    next(); 
+    next();
 };
 
 export default validate;
+

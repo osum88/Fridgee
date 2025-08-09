@@ -1,5 +1,4 @@
 import prisma from "../utils/prisma.js";
-import { getUserByIdRepository } from "./userRepository.js";
 
 export const createFriendshipRepository = async (senderId, receiverId) => {
     try {
@@ -33,8 +32,6 @@ export const createFriendshipRepository = async (senderId, receiverId) => {
 
 export const getStatusFriendshipRepository = async (senderId, receiverId) => {
     try {
-        await getUserByIdRepository(senderId);
-        await getUserByIdRepository(receiverId);
         const friendship = await prisma.friendship.findFirst({
             where: {
                 OR: [

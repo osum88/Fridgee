@@ -1,6 +1,4 @@
-import { createInventoryUserRepository } from "../repositories/foodInventoryRepository.js";
-import { getUserByIdRepository } from "../repositories/userRepository.js";
-import { createFoodInventoryService, createInventoryUserService } from "../services/foodInventoryService.js";
+import { changeRoleInventoryUserService, createFoodInventoryService, createInventoryUserService } from "../services/foodInventoryService.js";
 import handleResponse from "../utils/responseHandler.js";
 
 // vytvari inventar s jidlem
@@ -23,7 +21,7 @@ export const createInventoryUser = async (req, res, next) => {
     try {
         const inventoryId = parseInt(req.params.inventoryId, 10);
         const role = req.body.role;
-        const isAdmin = req.user.isAdmin;
+        const isAdmin = req.adminRoute;
         const userId = req.userId;
      
         const newInventoryUser = await createInventoryUserService(userId, inventoryId, role, isAdmin);
@@ -34,42 +32,48 @@ export const createInventoryUser = async (req, res, next) => {
     }
 };
 
+//zmeni roli uzivatele v inventari
 export const changeRoleInventoryUser = async (req, res, next) => {
     try {
         const inventoryId = parseInt(req.params.inventoryId, 10);
-        const userInventoryId = parseInt(req.params.userId, 10);
-
-        const role = req.body.role;
-        const isAdmin = req.user.isAdmin;
-        let userId;
-
-        if (isAdmin) {
-            userId = req.body.userId;
-            
-            if (!userId) {
-                return handleResponse(res, 400, "For admin, a userId is required.");
-            }
-
-            if (isNaN(userId)) {
-                return handleResponse(res, 400, "Invalid user ID provided.");
-            }
-        } else {
-            userId = req.user.id;
-        }
-
-        if (isNaN(inventoryId)) {
-            return handleResponse(res, 400, "Invalid inventory ID provided.");
-        }
-        const newInventoryUser = await createInventoryUserRepository(userId, inventoryId, role);
-        handleResponse(res, 201, "User added to inventory successfully", newInventoryUser);
+        const targetUserId = parseInt(req.params.targetUserId, 10);
+        const userId = req.userId;
+        const newRole = req.body.newRole;
+        const isAdmin = req.adminRoute;
+        
+        const newUserRole = await changeRoleInventoryUserService(userId, inventoryId, targetUserId, newRole, isAdmin);
+        handleResponse(res, 201, "Change user role successfully", newUserRole);
     }
     catch(err){
-        if (err.message === "FoodInventoryNotFound") {
-            return handleResponse(res, 404, "Food inventory not found.");
-        }
-        if (err.message === "UserInInventoryAlreadyExist") {
-            return handleResponse(res, 404, "User in inventory already exist.");
-        }
+        next(err);
+    }
+};
+
+export const deleteFoodInventoryUser = async (req, res, next) => {
+    try {
+        const inventoryId = parseInt(req.params.inventoryId, 10);
+        const userId = req.userId;
+        
+        const deletedUser = await changeRoleInventoryUserService(userId, inventoryId, targetUserId, role, isAdmin);
+        handleResponse(res, 201, "User deleted from inventory successfully", deletedUser);
+    }
+    catch(err){
+        next(err);
+    }
+};
+
+export const deleteOtherFoodInventoryUser = async (req, res, next) => {
+    try {
+        const inventoryId = parseInt(req.params.inventoryId, 10);
+        const targetUserId = parseInt(req.params.targetUserId, 10);
+        const userId = req.userId;
+        const role = req.body.role;
+        const isAdmin = req.adminRoute;
+        
+        const deletedUser = await changeRoleInventoryUserService(userId, inventoryId, targetUserId, role, isAdmin);
+        handleResponse(res, 201, "User deleted from inventory successfully", deletedUser);
+    }
+    catch(err){
         next(err);
     }
 };
