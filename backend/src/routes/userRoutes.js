@@ -21,7 +21,7 @@ router.get("/users", authenticateToken, authorizeUser, getUserById);
 router.put("/users/profile-image", authenticateToken, /*tady upload middleware,*/ updateUserProfilePicture);
 
 //updatuje uzivatele
-router.put("/users", validate(updateUserSchema), authenticateToken, authorizeUser, updateUser);
+router.patch("/users", validate(updateUserSchema), authenticateToken, authorizeUser, updateUser);
 
 //smazani uzivatele
 router.delete("/users", authenticateToken, authorizeUser, deleteUser);

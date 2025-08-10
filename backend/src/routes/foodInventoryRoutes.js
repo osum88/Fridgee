@@ -1,9 +1,9 @@
 import express from "express";
 import { authenticateToken, authorizeUser } from "../middlewares/authMiddleware.js";
-import { changeRoleInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, deleteOtherFoodInventoryUser } from "../controllers/foodInventoryController.js";
+import { archiveFoodInventory, changeRoleInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, deleteOtherFoodInventoryUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
 import { acceptInventoryInvitation, rejectInventoryInvitation, sentInventoryInvitation } from "../controllers/inventoryInvitationController.js";
 import validate from "../middlewares/validator.js";
-import { changeRoleSchema, createFoodInventorySchema, deleteOtherSchema, inventoryIdSchema } from "../validation/foodInventoryValidation.js";
+import { archiveInventorySchema, changeRoleSchema, createFoodInventorySchema, deleteOtherSchema, deleteSchema, getInventoryUsersSchema, updateFoodInventorySchema } from "../validation/foodInventoryValidation.js";
 import { invitationIdSchema, sendInvitationSchema } from "../validation/inventoryInvitationValidation.js";
 
 const router = express.Router();
@@ -23,11 +23,27 @@ router.post("/:invitationId/reject", validate(invitationIdSchema), authenticateT
 //meni roli user v inventari
 router.patch("/:inventoryId/users/:targetUserId", validate(changeRoleSchema), authenticateToken, authorizeUser, changeRoleInventoryUser);
 
-//smaze me z inventare
-router.delete("/:inventoryId/users", validate(inventoryIdSchema), authenticateToken, authorizeUser, deleteFoodInventoryUser);
-
 //smaze jineho uzivatele z inventare
 router.delete("/:inventoryId/users/:targetUserId", validate(deleteOtherSchema), authenticateToken, authorizeUser, deleteOtherFoodInventoryUser);
+
+//smaze me z inventare
+router.delete("/:inventoryId/users", validate(deleteSchema), authenticateToken, authorizeUser, deleteFoodInventoryUser);
+
+//vrati uzivatele podle role
+router.get("/:inventoryId/users", validate(getInventoryUsersSchema), authenticateToken, authorizeUser, getUsersByInventoryId);
+//http://localhost:3001/api/inventory/3/users?role=OWNER?role=OWNER&role=EDITOR
+
+//archivuje inventar
+router.patch("/:inventoryId/archive", validate(archiveInventorySchema), authenticateToken, authorizeUser, archiveFoodInventory);
+
+//zrusi archivaci inventare
+router.patch("/:inventoryId/unarchive", validate(archiveInventorySchema), authenticateToken, authorizeUser, unarchiveFoodInventory);
+
+//smena title a label
+router.patch("/:inventoryId", validate(updateFoodInventorySchema), authenticateToken, authorizeUser, updateFoodInventory);
+
+//vrati vsechny inventare uzivatele
+
 
 export default router;
 

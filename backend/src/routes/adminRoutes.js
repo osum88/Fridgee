@@ -4,8 +4,8 @@ import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFrien
 import { deleteUser, getAllUsersAdmin, getUserById, updateUser } from "../controllers/userController.js";
 import validate from "../middlewares/validator.js";
 import { updateUserSchema } from "../validation/userValidation.js";
-import { changeRoleInventoryUser, createFoodInventory, createInventoryUser, deleteOtherFoodInventoryUser } from "../controllers/foodInventoryController.js";
-import { changeRoleAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteOtherAdminSchema } from "../validation/foodInventoryValidation.js";
+import { archiveFoodInventory, changeRoleInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
+import { archiveInventoryAdminSchema, changeRoleAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema } from "../validation/foodInventoryValidation.js";
 
 const router = express.Router();
 
@@ -21,7 +21,7 @@ router.delete("/users/:id/friends/cancel/:friendId", authenticateToken, authoriz
 router.delete("/users/:id/friends/:friendId", authenticateToken, authorizeAdmin, deleteFriend);
 
 //akceptovani zadosti
-router.put("/users/:id/friends/accept/:friendId", authenticateToken, authorizeAdmin, acceptFriend);
+router.patch("/users/:id/friends/accept/:friendId", authenticateToken, authorizeAdmin, acceptFriend);
 
 //seznam vsech odeslanych zadosti
 router.get("/users/:id/friends/requests/sent", authenticateToken, authorizeAdmin, getSentFriendRequests);
@@ -43,8 +43,20 @@ router.post("/users/:id/inventory/:inventoryId/users", validate(createInventoryU
 //meni roli user v inventari
 router.patch("/users/:id/inventory/:inventoryId/users/:targetUserId", validate(changeRoleAdminSchema), authenticateToken, authorizeAdmin, changeRoleInventoryUser);
 
-//smaze jineho uzivatele z inventare
-router.delete("/users/:id/inventory/:inventoryId/users/:targetUserId", validate(deleteOtherAdminSchema), authenticateToken, authorizeAdmin, deleteOtherFoodInventoryUser);
+//smaze uzivatele z inventare
+router.delete("/users/:id/inventory/:inventoryId/users/", validate(deleteAdminSchema), authenticateToken, authorizeAdmin, deleteFoodInventoryUser);
+
+//vrati uzivatele podle role
+router.get("/users/inventory/:inventoryId/users", validate(getInventoryUsersSchema), authenticateToken, authorizeAdminWithOutId, getUsersByInventoryId);
+
+//archivuje inventar
+router.patch("/users/:id/inventory/:inventoryId/archive", validate(archiveInventoryAdminSchema), authenticateToken, authorizeAdmin, archiveFoodInventory);
+
+//zrusi archivaci inventare
+router.patch("/users/:id/inventory/:inventoryId/unarchive", validate(archiveInventoryAdminSchema), authenticateToken, authorizeAdmin, unarchiveFoodInventory);
+
+//zmena title a label
+router.patch("/users/inventory/:inventoryId", validate(updateFoodInventorySchema), authenticateToken, authorizeAdminWithOutId, updateFoodInventory);
 
 
 //                                 USER
@@ -55,7 +67,7 @@ router.get("/users/:id", authenticateToken, authorizeAdmin, getUserById);
 router.get("/users", authenticateToken, authorizeAdminWithOutId, getAllUsersAdmin);   
 
 //updatuje uzivatele
-router.put("/users/:id", validate(updateUserSchema), authenticateToken, authorizeAdmin, updateUser);
+router.patch("/users/:id", validate(updateUserSchema), authenticateToken, authorizeAdmin, updateUser);
 
 //smaze uzivatele
 router.delete("/users/:id", authenticateToken, authorizeAdmin, deleteUser);

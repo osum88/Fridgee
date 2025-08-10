@@ -14,7 +14,7 @@ router.delete("/cancel/:friendId", authenticateToken, authorizeUser, cancelReque
 router.delete("/:friendId", authenticateToken, authorizeUser, deleteFriend);            
 
 //akceptovani zadosti
-router.put("/accept/:friendId", authenticateToken, authorizeUser, acceptFriend);
+router.patch("/accept/:friendId", authenticateToken, authorizeUser, acceptFriend);
 
 //seznam vsech odeslanych zadosti
 router.get("/requests/sent", authenticateToken, authorizeUser, getSentFriendRequests);

@@ -1,6 +1,5 @@
 import { ConflictError, NotFoundError } from "../errors/errors.js";
 import prisma from "../utils/prisma.js";
-import { getUserByIdRepository } from "./userRepository.js";
 
 //vytvari inventar jidla s prvnim jeho uzivatelem (owner)
 export const createFoodInventoryRepository = async (userId, title, label) => {
@@ -76,7 +75,7 @@ export const getFoodInventoryRepository = async (foodInventoryId) => {
 };
 
 // hleda user jestli je user v danem inventari podle id
-export const getFoodInventoryUserRepository  = async (userId, foodInventoryId) => {
+export const getFoodInventoryUserRepository = async (userId, foodInventoryId) => {
     try {
         const user = await prisma.inventoryUser.findUnique({
             where: {
@@ -178,15 +177,27 @@ export const getFoodInventoryOwnerCountRepository = async (inventoryId) => {
 //smaze uzivatele inventare
 export const deleteUserFoodInventoryRepository = async (userId, inventoryId) => {
     try {
-        const deletedUser = await prisma.inventoryUser.delete({
-            where: {
-                userId_inventoryId: {
-                    userId: userId,
-                    inventoryId: inventoryId,
+        const [deletedUser, updatedFoodInventory] = await prisma.$transaction([
+            prisma.inventoryUser.delete({
+                where: {
+                    userId_inventoryId: {
+                        userId: userId,
+                        inventoryId: inventoryId,
+                    },
                 },
-            },
-        });
-        return deletedUser;
+            }),
+            prisma.foodInventory.update({
+                where: {
+                    id: inventoryId,
+                },
+                data: {
+                    memberCount: {
+                        decrement: 1,
+                    },
+                },
+            }),
+        ]);
+        return { deletedUser, updatedFoodInventory };
     } catch (error) {
         console.error("Error deleting user in inventory:", error);
         throw error;
@@ -204,6 +215,125 @@ export const deleteFoodInventoryRepository = async (inventoryId) => {
         return deletedInventory;
     } catch (error) {
         console.error("Error deleting food inventory:", error);
+        throw error;
+    }
+};
+
+//vrati user podle role
+export const getUsersByInventoryIdRepository = async (inventoryId, rolesToFilter) => {
+    try {
+        const userInventory = await prisma.inventoryUser.findMany({
+            where: {
+                inventoryId: inventoryId,
+                ...(rolesToFilter && {
+                    role: {
+                        in: Array.isArray(rolesToFilter) ? rolesToFilter : [rolesToFilter],
+                    },
+                }),
+                
+            },
+            orderBy: [
+                { user: { name: "asc" } },
+                { user: { surname: "asc" } },
+                { user: { username: "asc" } },
+            ],
+            select: {
+                id: true,
+                userId: true,
+                inventoryId: true,
+                role: true,
+                notificationSettings: true,
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        surname: true,
+                        username: true,
+                        birthDate: true,
+                        email: true,
+                        profilePictureUrl: true,
+                        preferredLanguage: true,
+                    }, 
+                },
+            },
+        });
+        return userInventory;
+    } catch (error) {
+        console.error("Error fetching users by inventory ID:", error);
+        throw error;
+    }
+};
+
+//archivace inventare
+export const archiveFoodInventoryRepository = async (inventoryId) => {
+    try {
+        const archivedInventory = await prisma.foodInventory.update({
+            where: {
+                id: inventoryId, 
+            },
+            data: {
+                isArchived: true,
+            }
+        });
+        return archivedInventory;
+    } catch (error) {
+        console.error("Error archiving inventory:", error);
+        throw error;
+    }
+};
+
+//zruseni archivace inventare
+export const unarchiveFoodInventoryRepository = async (inventoryId) => {
+    try {
+        const unarchivedInventory = await prisma.foodInventory.update({
+            where: {
+                id: inventoryId, 
+            },
+            data: {
+                isArchived: false,
+            }
+        });
+        return unarchivedInventory;
+    } catch (error) {
+        console.error("Error unarchiving inventory:", error);
+        throw error;
+    }
+};
+
+//update title a label inventare
+export const updateFoodInventoryRepository = async (inventoryId, title, label) => {
+    try {
+        const updatedInventory = await prisma.foodInventory.update({
+            where: {
+                id: inventoryId, 
+            },
+            data: {
+                title: title,
+                label: label,
+                lastActivityAt: new Date(),
+            }
+        });
+        return updatedInventory;
+    } catch (error) {
+        console.error("Error updating inventory:", error);
+        throw error;
+    }
+};
+
+//update last activity at inventare
+export const updateLastActivityAtFoodInventoryRepository = async (inventoryId) => {
+    try {
+        const updatedInventory = await prisma.foodInventory.update({
+            where: {
+                id: inventoryId, 
+            },
+            data: {
+                lastActivityAt: new Date(),
+            }
+        });
+        return updatedInventory;
+    } catch (error) {
+        console.error("Error updating last activity at inventory:", error);
         throw error;
     }
 };
