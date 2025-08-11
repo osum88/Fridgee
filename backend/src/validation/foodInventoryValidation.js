@@ -71,3 +71,21 @@ export const updateFoodInventorySchema = Joi.object({
     label: Joi.string().max(150).allow(null, "").optional(),
 }).or("title", "label");
 
+export const changeSettingSchema = Joi.object({
+    inventoryId: Joi.number().integer().positive().required(),
+    setting: Joi.object({
+        expiringFood: Joi.boolean().optional(),
+        lowStock: Joi.boolean().optional(),
+        inventoryUpdates: Joi.boolean().optional(),
+    }).min(1).required(), 
+});
+
+export const changeSettingAdminSchema = Joi.object({
+    id: Joi.number().integer().positive().required(),
+    inventoryId: Joi.number().integer().positive().required(),
+    setting: Joi.object({
+        expiringFood: Joi.boolean().optional(),
+        lowStock: Joi.boolean().optional(),
+        inventoryUpdates: Joi.boolean().optional(),
+    }).min(1).required(), 
+});

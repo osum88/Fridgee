@@ -1,4 +1,4 @@
-import { archiveFoodInventoryService, changeRoleInventoryUserService, createFoodInventoryService, createInventoryUserService, deleteFoodInventoryUserService, deleteOtherFoodInventoryUserService, getUsersByInventoryIdService, updateFoodInventoryService } from "../services/foodInventoryService.js";
+import { archiveFoodInventoryService, changeRoleInventoryUserService, changeSettingFoodInventoryUserService, createFoodInventoryService, createInventoryUserService, deleteFoodInventoryUserService, deleteOtherFoodInventoryUserService, getAllFoodInventoryService, getInventoryDetailsWithUserService, getUsersByInventoryIdService, updateFoodInventoryService } from "../services/foodInventoryService.js";
 import handleResponse from "../utils/responseHandler.js";
 
 // vytvari inventar s jidlem
@@ -133,6 +133,51 @@ export const updateFoodInventory = async (req, res, next) => {
         
         const updatedInventory = await updateFoodInventoryService(userId, inventoryId, title, label, isAdmin);
         handleResponse(res, 200, "Inventory updated successfully", updatedInventory);
+    }
+    catch(err){
+        next(err);
+    }
+};
+
+//vrati vsechny inventare uzivatele
+export const getAllFoodInventory = async (req, res, next) => {
+    try {
+        const userId = req.userId;
+        const isAdmin = req.adminRoute;
+        
+        const inventories = await getAllFoodInventoryService(userId, isAdmin);
+        handleResponse(res, 200, "Inventory fetched successfully", inventories);
+    }
+    catch(err){
+        next(err);
+    }
+};
+
+//zruseni archivace invenatre
+export const getInventoryDetailsWithUser = async (req, res, next) => {
+    try {
+        const inventoryId = parseInt(req.params.inventoryId, 10);
+        const userId = req.userId;
+        const isAdmin = req.adminRoute;
+        
+        const inventoryDetails = await getInventoryDetailsWithUserService(userId, inventoryId, isAdmin);
+        handleResponse(res, 200, "Inventory details with user fetched successfully", inventoryDetails);
+    }
+    catch(err){
+        next(err);
+    }
+};
+
+//zmena setting
+export const changeSettingFoodInventoryUser = async (req, res, next) => {
+    try {
+        const inventoryId = parseInt(req.params.inventoryId, 10);
+        const userId = req.userId;
+        const isAdmin = req.adminRoute;
+        const setting = req.body.setting;
+        
+        const inventoryDetails = await changeSettingFoodInventoryUserService(userId, inventoryId, setting, isAdmin);
+        handleResponse(res, 200, "User setting updated successfully", inventoryDetails);
     }
     catch(err){
         next(err);

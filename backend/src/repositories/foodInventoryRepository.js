@@ -337,3 +337,91 @@ export const updateLastActivityAtFoodInventoryRepository = async (inventoryId) =
         throw error;
     }
 };
+
+//vrati vsechny inventare pod id usera
+export const getAllFoodInventoryRepository = async (userId) => {
+    try {
+        const inventoryUserRecords = await prisma.inventoryUser.findMany({
+            where: {
+                userId: userId,
+            },
+            select: {
+                inventoryId: true,
+            },
+        });
+
+        // ziska pole ID inventaru z vysledku prvniho dotazu
+        const inventoryIds = inventoryUserRecords.map(record => record.inventoryId);
+
+        if (inventoryIds.length === 0) {
+            return [];
+        }
+        const foodInventories = await prisma.foodInventory.findMany({
+            where: {
+                id: {
+                    in: inventoryIds,
+                },
+                isArchived: false,
+            },
+            select: {
+                id: true, 
+                title: true,
+                label: true,
+                memberCount: true,
+                lastActivityAt: true,
+            },
+            orderBy: {
+                lastActivityAt: "desc", 
+            },
+        });
+        return foodInventories;
+    } catch (error) {
+        console.error("Error fetching food inventory:", error);
+        throw error;
+    }
+};
+
+// zmena settingu user v inventari
+export const changeSettingFoodInventoryUserRepository = async (userId, foodInventoryId, newSettings) => {
+    try {
+        const existingSettings = await prisma.inventoryUser.findUnique({
+            where: {
+                userId_inventoryId: {
+                    userId: userId,
+                    inventoryId: foodInventoryId,
+                },
+            },
+            select: {
+                notificationSettings: true,
+            },
+        });
+
+        // spojeni aktualniho nastaveni s novym
+        const updatedSettings = {
+            ...existingSettings.notificationSettings,
+            ...newSettings,
+        };
+
+        const updatedUser = await prisma.inventoryUser.update({
+            where: {
+                userId_inventoryId: {
+                    userId: userId,
+                    inventoryId: foodInventoryId,
+                },
+            },
+            data: {
+                notificationSettings: updatedSettings,
+            },
+            select: {
+                notificationSettings: true,
+                id: true,
+                userId: true,
+                inventoryId: true,
+            },
+        });
+        return updatedUser;
+    } catch (error) {
+        console.error("Error updating user setting:", error);
+        throw error;
+    }
+};

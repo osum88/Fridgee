@@ -1,6 +1,6 @@
 import { getUsersByInventoryId } from "../controllers/foodInventoryController.js";
 import { BadRequestError, ConflictError, ForbiddenError, InternalServerError, NotFoundError } from "../errors/errors.js";
-import { changeRoleFoodInventoryUserRepository, createFoodInventoryRepository, createInventoryUserRepository, getFoodInventoryRepository, getFoodInventoryUserRepository, getFoodInventoryOwnerCountRepository, getFoodInventoryUserRoleRepository, isUserInFoodInventoryRepository, deleteUserFoodInventoryRepository, deleteFoodInventoryRepository, getUsersByInventoryIdRepository, archiveFoodInventoryRepository, unarchiveFoodInventoryRepository, updateFoodInventoryRepository } from "../repositories/foodInventoryRepository.js";
+import { changeRoleFoodInventoryUserRepository, createFoodInventoryRepository, createInventoryUserRepository, getFoodInventoryRepository, getFoodInventoryUserRepository, getFoodInventoryOwnerCountRepository, getFoodInventoryUserRoleRepository, isUserInFoodInventoryRepository, deleteUserFoodInventoryRepository, deleteFoodInventoryRepository, getUsersByInventoryIdRepository, archiveFoodInventoryRepository, unarchiveFoodInventoryRepository, updateFoodInventoryRepository, getAllFoodInventoryRepository, changeSettingFoodInventoryUserRepository } from "../repositories/foodInventoryRepository.js";
 import { getUserByIdRepository } from "../repositories/userRepository.js";
 
 // vytvari inventar s jidlem
@@ -277,4 +277,59 @@ export const updateFoodInventoryService = async (userId, inventoryId, title, lab
     // updatuje title a label inventare
     const updatedInventory = await updateFoodInventoryRepository(inventoryId, title, label);
     return updatedInventory;
+};
+
+//vrati uzivatele podle id a role
+export const getAllFoodInventoryService = async (userId, isAdmin) => {
+    if (isAdmin) {
+        await getUserByIdRepository(userId);
+    }
+
+    // vrati inventare
+    const inventories = await getAllFoodInventoryRepository(userId);
+    return inventories;
+};
+
+export const getInventoryDetailsWithUserService = async (userId, inventoryId, isAdmin) => {
+    if (isNaN(inventoryId)) {
+        throw new BadRequestError("Invalid inventory ID provided.");
+    }
+    if (isAdmin) {
+        await getUserByIdRepository(userId);
+    }
+    const inventory = await getFoodInventoryRepository(inventoryId);
+
+    // kontrola existence uzivatele v inventari
+    const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId);
+    if (!inventoryUser) {
+        throw new ForbiddenError("Only the member of the inventory can view it.");
+    }
+
+    // spojeni dat do jednoho objektu
+    const combinedData = {
+        inventory: inventory,
+        userRole: inventoryUser.role,
+        userSetting: inventoryUser.notificationSettings,
+    };
+    return combinedData;
+};
+
+//zmena settingu pro uzivatele
+export const changeSettingFoodInventoryUserService = async (userId, inventoryId, setting, isAdmin) => {
+    if (isNaN(inventoryId)) {
+        throw new BadRequestError("Invalid inventory ID provided.");
+    }
+    if (isAdmin) {
+        await getUserByIdRepository(userId);
+    }
+
+    // kontrola existence cilového uzivatele v inventari
+    const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId);
+    if (!inventoryUser) {
+        throw new NotFoundError("You do not have permission to modify settings in this inventory.");
+    }
+    
+    // zmena settingu usera
+    const updatedUser = await changeSettingFoodInventoryUserRepository(userId, inventoryId, setting);
+    return updatedUser;
 };

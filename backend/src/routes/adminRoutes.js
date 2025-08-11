@@ -4,8 +4,8 @@ import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFrien
 import { deleteUser, getAllUsersAdmin, getUserById, updateUser } from "../controllers/userController.js";
 import validate from "../middlewares/validator.js";
 import { updateUserSchema } from "../validation/userValidation.js";
-import { archiveFoodInventory, changeRoleInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
-import { archiveInventoryAdminSchema, changeRoleAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema } from "../validation/foodInventoryValidation.js";
+import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, getAllFoodInventory, getInventoryDetailsWithUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
+import { archiveInventoryAdminSchema, changeRoleAdminSchema, changeSettingAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema } from "../validation/foodInventoryValidation.js";
 
 const router = express.Router();
 
@@ -40,6 +40,9 @@ router.post("/users/:id/inventory", validate(createFoodInventoryAdminSchema), au
 //vytvori inventory user nastaveny jako USER
 router.post("/users/:id/inventory/:inventoryId/users", validate(createInventoryUserAdminSchema),  authenticateToken, authorizeAdmin, createInventoryUser);
 
+//zmena setting usera
+router.patch("/users/:id/inventory/:inventoryId/users/settings", validate(changeSettingAdminSchema), authenticateToken, authorizeAdmin, changeSettingFoodInventoryUser);
+
 //meni roli user v inventari
 router.patch("/users/:id/inventory/:inventoryId/users/:targetUserId", validate(changeRoleAdminSchema), authenticateToken, authorizeAdmin, changeRoleInventoryUser);
 
@@ -57,6 +60,12 @@ router.patch("/users/:id/inventory/:inventoryId/unarchive", validate(archiveInve
 
 //zmena title a label
 router.patch("/users/inventory/:inventoryId", validate(updateFoodInventorySchema), authenticateToken, authorizeAdminWithOutId, updateFoodInventory);
+
+//vrati vsechny inventare uzivatele
+router.get("/users/:id/inventory", authenticateToken, authorizeAdmin, getAllFoodInventory);
+
+//ziska detail inventare s opravnenim 
+router.get("/users/:id/inventory/:inventoryId", validate(archiveInventoryAdminSchema), authenticateToken, authorizeAdmin, getInventoryDetailsWithUser);
 
 
 //                                 USER
