@@ -22,6 +22,7 @@ const MAPPING = {
   "line.horizontal.3": "menu",                            //menu
   "bell": "notifications-none",                           //zvonecek notifikace
   "cart": "shopping-cart",                                //nakupni kosik
+  "checkmark": "check",                                   //fajvka
 } as IconMapping;
 
 /**

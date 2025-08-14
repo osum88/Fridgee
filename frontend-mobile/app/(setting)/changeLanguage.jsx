@@ -1,41 +1,37 @@
-// import { Image } from "expo-image";
-import { StyleSheet, View, Button, Text } from "react-native";
-
-// import { Collapsible } from "@/components/Collapsible";
-// import { ExternalLink } from "@/components/ExternalLink";
-import { ThemedText } from "@/components/ThemedText";
+import { StyleSheet } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
-// import { IconSymbol } from "@/components/ui/IconSymbol";
+import { ThemedLine } from "@/components/ThemedLine";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { CheckableItem } from "../../components/common/CheckableItem";
 
-import React, { useState } from "react";
-
-import i18n from "@/constants/translations";
-
-export default function SettingsScreen() {
-  const [currentLocale, setCurrentLocale] = useState(i18n.locale);
-
-  const changeLanguage = (locale) => {
-    i18n.locale = locale;
-    setCurrentLocale(locale); 
-  };
+export default function ChangeLanguage() {
+  const { locale, setAppLanguage } = useLanguage();
 
   return (
-    <ThemedView>
-      <ThemedText>Aktuální jazyk: {currentLocale}</ThemedText>
-      <Button
-        title="Čeština"
-        onPress={() => changeLanguage("cs")}
-        disabled={currentLocale === "cs"}
-      />
-      <Button
-        title="English"
-        onPress={() => changeLanguage("en")}
-        disabled={currentLocale === "en"}
-      />
+    <ThemedView style={styles.checkableItemContainer}>
+      <CheckableItem         
+        label="English"
+        value="en"
+        selected={locale === "en"}
+        onPress={setAppLanguage}/>
+      <ThemedLine/>
+      <CheckableItem         
+        label="Čeština"
+        value="cs"
+        selected={locale === "cs"}
+        onPress={setAppLanguage}/>
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-
+    checkableItemContainer: {
+      padding: 32,
+      flex: 1,
+      gap: 20,
+    },
+    itemWrapper: {
+      borderBottomWidth: 0.2, 
+      borderBottomColor: "#3333", 
+    }
 });

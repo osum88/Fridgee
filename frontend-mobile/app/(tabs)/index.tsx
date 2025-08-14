@@ -5,8 +5,12 @@ import { HelloWave } from "@/components/HelloWave";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import i18n from "@/constants/translations";
+
 
 export default function HomeScreen() {
+
+  
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
@@ -23,7 +27,7 @@ export default function HomeScreen() {
       <ThemedView style={styles.stepContainer}>
    
         <Link href="../login"><ThemedText type="subtitle">Login</ThemedText></Link>
-        <Link href="../changeLanguage"><ThemedText type="subtitle">Language</ThemedText></Link>
+        <Link href="../changeLanguage"><ThemedText type="subtitle">{i18n.t("language")} </ThemedText></Link>
 
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
@@ -51,6 +55,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+    
+    
   },
   stepContainer: {
     gap: 8,
