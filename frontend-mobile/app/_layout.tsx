@@ -9,7 +9,6 @@ import { useEffect, useState } from "react";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { LanguageProvider } from "@/contexts/LanguageContext"; 
-import { Colors } from "@/constants/Colors"; // Import Colors
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -43,7 +42,7 @@ export default function RootLayout() {
     ...DarkTheme,
     colors: {
       ...DarkTheme.colors,
-      card: '#1f1f1f',
+      card: "#1f1f1f",
     },
   };
 
@@ -61,4 +60,6 @@ export default function RootLayout() {
       </ThemeProvider>
     </LanguageProvider>
   );
+
+  
 }

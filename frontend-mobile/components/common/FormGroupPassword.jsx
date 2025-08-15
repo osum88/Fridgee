@@ -1,0 +1,62 @@
+import { StyleSheet, TouchableOpacity } from "react-native";
+import { ThemedText } from "@/components/themed/ThemedText";
+import { ThemedTextInput } from "@/components/themed/ThemedTextInput";
+import { ThemedView } from "@/components/themed/ThemedView";
+import { useColorScheme } from "@/hooks/useColorScheme"; 
+import { useState } from "react";
+import { Colors } from "@/constants/Colors"; 
+import { IconSymbol } from "@/components/ui/IconSymbol";
+
+
+export function FormGroupPassword({ label, placeholder, style, ...props }) {
+    const colorScheme = useColorScheme();
+    const currentColors = Colors[colorScheme ?? "light"];
+    const [showPassword, setShowPassword] = useState(false);
+
+    return (
+        <ThemedView style={styles.container}>
+            <ThemedText style={colorScheme === 'light' && styles.text}>{label}</ThemedText>
+            <ThemedView style={styles.inputContainer}>
+                <ThemedTextInput 
+                    placeholder={placeholder} 
+                    style={[style, styles.input]}   
+                    secureTextEntry={!showPassword}
+                    {...props} 
+                />
+                <TouchableOpacity
+                    style={styles.iconButton}
+                    onPress={() => setShowPassword(!showPassword)}
+                >
+                    <IconSymbol 
+                        size={28} 
+                        name={showPassword ? "eye" : "eye.slash"} 
+                        color={currentColors.input_text} 
+                    />
+                </TouchableOpacity>
+            </ThemedView>
+        </ThemedView>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        gap: 7, 
+    },
+    text: {
+        fontWeight: "600",
+    },
+    input: {
+        paddingRight: 50,
+    },
+    inputContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        position: "relative",
+        overflow: "hidden",
+    },
+    iconButton: {
+        position: "absolute",
+        right: 6,
+        padding: 5,
+    },
+});

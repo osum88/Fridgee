@@ -5,7 +5,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
-  type?: "default" | "title" | "defaultSemiBold" | "subtitle" | "link" | "checkableItem";
+  type?: "default" | "title" | "defaultSemiBold" | "subtitle" | "link" | "checkableItem" | "btn";
 };
 
 export function ThemedText({
@@ -27,6 +27,7 @@ export function ThemedText({
         type === "subtitle" ? styles.subtitle : undefined,
         type === "link" ? styles.link : undefined,
         type === "checkableItem" ? styles.checkableItem : undefined,
+        type === "btn" ? styles.btn : undefined,
         style,
       ]}
       {...rest}
@@ -62,5 +63,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 30,
     fontWeight: "600",
+  },
+  btn: {
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });

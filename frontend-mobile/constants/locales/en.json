@@ -1,5 +1,24 @@
 {
-  "login": "Login",
+  "login": "Login Account",
   "loginButton": "Log in",
-  "language": "Language"
+  "language": "Language",
+  "emailAddress": "Email Address",
+  "enterYourEmail": "Enter your email",
+  "password": "Password",
+  "enterYourPassword": "Enter your password",
+  "passwordAgain": "Enter your password again",
+  "confirmPassword": "Confirm Password",
+  "forgotPassword": "Forgot Password?",
+  "notRegisteredYet": "Not registered yet?",
+  "alreadyHaveAnAccount": "Already have an account?",
+  "createAccount": "Create Account",
+  "loginNow": "Login now",
+  "registration": "Registration",
+  "signUpButton": "Sign Up",
+  "username": "Username",
+  "enterYourUsername": "Enter your username",
+  "rememberMe":"Remember me"
+
+
 }
+

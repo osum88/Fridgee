@@ -1,5 +1,22 @@
 {
   "login": "Přihlásit se",
   "loginButton": "Přihlásit se",
-  "language": "Jazyk"
+  "language": "Jazyk",
+  "emailAddress": "E-mailová adresa",
+  "enterYourEmail": "Zadejte svůj e-mail",
+  "password": "Heslo",
+  "enterYourPassword": "Zadejte své heslo",
+  "passwordAgain": "Zadejte své heslo znovu",
+  "confirmPassword": "Potvrzení hesla",
+  "forgotPassword": "Zapomněli jste heslo?",
+  "notRegisteredYet": "Ještě nemáte účet?",
+  "alreadyHaveAnAccount": "Už máte účet?",
+  "createAccount": "Vytvořit účet",
+  "loginNow": "Přihlásit se nyní",
+  "registration": "Registrace",
+  "signUpButton": "Zaregistrovat se",
+  "username": "Uživatelské jméno",
+  "enterYourUsername": "Zadejte své uživatelské jméno",
+  "rememberMe": "Zapamatovat si mě"
+
 }

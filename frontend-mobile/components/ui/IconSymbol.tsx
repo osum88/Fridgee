@@ -23,7 +23,9 @@ const MAPPING = {
   "bell": "notifications-none",                           //zvonecek notifikace
   "cart": "shopping-cart",                                //nakupni kosik
   "checkmark": "check",                                   //fajvka
-} as IconMapping;
+  "eye": "visibility",                                    //oko
+  "eye.slash": "visibility-off"                           //preskrtnute oko
+} as IconMapping; 
 
 /**
  * An icon component that uses native SF Symbols on iOS, and Material Icons on Android and web.

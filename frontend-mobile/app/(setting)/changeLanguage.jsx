@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
-import { ThemedView } from "@/components/ThemedView";
-import { ThemedLine } from "@/components/ThemedLine";
+import { ThemedView } from "@/components/themed/ThemedView";
+import { ThemedLine } from "@/components/themed/ThemedLine";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CheckableItem } from "../../components/common/CheckableItem";
 
