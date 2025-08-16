@@ -1,4 +1,11 @@
-import { Dimensions, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
+import {
+  useWindowDimensions,
+  ScrollView,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+} from "react-native";
 import i18n from "@/constants/translations";
 import { Link } from "expo-router";
 import { ThemedText } from "@/components/themed/ThemedText";
@@ -9,80 +16,120 @@ import { Colors } from "@/constants/Colors";
 import { FormGroup } from "../../components/common/FormGroup";
 import { FormGroupPassword } from "../../components/common/FormGroupPassword";
 import { useState } from "react";
-import Checkbox from 'expo-checkbox';
-
-
+import { ThemedCheckbox } from "@/components/themed/ThemedCheckbox";
 
 export default function Login() {
   const colorScheme = useColorScheme();
   const currentColors = Colors[colorScheme ?? "light"];
   const [password, setPassword] = useState("");
-  const [toggleCheckBox, setToggleCheckBox] = useState(false);
+  const [rememberMe, setToggleCheckBox] = useState(false);
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState(null);
 
-  const { width } = Dimensions.get("window");
+  const { width } = useWindowDimensions();
   const isTablet = width >= 768;
-  const screenWidth = isTablet ? width * 0.5 : width * 0.9;
+
+  const handleSubmit = () => {
+    setError("null");
+
+    console.log("error is ", error);
+    console.log("email is ", email);
+    console.log("password is ", password);
+    console.log("rememberMe is ", rememberMe);
+  };
 
   return (
-    <ThemedView style={{ flex: 1 }}>
+    <ThemedView safe={true} style={styles.container}>
       <KeyboardAvoidingView
         style={styles.keyboardContainer}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
-          <ThemedView style={styles.contentWrapper}>
-            <ThemedText style={styles.login} type="title">{i18n.t("login")}</ThemedText>
-            <ThemedView style={styles.inputsGap}>
+          <ThemedView
+            style={[
+              styles.contentWrapper,
+              { width: isTablet ? "50%" : "100%" },
+            ]}
+          >
+            <ThemedText style={styles.login} type="title">
+              {i18n.t("login")}
+            </ThemedText>
+
+            <ThemedView style={styles.formSection}>
               <FormGroup
                 label={i18n.t("emailAddress")}
                 placeholder={i18n.t("enterYourEmail")}
-                style={[styles.input, { width: screenWidth }]}
+                keyboardType="email-address"
+                autoComplete="email"
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                error={error}
+                showError={false}
               />
-              
-              <ThemedView style={styles.inputGap}>
+
+              <ThemedView style={styles.passwordSection}>
                 <FormGroupPassword
                   label={i18n.t("password")}
                   placeholder={i18n.t("enterYourPassword")}
-                  style={[styles.input, { width: screenWidth }]}
+                  autoComplete="password"
+                  style={styles.input}
+                  maxLength={70}
+                  importantForAutofill="yes"
                   value={password}
                   onChangeText={setPassword}
+                  error={error}
+                  moveAround={true}
                 />
-                <ThemedText style={styles.flexEnd} lightColor={currentColors.primary} darkColor={currentColors.primary}>
-                  {i18n.t("forgotPassword")}
-                </ThemedText>
+                <Link href="/forgotPassword" asChild>
+                  <ThemedText
+                    style={styles.flexEnd}
+                    lightColor={currentColors.primary}
+                    darkColor={currentColors.primary}
+                  >
+                    {i18n.t("forgotPassword")}
+                  </ThemedText>
+                </Link>
               </ThemedView>
             </ThemedView>
 
-            <ThemedView>
-              <ThemedText>{i18n.t("rememberMe")}</ThemedText>
-                <Checkbox
-                  value={toggleCheckBox}
-                  onValueChange={(newValue) => setToggleCheckBox(newValue)}
-                />
+            <ThemedView style={styles.textRowCheckbox}>
+              <ThemedCheckbox
+                value={rememberMe}
+                onValueChange={(newValue) => setToggleCheckBox(newValue)}
+              />
+              <Pressable onPress={() => setToggleCheckBox(!rememberMe)}>
+                <ThemedText>{i18n.t("rememberMe")}</ThemedText>
+              </Pressable>
             </ThemedView>
 
-
-    
-            <ThemedButton style={[styles.btn, { width: screenWidth }]}>
+            <ThemedButton style={styles.btn} onPress={handleSubmit}>
               {i18n.t("loginButton")}
             </ThemedButton>
-
-            <ThemedView style={styles.textRow}>
-              <ThemedText>{i18n.t("notRegisteredYet")}</ThemedText>
-              <Link href="/register" replace asChild>
-                <ThemedText lightColor={currentColors.primary} darkColor={currentColors.primary}>
-                  {i18n.t("createAccount")}
-                </ThemedText>
-              </Link>
-            </ThemedView>
           </ThemedView>
         </ScrollView>
       </KeyboardAvoidingView>
+      <ThemedView safe={true} style={styles.bottomLinkContainer}>
+        <ThemedView style={styles.textRow}>
+          <ThemedText>{i18n.t("notRegisteredYet")}</ThemedText>
+          <Link href="/register" replace asChild>
+            <ThemedText
+              lightColor={currentColors.primary}
+              darkColor={currentColors.primary}
+            >
+              {i18n.t("createAccount")}
+            </ThemedText>
+          </Link>
+        </ThemedView>
+      </ThemedView>
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   keyboardContainer: {
     flex: 1,
   },
@@ -94,24 +141,33 @@ const styles = StyleSheet.create({
   },
   contentWrapper: {
     alignItems: "center",
-    gap: 36,
+    gap: 30,
     paddingHorizontal: 20,
-    width: "100%",
   },
   btn: {
     paddingVertical: 16,
+    width: "100%",
   },
   input: {
     paddingVertical: 18,
+    width: "100%",
   },
   textRow: {
     flexDirection: "row",
     gap: 5,
+    alignSelf: "center",
   },
-  inputGap: {
+  textRowCheckbox: {
+    flexDirection: "row",
+    gap: 10,
+    alignSelf: "flex-start",
+    alignItems: "center",
+    marginLeft: 3,
+  },
+  passwordSection: {
     gap: 7,
   },
-  inputsGap: {
+  formSection: {
     gap: 22,
   },
   flexEnd: {
@@ -119,5 +175,12 @@ const styles = StyleSheet.create({
   },
   login: {
     alignSelf: "flex-start",
+  },
+  bottomLinkContainer: {
+    position: "absolute",
+    bottom: 15,
+    left: 0,
+    right: 0,
+    alignItems: "center",
   },
 });

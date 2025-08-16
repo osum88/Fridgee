@@ -17,6 +17,11 @@
   "signUpButton": "Zaregistrovat se",
   "username": "Uživatelské jméno",
   "enterYourUsername": "Zadejte své uživatelské jméno",
-  "rememberMe": "Zapamatovat si mě"
+  "rememberMe": "Zapamatovat si mě",
+  "forgotPasswordDescription":"Zadejte svou e-mailovou adresu a pošleme vám odkaz pro obnovení hesla.",
+  "resetPasswordLink":"Odeslat odkaz",
+  "backToLogin": "Zpět na přihlášení",
+  "resendIn": "Znovu odeslat za"
+  
 
 }

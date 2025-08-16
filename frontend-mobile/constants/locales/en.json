@@ -17,7 +17,11 @@
   "signUpButton": "Sign Up",
   "username": "Username",
   "enterYourUsername": "Enter your username",
-  "rememberMe":"Remember me"
+  "rememberMe":"Remember me",
+  "forgotPasswordDescription":"Enter your email address below and we’ll send you a link to reset your password.",
+  "resetPasswordLink":"Send Reset Link",
+  "backToLogin": "Back to Login",
+  "resendIn": "Resend in"
 
 
 }

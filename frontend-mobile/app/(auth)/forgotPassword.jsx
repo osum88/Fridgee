@@ -1,0 +1,151 @@
+import {
+  useWindowDimensions,
+  ScrollView,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import i18n from "@/constants/translations";
+import { Link } from "expo-router";
+import { ThemedText } from "@/components/themed/ThemedText";
+import { ThemedView } from "@/components/themed/ThemedView";
+import { ThemedButton } from "@/components/themed/ThemedButton";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { Colors } from "@/constants/Colors";
+import { FormGroup } from "../../components/common/FormGroup";
+import { useState, useEffect } from "react";
+
+export default function ForgotPassword() {
+  const colorScheme = useColorScheme();
+  const currentColors = Colors[colorScheme ?? "light"];
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState(null);
+  const [countdown, setCountdown] = useState(0);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+
+  const { width } = useWindowDimensions();
+  const isTablet = width >= 768;
+
+  useEffect(() => {
+    let timerId;
+    if (countdown > 0) {
+      timerId = setInterval(() => {
+        setCountdown((prevCountdown) => prevCountdown - 1);
+      }, 1000);
+    } else {
+      setIsButtonDisabled(false);
+      clearInterval(timerId);
+    }
+
+    return () => clearInterval(timerId);
+  }, [countdown]);
+
+  const handleSubmit = () => {
+    setError("null");
+
+    console.log("error is ", error);
+    console.log("email is ", email);
+    setCountdown(10);
+    setIsButtonDisabled(true);
+  };
+
+  return (
+    <ThemedView safe={true} style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ScrollView contentContainerStyle={styles.scrollViewContent}>
+          <ThemedView
+            style={[
+              styles.contentWrapper,
+              { width: isTablet ? "50%" : "100%" },
+            ]}
+          >
+            <ThemedText style={styles.title} type="title">
+              {i18n.t("forgotPassword")}
+            </ThemedText>
+            <ThemedText style={styles.description}>
+              {i18n.t("forgotPasswordDescription")}
+            </ThemedText>
+
+            <ThemedView style={styles.formsButtonContainer}>
+              <FormGroup
+                label={i18n.t("emailAddress")}
+                placeholder={i18n.t("enterYourEmail")}
+                keyboardType="email-address"
+                autoComplete="email"
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                error={error}
+              />
+
+              <ThemedButton
+                style={styles.btn}
+                onPress={handleSubmit}
+                disabled={isButtonDisabled}
+              >
+                {isButtonDisabled ? `${i18n.t("resendIn")} ${countdown} s` : i18n.t("resetPasswordLink")}
+              </ThemedButton>
+            </ThemedView>
+          </ThemedView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+
+      <ThemedView safe={true} style={styles.bottomLinkContainer}>
+        <Link href="/login" dismissTo asChild>
+          <ThemedText
+            lightColor={currentColors.primary}
+            darkColor={currentColors.primary}
+          >
+            {i18n.t("backToLogin")}
+          </ThemedText>
+        </Link>
+      </ThemedView>
+    </ThemedView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  keyboardContainer: {
+    flex: 1,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 20,
+  },
+  contentWrapper: {
+    gap: 30,
+    paddingHorizontal: 20,
+  },
+  title: {
+    alignSelf: "flex-start",
+  },
+  description: {
+    alignSelf: "flex-start",
+  },
+  btn: {
+    paddingVertical: 16,
+    width: "100%",
+  },
+  input: {
+    paddingVertical: 18,
+    width: "100%",
+  },
+  bottomLinkContainer: {
+    position: "absolute",
+    bottom: 15,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+  },
+  formsButtonContainer: {
+    gap: 20,
+  },
+});
