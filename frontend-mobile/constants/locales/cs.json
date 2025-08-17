@@ -21,7 +21,10 @@
   "forgotPasswordDescription":"Zadejte svou e-mailovou adresu a pošleme vám odkaz pro obnovení hesla.",
   "resetPasswordLink":"Odeslat odkaz",
   "backToLogin": "Zpět na přihlášení",
-  "resendIn": "Znovu odeslat za"
-  
-
+  "resendIn": "Znovu odeslat za",
+  "errorNetwork": "Chyba sítě. Zkontrolujte připojení a zkuste to znovu.",
+  "error400Login": "Špatný e-mail nebo heslo.",
+  "errorDefault": "Vyskytla se neočekávaná chyba. Zkuste to prosím později.",
+  "errorValidEmail": "Email musí být platná e-mailová adresa",
+  "errorEmptyEmailPassword": "Email ani heslo nesmí být prázdné."
 }

@@ -17,6 +17,8 @@ import { FormGroup } from "../../components/common/FormGroup";
 import { FormGroupPassword } from "../../components/common/FormGroupPassword";
 import { useState } from "react";
 import { ThemedCheckbox } from "@/components/themed/ThemedCheckbox";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { loginApi } from "@/api/auth";
 
 export default function Login() {
   const colorScheme = useColorScheme();
@@ -29,13 +31,35 @@ export default function Login() {
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
 
-  const handleSubmit = () => {
-    setError("null");
+  const loginMutation = useMutation({
+    mutationFn: loginApi,
+    onSuccess: (response) => {
+      const { accessToken, refreshToken, user } = response.data;
 
+      console.log("Přihlášení úspěšné:", response.message);
+      console.log("Přístupový token:", accessToken);
+      console.log("Refresh token:", refreshToken);
+      console.log("Uživatelská data:", user);
+
+      // tady pak ulozit accessToken a refreshToken do AsyncStorage a presmerovat dal
+    },
+    onError: (error) => {
+      setError(error.message);
+    },
+  });
+
+  const handleSubmit = () => {
+    setError(null);
+
+    console.log("                                                ");
+    console.log("                                                ");
+    console.log("                                                ");
     console.log("error is ", error);
-    console.log("email is ", email);
-    console.log("password is ", password);
-    console.log("rememberMe is ", rememberMe);
+
+    // console.log("email is ", email);
+    // console.log("password is ", password);
+    // console.log("rememberMe is ", rememberMe);
+    loginMutation.mutate({ email, password });
   };
 
   return (

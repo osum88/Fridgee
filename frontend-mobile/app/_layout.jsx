@@ -1,10 +1,19 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext"; 
+import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
+import { StrictMode } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+//vytvoreni instance TanStack Query
+const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -21,13 +30,17 @@ export default function RootLayout() {
   };
 
   return (
-    <LanguageProvider>
-      <RootLayoutContent
-        loaded={loaded}
-        colorScheme={colorScheme}
-        CustomDarkTheme={CustomDarkTheme}
-      />
-    </LanguageProvider>
+    <QueryClientProvider client={queryClient}>
+      <StrictMode>
+        <LanguageProvider>
+          <RootLayoutContent
+            loaded={loaded}
+            colorScheme={colorScheme}
+            CustomDarkTheme={CustomDarkTheme}
+          />
+        </LanguageProvider>
+      </StrictMode>
+    </QueryClientProvider>
   );
 }
 
@@ -39,7 +52,9 @@ function RootLayoutContent({ loaded, colorScheme, CustomDarkTheme }) {
   }
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? CustomDarkTheme : DefaultTheme}>
+    <ThemeProvider
+      value={colorScheme === "dark" ? CustomDarkTheme : DefaultTheme}
+    >
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
