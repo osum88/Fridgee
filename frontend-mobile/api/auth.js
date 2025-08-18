@@ -8,10 +8,12 @@ export const loginApi = async (loginData) => {
         "X-Client-Type": "mobile",
       },
     });
-
     return response.data;
   } catch (error) {
+    console.error("Error loginApi: ", error);
     if (error.response) {
+        console.error("Error loginApi: ", error.response.data);
+        
         if (error.response.status === 400 && error.response.data.message === "Wrong email or password") {
             throw new Error(i18n.t("error400Login"));
         } else if (error.response.data?.errors?.includes('"email" must be a valid email')) {
@@ -38,8 +40,17 @@ export const signupApi = async (signupData) => {
 };
 
 export const refreshApi = async (refreshData) => {
-  const response = await apiClient.post("/auth/refresh", refreshData);
-  return response.data;
+    try {
+    const response = await apiClient.post("/auth/refresh", refreshData, {
+      headers: {
+        "X-Client-Type": "mobile",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error refreshApi: ", error);
+    throw error
+  }
 };
 
 export const logoutApi = async (logoutData) => {

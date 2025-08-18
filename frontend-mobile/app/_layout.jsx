@@ -4,16 +4,20 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
-import { StrictMode } from "react";
+import { StrictMode, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { UserProvider } from "@/contexts/UserContext";
+import { useUser } from "@/hooks/useUser";
+import { setAccessTokenGetter } from "@/utils/api-client";
 
 //vytvoreni instance TanStack Query
 const queryClient = new QueryClient();
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -29,38 +33,56 @@ export default function RootLayout() {
     },
   };
 
+  if (!loaded) {
+    return null;
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <StrictMode>
         <LanguageProvider>
-          <RootLayoutContent
-            loaded={loaded}
-            colorScheme={colorScheme}
-            CustomDarkTheme={CustomDarkTheme}
-          />
+          <UserProvider>
+            <RootLayoutContent
+              colorScheme={colorScheme}
+              CustomDarkTheme={CustomDarkTheme}
+            />
+          </UserProvider>
         </LanguageProvider>
       </StrictMode>
     </QueryClientProvider>
   );
 }
 
-function RootLayoutContent({ loaded, colorScheme, CustomDarkTheme }) {
+function RootLayoutContent({ colorScheme, CustomDarkTheme }) {
   const { isLanguageLoaded } = useLanguage();
+  const { isLoading, isAuthenticated, getAccessToken } = useUser();
 
-  if (!loaded || !isLanguageLoaded) {
+  useEffect(() => {
+    setAccessTokenGetter(getAccessToken);
+  }, [getAccessToken]);
+
+  if (!isLanguageLoaded || isLoading) {
     return null;
   }
+
+  const stacks = isAuthenticated ? (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="(setting)" options={{ headerShown: false }} />
+      <Stack.Screen name="+not-found" />
+    </Stack>
+  ) : (
+    <Stack>
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      <Stack.Screen name="+not-found" />
+    </Stack>
+  );
 
   return (
     <ThemeProvider
       value={colorScheme === "dark" ? CustomDarkTheme : DefaultTheme}
     >
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(setting)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
+      {stacks}
       <StatusBar style="auto" />
     </ThemeProvider>
   );

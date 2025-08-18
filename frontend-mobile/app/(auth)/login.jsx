@@ -7,7 +7,7 @@ import {
   Pressable,
 } from "react-native";
 import i18n from "@/constants/translations";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedButton } from "@/components/themed/ThemedButton";
@@ -17,8 +17,7 @@ import { FormGroup } from "../../components/common/FormGroup";
 import { FormGroupPassword } from "../../components/common/FormGroupPassword";
 import { useState } from "react";
 import { ThemedCheckbox } from "@/components/themed/ThemedCheckbox";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { loginApi } from "@/api/auth";
+import useLoginMutation from "@/hooks/auth/useLoginMutation";
 
 export default function Login() {
   const colorScheme = useColorScheme();
@@ -31,35 +30,18 @@ export default function Login() {
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
 
-  const loginMutation = useMutation({
-    mutationFn: loginApi,
-    onSuccess: (response) => {
-      const { accessToken, refreshToken, user } = response.data;
-
-      console.log("Přihlášení úspěšné:", response.message);
-      console.log("Přístupový token:", accessToken);
-      console.log("Refresh token:", refreshToken);
-      console.log("Uživatelská data:", user);
-
-      // tady pak ulozit accessToken a refreshToken do AsyncStorage a presmerovat dal
-    },
-    onError: (error) => {
-      setError(error.message);
-    },
-  });
+  const { loginMutation, isLoading } = useLoginMutation({ setError, rememberMe });
 
   const handleSubmit = () => {
     setError(null);
 
-    console.log("                                                ");
-    console.log("                                                ");
-    console.log("                                                ");
-    console.log("error is ", error);
 
-    // console.log("email is ", email);
-    // console.log("password is ", password);
-    // console.log("rememberMe is ", rememberMe);
+    console.log("                                                ");
+    console.log("                                                ");
+    console.log("                                                ");
+
     loginMutation.mutate({ email, password });
+    router.replace("/(tabs)");
   };
 
   return (
@@ -90,6 +72,7 @@ export default function Login() {
                 onChangeText={setEmail}
                 error={error}
                 showError={false}
+                importantForAutofill="no"
               />
 
               <ThemedView style={styles.passwordSection}>
@@ -127,7 +110,11 @@ export default function Login() {
               </Pressable>
             </ThemedView>
 
-            <ThemedButton style={styles.btn} onPress={handleSubmit}>
+            <ThemedButton
+              style={styles.btn}
+              onPress={handleSubmit}
+              disabled={isLoading}
+            >
               {i18n.t("loginButton")}
             </ThemedButton>
           </ThemedView>

@@ -6,10 +6,12 @@ import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import i18n from "@/constants/translations";
+import { useUser } from "@/hooks/useUser";
 
 
 export default function HomeScreen() {
-
+  
+  const { user } = useUser();
   
   return (
     <ParallaxScrollView
@@ -25,6 +27,8 @@ export default function HomeScreen() {
         <HelloWave />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
+
+        {/* <ThemedText>{user.username}</ThemedText> */}
    
         <Link href="../login"><ThemedText type="subtitle">Login</ThemedText></Link>
         <Link href="../changeLanguage"><ThemedText type="subtitle">{i18n.t("language")} </ThemedText></Link>
