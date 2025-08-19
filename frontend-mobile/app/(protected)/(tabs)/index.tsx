@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import { StyleSheet } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet } from "react-native";
 import { Link } from "expo-router";
 import { HelloWave } from "@/components/HelloWave";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
@@ -7,12 +7,15 @@ import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import i18n from "@/constants/translations";
 import { useUser } from "@/hooks/useUser";
+import { useGetUserQuery } from "@/hooks/user/useGetUserQuery";
+import { useState } from "react";
 
 
 export default function HomeScreen() {
   
-  const { user } = useUser();
-  
+  const { user, userId, signOut } = useUser();
+  // console.log (user)
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
@@ -23,8 +26,8 @@ export default function HomeScreen() {
         />
       }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welgcome!</ThemedText>
-        <HelloWave />
+        <ThemedText type="title">Welgc </ThemedText>
+        
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
 
@@ -33,11 +36,18 @@ export default function HomeScreen() {
         <Link href="../login"><ThemedText type="subtitle">Login</ThemedText></Link>
         <Link href="../changeLanguage"><ThemedText type="subtitle">{i18n.t("language")} </ThemedText></Link>
 
+        <Pressable onPress={() => signOut()}>
+          <ThemedText>Log out</ThemedText>
+        </Pressable>
+
+      
+  
+
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 2: Explore</ThemedText>
         <ThemedText>
-          {`Tap the Explore tab to learn more about what"s included in this starter app.`}
+          
         </ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>

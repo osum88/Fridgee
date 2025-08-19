@@ -1,16 +1,17 @@
 import * as SecureStore from "expo-secure-store";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const ACCESS_TOKEN_KEY = 'accessToken';
-const REFRESH_TOKEN_KEY = 'refreshToken';
-const REMEMBER_ME_KEY = 'rememberMe';
-
+const ACCESS_TOKEN_KEY = "accessToken";
+const REFRESH_TOKEN_KEY = "refreshToken";
+const REMEMBER_ME_KEY = "rememberMe";
 
 // ulozeni tokenu
 export const storeTokens = async (accessToken, refreshToken) => {
   try {
-    if (accessToken) await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, accessToken);
-    if (refreshToken) await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refreshToken);
+    if (accessToken)
+      await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, accessToken);
+    if (refreshToken)
+      await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refreshToken);
     console.log("Tokens stored successfully");
   } catch (error) {
     console.error("Error storing tokens", error);
@@ -51,7 +52,6 @@ export const removeTokens = async () => {
     console.error("Error removing tokens:", error);
   }
 };
-
 
 // ulozeni rememberMe
 export const storeRememberMe = async (rememberMe) => {

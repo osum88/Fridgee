@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedLine } from "@/components/themed/ThemedLine";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { CheckableItem } from "../../components/common/CheckableItem";
+import { CheckableItem } from "@/components/common/CheckableItem";
 
 export default function ChangeLanguage() {
   const { locale, setAppLanguage } = useLanguage();

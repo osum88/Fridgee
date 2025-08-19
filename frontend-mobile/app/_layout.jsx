@@ -4,7 +4,7 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { SplashScreen, Stack } from "expo-router";
+import { router, SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/useColorScheme";
@@ -13,7 +13,6 @@ import { StrictMode, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { UserProvider } from "@/contexts/UserContext";
 import { useUser } from "@/hooks/useUser";
-import { setAccessTokenGetter } from "@/utils/api-client";
 
 //vytvoreni instance TanStack Query
 const queryClient = new QueryClient();
@@ -55,35 +54,34 @@ export default function RootLayout() {
 
 function RootLayoutContent({ colorScheme, CustomDarkTheme }) {
   const { isLanguageLoaded } = useLanguage();
-  const { isLoading, isAuthenticated, getAccessToken } = useUser();
+  const { isLoading, isAuthenticated } = useUser();
 
   useEffect(() => {
-    setAccessTokenGetter(getAccessToken);
-  }, [getAccessToken]);
+    if (!isLoading && !isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [isLoading, isAuthenticated]);
 
   if (!isLanguageLoaded || isLoading) {
     return null;
   }
 
-  const stacks = isAuthenticated ? (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="(setting)" options={{ headerShown: false }} />
-      <Stack.Screen name="+not-found" />
-    </Stack>
-  ) : (
-    <Stack>
-      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      <Stack.Screen name="+not-found" />
-    </Stack>
-  );
-
   return (
     <ThemeProvider
       value={colorScheme === "dark" ? CustomDarkTheme : DefaultTheme}
     >
-      {stacks}
+      <Stack screenOptions={{ headerShown: false }}>
+        {isAuthenticated ? (
+          <Stack.Screen name="(protected)" />
+        ) : (
+          <Stack.Screen name="(auth)" />
+        )}
+        <Stack.Screen name="+not-found" />
+      </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
   );
 }
+
+ 
+

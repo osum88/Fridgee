@@ -26,5 +26,7 @@
   "error400Login": "Špatný e-mail nebo heslo.",
   "errorDefault": "Vyskytla se neočekávaná chyba. Zkuste to prosím později.",
   "errorValidEmail": "Email musí být platná e-mailová adresa",
-  "errorEmptyEmailPassword": "Email ani heslo nesmí být prázdné."
+  "errorEmptyEmailPassword": "Email ani heslo nesmí být prázdné.",
+  "errorTooManyRequest": "Příliš mnoho požadavků, zkuste to prosím za chvíli."
+
 }

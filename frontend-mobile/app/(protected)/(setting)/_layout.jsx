@@ -7,9 +7,10 @@ export default function SettingLayout() {
 
   return (
     <Stack screenOptions={{ headerTitleAlign: "center" }}>
-      <Stack.Screen 
-        name="changeLanguage" 
-        options={{ title: i18n.t("language") }} />
+      <Stack.Screen
+        name="changeLanguage"
+        options={{ title: i18n.t("language") }}
+      />
     </Stack>
   );
 }

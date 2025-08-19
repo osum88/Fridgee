@@ -1,22 +1,22 @@
-import { useMutation } from "@tanstack/react-query";
 import { loginApi } from "@/api/auth";
 import { useUser } from "@/hooks/useUser";
 import i18n from "@/constants/translations";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 
 const useLoginMutation = ({ setError, rememberMe }) => {
   const { signIn } = useUser();
+  // const queryClient = useQueryClient();
 
   const loginMutation = useMutation({
     mutationFn: loginApi,
     onSuccess: async (response) => {
       const { accessToken, refreshToken, user } = response.data;
 
-      console.log("Přihlášení úspěšné:", response.message);
-      console.log("Přístupový token:", accessToken);
-      console.log("Refresh token:", refreshToken);
-      console.log("Uživatelská data:", user);
+      // await queryClient.invalidateQueries({ queryKey: ["user"] });
 
+      console.log(`User ${user.username} log sucesfully`);
+      console.log("refreshToken:", refreshToken);
       try {
         if (
           accessToken &&

@@ -26,7 +26,8 @@
   "error400Login": "Wrong email or password.",
   "errorDefault": "An unexpected error occurred. Please try again later.",
   "errorValidEmail": "Email must be a valid email address.",
-  "errorEmptyEmailPassword": "Email and password cannot be empty."
+  "errorEmptyEmailPassword": "Email and password cannot be empty.",
+  "errorTooManyRequest": "Too many requests, please try again shortly."
 
 
 }

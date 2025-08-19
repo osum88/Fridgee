@@ -28,6 +28,8 @@ export const loginApi = async (loginData) => {
         }
     } else if (error.request) {
         throw new Error(i18n.t("errorNetwork"));
+    } else if (error.request.includes("Too many requests from this IP address")) {
+        throw new Error(i18n.t("errorTooManyRequest"));
     } else {
         throw new Error(i18n.t("errorDefault"));
     }

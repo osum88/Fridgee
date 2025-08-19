@@ -57,7 +57,7 @@ export default function Register() {
               <FormGroup
                 label={i18n.t("username")}
                 placeholder={i18n.t("enterYourUsername")}
-                maxLength={20}
+                maxLength={25}
                 style={styles.input}
                 value={username}
                 onChangeText={setUsername}
@@ -69,6 +69,7 @@ export default function Register() {
                 keyboardType="email-address"
                 style={styles.input}
                 value={email}
+                maxLength={150}
                 onChangeText={setEmail}
                 error={error}
               />
@@ -76,7 +77,7 @@ export default function Register() {
                 label={i18n.t("password")}
                 placeholder={i18n.t("enterYourPassword")}
                 style={styles.input}
-                maxLength={70}
+                maxLength={100}
                 importantForAutofill="no"
                 value={password}
                 onChangeText={setPassword}
@@ -86,7 +87,7 @@ export default function Register() {
                 label={i18n.t("confirmPassword")}
                 placeholder={i18n.t("passwordAgain")}
                 style={styles.input}
-                maxLength={70}
+                maxLength={100}
                 importantForAutofill="no"
                 value={confirmPassword}
                 onChangeText={setconfirmPassword}

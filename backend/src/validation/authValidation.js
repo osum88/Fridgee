@@ -1,9 +1,9 @@
 import Joi from "joi";
 
 export const signUpSchema = Joi.object({
-    username: Joi.string().min(3).max(30).required(), 
+    username: Joi.string().min(3).max(25).required(), 
     email: Joi.string().email().required(), 
-    password: Joi.string().min(6).required()
+    password: Joi.string().min(6).max(100).required()
 });
 
 export const loginSchema = Joi.object({
@@ -20,6 +20,6 @@ export const forgotPasswordSchema = Joi.object({
 });
 
 export const changePasswordSchema = Joi.object({
-    oldPassword: Joi.string().min(6).required(), 
-    newPassword: Joi.string().min(6).required(), 
+    oldPassword: Joi.string().min(6).max(100).required(), 
+    newPassword: Joi.string().min(6).max(100).required(), 
 });

@@ -41,7 +41,7 @@ export default function Login() {
     console.log("                                                ");
 
     loginMutation.mutate({ email, password });
-    router.replace("/(tabs)");
+    // router.replace("/(tabs)");
   };
 
   return (
@@ -54,7 +54,7 @@ export default function Login() {
           <ThemedView
             style={[
               styles.contentWrapper,
-              { width: isTablet ? "50%" : "100%" },
+              { width: isTablet ? "30%" : "100%" },
             ]}
           >
             <ThemedText style={styles.login} type="title">
@@ -151,7 +151,6 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   contentWrapper: {
-    alignItems: "center",
     gap: 30,
     paddingHorizontal: 20,
   },
