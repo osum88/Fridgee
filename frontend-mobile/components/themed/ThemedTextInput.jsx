@@ -14,7 +14,7 @@ export function ThemedTextInput({ style, ...otherProps }) {
           backgroundColor: currentColors.input,
           color: currentColors.text,
           padding: 10,
-          borderRadius: 8,
+          borderRadius: 12,
         },
         style,
       ]}

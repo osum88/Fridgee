@@ -15,7 +15,8 @@ export const loginSchema = Joi.object({
 });
 
 export const resetPasswordSchema = Joi.object({
-    newPassword: Joi.string().min(8).required(), 
+    token: Joi.string().required(),
+    newPassword: Joi.string().min(8).max(100).pattern(/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/).required(),
 });
 
 export const forgotPasswordSchema = Joi.object({
@@ -24,5 +25,5 @@ export const forgotPasswordSchema = Joi.object({
 
 export const changePasswordSchema = Joi.object({
     oldPassword: Joi.string().min(8).max(100).required(), 
-    newPassword: Joi.string().min(8).max(100).required(), 
+    newPassword: Joi.string().min(8).max(100).pattern(/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/).required(),
 });

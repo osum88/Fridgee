@@ -6,7 +6,7 @@ import {
   Platform,
 } from "react-native";
 import i18n from "@/constants/translations";
-import { Link } from "expo-router";
+import { Link, useLocalSearchParams } from "expo-router";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedButton } from "@/components/themed/ThemedButton";
@@ -15,57 +15,41 @@ import { Colors } from "@/constants/Colors";
 import { FormGroup } from "../../components/common/FormGroup";
 import { FormGroupPassword } from "@/components/common/FormGroupPassword";
 import { useState } from "react";
-import useRegisterMutation from "@/hooks/auth/useRegisterMutation";
+import useResetPasswordMutation from "@/hooks/auth/useResetPasswordMutation";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Register() {
   const colorScheme = useColorScheme();
   const currentColors = Colors[colorScheme ?? "light"];
-  const [password, setPassword] = useState(null);
+  const [newPassword, setPassword] = useState(null);
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [usernameError, setUsernameError] = useState(null);
-  const [emailError, setEmailError] = useState(null);
-  const [passwordError, setPasswordError] = useState(null);
-  const { locale } = useLanguage();
+  const { token } = useLocalSearchParams();
+
+  const [error, setError] = useState(null);
 
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
 
-  const { registerMutation, isLoading } = useRegisterMutation({
-    setUsernameError,
-    setEmailError,
-    setPasswordError,
+  const { resetPasswordMutation, isLoading } = useResetPasswordMutation({
+    setError,
   });
 
   const handleSubmit = () => {
-    setUsernameError(null);
-    setEmailError(null);
-    setPasswordError(null);
+    setError(null);
+    console.log("tokeen:", token);
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
 
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-    if (!username || !email || !password || !confirmPassword) {
-      setUsernameError(" ");
-      setEmailError(" ");
-      setPasswordError(i18n.t("errorAllFieldsRequired"));
-    } else if (password !== confirmPassword) {
-      setPasswordError(i18n.t("errorPasswordMismatch"));
-    } else if (username.length < 3 || username.length > 30) {
-      setUsernameError(i18n.t("errorUsernameTooLong"));
-    } else if (!passwordRegex.test(password)) {
-      setPasswordError(i18n.t("errorPasswordTooWeak"));
-    } else if (!emailRegex.test(email)) {
-      setEmailError(i18n.t("errorValidEmail"));
+    if (!newPassword || !confirmPassword) {
+      setError(i18n.t("errorAllFieldsRequired"));
+    } else if (newPassword !== confirmPassword) {
+      setError(i18n.t("errorPasswordMismatch"));
+    } else if (!passwordRegex.test(newPassword)) {
+      setError(i18n.t("errorPasswordTooWeak"));
+    } else if (!token) {
+      setError(i18n.t("errorTokenMissing"));
     } else {
-      registerMutation.mutate({
-        username,
-        email,
-        password,
-        preferredLanguage: locale,
-      });
+      resetPasswordMutation.mutate({ token, newPassword });
     }
   };
 
@@ -83,40 +67,19 @@ export default function Register() {
             ]}
           >
             <ThemedText style={styles.register} type="title">
-              {i18n.t("registration")}
+              {i18n.t("resetPassword")}
             </ThemedText>
             <ThemedView style={styles.formSection}>
-              <FormGroup
-                label={i18n.t("username")}
-                placeholder={i18n.t("enterYourUsername")}
-                maxLength={30}
-                autoCapitalize="none"
-                style={styles.input}
-                value={username}
-                onChangeText={setUsername}
-                error={usernameError}
-              />
-              <FormGroup
-                label={i18n.t("emailAddress")}
-                placeholder={i18n.t("enterYourEmail")}
-                keyboardType="email-address"
-                style={styles.input}
-                value={email}
-                maxLength={150}
-                autoCapitalize="none"
-                onChangeText={setEmail}
-                error={emailError}
-              />
               <FormGroupPassword
-                label={i18n.t("password")}
+                label={i18n.t("newPassword")}
                 placeholder={i18n.t("enterYourPassword")}
                 style={styles.input}
                 maxLength={100}
                 autoCapitalize="none"
                 importantForAutofill="no"
-                value={password}
+                value={newPassword}
                 onChangeText={setPassword}
-                error={passwordError}
+                error={error}
                 showError={false}
               />
               <FormGroupPassword
@@ -128,7 +91,7 @@ export default function Register() {
                 importantForAutofill="no"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
-                error={passwordError}
+                error={error}
               />
             </ThemedView>
 
@@ -138,24 +101,11 @@ export default function Register() {
               disabled={isLoading}
               loading={isLoading}
             >
-              {i18n.t("signUpButton")}
+              {i18n.t("saveNewPassword")}
             </ThemedButton>
           </ThemedView>
         </ScrollView>
       </KeyboardAvoidingView>
-      <ThemedView safe={true} style={styles.bottomLinkContainer}>
-        <ThemedView style={styles.textRow}>
-          <ThemedText>{i18n.t("alreadyHaveAnAccount")}</ThemedText>
-          <Link href="/login" replace asChild>
-            <ThemedText
-              lightColor={currentColors.primary}
-              darkColor={currentColors.primary}
-            >
-              {i18n.t("loginNow")}
-            </ThemedText>
-          </Link>
-        </ThemedView>
-      </ThemedView>
     </ThemedView>
   );
 }

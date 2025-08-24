@@ -14,6 +14,7 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { Colors } from "@/constants/Colors";
 import { FormGroup } from "../../components/common/FormGroup";
 import { useState, useEffect } from "react";
+import useForgotPasswordMutation from "@/hooks/auth/useForgotPasswordMutation";
 
 export default function ForgotPassword() {
   const colorScheme = useColorScheme();
@@ -22,6 +23,7 @@ export default function ForgotPassword() {
   const [error, setError] = useState(null);
   const [countdown, setCountdown] = useState(0);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const { forgotPasswordMutation } = useForgotPasswordMutation();
 
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
@@ -49,8 +51,8 @@ export default function ForgotPassword() {
     } else if (!emailRegex.test(email)) {
       setError(i18n.t("errorValidEmail"));
     } else {
-      console.log("error is ", error);
-      console.log("email is ", email);
+      forgotPasswordMutation.mutate({ email });
+
       setCountdown(10);
       setIsButtonDisabled(true);
     }

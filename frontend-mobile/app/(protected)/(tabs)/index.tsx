@@ -14,6 +14,64 @@ export default function HomeScreen() {
   const { user, userId, signOut, canFetchUser } = useUser();
 
   
+  // console.log (user)
+  // console.log (userId)
+  // console.log (user && user.username)
+
+  //   const GetUserButton = () => {
+  //   // Z useQuery získáme data, stav, a hlavně funkci "refetch".
+  //   // Funkce "refetch" se použije k manuálnímu spuštění dotazu.
+  //   const { data, isLoading, isError, error, refetch } = useUserQuery(userId, canFetchUser);
+
+  //   const handlePress = async () => {
+  //     // Spustíme dotaz manuálně a počkáme na výsledek
+  //     const queryResult = await refetch();
+
+  //     // Vypíšeme výsledek do konzole
+  //     console.log("Výsledek dotazu po stisknutí tlačítka:", queryResult.data.data);
+
+  //     // Zpracování chyby po spuštění
+  //     if (queryResult.isError) {
+  //       console.error("Došlo k chybě při načítání uživatele:", queryResult.error);
+  //     }
+  //   };
+
+  //   return (
+  //     <ThemedView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+  //       {/* Tlačítko pro manuální spuštění dotazu */}
+  //       <Pressable
+  //         onPress={handlePress}
+  //         disabled={isLoading}
+  //         style={{
+  //           backgroundColor: isLoading ? "#ccc" : "#007bff",
+  //           paddingVertical: 12,
+  //           paddingHorizontal: 24,
+  //           borderRadius: 8
+  //         }}
+  //       >
+  //         <ThemedText style={{ color: "white", fontWeight: "bold" }}>
+  //           {isLoading ? <ActivityIndicator color="#fff" /> : "Získat uživatele"}
+  //         </ThemedText>
+  //       </Pressable>
+
+  //       {/* Zde můžete zobrazit načtená data nebo chyby, pokud by to bylo potřeba */}
+  //       {data && (
+  //         <ThemedView style={{ marginTop: 20, padding: 10, borderWidth: 1, borderColor: "#ccc", borderRadius: 8 }}>
+  //           <ThemedText style={{ fontWeight: "bold" }}>Uživatel načten:</ThemedText>
+  //           <ThemedText>Jméno: {data.data.username}</ThemedText>
+  //           <ThemedText>Email: {data.data.email}</ThemedText>
+  //         </ThemedView>
+  //       )}
+
+  //       {isError && (
+  //         <ThemedText style={{ marginTop: 20, color: "red" }}>
+  //           Chyba: {error.message}
+  //         </ThemedText>
+  //       )}
+  //     </ThemedView>
+  //   );
+  // };
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
@@ -41,7 +99,7 @@ export default function HomeScreen() {
           <ThemedText>Log out</ThemedText>
         </Pressable>
 
-       
+        {/* <GetUserButton></GetUserButton> */}
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 2: Explore</ThemedText>

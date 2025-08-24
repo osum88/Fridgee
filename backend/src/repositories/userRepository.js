@@ -264,6 +264,7 @@ export const getUserByPasswordResetTokenRepository = async (token) => {
             select: {
                 id: true,
                 email: true,
+                preferredLanguage: true,
             },
         });
         return user; 

@@ -32,10 +32,18 @@
   "errorUserEmailExists": "Uživatel s tímto e-mailem již existuje.",
   "errorUserUsernameExists": "Uživatel s tímto uživatelským jménem již existuje.",
   "errorAllFieldsRequired": "Všechna pole musí být vyplněna.",
-  "errorPasswordMismatch": "Heslo a potvrzení hesla se musí shodovat.",
+  "errorPasswordMismatch": "Hesla se neshodují.",
   "errorPasswordTooWeak": "Heslo musí obsahovat alespoň 8 znaků, velké písmeno, číslici a speciální znak.",
-  "errorUsernameTooLong": "Uživatelské jméno musí mít alespoň 3 znaky a maximálně 30 znaků."
+  "errorUsernameTooLong": "Uživatelské jméno musí mít alespoň 3 znaky a maximálně 30 znaků.",
+  "resetPassword": "Obnovit heslo",
+  "resetPasswordDescription": "Zadejte nové heslo pro svůj účet.",
+  "newPassword": "Nové heslo",
+  "saveNewPassword": "Uložit nové heslo",
+  "errorTokenMissing": "Chybí token pro resetování hesla.",
 
+
+
+  "successMessage": "Heslo bylo úspěšně změněno. Nyní se můžeš přihlásit."
 
 
 

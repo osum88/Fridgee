@@ -8,7 +8,7 @@ import {
   getRememberMe,
   getRefreshToken,
 } from "@/utils/tokenManager";
-import { SplashScreen, router } from "expo-router";
+import { SplashScreen } from "expo-router";
 import { isExpired } from "@/utils/isExpired";
 import { getUserIdFromToken } from "@/utils/getUserIdFromToken";
 import { refreshApi } from "@/api/auth";
@@ -20,6 +20,7 @@ import {
 import { useGetUserQuery } from "@/hooks/user/useUserQuery";
 import { jwtDecode } from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import useLogoutMutation from "@/hooks/auth/useLogoutMutation";
 
 export const UserContext = createContext();
 
@@ -30,6 +31,8 @@ export function UserProvider({ children }) {
   const [userId, setUserId] = useState(null);
   const [canFetchUser, setCanFetchUser] = useState(false);
   const { data: userData, isError } = useGetUserQuery(userId, canFetchUser);
+
+  const { logoutMutation } = useLogoutMutation();
 
   const isSigningOutRef = useRef(false);
   const isInitialLoadRef = useRef(true);
@@ -57,7 +60,6 @@ export function UserProvider({ children }) {
       setUserId(getUserIdFromToken(newAccessToken));
       setUser(userData);
       setAccessToken(newAccessToken);
-      // router.replace("/(tabs)");
     } catch (error) {
       console.error("Error signing in:", error);
     }
@@ -75,6 +77,8 @@ export function UserProvider({ children }) {
         clearTimeout(refreshTimeoutRef.current);
       }
       setCanFetchUser(false);
+      const refreshToken = await getRefreshToken();
+      logoutMutation.mutate({ refreshToken });
       await removeTokens();
       await removeRememberMe();
       setAccessToken(null);
@@ -89,7 +93,7 @@ export function UserProvider({ children }) {
       SplashScreen.hideAsync();
       isSigningOutRef.current = false;
     }
-  }, []);
+  }, [logoutMutation]);
 
   const getAccessToken = useCallback(() => accessToken, [accessToken]);
 
@@ -117,6 +121,7 @@ export function UserProvider({ children }) {
   }, [isError]);
   //.----------------------------------------------------------------------------------
 
+  //refresh tokenu
   const refreshTokens = useCallback(async () => {
     try {
       const refreshToken = await getRefreshToken();
@@ -140,13 +145,12 @@ export function UserProvider({ children }) {
       clearTimeout(refreshTimeoutRef.current);
     }
     if (accessToken) {
-      // pokud uz expiroval tak ho obnov
+      // pokud uz expiroval tak ho obnovi
       if (isExpired(accessToken)) {
         console.log("Token expired, refreshing immediately.");
         refreshTokens();
-      } else {
         //jinak nastavi casovac pro obnovi
-
+      } else {
         const decoded = jwtDecode(accessToken);
         const expiresIn = decoded.exp * 1000 - Date.now();
         const refreshBefore = expiresIn - 60000; //60 vterin pred expiraci
@@ -156,8 +160,8 @@ export function UserProvider({ children }) {
             console.log("Proactively refreshing token...");
             refreshTokens();
           }, refreshBefore);
-        } else {
           //pokud uz mel min jak minutu, okamzite obnovi
+        } else {
           console.log("Token close to expiry, refreshing immediately.");
           refreshTokens();
         }

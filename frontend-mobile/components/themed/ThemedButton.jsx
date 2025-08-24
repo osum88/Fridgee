@@ -27,7 +27,7 @@ export function ThemedButton({ style, loading, lightColor, darkColor, titleLight
 const styles = StyleSheet.create({
     btn: {
         marginVertical: 2,
-        borderRadius: 8,
+        borderRadius: 12,
         justifyContent: "center",
         alignItems: "center",
     },

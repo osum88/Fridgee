@@ -96,9 +96,8 @@ export const refresh = async (req, res, next) => {
 
 export const logout = async (req, res, next) => {
     try {
-        const { clientType } = req.headers;
+        const clientType = req.headers["x-client-type"];
         const refreshToken = clientType === "mobile" ? req.body.refreshToken : req.cookies.refreshToken;
-
         await logoutService(refreshToken);
 
         if (clientType !== "mobile") {

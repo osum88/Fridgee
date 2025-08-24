@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import bcrypt from "bcrypt";
-import { getPreferredLanguageByUserIdRepository, getUserByEmailRepository, getUserByIdRepository, getUserByPasswordResetTokenRepository, getUserIdByVerificationTokenRepository, resetPasswordInDbRepository, updateLastLoginRepository, updatePasswordResetTokenRepository, updateVerificationTokenRepository, verifyUserEmailInDbRepository } from "../repositories/userRepository.js";
+import { getUserByEmailRepository, getUserByIdRepository, getUserByPasswordResetTokenRepository, getUserIdByVerificationTokenRepository, resetPasswordInDbRepository, updateLastLoginRepository, updatePasswordResetTokenRepository, updateVerificationTokenRepository, verifyUserEmailInDbRepository } from "../repositories/userRepository.js";
 import { BadRequestError, ConflictError, ForbiddenError, NotFoundError, UnauthorizedError } from "../errors/errors.js";
 import { sendPasswordResetEmail, sendPasswordResetSuccessEmail } from "../utils/emailService.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
@@ -20,9 +20,8 @@ export const signUpService = async ({username, email, password, preferredLanguag
     await updateVerificationTokenRepository(newUser.id, verifyToken, tokenExpiresAt);
     
     const verificationLink = `${process.env.FRONTEND_URL}/api/auth/verify-email?token=${verifyToken}`;
-    const language = await getPreferredLanguageByUserIdRepository(newUser.id);
-    // await sendVerificationEmail("josefnovak738@gmail.com", verificationLink, language);
-    // await sendVerificationEmail(newUser.email, verificationLink, language);
+    // await sendVerificationEmail("josefnovak738@gmail.com", verificationLink, preferredLanguage);
+    // await sendVerificationEmail(newUser.email, verificationLink, preferredLanguage);
 
     // vytvoreni a ulozeni tokenu
     const accessToken = generateAccessToken(newUser);
@@ -57,9 +56,8 @@ export const loginService = async ({ email, password }) => {
         await updateVerificationTokenRepository(user.id, verifyToken, tokenExpiresAt);
 
         const verificationLink = `${process.env.FRONTEND_URL}/api/auth/verify-email?token=${verifyToken}`;
-        const language = await getPreferredLanguageByUserIdRepository(user.id);
-        // await sendVerificationEmail("josefnovak738@gmail.com", verificationLink, language);
-        // await sendVerificationEmail(user.email, verificationLink, language);
+        // await sendVerificationEmail("josefnovak738@gmail.com", verificationLink, user.preferredLanguage);
+        // await sendVerificationEmail(user.email, verificationLink, user.preferredLanguage);
     
         // throw new UnauthorizedError("Please verify your email address to continue.");
     }
@@ -120,14 +118,12 @@ export const refreshService = async (refreshToken) => {
 };
 
 export const logoutService = async (refreshToken) => {
-    if (!refreshToken) {
-        throw new UnauthorizedError("Missing refresh token. Cannot log out.");
-    }
-    
-    const [tokenId] = refreshToken.split(".");
-    
-    if (tokenId) {
-        await deleteRefreshTokenByIdRepository(tokenId);
+    if (refreshToken) {
+        const [tokenId] = refreshToken.split(".");
+
+        if (tokenId) {
+            await deleteRefreshTokenByIdRepository(tokenId);
+        }
     }
     return true;
 };
@@ -159,12 +155,13 @@ export const forgotPasswordService = async (email) => {
     await updatePasswordResetTokenRepository(user.id, resetPasswordToken, tokenExpiresAt);
     
     // odkaz a jazyk
-    const resetLink = `${process.env.FRONTEND_URL}/api/auth/reset-password?token=${resetPasswordToken}`;
-    const language = await getPreferredLanguageByUserIdRepository(user.id);
+    // const resetLink = `${process.env.FRONTEND_URL}/api/auth/reset-password?token=${resetPasswordToken}`;
+    const resetLink = `exp://10.0.0.2:8081/--/resetPassword?token=${resetPasswordToken}`;
+    // const resetLink = `fridgee://reset-password?token=${resetPasswordToken}`;
     
     // odeslani emailu
-    await sendPasswordResetEmail("josefnovak738@gmail.com", resetLink, language);
-    // await sendPasswordResetEmail(user.email, resetLink, language);
+    await sendPasswordResetEmail("josefnovak738@gmail.com", resetLink, user.preferredLanguage);
+    // await sendPasswordResetEmail(user.email, resetLink, user.preferredLanguage);
 
     return true;
 };
@@ -188,8 +185,7 @@ export const resetPasswordService = async (token, newPassword) => {
     await deleteAllRefreshTokensByUserIdRepository(user.id);
     
     //vyber jazyku
-    const language = await getPreferredLanguageByUserIdRepository(user.id);
-    await sendPasswordResetSuccessEmail(user.email, language);
+    await sendPasswordResetSuccessEmail(user.email, user.preferredLanguage);
 
     return true;
 };
@@ -210,8 +206,7 @@ export const changePasswordService = async (email, oldPassword, newPassword) => 
     await resetPasswordInDbRepository(user.id, newPassword);
 
     // odeslani emailu o potvrzeni
-    const language = await getPreferredLanguageByUserIdRepository(user.id);
-    await sendPasswordResetSuccessEmail(user.email, language);
+    await sendPasswordResetSuccessEmail(user.email, user.preferredLanguage);
     
     // zneplatneni tokenu
     await deleteAllRefreshTokensByUserIdRepository(user.id);

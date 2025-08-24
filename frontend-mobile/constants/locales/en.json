@@ -32,9 +32,19 @@
   "errorUserEmailExists": "A user with this email already exists.",
   "errorUserUsernameExists": "A user with this username already exists.",
   "errorAllFieldsRequired": "All fields must be filled.", 
-  "errorPasswordMismatch": "Password and confirm password must match.",
+  "errorPasswordMismatch": "Passwords do not match.",
   "errorPasswordTooWeak": "Password must contain at least 8 characters, an uppercase letter, a number, and a special character.",
-  "errorUsernameTooLong": "Username must be at least 3 characters long and no more than 30 characters."
+  "errorUsernameTooLong": "Username must be at least 3 characters long and no more than 30 characters.",
+  "resetPassword": "Reset Password",
+  "resetPasswordDescription": "Enter a new password for your account.",
+  "newPassword": "New Password",
+  "saveNewPassword": "Save New Password",
+  "errorTokenMissing": "Reset token is missing.",
+
+
+
+  "successMessage": "Your password has been successfully changed. You can now sign in."
+
 
 }
 
