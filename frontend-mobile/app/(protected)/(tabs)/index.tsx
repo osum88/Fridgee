@@ -7,15 +7,13 @@ import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import i18n from "@/constants/translations";
 import { useUser } from "@/hooks/useUser";
-import { useGetUserQuery } from "@/hooks/user/useGetUserQuery";
+import { useGetUserQuery } from "@/hooks/user/useUserQuery";
 import { useState } from "react";
 
-
 export default function HomeScreen() {
-  
-  const { user, userId, signOut } = useUser();
-  // console.log (user)
+  const { user, userId, signOut, canFetchUser } = useUser();
 
+  
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
@@ -24,40 +22,35 @@ export default function HomeScreen() {
           source={require("@/assets/images/partial-react-logo.png")}
           style={styles.reactLogo}
         />
-      }>
+      }
+    >
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Welgc </ThemedText>
-        
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-
         {/* <ThemedText>{user.username}</ThemedText> */}
-   
-        <Link href="../login"><ThemedText type="subtitle">Login</ThemedText></Link>
-        <Link href="../changeLanguage"><ThemedText type="subtitle">{i18n.t("language")} </ThemedText></Link>
+
+        <Link href="../login">
+          <ThemedText type="subtitle">Login</ThemedText>
+        </Link>
+        <Link href="../changeLanguage">
+          <ThemedText type="subtitle">{i18n.t("language")} </ThemedText>
+        </Link>
 
         <Pressable onPress={() => signOut()}>
           <ThemedText>Log out</ThemedText>
         </Pressable>
 
-      
-  
-
+       
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          
-        </ThemedText>
+        <ThemedText></ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
         <ThemedText>
-          {`When you"re ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{" "}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{" "}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{" "}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
+        {i18n.t("errorPasswordTooWeak")}
         </ThemedText>
       </ThemedView>
     </ParallaxScrollView>
@@ -69,8 +62,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    
-    
   },
   stepContainer: {
     gap: 8,

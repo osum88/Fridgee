@@ -9,7 +9,7 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
-import { StrictMode, useEffect } from "react";
+import { StrictMode, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { UserProvider } from "@/contexts/UserContext";
 import { useUser } from "@/hooks/useUser";
@@ -39,30 +39,56 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <StrictMode>
-        <LanguageProvider>
-          <UserProvider>
+        {/* UserProvider musí být vně LanguageProvider, aby LanguageProvider měl přístup k datům */}
+        <UserProvider>
+          <LanguageWrapper>
             <RootLayoutContent
               colorScheme={colorScheme}
               CustomDarkTheme={CustomDarkTheme}
             />
-          </UserProvider>
-        </LanguageProvider>
+          </LanguageWrapper>
+        </UserProvider>
       </StrictMode>
     </QueryClientProvider>
+  );
+}
+
+// Nová komponenta, která obaluje RootLayoutContent a předává data
+function LanguageWrapper({ children }) {
+  const { user, isAuthenticated } = useUser();
+  return (
+    <LanguageProvider user={user} isUserLoggedIn={isAuthenticated}>
+      {children}
+    </LanguageProvider>
   );
 }
 
 function RootLayoutContent({ colorScheme, CustomDarkTheme }) {
   const { isLanguageLoaded } = useLanguage();
   const { isLoading, isAuthenticated } = useUser();
+  const [isAppReady, setIsAppReady] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.replace("/login");
+    if (!isLoading && isLanguageLoaded) {
+      setIsAppReady(true);
     }
-  }, [isLoading, isAuthenticated]);
+  }, [isLoading, isLanguageLoaded]); 
 
-  if (!isLanguageLoaded || isLoading) {
+  useEffect(() => {
+    if (isAppReady) {
+      if (isAuthenticated) {
+        if (isLanguageLoaded) {
+          router.replace("/(tabs)");
+        }
+      } else {
+        if (isLanguageLoaded) {
+          router.replace("/login");
+        }
+      }
+    }
+  }, [isAppReady, isAuthenticated, isLanguageLoaded]); 
+
+  if (!isAppReady) {
     return null;
   }
 
@@ -82,6 +108,3 @@ function RootLayoutContent({ colorScheme, CustomDarkTheme }) {
     </ThemeProvider>
   );
 }
-
- 
-

@@ -35,3 +35,7 @@ export const updateUserSchema = Joi.object({
     isAdmin: Joi.boolean().optional(),
     preferredLanguage: Joi.string().valid(...allowedLanguages).optional(),
 });
+
+export const updateLanguageSchema = Joi.object({
+    preferredLanguage: Joi.string().valid(...allowedLanguages).required(),
+});

@@ -1,12 +1,12 @@
 import { getAllUsersRepository, getUserByIdRepository, updateUserProfilePictureRepository } from "../repositories/userRepository.js";
-import { createUserService, deleteUserService, getBankNumberService, getUserByIdService, searchUsersService, updateUserService } from "../services/userService.js";
+import { createUserService, deleteUserService, getBankNumberService, getUserByIdService, searchUsersService, updatePreferredLanguageByUserIdService, updateUserService } from "../services/userService.js";
 import handleResponse from "../utils/responseHandler.js"
 
 export const createUser = async (req, res, next) => {
     try {
         const { name, surname, username, birthDate, email, password, bankNumber} = req.body;
 
-        const newUser = await createUserService(name, surname, username, birthDate, email, password, bankNumber);
+        const newUser = await createUserService(name, surname, username, birthDate, email, password, bankNumber, preferredLanguage);
 
         return handleResponse(res, 201, "User created successfully", newUser);
     } catch (err) {
@@ -121,6 +121,19 @@ export const updateUserProfilePicture = async (req, res, next) => {
         const updatedUser = await updateUserProfilePictureRepository(userId, imageUrl);
 
         return handleResponse(res, 200, "Profile picture updated successfully.", updatedUser);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const updatePreferredLanguageByUserId = async (req, res, next) => {
+    try {
+        const userId = req.userId;
+        const { preferredLanguage } = req.body;
+
+        const updatedUser = await updatePreferredLanguageByUserIdService(userId, preferredLanguage);
+
+        return handleResponse(res, 200, "User updated successfully", updatedUser);
     } catch (err) {
         next(err);
     }

@@ -1,6 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+} from "react";
 import i18n from "@/constants/translations";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getLocales } from "expo-localization";
 
 export const LanguageContext = createContext();
 
@@ -12,26 +18,37 @@ export function useLanguage() {
   return context;
 }
 
-export function LanguageProvider({ children }) {
+export function LanguageProvider({ children, user, isUserLoggedIn }) {
   const [isLanguageLoaded, setIsLanguageLoaded] = useState(false);
   const [locale, setLocale] = useState(i18n.locale);
 
   useEffect(() => {
     const loadLanguage = async () => {
       try {
+        setIsLanguageLoaded(false);
+
+        let languageToSet;
         const storedLanguage = await AsyncStorage.getItem("selected_language");
+
         if (storedLanguage) {
-          i18n.locale = storedLanguage;
-          setLocale(storedLanguage);
+          languageToSet = storedLanguage;
+        } else if (isUserLoggedIn && user?.preferredLanguage) {
+          languageToSet = user.preferredLanguage;
+          await AsyncStorage.setItem("selected_language", languageToSet);
+        } else {
+          languageToSet = getLocales()[0].languageCode ?? "en";
         }
+
+        i18n.locale = languageToSet;
+        setLocale(languageToSet);
       } catch (error) {
-        console.error("Error loading language from storage:", error);
+        console.error("Error loading language:", error);
       } finally {
         setIsLanguageLoaded(true);
       }
     };
     loadLanguage();
-  }, []);
+  }, [isUserLoggedIn, user]);
 
   const setAppLanguage = async (newLocale) => {
     try {

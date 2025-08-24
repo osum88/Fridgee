@@ -15,26 +15,58 @@ import { Colors } from "@/constants/Colors";
 import { FormGroup } from "../../components/common/FormGroup";
 import { FormGroupPassword } from "@/components/common/FormGroupPassword";
 import { useState } from "react";
+import useRegisterMutation from "@/hooks/auth/useRegisterMutation";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Register() {
   const colorScheme = useColorScheme();
   const currentColors = Colors[colorScheme ?? "light"];
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState(null);
   const [confirmPassword, setconfirmPassword] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
-  const [error, setError] = useState(null);
+  const [usernameError, setUsernameError] = useState(null);
+  const [emailError, setEmailError] = useState(null);
+  const [passwordError, setPasswordError] = useState(null);
+  const { locale } = useLanguage();
 
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
 
-  const handleSubmit = () => {
-    setError("null");
+  const { registerMutation, isLoading } = useRegisterMutation({
+    setUsernameError,
+    setEmailError,
+    setPasswordError,
+  });
 
-    console.log("username is ", username);
-    console.log("email is ", email);
-    console.log("password is ", password);
-    console.log("confirmPassword is ", confirmPassword);
+  const handleSubmit = () => {
+    setUsernameError(null);
+    setEmailError(null);
+    setPasswordError(null);
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    if (!username || !email || !password || !confirmPassword) {
+      setUsernameError(" ");
+      setEmailError(" ");
+      setPasswordError(i18n.t("errorAllFieldsRequired"));
+    } else if (password !== confirmPassword) {
+      setPasswordError(i18n.t("errorPasswordMismatch"));
+    } else if (username.length < 3 || username.length > 30) {
+      setUsernameError(i18n.t("errorUsernameTooLong"));
+    } else if (!passwordRegex.test(password)) {
+      setPasswordError(i18n.t("errorPasswordTooWeak"));
+    } else if (!emailRegex.test(email)) {
+      setEmailError(i18n.t("errorValidEmail"));
+    } else {
+      registerMutation.mutate({
+        username,
+        email,
+        password,
+        preferredLanguage: locale,
+      });
+    }
   };
 
   return (
@@ -57,11 +89,12 @@ export default function Register() {
               <FormGroup
                 label={i18n.t("username")}
                 placeholder={i18n.t("enterYourUsername")}
-                maxLength={25}
+                maxLength={30}
+                autoCapitalize="none"
                 style={styles.input}
                 value={username}
                 onChangeText={setUsername}
-                error={error}
+                error={usernameError}
               />
               <FormGroup
                 label={i18n.t("emailAddress")}
@@ -70,32 +103,41 @@ export default function Register() {
                 style={styles.input}
                 value={email}
                 maxLength={150}
+                autoCapitalize="none"
                 onChangeText={setEmail}
-                error={error}
+                error={emailError}
               />
               <FormGroupPassword
                 label={i18n.t("password")}
                 placeholder={i18n.t("enterYourPassword")}
                 style={styles.input}
                 maxLength={100}
+                autoCapitalize="none"
                 importantForAutofill="no"
                 value={password}
                 onChangeText={setPassword}
-                error={error}
+                error={passwordError}
+                showError={false}
               />
               <FormGroupPassword
                 label={i18n.t("confirmPassword")}
                 placeholder={i18n.t("passwordAgain")}
                 style={styles.input}
                 maxLength={100}
+                autoCapitalize="none"
                 importantForAutofill="no"
                 value={confirmPassword}
                 onChangeText={setconfirmPassword}
-                error={error}
+                error={passwordError}
               />
             </ThemedView>
 
-            <ThemedButton onPress={handleSubmit} style={styles.btn}>
+            <ThemedButton
+              onPress={handleSubmit}
+              style={styles.btn}
+              disabled={isLoading}
+              loading={isLoading}
+            >
               {i18n.t("signUpButton")}
             </ThemedButton>
           </ThemedView>

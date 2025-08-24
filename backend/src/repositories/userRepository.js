@@ -6,7 +6,7 @@ import { NotFoundError } from "../errors/errors.js";
 const SALT_ROUNDS = 11;
 
 //vytvori uzivatele
-export const createUserRepository = async (name, surname, username, birthDate, email, password, bankNumber) => {
+export const createUserRepository = async (name, surname, username, birthDate, email, password, bankNumber, preferredLanguage) => {
     try {
         const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
         
@@ -18,7 +18,8 @@ export const createUserRepository = async (name, surname, username, birthDate, e
                 birthDate: birthDate,
                 email: email,
                 passwordHash: hashedPassword,
-                bankNumber: encrypt(bankNumber),   
+                bankNumber: encrypt(bankNumber),
+                preferredLanguage: preferredLanguage,   
             },
         });
         const { passwordHash: omittedPasswordHash, bankNumber: encryptedBankNumber, ...rest } = newUser; 
@@ -53,12 +54,25 @@ export const getUserByIdRepository = async (id) => {
             where: {
                 id: parseInt(id),
             },
+            select: {
+                id: true,
+                name: true,
+                surname: true,
+                username: true,
+                birthDate: true,
+                email: true,
+                profilePictureUrl: true,
+                emailIsVerified: true,
+                isAdmin: true,
+                createdAt: true,
+                lastLogin: true,
+                preferredLanguage: true,
+            },
         });
         if (!user) {
             throw new NotFoundError("User not found");
         }
-        const { passwordHash, verificationToken, passwordResetToken, bankNumber, ...rest } = user; 
-        return rest; 
+        return user; 
     } catch (error) {
         console.error("Error fetching user by ID:", error); 
         throw error;
@@ -142,11 +156,18 @@ export const getUserByEmailRepository = async (email) => {
             },
             select: {
                 id: true,
+                name: true,
+                surname: true,
                 username: true,
+                birthDate: true,
                 email: true,
                 passwordHash: true, 
-                isAdmin: true,
+                profilePictureUrl: true,
                 emailIsVerified: true,
+                isAdmin: true,
+                createdAt: true,
+                lastLogin: true,
+                preferredLanguage: true,
             },
         });
         return user; 
@@ -320,6 +341,29 @@ export const getPreferredLanguageByUserIdRepository = async (id) => {
         throw error;
     }
 };
+
+//updatuje preferovany jazyk
+export const updatePreferredLanguageByUserIdRepository = async (id, preferredLanguage) => {
+    try {
+        const updatedUser = await prisma.user.update({
+            where: {
+                id: id,
+            },
+            data: {
+                preferredLanguage: preferredLanguage,
+            },
+            select: {
+                preferredLanguage: true,
+            },
+        });
+
+        return updatedUser;
+    } catch (error) {
+        console.error("Error updating preferred language:", error);
+        throw error;
+    }
+};
+
 
 //vyhledává uzivatele podle username
 export const searchUsersRepository = async (username, limit) => {

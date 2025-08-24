@@ -1,7 +1,7 @@
 import express from "express";
-import { createUser, deleteUser, getAllUsersAdmin, getUserById, updateUser, getBankNumber, searchUsers, updateUserProfilePicture } from "../controllers/userController.js";
+import { createUser, deleteUser, getAllUsersAdmin, getUserById, updateUser, getBankNumber, searchUsers, updateUserProfilePicture, updatePreferredLanguageByUserId } from "../controllers/userController.js";
 import validate from "../middlewares/validator.js";
-import { createUserSchema, updateUserSchema } from "../validation/userValidation.js";
+import { createUserSchema, updateLanguageSchema, updateUserSchema } from "../validation/userValidation.js";
 import { authenticateToken, authorizeUser, authorizeUserOrAdmin } from "../middlewares/authMiddleware.js";
 
 
@@ -19,6 +19,9 @@ router.get("/users", authenticateToken, authorizeUser, getUserById);
 
 //TODO  middlevare pro profile picture
 router.put("/users/profile-image", authenticateToken, /*tady upload middleware,*/ updateUserProfilePicture);
+
+//updatuje jazyk
+router.patch("/users/language", validate(updateLanguageSchema), authenticateToken, authorizeUser, updatePreferredLanguageByUserId);
 
 //updatuje uzivatele
 router.patch("/users", validate(updateUserSchema), authenticateToken, authorizeUser, updateUser);

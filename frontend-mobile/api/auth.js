@@ -1,5 +1,6 @@
 import apiClient from "@/utils/api-client";
 import i18n from "@/constants/translations";
+import { EmailError, PasswordError, UsernameError } from "@/errors/CustomError"
 
 export const loginApi = async (loginData) => {
   try {
@@ -23,13 +24,13 @@ export const loginApi = async (loginData) => {
             error.response.data?.errors?.includes('"password" is not allowed to be empty')
         ) {
             throw new Error(i18n.t("errorEmptyEmailPassword"));
+        } else if (error.response.data.includes("Too many requests from this IP address")) {
+            throw new Error(i18n.t("errorTooManyRequest"));
         } else {
             throw new Error(i18n.t("errorDefault"));
         }
     } else if (error.request) {
         throw new Error(i18n.t("errorNetwork"));
-    } else if (error.request.includes("Too many requests from this IP address")) {
-        throw new Error(i18n.t("errorTooManyRequest"));
     } else {
         throw new Error(i18n.t("errorDefault"));
     }
@@ -37,8 +38,46 @@ export const loginApi = async (loginData) => {
 };
 
 export const signupApi = async (signupData) => {
-  const response = await apiClient.post("/auth/signup", signupData);
-  return response.data;
+  try {
+    const response = await apiClient.post("/auth/signup", signupData, {
+      headers: {
+        "X-Client-Type": "mobile",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error signupApi: ", error);
+    if (error.response) {
+        console.error("Error signupApi: ", error.response.data);
+        const errors = error.response?.data?.errors || [];
+        const data = error.response.data;
+
+        
+        if (error.response.status === 409 && error.response.data.message === "A user with this email already exists.") {
+            throw new EmailError(i18n.t("errorUserEmailExists"));
+        } else if (error.response.status === 409 && error.response.data.message === "A user with this username already exists.") {
+            throw new UsernameError(i18n.t("errorUserUsernameExists"));
+        } else if (error.response.data?.errors?.includes('"email" must be a valid email')) {
+            throw new EmailError(i18n.t("errorValidEmail"));
+        } else if (errors.some(e => e.includes("fails to match the required pattern"))) {
+            throw new PasswordError(i18n.t("errorPasswordTooWeak"));
+        } else if (errors.some(e => e.includes("length must be at least 8 characters long"))) {
+            throw new PasswordError(i18n.t("errorPasswordTooWeak"));
+        } else if (errors.some(e => e.includes("length must be less than or equal to 30 characters long"))) {
+            throw new UsernameError(i18n.t("errorUsernameTooLong"));
+        } else if (errors.some(e => e.includes("length must be at least 3 characters long"))) {
+            throw new UsernameError(i18n.t("errorUsernameTooLong"));
+        } else if (typeof data === "string" && data.includes("Too many requests from this IP address")) {
+            throw new Error(i18n.t("errorTooManyRequest"));
+        } else {
+            throw new Error(i18n.t("errorDefault"));
+        }
+    } else if (error.request) {
+        throw new Error(i18n.t("errorNetwork"));
+    } else {
+        throw new Error(i18n.t("errorDefault"));
+    }
+  }
 };
 
 export const refreshApi = async (refreshData) => {

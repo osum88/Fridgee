@@ -27,8 +27,14 @@
   "errorDefault": "An unexpected error occurred. Please try again later.",
   "errorValidEmail": "Email must be a valid email address.",
   "errorEmptyEmailPassword": "Email and password cannot be empty.",
-  "errorTooManyRequest": "Too many requests, please try again shortly."
-
+  "errorEmptyEmail": "Email cannot be empty.",
+  "errorTooManyRequest": "Too many requests, please try again later.",
+  "errorUserEmailExists": "A user with this email already exists.",
+  "errorUserUsernameExists": "A user with this username already exists.",
+  "errorAllFieldsRequired": "All fields must be filled.", 
+  "errorPasswordMismatch": "Password and confirm password must match.",
+  "errorPasswordTooWeak": "Password must contain at least 8 characters, an uppercase letter, a number, and a special character.",
+  "errorUsernameTooLong": "Username must be at least 3 characters long and no more than 30 characters."
 
 }
 

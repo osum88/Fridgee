@@ -50,9 +50,9 @@ export function FormGroupPassword({
             />
           </TouchableOpacity>
         </ThemedView>
-        {showError && (!moveAround || error) && (
+        {(!moveAround || error) && (
           <ThemedText style={{ paddingLeft: 2 }} type="error">
-            {error}
+            {showError && error}
           </ThemedText>
         )}
       </ThemedView>

@@ -3,10 +3,10 @@ import { changePasswordService, forgotPasswordService, loginService, logoutServi
 
 export const signUp = async (req, res, next) => {
     try {
-        const { username, email, password } = req.body;
+        const { username, email, password, preferredLanguage } = req.body;
         const clientType = req.headers["x-client-type"];
 
-        const responseData = await signUpService({ username, email, password });
+        const responseData = await signUpService({ username, email, password, preferredLanguage });
 
         if (clientType === "mobile") {
             // pro mobil tokeny v JSON těle

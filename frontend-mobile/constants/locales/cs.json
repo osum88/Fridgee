@@ -27,6 +27,16 @@
   "errorDefault": "Vyskytla se neočekávaná chyba. Zkuste to prosím později.",
   "errorValidEmail": "Email musí být platná e-mailová adresa",
   "errorEmptyEmailPassword": "Email ani heslo nesmí být prázdné.",
-  "errorTooManyRequest": "Příliš mnoho požadavků, zkuste to prosím za chvíli."
+  "errorEmptyEmail": "Email nesmí být prázdný.",
+  "errorTooManyRequest": "Příliš mnoho požadavků, zkuste to prosím za chvíli.",
+  "errorUserEmailExists": "Uživatel s tímto e-mailem již existuje.",
+  "errorUserUsernameExists": "Uživatel s tímto uživatelským jménem již existuje.",
+  "errorAllFieldsRequired": "Všechna pole musí být vyplněna.",
+  "errorPasswordMismatch": "Heslo a potvrzení hesla se musí shodovat.",
+  "errorPasswordTooWeak": "Heslo musí obsahovat alespoň 8 znaků, velké písmeno, číslici a speciální znak.",
+  "errorUsernameTooLong": "Uživatelské jméno musí mít alespoň 3 znaky a maximálně 30 znaků."
+
+
+
 
 }

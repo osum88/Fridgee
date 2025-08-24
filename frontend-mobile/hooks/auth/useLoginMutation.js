@@ -3,20 +3,17 @@ import { useUser } from "@/hooks/useUser";
 import i18n from "@/constants/translations";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-
 const useLoginMutation = ({ setError, rememberMe }) => {
   const { signIn } = useUser();
-  // const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
   const loginMutation = useMutation({
     mutationFn: loginApi,
     onSuccess: async (response) => {
       const { accessToken, refreshToken, user } = response.data;
-
-      // await queryClient.invalidateQueries({ queryKey: ["user"] });
+      await queryClient.invalidateQueries({ queryKey: ["user"] });
 
       console.log(`User ${user.username} log sucesfully`);
-      console.log("refreshToken:", refreshToken);
       try {
         if (
           accessToken &&

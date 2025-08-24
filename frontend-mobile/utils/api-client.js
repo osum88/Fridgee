@@ -34,7 +34,7 @@ apiClient.interceptors.request.use(
   (config) => {
     if (accessTokenGetter) {
       const accessToken = accessTokenGetter();
-      console.log("Header Bearer token: ", accessToken);
+      console.log("Header Bearer token:", accessToken);
       if (accessToken) {
         config.headers.Authorization = `Bearer ${accessToken}`;
       }

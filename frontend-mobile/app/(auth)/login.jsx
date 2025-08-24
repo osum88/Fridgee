@@ -7,7 +7,7 @@ import {
   Pressable,
 } from "react-native";
 import i18n from "@/constants/translations";
-import { Link, router } from "expo-router";
+import { Link } from "expo-router";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedButton } from "@/components/themed/ThemedButton";
@@ -30,18 +30,19 @@ export default function Login() {
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
 
-  const { loginMutation, isLoading } = useLoginMutation({ setError, rememberMe });
+  const { loginMutation, isLoading } = useLoginMutation({
+    setError,
+    rememberMe,
+  });
 
   const handleSubmit = () => {
     setError(null);
 
-
-    console.log("                                                ");
-    console.log("                                                ");
-    console.log("                                                ");
-
-    loginMutation.mutate({ email, password });
-    // router.replace("/(tabs)");
+    if (!email || !password) {
+      setError(i18n.t("errorEmptyEmailPassword"));
+    } else {
+      loginMutation.mutate({ email, password });
+    }
   };
 
   return (
@@ -69,6 +70,7 @@ export default function Login() {
                 autoComplete="email"
                 style={styles.input}
                 value={email}
+                autoCapitalize="none"
                 onChangeText={setEmail}
                 error={error}
                 showError={false}
@@ -82,6 +84,7 @@ export default function Login() {
                   autoComplete="password"
                   style={styles.input}
                   maxLength={70}
+                  autoCapitalize="none"
                   importantForAutofill="yes"
                   value={password}
                   onChangeText={setPassword}
@@ -114,12 +117,14 @@ export default function Login() {
               style={styles.btn}
               onPress={handleSubmit}
               disabled={isLoading}
+              loading={isLoading}
             >
               {i18n.t("loginButton")}
             </ThemedButton>
           </ThemedView>
         </ScrollView>
       </KeyboardAvoidingView>
+
       <ThemedView safe={true} style={styles.bottomLinkContainer}>
         <ThemedView style={styles.textRow}>
           <ThemedText>{i18n.t("notRegisteredYet")}</ThemedText>
@@ -192,5 +197,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: "center",
+  },
+  loader: {
+    color: "rgba(231, 41, 41, 1)",
   },
 });

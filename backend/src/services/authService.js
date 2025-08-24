@@ -7,12 +7,12 @@ import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
 import { createRefreshTokenRepository, deleteAllRefreshTokensByUserIdRepository, deleteRefreshTokenByIdRepository, findRefreshTokenByIdRepository,  } from "../repositories/refreshTokenRepository.js";
 import { createUserService } from "./userService.js";
 
-export const signUpService = async ({username, email, password}) => {
+export const signUpService = async ({username, email, password, preferredLanguage}) => {
 
     const sanitizedUsername = username.trim().replace(/\s+/g, "");
 
     // vytvoreni uzivatele
-    const newUser = await createUserService(null, null, sanitizedUsername, null, email, password, null);
+    const newUser = await createUserService(null, null, sanitizedUsername, null, email, password, null, preferredLanguage);
 
     // verifikace a odeslani emailu
     const verifyToken = crypto.randomBytes(32).toString("hex"); 

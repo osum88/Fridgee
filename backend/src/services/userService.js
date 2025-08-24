@@ -1,7 +1,7 @@
 import { BadRequestError, ConflictError, NotFoundError } from "../errors/errors.js";
-import { createUserRepository, deleteUserRepository, getBankNumberRepository, getUserByEmailRepository, getUserByIdRepository, getUserByUsernameRepository, searchUsersRepository, updateUserRepository } from "../repositories/userRepository.js";
+import { createUserRepository, deleteUserRepository, getBankNumberRepository, getUserByEmailRepository, getUserByIdRepository, getUserByUsernameRepository, searchUsersRepository, updatePreferredLanguageByUserIdRepository, updateUserRepository } from "../repositories/userRepository.js";
 
-export const createUserService = async (name, surname, username, birthDate, email, password, bankNumber) => {
+export const createUserService = async (name, surname, username, birthDate, email, password, bankNumber, preferredLanguage) => {
     const existingUserByEmail = await getUserByEmailRepository(email);
     if (existingUserByEmail) {
         throw new ConflictError("A user with this email already exists.");
@@ -19,7 +19,8 @@ export const createUserService = async (name, surname, username, birthDate, emai
         birthDate,
         email,
         password,
-        bankNumber
+        bankNumber,
+        preferredLanguage
     );
     return newUser;
 };
@@ -95,4 +96,15 @@ export const searchUsersService = async (username, limit = 10) => {
     const users = await searchUsersRepository(sanitizedUsername, parseInt(limit, 10));
 
     return users;
+};
+
+//updatuje jazky
+export const updatePreferredLanguageByUserIdService = async (id, language) => {
+    
+    const updatedUser = await updatePreferredLanguageByUserIdRepository(id, language);
+
+    if (!updatedUser) {
+        throw new NotFoundError("User not found after update.");
+    }
+    return updatedUser;
 };

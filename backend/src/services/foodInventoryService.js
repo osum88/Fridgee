@@ -30,8 +30,6 @@ export const createInventoryUserService = async (userId, inventoryId, role, isAd
     if (isAdmin) {
         await getUserByIdRepository(userId);
     } 
-    
-    await getUserByIdRepository(userId);
     await getFoodInventoryRepository(inventoryId);
 
     // kontrola, zda uživatel již v inventari neni

@@ -6,6 +6,7 @@ import {
   storeRememberMe,
   removeRememberMe,
   getRememberMe,
+  getRefreshToken,
 } from "@/utils/tokenManager";
 import { SplashScreen, router } from "expo-router";
 import { isExpired } from "@/utils/isExpired";
@@ -16,6 +17,9 @@ import {
   setAccessTokenGetter,
   setSignOutCallback,
 } from "@/utils/api-client";
+import { useGetUserQuery } from "@/hooks/user/useUserQuery";
+import { jwtDecode } from "jwt-decode";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const UserContext = createContext();
 
@@ -24,9 +28,12 @@ export function UserProvider({ children }) {
   const [accessToken, setAccessToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [userId, setUserId] = useState(null);
+  const [canFetchUser, setCanFetchUser] = useState(false);
+  const { data: userData, isError } = useGetUserQuery(userId, canFetchUser);
 
   const isSigningOutRef = useRef(false);
   const isInitialLoadRef = useRef(true);
+  const refreshTimeoutRef = useRef(null);
 
   const handleNewTokens = (newAccessToken) => {
     setAccessToken(newAccessToken);
@@ -42,15 +49,15 @@ export function UserProvider({ children }) {
     newAccessToken,
     newRefreshToken,
     userData,
-    rememberMe
+    rememberMe = false
   ) => {
     try {
       await storeTokens(newAccessToken, newRefreshToken);
       await storeRememberMe(rememberMe);
       setUserId(getUserIdFromToken(newAccessToken));
-      setAccessToken(newAccessToken);
       setUser(userData);
-      router.replace("/(tabs)");
+      setAccessToken(newAccessToken);
+      // router.replace("/(tabs)");
     } catch (error) {
       console.error("Error signing in:", error);
     }
@@ -64,12 +71,17 @@ export function UserProvider({ children }) {
     }
     isSigningOutRef.current = true;
     try {
+      if (refreshTimeoutRef.current) {
+        clearTimeout(refreshTimeoutRef.current);
+      }
+      setCanFetchUser(false);
       await removeTokens();
       await removeRememberMe();
       setAccessToken(null);
       setUserId(null);
       setUser(null);
-      console.log("sign out...")
+      await AsyncStorage.removeItem("selected_language");
+      console.log("sign out...");
     } catch (error) {
       console.error("Error signing out:", error);
     } finally {
@@ -88,6 +100,76 @@ export function UserProvider({ children }) {
     setTokensCallback(handleNewTokens);
   }, [getAccessToken, signOut]);
 
+  //------mozna pak odstranit------------------------------------------------------
+  //nacte uzivatele na zacatku pokud byl predtim remmeber true
+  useEffect(() => {
+    if (userData?.data) {
+      setUser(userData.data);
+      console.log("User data saved to context.");
+    }
+  }, [userData]);
+
+  useEffect(() => {
+    if (isError) {
+      console.error("Error fetching user data:", isError);
+      // signOut();
+    }
+  }, [isError]);
+  //.----------------------------------------------------------------------------------
+
+  const refreshTokens = useCallback(async () => {
+    try {
+      const refreshToken = await getRefreshToken();
+      if (!refreshToken) {
+        console.log("No tokens found, signing out.");
+        signOut();
+        return;
+      }
+      const { data } = await refreshApi({ refreshToken });
+      await storeTokens(data.accessToken, data.refreshToken);
+      setAccessToken(data.accessToken);
+    } catch (refreshError) {
+      console.error("Failed to refresh token:", refreshError);
+      signOut();
+    }
+  }, [signOut]);
+
+  //pokud tokenu ma min jak minutu do expirace tak ho obnovi
+  useEffect(() => {
+    if (refreshTimeoutRef.current) {
+      clearTimeout(refreshTimeoutRef.current);
+    }
+    if (accessToken) {
+      // pokud uz expiroval tak ho obnov
+      if (isExpired(accessToken)) {
+        console.log("Token expired, refreshing immediately.");
+        refreshTokens();
+      } else {
+        //jinak nastavi casovac pro obnovi
+
+        const decoded = jwtDecode(accessToken);
+        const expiresIn = decoded.exp * 1000 - Date.now();
+        const refreshBefore = expiresIn - 60000; //60 vterin pred expiraci
+
+        if (refreshBefore > 0) {
+          refreshTimeoutRef.current = setTimeout(() => {
+            console.log("Proactively refreshing token...");
+            refreshTokens();
+          }, refreshBefore);
+        } else {
+          //pokud uz mel min jak minutu, okamzite obnovi
+          console.log("Token close to expiry, refreshing immediately.");
+          refreshTokens();
+        }
+      }
+    }
+    return () => {
+      if (refreshTimeoutRef.current) {
+        clearTimeout(refreshTimeoutRef.current);
+      }
+    };
+  }, [accessToken, refreshTokens]);
+
   // nacte stav prihlaseni na startu aplikace
   useEffect(() => {
     if (isInitialLoadRef.current) {
@@ -95,35 +177,15 @@ export function UserProvider({ children }) {
       const checkAuthentication = async () => {
         try {
           const rememberMe = await getRememberMe();
-          if (!rememberMe) {
-            console.log("Remember me is false, signing out.");
-            signOut();
-            return;
-          }
-
           const { accessToken, refreshToken } = await getTokens();
-          if (!accessToken || !refreshToken) {
-            console.log("No tokens found, signing out.");
+          if (!accessToken || !refreshToken || !rememberMe) {
+            console.log("No session data found, signing out.");
             signOut();
             return;
           }
-
-          if (isExpired(accessToken)) {
-            console.log("Access token expired, attempting to refresh.");
-            try {
-              const { data } = await refreshApi({ refreshToken });
-              await storeTokens(data.accessToken, data.refreshToken);
-              setAccessToken(data.accessToken);
-              setUserId(getUserIdFromToken(data.accessToken));
-            } catch (refreshError) {
-              console.error("Failed to refresh token:", refreshError);
-              signOut();
-            }
-          } else {
-            console.log("Access token is valid");
-            setAccessToken(accessToken);
-            setUserId(getUserIdFromToken(accessToken));
-          }
+          setAccessToken(accessToken);
+          setUserId(getUserIdFromToken(accessToken));
+          setCanFetchUser(true);
         } catch (error) {
           console.error("Error during authentication check:", error);
           signOut();
@@ -141,6 +203,7 @@ export function UserProvider({ children }) {
     userId,
     setUser,
     accessToken,
+    canFetchUser,
     isLoading,
     isAuthenticated: !!accessToken,
     signIn,

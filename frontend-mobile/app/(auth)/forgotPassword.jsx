@@ -41,12 +41,19 @@ export default function ForgotPassword() {
   }, [countdown]);
 
   const handleSubmit = () => {
-    setError("null");
+    setError(null);
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-    console.log("error is ", error);
-    console.log("email is ", email);
-    setCountdown(10);
-    setIsButtonDisabled(true);
+    if (!email) {
+      setError(i18n.t("errorEmptyEmail"));
+    } else if (!emailRegex.test(email)) {
+      setError(i18n.t("errorValidEmail"));
+    } else {
+      console.log("error is ", error);
+      console.log("email is ", email);
+      setCountdown(10);
+      setIsButtonDisabled(true);
+    }
   };
 
   return (
@@ -76,6 +83,7 @@ export default function ForgotPassword() {
                 keyboardType="email-address"
                 autoComplete="email"
                 style={styles.input}
+                autoCapitalize="none"
                 value={email}
                 onChangeText={setEmail}
                 error={error}
@@ -86,7 +94,9 @@ export default function ForgotPassword() {
                 onPress={handleSubmit}
                 disabled={isButtonDisabled}
               >
-                {isButtonDisabled ? `${i18n.t("resendIn")} ${countdown} s` : i18n.t("resetPasswordLink")}
+                {isButtonDisabled
+                  ? `${i18n.t("resendIn")} ${countdown} s`
+                  : i18n.t("resetPasswordLink")}
               </ThemedButton>
             </ThemedView>
           </ThemedView>
