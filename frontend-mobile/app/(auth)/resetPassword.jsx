@@ -17,6 +17,7 @@ import { FormGroupPassword } from "@/components/common/FormGroupPassword";
 import { useState } from "react";
 import useResetPasswordMutation from "@/hooks/auth/useResetPasswordMutation";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { SuccessAnimation } from "@/components/animated/SuccessAnimation";
 
 export default function Register() {
   const colorScheme = useColorScheme();
@@ -24,6 +25,7 @@ export default function Register() {
   const [newPassword, setPassword] = useState(null);
   const [confirmPassword, setConfirmPassword] = useState("");
   const { token } = useLocalSearchParams();
+  const [success, setSuccess] = useState(false);
 
   const [error, setError] = useState(null);
 
@@ -32,25 +34,30 @@ export default function Register() {
 
   const { resetPasswordMutation, isLoading } = useResetPasswordMutation({
     setError,
+    setSuccess,
   });
 
-  const handleSubmit = () => {
-    setError(null);
-    console.log("tokeen:", token);
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+  
 
-    if (!newPassword || !confirmPassword) {
-      setError(i18n.t("errorAllFieldsRequired"));
-    } else if (newPassword !== confirmPassword) {
-      setError(i18n.t("errorPasswordMismatch"));
-    } else if (!passwordRegex.test(newPassword)) {
-      setError(i18n.t("errorPasswordTooWeak"));
-    } else if (!token) {
-      setError(i18n.t("errorTokenMissing"));
-    } else {
-      resetPasswordMutation.mutate({ token, newPassword });
-    }
+  const handleSubmit = async () => {
+    setError(null);
+    setSuccess(true);
+
+
+    // const passwordRegex =
+    //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+
+    // if (!newPassword || !confirmPassword) {
+    //   setError(i18n.t("errorAllFieldsRequired"));
+    // } else if (newPassword !== confirmPassword) {
+    //   setError(i18n.t("errorPasswordMismatch"));
+    // } else if (!passwordRegex.test(newPassword)) {
+    //   setError(i18n.t("errorPasswordTooWeak"));
+    // } else if (!token) {
+    //   setError(i18n.t("errorTokenMissing"));
+    // } else {
+    //   resetPasswordMutation.mutate({ token, newPassword });
+    // }
   };
 
   return (
@@ -66,43 +73,49 @@ export default function Register() {
               { width: isTablet ? "50%" : "100%" },
             ]}
           >
-            <ThemedText style={styles.register} type="title">
-              {i18n.t("resetPassword")}
-            </ThemedText>
-            <ThemedView style={styles.formSection}>
-              <FormGroupPassword
-                label={i18n.t("newPassword")}
-                placeholder={i18n.t("enterYourPassword")}
-                style={styles.input}
-                maxLength={100}
-                autoCapitalize="none"
-                importantForAutofill="no"
-                value={newPassword}
-                onChangeText={setPassword}
-                error={error}
-                showError={false}
-              />
-              <FormGroupPassword
-                label={i18n.t("confirmPassword")}
-                placeholder={i18n.t("passwordAgain")}
-                style={styles.input}
-                maxLength={100}
-                autoCapitalize="none"
-                importantForAutofill="no"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                error={error}
-              />
-            </ThemedView>
+            {success ? (
+              <SuccessAnimation />
+            ) : (
+              <>
+                <ThemedText style={styles.register} type="title">
+                  {i18n.t("resetPassword")}
+                </ThemedText>
+                <ThemedView style={styles.formSection}>
+                  <FormGroupPassword
+                    label={i18n.t("newPassword")}
+                    placeholder={i18n.t("enterYourPassword")}
+                    style={styles.input}
+                    maxLength={100}
+                    autoCapitalize="none"
+                    importantForAutofill="no"
+                    value={newPassword}
+                    onChangeText={setPassword}
+                    error={error}
+                    showError={false}
+                  />
+                  <FormGroupPassword
+                    label={i18n.t("confirmPassword")}
+                    placeholder={i18n.t("passwordAgain")}
+                    style={styles.input}
+                    maxLength={100}
+                    autoCapitalize="none"
+                    importantForAutofill="no"
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    error={error}
+                  />
+                </ThemedView>
 
-            <ThemedButton
-              onPress={handleSubmit}
-              style={styles.btn}
-              disabled={isLoading}
-              loading={isLoading}
-            >
-              {i18n.t("saveNewPassword")}
-            </ThemedButton>
+                <ThemedButton
+                  onPress={handleSubmit}
+                  style={styles.btn}
+                  disabled={isLoading}
+                  loading={isLoading}
+                >
+                  {i18n.t("saveNewPassword")}
+                </ThemedButton>
+              </>
+            )}
           </ThemedView>
         </ScrollView>
       </KeyboardAvoidingView>
