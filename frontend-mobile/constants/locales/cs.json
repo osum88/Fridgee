@@ -40,10 +40,22 @@
   "newPassword": "Nové heslo",
   "saveNewPassword": "Uložit nové heslo",
   "errorTokenMissing": "Chybí token pro resetování hesla.",
+  "success": "Úspěch",
+  "passwordChanged":"Heslo změněno",
+  "passwordChangedSuccessfully": "Heslo bylo úspěšně změněno!",
+  "nowSingIn": "Nyní se můžete přihlásit.",
+  "continue": "Pokračovat",
+  "loadingVerifyingEmail": "Ověřujeme váš e-mail",
+  "emailVerified": "E-mail byl úspěšně ověřen!",
+  "continueNow": "Nyní můžete pokračovat dál.",
+  "verificationFailed": "Ověření se nezdařilo",
+  "verificationFailedDescription": "Nepodařilo se ověřit váš e-mail. Odkaz je neplatný nebo vypršela jeho platnost.",
+  "resendEmail": "Zaslat e-mail znovu",
+  "emailAlreadyVerified": "E-mail je již ověřen. Nyní můžete pokračovat dál.",
+  "backHome": "Zpět na domovskou stránku"
 
 
 
-  "successMessage": "Heslo bylo úspěšně změněno. Nyní se můžeš přihlásit."
 
 
 

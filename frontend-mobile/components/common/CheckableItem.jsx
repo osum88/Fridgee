@@ -4,7 +4,7 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Colors } from "@/constants/Colors";
 
-export function CheckableItem({ label, value, selected, onPress }) {
+export function CheckableItem({ label, value, selected, onPress, ...props }) {
   const colorScheme = useColorScheme();
   const color = Colors[colorScheme ?? "light"].tint;
 

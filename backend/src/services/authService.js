@@ -2,7 +2,7 @@ import crypto from "crypto";
 import bcrypt from "bcrypt";
 import { getUserByEmailRepository, getUserByIdRepository, getUserByPasswordResetTokenRepository, getUserIdByVerificationTokenRepository, resetPasswordInDbRepository, updateLastLoginRepository, updatePasswordResetTokenRepository, updateVerificationTokenRepository, verifyUserEmailInDbRepository } from "../repositories/userRepository.js";
 import { BadRequestError, ConflictError, ForbiddenError, NotFoundError, UnauthorizedError } from "../errors/errors.js";
-import { sendPasswordResetEmail, sendPasswordResetSuccessEmail } from "../utils/emailService.js";
+import { sendPasswordResetEmail, sendPasswordResetSuccessEmail, sendVerificationEmail } from "../utils/emailService.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
 import { createRefreshTokenRepository, deleteAllRefreshTokensByUserIdRepository, deleteRefreshTokenByIdRepository, findRefreshTokenByIdRepository,  } from "../repositories/refreshTokenRepository.js";
 import { createUserService } from "./userService.js";
@@ -19,8 +19,10 @@ export const signUpService = async ({username, email, password, preferredLanguag
     const tokenExpiresAt = new Date(Date.now() + 6 * 60 * 60 * 1000);   //token plati 6h
     await updateVerificationTokenRepository(newUser.id, verifyToken, tokenExpiresAt);
     
-    const verificationLink = `${process.env.FRONTEND_URL}/api/auth/verify-email?token=${verifyToken}`;
-    // await sendVerificationEmail("josefnovak738@gmail.com", verificationLink, preferredLanguage);
+    // const verificationLink = `${process.env.FRONTEND_URL}/api/auth/verify-email?token=${verifyToken}`;
+    const verificationLink = `exp://10.0.0.2:8081/--/emailVerify?token=${verifyToken}`;
+
+    await sendVerificationEmail("josefnovak738@gmail.com", verificationLink, preferredLanguage);
     // await sendVerificationEmail(newUser.email, verificationLink, preferredLanguage);
 
     // vytvoreni a ulozeni tokenu
@@ -131,6 +133,7 @@ export const logoutService = async (refreshToken) => {
 export const verifyEmailService = async (token) => {
     
     const user = await getUserIdByVerificationTokenRepository(token);
+    console.log(user);
     if (!user) {
         throw new NotFoundError("Invalid, expired, or already used verification token.");
     }
@@ -211,5 +214,32 @@ export const changePasswordService = async (email, oldPassword, newPassword) => 
     // zneplatneni tokenu
     await deleteAllRefreshTokensByUserIdRepository(user.id);
 
+    return true;
+};
+
+
+export const resendVerifyEmailService = async (email) => {
+
+    const user = await getUserByEmailRepository(email);
+
+    if (!user) {
+        throw new NotFoundError("User with this email does not exist.");
+    }
+
+    if (user.emailIsVerified) {
+        throw new ConflictError("Email is already verified.");
+    }
+
+    // verifikace a odeslani emailu
+    const verifyToken = crypto.randomBytes(32).toString("hex"); 
+    const tokenExpiresAt = new Date(Date.now() + 6 * 60 * 60 * 1000);   //token plati 6h
+    await updateVerificationTokenRepository(user.id, verifyToken, tokenExpiresAt);
+    
+    // const verificationLink = `${process.env.FRONTEND_URL}/api/auth/verify-email?token=${verifyToken}`;
+    const verificationLink = `exp://10.0.0.2:8081/--/emailVerify?token=${verifyToken}`;
+
+    await sendVerificationEmail("josefnovak738@gmail.com", verificationLink, user.preferredLanguage);
+    // await sendVerificationEmail(user.email, verificationLink, user.preferredLanguage);
+    
     return true;
 };

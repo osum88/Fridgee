@@ -6,22 +6,16 @@ import {
   Platform,
 } from "react-native";
 import i18n from "@/constants/translations";
-import { Link, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedButton } from "@/components/themed/ThemedButton";
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { Colors } from "@/constants/Colors";
-import { FormGroup } from "../../components/common/FormGroup";
 import { FormGroupPassword } from "@/components/common/FormGroupPassword";
 import { useState } from "react";
 import useResetPasswordMutation from "@/hooks/auth/useResetPasswordMutation";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { SuccessAnimation } from "@/components/animated/SuccessAnimation";
 
-export default function Register() {
-  const colorScheme = useColorScheme();
-  const currentColors = Colors[colorScheme ?? "light"];
+export default function ResetPassword() {
   const [newPassword, setPassword] = useState(null);
   const [confirmPassword, setConfirmPassword] = useState("");
   const { token } = useLocalSearchParams();
@@ -37,27 +31,28 @@ export default function Register() {
     setSuccess,
   });
 
-  
-
   const handleSubmit = async () => {
     setError(null);
-    setSuccess(true);
+    setSuccess(true)
 
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
 
-    // const passwordRegex =
-    //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
-
-    // if (!newPassword || !confirmPassword) {
-    //   setError(i18n.t("errorAllFieldsRequired"));
-    // } else if (newPassword !== confirmPassword) {
-    //   setError(i18n.t("errorPasswordMismatch"));
-    // } else if (!passwordRegex.test(newPassword)) {
-    //   setError(i18n.t("errorPasswordTooWeak"));
-    // } else if (!token) {
-    //   setError(i18n.t("errorTokenMissing"));
-    // } else {
-    //   resetPasswordMutation.mutate({ token, newPassword });
-    // }
+    if (!newPassword || !confirmPassword) {
+      setError(i18n.t("errorAllFieldsRequired"));
+    } else if (newPassword !== confirmPassword) {
+      setError(i18n.t("errorPasswordMismatch"));
+    } else if (!passwordRegex.test(newPassword)) {
+      setError(i18n.t("errorPasswordTooWeak"));
+    } else if (!token) {
+      setError(i18n.t("errorTokenMissing"));
+    } else {
+      resetPasswordMutation.mutate({ token, newPassword });
+    }
+  };
+  
+  const handleContinue = async () => {
+    router.replace("/login")
   };
 
   return (
@@ -74,7 +69,20 @@ export default function Register() {
             ]}
           >
             {success ? (
-              <SuccessAnimation />
+              <>
+                <SuccessAnimation />
+                <ThemedView style={styles.changeSuccesfullyContainer}>
+                  <ThemedText style={styles.changeSuccesfully} type="title">
+                    {i18n.t("success")}
+                  </ThemedText>
+                  <ThemedView style={styles.changeSuccesfullyText}>
+                    <ThemedText style={[{textAlign: "center"}]}>
+                      {i18n.t("passwordChangedSuccessfully")}
+                    </ThemedText>
+                    <ThemedText style={[{textAlign: "center"}]}>{i18n.t("nowSingIn")}</ThemedText>
+                  </ThemedView>
+                </ThemedView>
+              </>
             ) : (
               <>
                 <ThemedText style={styles.register} type="title">
@@ -119,6 +127,22 @@ export default function Register() {
           </ThemedView>
         </ScrollView>
       </KeyboardAvoidingView>
+      {success && (
+        <ThemedView
+          safe={true}
+          style={[
+            styles.bottomButtonContainer,
+            { width: isTablet ? "50%" : "100%" },
+          ]}
+        >
+          <ThemedButton
+            onPress={handleContinue}
+            style={[styles.btn]}
+          >
+            {i18n.t("continue")}
+          </ThemedButton>
+        </ThemedView>
+      )}
     </ThemedView>
   );
 }
@@ -147,23 +171,32 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     width: "100%",
   },
-  textRow: {
-    flexDirection: "row",
-    gap: 5,
-    alignSelf: "center",
-  },
   formSection: {
     gap: 4,
+    width: "100%",
   },
   register: {
     alignSelf: "flex-start",
     marginBottom: 8,
   },
-  bottomLinkContainer: {
-    position: "absolute",
-    bottom: 15,
-    left: 0,
-    right: 0,
+  changeSuccesfully: {
+    marginBottom: 8,
+  },
+  changeSuccesfullyContainer: {
+    marginTop: 20,
+    gap: 8,
     alignItems: "center",
+  },
+  changeSuccesfullyText: {
+    gap: 2,
+    alignItems: "center",
+    textAlign: "center",
+  },
+  bottomButtonContainer: {
+    alignSelf: 'center',
+    position: "absolute",
+    width: "100%",
+    paddingHorizontal: 16,
+    bottom: 30,
   },
 });

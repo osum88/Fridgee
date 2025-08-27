@@ -243,8 +243,11 @@ export const getUserIdByVerificationTokenRepository = async (token) => {
               },
               emailIsVerified: false, 
           },
+          select: {
+            id: true,
+          },
       });
-      return { id: user.id };          
+      return user;          
   } catch (error) {
     console.error("Error fetching user ID:", error); 
     throw error;

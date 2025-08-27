@@ -39,7 +39,6 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <StrictMode>
-        {/* UserProvider musí být vně LanguageProvider, aby LanguageProvider měl přístup k datům */}
         <UserProvider>
           <LanguageWrapper>
             <RootLayoutContent
@@ -53,7 +52,7 @@ export default function RootLayout() {
   );
 }
 
-// Nová komponenta, která obaluje RootLayoutContent a předává data
+// obaluje RootLayoutContent a predava data
 function LanguageWrapper({ children }) {
   const { user, isAuthenticated } = useUser();
   return (
@@ -72,21 +71,23 @@ function RootLayoutContent({ colorScheme, CustomDarkTheme }) {
     if (!isLoading && isLanguageLoaded) {
       setIsAppReady(true);
     }
-  }, [isLoading, isLanguageLoaded]); 
+  }, [isLoading, isLanguageLoaded]);
 
   useEffect(() => {
     if (isAppReady) {
-      if (isAuthenticated) {
-        if (isLanguageLoaded) {
+      if (isLanguageLoaded) {
+        try {
+          router.dismissAll();
+        } catch {}
+
+        if (isAuthenticated) {
           router.replace("/(tabs)");
-        }
-      } else {
-        if (isLanguageLoaded) {
+        } else {
           router.replace("/login");
         }
       }
     }
-  }, [isAppReady, isAuthenticated, isLanguageLoaded]); 
+  }, [isAppReady, isAuthenticated, isLanguageLoaded]);
 
   if (!isAppReady) {
     return null;

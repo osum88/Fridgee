@@ -40,10 +40,19 @@
   "newPassword": "New Password",
   "saveNewPassword": "Save New Password",
   "errorTokenMissing": "Reset token is missing.",
-
-
-
-  "successMessage": "Your password has been successfully changed. You can now sign in."
+  "success": "Success",
+  "passwordChanged": "Password changed",
+  "passwordChangedSuccessfully": "Your password has been changed successfully!",
+  "nowSingIn": "You can now sign in.",
+  "continue": "Continue",
+  "loadingVerifyingEmail": "Verifying your email",
+  "emailVerified": "Email successfully verified!",
+  "continueNow": "You can now continue.",
+  "verificationFailed": "Verification failed",
+  "verificationFailedDescription": "We couldn't verify your email. The link may be invalid or expired.",
+  "resendEmail": "Resend email",
+  "emailAlreadyVerified": "Email is already verified. You can now continue.",
+  "backHome": "Back to Home"
 
 
 }

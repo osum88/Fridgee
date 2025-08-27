@@ -7,18 +7,17 @@ const useResetPasswordMutation = ({ setError, setSuccess }) => {
     mutationFn: ({ token, newPassword }) =>
       resetPasswordApi(token, { newPassword }),
     onSuccess: async (response) => {
-      console.log("Password reset successful");
+      console.log("Password reset successfully");
       setSuccess(true);
     },
     onError: (error) => {
       if (error instanceof PasswordError) {
         setError(error.message);
+      } else {
+        setSuccess(true);
       }
-      setSuccess(true);
-      console.error(
-        "Error forgot password: ",
-        error.response.data || error.message
-      );
+      const errorMessage = error.response?.data?.message || error.message;
+      console.error("Error reset password: ", errorMessage);
     },
   });
   return { resetPasswordMutation, isLoading: resetPasswordMutation.isPending };

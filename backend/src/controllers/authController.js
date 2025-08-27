@@ -1,5 +1,5 @@
 import handleResponse from "../utils/responseHandler.js"
-import { changePasswordService, forgotPasswordService, loginService, logoutService, refreshService, resetPasswordService, signUpService, verifyEmailService } from "../services/authService.js";
+import { changePasswordService, forgotPasswordService, loginService, logoutService, refreshService, resendVerifyEmailService, resetPasswordService, signUpService, verifyEmailService } from "../services/authService.js";
 
 export const signUp = async (req, res, next) => {
     try {
@@ -116,7 +116,7 @@ export const logout = async (req, res, next) => {
 export const verifyEmail = async (req, res, next) => {
     try {
         const { token } = req.query;
- 
+
         await verifyEmailService(token);
 
         return handleResponse(res, 200, "Email successfully verified! You can now log in.");
@@ -162,5 +162,18 @@ export const changePassword = async (req, res, next) => {
         return handleResponse(res, 200, "Password has been successfully changed");
     } catch (err) {
         next(err);
+    }
+};
+
+export const resendVerifyEmail = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+
+        await resendVerifyEmailService(email);
+
+        return handleResponse(res, 200, "Resend verify email succesfully.");
+    } catch (err) {
+        console.error("Resend email to verify email error:", err); 
+        next(err); 
     }
 };

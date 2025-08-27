@@ -55,19 +55,16 @@ export default function Login() {
           <ThemedView
             style={[
               styles.contentWrapper,
-              { width: isTablet ? "30%" : "100%" },
+              { width: isTablet ? "50%" : "100%" },
             ]}
           >
             <ThemedText style={styles.login} type="title">
               {i18n.t("login")}
             </ThemedText>
 
-                            <Link href="/resetPassword" asChild>
-                  <ThemedText
-                  >
-                    {i18n.t("forgotPassword")}
-                  </ThemedText>
-                </Link>
+            <Link href="/resendVerifyEmail" asChild>
+              <ThemedText>{i18n.t("forgotPassword")}</ThemedText>
+            </Link>
 
             <ThemedView style={styles.formSection}>
               <FormGroup

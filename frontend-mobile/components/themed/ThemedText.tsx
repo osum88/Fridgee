@@ -13,6 +13,7 @@ export type ThemedTextProps = TextProps & {
     | "link"
     | "checkableItem"
     | "btn"
+    | "loading"
     | "error";
 };
 
@@ -41,6 +42,7 @@ export function ThemedText({
         type === "link" ? styles.link : undefined,
         type === "checkableItem" ? styles.checkableItem : undefined,
         type === "btn" ? styles.btn : undefined,
+        type === "loading" ? styles.loading : undefined,
         type === "error" ? styles.error : undefined,
         style,
       ]}
@@ -81,6 +83,10 @@ const styles = StyleSheet.create({
   btn: {
     fontSize: 18,
     fontWeight: "bold",
+  },
+  loading: {
+    fontSize: 27,
+    fontWeight: "400"
   },
   error: {
     fontSize: 12.5,

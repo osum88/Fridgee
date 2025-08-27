@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import Svg, { Circle, Path } from "react-native-svg";
 import Animated, {
@@ -16,7 +16,7 @@ const AnimatedView = Animated.createAnimatedComponent(View);
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
-export const SuccessAnimation = ({ size = 120, lightColor, darkColor, checkLightColor, checkDarkColor }) => {
+export const SuccessAnimation = ({ size = 120, lightColor, darkColor, checkLightColor, checkDarkColor,   ...props }) => {
   const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, "primary");
   const checkColor = useThemeColor({ light: checkLightColor, dark: checkDarkColor }, "onPrimary");
 
@@ -41,35 +41,15 @@ export const SuccessAnimation = ({ size = 120, lightColor, darkColor, checkLight
   const pulseOpacity4 = useSharedValue(0.5);
   const pulseBorderWidth4 = useSharedValue(0);
 
-  const pulseDelay1 = 450;
-  const pulseDelay2 = 600;
-  const pulseDelay3 = 1250;
-  const pulseDelay4 = 1400;
+  const pulseCircles = useMemo(() => [
+    { delay: 300, scale: pulseScale1, opacity: pulseOpacity1, borderWidth: pulseBorderWidth1 },
+    { delay: 450, scale: pulseScale2, opacity: pulseOpacity2, borderWidth: pulseBorderWidth2 },
+    { delay: 1100, scale: pulseScale3, opacity: pulseOpacity3, borderWidth: pulseBorderWidth3 },
+    { delay: 1250, scale: pulseScale4, opacity: pulseOpacity4, borderWidth: pulseBorderWidth4 },
+  ], [pulseBorderWidth1, pulseBorderWidth2, pulseBorderWidth3, pulseBorderWidth4, pulseOpacity1, pulseOpacity2, pulseOpacity3, pulseOpacity4, pulseScale1, pulseScale2, pulseScale3, pulseScale4]);
+
   const pulseDuration = 1000;
 
-  const pulseCircleAnimation = (delay, duration, border, scale, opacity) => {
-    border.value = withDelay(
-      delay,
-      withTiming(10, {
-        duration: duration,
-        easing: Easing.out(Easing.ease),
-      })
-    );
-    scale.value = withDelay(
-      delay,
-      withTiming(1.2, {
-        duration: duration,
-        easing: Easing.out(Easing.ease),
-      })
-    );
-    opacity.value = withDelay(
-      delay,
-      withTiming(0, {
-        duration: duration,
-        easing: Easing.out(Easing.ease),
-      })
-    );
-  };
 
   useEffect(() => {
     circleOffset.value = withDelay(
@@ -92,12 +72,30 @@ export const SuccessAnimation = ({ size = 120, lightColor, darkColor, checkLight
     );
 
     //animace pulzujicich kruhu
-    pulseCircleAnimation(pulseDelay1, pulseDuration, pulseBorderWidth1, pulseScale1, pulseOpacity1);
-    pulseCircleAnimation(pulseDelay2, pulseDuration, pulseBorderWidth2, pulseScale2, pulseOpacity2);
-    pulseCircleAnimation(pulseDelay3, pulseDuration, pulseBorderWidth3, pulseScale3, pulseOpacity3);
-    pulseCircleAnimation(pulseDelay4, pulseDuration, pulseBorderWidth4, pulseScale4, pulseOpacity4);
-
-  }, [checkOffset, circleOffset, circleOpacity, circleScale, pulseBorderWidth1, pulseBorderWidth2, pulseBorderWidth3, pulseBorderWidth4, pulseOpacity1, pulseOpacity2, pulseOpacity3, pulseOpacity4, pulseScale1, pulseScale2, pulseScale3, pulseScale4]);
+    pulseCircles.forEach((circle) => {
+      circle.borderWidth.value = withDelay(
+        circle.delay,
+        withTiming(10, {
+          duration: pulseDuration,
+          easing: Easing.out(Easing.ease),
+        })
+      );
+      circle.scale.value = withDelay(
+        circle.delay,
+        withTiming(1.2, {
+          duration: pulseDuration,
+          easing: Easing.out(Easing.ease),
+        })
+      );
+      circle.opacity.value = withDelay(
+        circle.delay,
+        withTiming(0, {
+          duration: pulseDuration,
+          easing: Easing.out(Easing.ease),
+        })
+      );
+    });
+  }, [checkOffset, circleOffset, circleOpacity, circleScale, pulseCircles]);
 
   //propojeni s tvary
   const animatedCircleProps = useAnimatedProps(() => ({
@@ -119,37 +117,36 @@ export const SuccessAnimation = ({ size = 120, lightColor, darkColor, checkLight
     strokeDashoffset: checkOffset.value,
   }));
 
-  const pulseStyle1 = useAnimatedStyle(() => ({
-    transform: [{ scale: pulseScale1.value }],
-    opacity: pulseOpacity1.value,
-    borderWidth: pulseBorderWidth1.value,
-  }));
-
-  const pulseStyle2 = useAnimatedStyle(() => ({
-    transform: [{ scale: pulseScale2.value }],
-    opacity: pulseOpacity2.value,
-    borderWidth: pulseBorderWidth2.value,
-  }));
-
-  const pulseStyle3 = useAnimatedStyle(() => ({
-    transform: [{ scale: pulseScale3.value }],
-    opacity: pulseOpacity3.value,
-    borderWidth: pulseBorderWidth3.value,
-  }));
-  
-  const pulseStyle4 = useAnimatedStyle(() => ({
-    transform: [{ scale: pulseScale4.value }],
-    opacity: pulseOpacity4.value,
-    borderWidth: pulseBorderWidth4.value,
-  }));
+  const PulseCircle = ({ size, scale, opacity, borderWidth }) => {
+    const animatedStyle = useAnimatedStyle(() => ({
+      transform: [{ scale: scale.value }],
+      opacity: opacity.value,
+      borderWidth: borderWidth.value,
+    }));
+    return (
+      <AnimatedView
+        style={[
+          styles.pulseRing,
+          { width: size },
+          { borderColor: backgroundColor },
+          animatedStyle,
+        ]}
+      />
+    );
+  };
 
   return (
     <ThemedView style={styles.container}>
       <ThemedView style={[styles.badge, { width: size }]}>
-        <AnimatedView style={[styles.pulseRing, pulseStyle1, { width: size }, {borderColor: backgroundColor}]} />
-        <AnimatedView style={[styles.pulseRing, pulseStyle2, { width: size }, {borderColor: backgroundColor}]} />
-        <AnimatedView style={[styles.pulseRing, pulseStyle3, { width: size }, {borderColor: backgroundColor}]} />
-        <AnimatedView style={[styles.pulseRing, pulseStyle4, { width: size }, {borderColor: backgroundColor}]} />
+        {pulseCircles.map((circle, index) => (
+          <PulseCircle
+            key={index}
+            size={size}
+            scale={circle.scale}
+            opacity={circle.opacity}
+            borderWidth={circle.borderWidth}
+          />
+        ))}
         <Svg viewBox="0 0 120 120" style={styles.svg}>
           <AnimatedCircle
             cx="60"
@@ -178,7 +175,7 @@ export const SuccessAnimation = ({ size = 120, lightColor, darkColor, checkLight
             fill="none"
             strokeDasharray="72"
             animatedProps={animatedCheckProps}
-            transform="translate(0, 1)"
+            transform="translate(1, 2)"
           />
           <AnimatedPath
             d="M38 62 L54 78 L84 46"

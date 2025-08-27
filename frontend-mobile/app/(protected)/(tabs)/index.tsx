@@ -95,6 +95,13 @@ export default function HomeScreen() {
           <ThemedText type="subtitle">{i18n.t("language")} </ThemedText>
         </Link>
 
+          <Link href="../emailVerify" asChild>
+                  <ThemedText
+                  >
+                    {i18n.t("forgotPassword")}
+                  </ThemedText>
+                </Link>
+
         <Pressable onPress={() => signOut()}>
           <ThemedText>Log out</ThemedText>
         </Pressable>

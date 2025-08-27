@@ -191,6 +191,7 @@ const styles = StyleSheet.create({
   },
   formSection: {
     gap: 4,
+    width: "100%",
   },
   register: {
     alignSelf: "flex-start",

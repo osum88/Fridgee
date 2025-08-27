@@ -144,9 +144,15 @@ export const logoutApi = async (logoutData) => {
   }
 };
 
-export const verifyEmailApi = async (verifyEmailData) => {
-  const response = await apiClient.get("/auth/verify-email", verifyEmailData);
-  return response.data;
+export const verifyEmailApi = async (verifyToken) => {
+  try {
+    console.log("token", verifyToken)
+    const response = await apiClient.get(`/auth/verify-email?token=${verifyToken}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error verifyEmailApi: ", error);
+    throw error;
+  }
 };
 
 export const forgotPasswordApi = async (forgotPasswordData) => {
@@ -158,6 +164,27 @@ export const forgotPasswordApi = async (forgotPasswordData) => {
     return response.data;
   } catch (error) {
     console.error("Error forgotPasswordApi: ", error);
+    throw error;
+  }
+};
+
+export const resendVerifyEmailApi = async (resendVerifyEmailData) => {
+  try {
+    const response = await apiClient.post("/auth/resend-verify-email", resendVerifyEmailData);
+    return response.data;
+  } catch (error) {
+    console.error("Error resendVerifyEmailApi: ", error);
+   
+    if (
+      error.response.status === 409 &&
+      error.response.data.message === "Email is already verified."
+    ) {
+      throw new EmailError(i18n.t("emailAlreadyVerified"));
+    } else if (
+      error.response.data?.errors?.includes('"email" must be a valid email')
+    ) {
+      throw new EmailError(i18n.t("errorValidEmail"));
+    } 
     throw error;
   }
 };
