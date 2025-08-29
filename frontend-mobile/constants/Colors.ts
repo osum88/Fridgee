@@ -15,12 +15,13 @@ export const Colors = {
     icon: "#687076",
     tabIconDefault: "#687076",
     tabIconSelected: tintColorLight,
-    outline: "#757575",
+    outline: "#dadee0ff",
     error: "#df4b31ff",
     primary: "#1d9bc5ff",
     onPrimary: "#fff",
     input: "#F5F5F5",
-    input_text: "#787683"
+    input_text: "#787683",
+    fullName: "#9c9a9aff"
   },
   dark: {
     text: "#e0e0e0",
@@ -35,6 +36,7 @@ export const Colors = {
     primary: "#22b2e2ff",
     onPrimary: "#11181C",
     input: "#252527",
-    input_text: "#787683"
+    input_text: "#787683",
+    fullName: "#9c9a9aff"
   },
 };

@@ -76,9 +76,9 @@ function RootLayoutContent({ colorScheme, CustomDarkTheme }) {
   useEffect(() => {
     if (isAppReady) {
       if (isLanguageLoaded) {
-        try {
-          router.dismissAll();
-        } catch {}
+        // try {
+        //   router.dismissAll();
+        // } catch {}
 
         if (isAuthenticated) {
           router.replace("/(tabs)");

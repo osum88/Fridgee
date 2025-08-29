@@ -370,7 +370,7 @@ export const updatePreferredLanguageByUserIdRepository = async (id, preferredLan
 
 
 //vyhledává uzivatele podle username
-export const searchUsersRepository = async (username, limit) => {
+export const searchUsersRepository = async (userId, username, limit) => {
     try {
         const parsedLimit = parseInt(limit, 10) || 10; 
         const users = await prisma.user.findMany({ 
@@ -378,6 +378,9 @@ export const searchUsersRepository = async (username, limit) => {
                 username: {
                     contains: username,
                     mode: "insensitive", 
+                },
+                id: {
+                    not: userId,
                 },
             },
             take: parsedLimit,
@@ -389,6 +392,7 @@ export const searchUsersRepository = async (username, limit) => {
                 username: true,
                 name: true,
                 surname: true,
+                profilePictureUrl: true,
             },
         });
         return users;

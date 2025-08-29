@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { getUserByIdApi, updatePreferredLanguageApi } from "@/api/user";
+import { getUserByIdApi, searchUsersApi, updatePreferredLanguageApi } from "@/api/user";
 
 export const useGetUserQuery = (userId, enabled) => {
   return useQuery({
@@ -16,5 +16,14 @@ export const useUpdatePreferredLanguageMutation = () => {
     onError: (error) => {
       console.log("Error updating language user: ", error)
     },
+  });
+};
+
+export const useSearchUsersQuery = (username, limit) => {
+  return useQuery({
+    queryKey: ["searchUsername", username, limit],
+    queryFn: () => searchUsersApi(username, limit),
+    enabled: !!username,
+    staleTime: 1000 * 60 * 2,
   });
 };

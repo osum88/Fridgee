@@ -5,6 +5,7 @@ export default function ProtectedLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="(setting)" options={{ headerShown: false }} />
+      <Stack.Screen name="(friends)" options={{ headerShown: false }} />
     </Stack>
   );
 }

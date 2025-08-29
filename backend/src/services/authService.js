@@ -9,7 +9,8 @@ import { createUserService } from "./userService.js";
 
 export const signUpService = async ({username, email, password, preferredLanguage}) => {
 
-    const sanitizedUsername = username.trim().replace(/\s+/g, "");
+    const sanitizedUsername = username.trim().replace(/\s+/g, "").toLowerCase();
+
 
     // vytvoreni uzivatele
     const newUser = await createUserService(null, null, sanitizedUsername, null, email, password, null, preferredLanguage);

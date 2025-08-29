@@ -11,7 +11,7 @@ const router = express.Router();
 router.post("/users", validate(createUserSchema), createUser);
 
 //hledani podle username
-router.get("/users/search", authenticateToken, searchUsers);  
+router.get("/users/search", authenticateToken, authorizeUser, searchUsers);  
 //http://localhost:3001/api/users/search?username=josef&limit=2
 
 //vrati uzivatele podle id

@@ -15,10 +15,12 @@ export default function ChangeLanguage() {
   const handleLanguageChange = useCallback((newLanguage) => {
       setAppLanguage(newLanguage);
 
+      //vypne caovac pokud je zapnuty
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current);
       }
 
+      //zapne zasovac, pokud nebude zmena, tak se jazyk nastavi v db za 1s
       debounceTimeoutRef.current = setTimeout(() => {
         mutate({ preferredLanguage: newLanguage });
         console.log(`Language change: ${newLanguage}`);

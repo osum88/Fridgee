@@ -86,14 +86,14 @@ export const getBankNumberService = async (id) => {
     return bankNumber;
 };
 
-export const searchUsersService = async (username, limit = 10) => {
+export const searchUsersService = async (userId, username, limit = 10) => {
     if (!username || username.trim() === "") {
         throw new BadRequestError("Username is required for search.");
     }
     
     const sanitizedUsername = username.trim().replace(/\s+/g, "");
     
-    const users = await searchUsersRepository(sanitizedUsername, parseInt(limit, 10));
+    const users = await searchUsersRepository(userId, sanitizedUsername, parseInt(limit, 10));
 
     return users;
 };

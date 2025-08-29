@@ -20,3 +20,12 @@ export const updatePreferredLanguageApi = async (userData) => {
   }
 };
 
+export const searchUsersApi = async (username, limit = 8) => {
+  try {
+    const response = await apiClient.get(`/users/search?username=${username}&limit=${limit}`);
+    return response.data;
+  } catch (error) {
+    console.log("Error searching users by username: ", error);
+    throw error;
+  }
+};

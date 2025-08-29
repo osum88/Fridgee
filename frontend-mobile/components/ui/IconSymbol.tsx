@@ -24,7 +24,9 @@ const MAPPING = {
   "cart": "shopping-cart",                                //nakupni kosik
   "checkmark": "check",                                   //fajvka
   "eye": "visibility",                                    //oko
-  "eye.slash": "visibility-off"                           //preskrtnute oko
+  "eye.slash": "visibility-off",                          //preskrtnute oko
+  "chevron.left": "arrow-back",                           //sipka doleva
+  "xmark": "close",                                       //krizek 
 } as IconMapping; 
 
 /**

@@ -52,7 +52,10 @@
   "verificationFailedDescription": "We couldn't verify your email. The link may be invalid or expired.",
   "resendEmail": "Resend email",
   "emailAlreadyVerified": "Email is already verified. You can now continue.",
-  "backHome": "Back to Home"
+  "backHome": "Back to Home",
+  "search": "Search",
+  "searchUsername": "Search username",
+  "noUsersFound": "No users found"
 
 
 }

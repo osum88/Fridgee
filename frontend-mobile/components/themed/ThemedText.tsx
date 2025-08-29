@@ -14,6 +14,7 @@ export type ThemedTextProps = TextProps & {
     | "checkableItem"
     | "btn"
     | "loading"
+    | "fullName"
     | "error";
 };
 
@@ -25,10 +26,19 @@ export function ThemedText({
   ...rest
 }: ThemedTextProps) {
   let color = useThemeColor({ light: lightColor, dark: darkColor }, "text");
-  const colorError = useThemeColor({ light: undefined, dark: undefined }, "error");
+  const colorError = useThemeColor(
+    { light: undefined, dark: undefined },
+    "error"
+  );
+  const colorFullName = useThemeColor(
+    { light: undefined, dark: undefined },
+    "fullName"
+  );
 
   if (type === "error") {
-    color = colorError
+    color = colorError;
+  } else if (type === "fullName") {
+    color = colorFullName;
   }
 
   return (
@@ -44,6 +54,7 @@ export function ThemedText({
         type === "btn" ? styles.btn : undefined,
         type === "loading" ? styles.loading : undefined,
         type === "error" ? styles.error : undefined,
+        type === "fullName" ? styles.fullName : undefined,
         style,
       ]}
       {...rest}
@@ -86,9 +97,13 @@ const styles = StyleSheet.create({
   },
   loading: {
     fontSize: 27,
-    fontWeight: "400"
+    fontWeight: "400",
   },
   error: {
     fontSize: 12.5,
+  },
+  fullName: {
+    fontSize: 14,
+    lineHeight: 18,
   },
 });

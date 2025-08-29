@@ -4,7 +4,7 @@ import handleResponse from "../utils/responseHandler.js"
 
 export const createUser = async (req, res, next) => {
     try {
-        const { name, surname, username, birthDate, email, password, bankNumber} = req.body;
+        const { name, surname, username, birthDate, email, password, bankNumber, preferredLanguage} = req.body;
 
         const newUser = await createUserService(name, surname, username, birthDate, email, password, bankNumber, preferredLanguage);
 
@@ -74,9 +74,10 @@ export const getBankNumber = async (req, res, next) => {
 
 export const searchUsers = async (req, res, next) => {
     try {
+        const userId = req.userId;
         const { username, limit = 10 } = req.query;
         
-        const users = await searchUsersService(username, limit);
+        const users = await searchUsersService(userId, username, limit);
 
         return handleResponse(res, 200, "Search users successfully", users);
     } catch (err) {

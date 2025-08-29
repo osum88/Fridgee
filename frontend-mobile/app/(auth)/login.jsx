@@ -62,10 +62,6 @@ export default function Login() {
               {i18n.t("login")}
             </ThemedText>
 
-            <Link href="/resendVerifyEmail" asChild>
-              <ThemedText>{i18n.t("forgotPassword")}</ThemedText>
-            </Link>
-
             <ThemedView style={styles.formSection}>
               <FormGroup
                 label={i18n.t("emailAddress")}
@@ -201,8 +197,5 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: "center",
-  },
-  loader: {
-    color: "rgba(231, 41, 41, 1)",
   },
 });

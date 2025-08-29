@@ -13,7 +13,6 @@ import { useState } from "react";
 export default function HomeScreen() {
   const { user, userId, signOut, canFetchUser } = useUser();
 
-  
   // console.log (user)
   // console.log (userId)
   // console.log (user && user.username)
@@ -86,6 +85,9 @@ export default function HomeScreen() {
         <ThemedText type="title">Welgc </ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
+
+
+        
         {/* <ThemedText>{user.username}</ThemedText> */}
 
         <Link href="../login">
@@ -95,12 +97,9 @@ export default function HomeScreen() {
           <ThemedText type="subtitle">{i18n.t("language")} </ThemedText>
         </Link>
 
-          <Link href="../emailVerify" asChild>
-                  <ThemedText
-                  >
-                    {i18n.t("forgotPassword")}
-                  </ThemedText>
-                </Link>
+        <Link style={[{paddingVertical: 10}]} href="../searchFriends" asChild>
+          <ThemedText >{i18n.t("search")}</ThemedText>
+        </Link>
 
         <Pressable onPress={() => signOut()}>
           <ThemedText>Log out</ThemedText>
@@ -114,9 +113,7 @@ export default function HomeScreen() {
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-        {i18n.t("errorPasswordTooWeak")}
-        </ThemedText>
+        <ThemedText>{i18n.t("errorPasswordTooWeak")}</ThemedText>
       </ThemedView>
     </ParallaxScrollView>
   );

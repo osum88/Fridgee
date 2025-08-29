@@ -52,7 +52,11 @@
   "verificationFailedDescription": "Nepodařilo se ověřit váš e-mail. Odkaz je neplatný nebo vypršela jeho platnost.",
   "resendEmail": "Zaslat e-mail znovu",
   "emailAlreadyVerified": "E-mail je již ověřen. Nyní můžete pokračovat dál.",
-  "backHome": "Zpět na domovskou stránku"
+  "backHome": "Zpět na domovskou stránku",
+  "search": "Hledat",
+  "searchUsername": "Hledat uživatele",
+  "noUsersFound": "Žádní uživatelé nenalezeni"
+
 
 
 
