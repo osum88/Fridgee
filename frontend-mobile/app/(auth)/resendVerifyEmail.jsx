@@ -10,16 +10,15 @@ import { Link } from "expo-router";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedButton } from "@/components/themed/ThemedButton";
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { Colors } from "@/constants/Colors";
 import { FormGroup } from "../../components/common/FormGroup";
 import { useState, useEffect } from "react";
 import useResendVerifyEmailMutation from "@/hooks/auth/useResendVerifyEmailMutation";
 import { useUser } from "@/hooks/useUser";
+import { useThemeColor } from "@/hooks/useThemeColor";
+
 
 export default function ResendVerifyEmail() {
-  const colorScheme = useColorScheme();
-  const currentColors = Colors[colorScheme ?? "light"];
+  const currentColors = useThemeColor();
   const [email, setEmail] = useState("");
   const [error, setError] = useState(null);
   const [countdown, setCountdown] = useState(0);

@@ -55,7 +55,11 @@
   "backHome": "Back to Home",
   "search": "Search",
   "searchUsername": "Search username",
-  "noUsersFound": "No users found"
+  "noUsersFound": "No users found",
+  "theme": "Theme",
+  "light": "Light",
+  "dark": "Dark",
+  "system": "System"
 
 
 }

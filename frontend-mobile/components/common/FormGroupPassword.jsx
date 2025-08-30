@@ -2,10 +2,11 @@ import { StyleSheet, TouchableOpacity } from "react-native";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedTextInput } from "@/components/themed/ThemedTextInput";
 import { ThemedView } from "@/components/themed/ThemedView";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import { useState } from "react";
-import { Colors } from "@/constants/Colors";
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { useTheme } from "@/contexts/ThemeContext";
+
 
 export function FormGroupPassword({
   label,
@@ -16,8 +17,8 @@ export function FormGroupPassword({
   moveAround = false,
   ...props
 }) {
-  const colorScheme = useColorScheme();
-  const currentColors = Colors[colorScheme ?? "light"];
+  const { colorScheme } = useTheme();
+  const currentColors = useThemeColor();
   const [showPassword, setShowPassword] = useState(false);
 
   return (

@@ -27,6 +27,9 @@ const MAPPING = {
   "eye.slash": "visibility-off",                          //preskrtnute oko
   "chevron.left": "arrow-back",                           //sipka doleva
   "xmark": "close",                                       //krizek 
+  "moon.stars":"nightlight-round",                        //dark mode
+  "sun.max":"light-mode",                                 //dark mode
+  "circle.lefthalf.fill":"contrast",                      //system mode
 } as IconMapping; 
 
 /**

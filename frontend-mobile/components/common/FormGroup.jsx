@@ -2,8 +2,9 @@ import { StyleSheet } from "react-native";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedTextInput } from "@/components/themed/ThemedTextInput";
 import { ThemedView } from "@/components/themed/ThemedView";
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { Colors } from "@/constants/Colors";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useThemeColor } from "@/hooks/useThemeColor";
+
 
 export function FormGroup({
   label,
@@ -14,8 +15,8 @@ export function FormGroup({
   moveAround = false,
   ...props
 }) {
-  const colorScheme = useColorScheme();
-  const color = Colors[colorScheme ?? "light"];
+  const { colorScheme } = useTheme();
+  const color = useThemeColor();
 
   return (
     <ThemedView style={styles.container}>

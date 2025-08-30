@@ -1,13 +1,12 @@
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { ThemedTextInput } from "@/components/themed/ThemedTextInput";
 import { ThemedView } from "@/components/themed/ThemedView";
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { Colors } from "@/constants/Colors";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { useThemeColor } from "@/hooks/useThemeColor";
+
 
 export function Search({ placeholder, value, onChangeText, transparent = false, ...props }) {
-  const colorScheme = useColorScheme();
-  const currentColors = Colors[colorScheme ?? "light"];
+  const currentColors = useThemeColor();
 
   return (
     <ThemedView

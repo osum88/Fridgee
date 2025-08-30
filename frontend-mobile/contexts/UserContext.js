@@ -55,6 +55,7 @@ export function UserProvider({ children }) {
     rememberMe = false
   ) => {
     try {
+      setCanFetchUser(false);
       await storeTokens(newAccessToken, newRefreshToken);
       await storeRememberMe(rememberMe);
       setUserId(getUserIdFromToken(newAccessToken));

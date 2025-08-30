@@ -55,7 +55,11 @@
   "backHome": "Zpět na domovskou stránku",
   "search": "Hledat",
   "searchUsername": "Hledat uživatele",
-  "noUsersFound": "Žádní uživatelé nenalezeni"
+  "noUsersFound": "Žádní uživatelé nenalezeni",
+  "theme": "Motiv",
+  "light": "Světlý",
+  "dark": "Tmavý",
+  "system": "Systém"
 
 
 

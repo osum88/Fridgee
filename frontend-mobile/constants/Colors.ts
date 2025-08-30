@@ -21,7 +21,8 @@ export const Colors = {
     onPrimary: "#fff",
     input: "#F5F5F5",
     input_text: "#787683",
-    fullName: "#9c9a9aff"
+    fullName: "#9c9a9aff",
+    surfaceGradient: "#EBEBEB"
   },
   dark: {
     text: "#e0e0e0",
@@ -37,6 +38,7 @@ export const Colors = {
     onPrimary: "#11181C",
     input: "#252527",
     input_text: "#787683",
-    fullName: "#9c9a9aff"
+    fullName: "#9c9a9aff",
+    surfaceGradient: "#262626"
   },
 };

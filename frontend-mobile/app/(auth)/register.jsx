@@ -10,17 +10,16 @@ import { Link } from "expo-router";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedButton } from "@/components/themed/ThemedButton";
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { Colors } from "@/constants/Colors";
 import { FormGroup } from "../../components/common/FormGroup";
 import { FormGroupPassword } from "@/components/common/FormGroupPassword";
 import { useState } from "react";
 import useRegisterMutation from "@/hooks/auth/useRegisterMutation";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useThemeColor } from "@/hooks/useThemeColor";
+
 
 export default function Register() {
-  const colorScheme = useColorScheme();
-  const currentColors = Colors[colorScheme ?? "light"];
+  const currentColors = useThemeColor();
   const [password, setPassword] = useState(null);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [email, setEmail] = useState("");

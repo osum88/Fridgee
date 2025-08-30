@@ -1,25 +1,25 @@
 import {
   DarkTheme,
   DefaultTheme,
-  ThemeProvider,
+  ThemeProvider as NavigationThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { router, SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
+import { ThemeProvider, useTheme } from "@/contexts/ThemeContext";
 import { StrictMode, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { UserProvider } from "@/contexts/UserContext";
 import { useUser } from "@/hooks/useUser";
+import { View } from "react-native";
 
 //vytvoreni instance TanStack Query
 const queryClient = new QueryClient();
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
@@ -41,10 +41,9 @@ export default function RootLayout() {
       <StrictMode>
         <UserProvider>
           <LanguageWrapper>
-            <RootLayoutContent
-              colorScheme={colorScheme}
-              CustomDarkTheme={CustomDarkTheme}
-            />
+            <ThemeProvider>
+              <RootLayoutContent CustomDarkTheme={CustomDarkTheme} />
+            </ThemeProvider>
           </LanguageWrapper>
         </UserProvider>
       </StrictMode>
@@ -62,16 +61,17 @@ function LanguageWrapper({ children }) {
   );
 }
 
-function RootLayoutContent({ colorScheme, CustomDarkTheme }) {
+function RootLayoutContent({ CustomDarkTheme }) {
   const { isLanguageLoaded } = useLanguage();
   const { isLoading, isAuthenticated } = useUser();
   const [isAppReady, setIsAppReady] = useState(false);
+  const { colorScheme, isThemeLoaded } = useTheme();
 
   useEffect(() => {
-    if (!isLoading && isLanguageLoaded) {
+    if (!isLoading && isLanguageLoaded && isThemeLoaded) {
       setIsAppReady(true);
     }
-  }, [isLoading, isLanguageLoaded]);
+  }, [isLoading, isLanguageLoaded, isThemeLoaded]);
 
   useEffect(() => {
     if (isAppReady) {
@@ -93,19 +93,25 @@ function RootLayoutContent({ colorScheme, CustomDarkTheme }) {
     return null;
   }
 
+  const backgroundColor = colorScheme === "dark" ? "#000000" : "#ffffff";
+
   return (
-    <ThemeProvider
-      value={colorScheme === "dark" ? CustomDarkTheme : DefaultTheme}
-    >
-      <Stack screenOptions={{ headerShown: false }}>
-        {isAuthenticated ? (
-          <Stack.Screen name="(protected)" />
-        ) : (
-          <Stack.Screen name="(auth)" />
-        )}
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <View style={{ flex: 1, backgroundColor: backgroundColor }}>
+      {isAppReady ? (
+        <NavigationThemeProvider
+          value={colorScheme === "dark" ? CustomDarkTheme : DefaultTheme}
+        >
+          <Stack screenOptions={{ headerShown: false }}>
+            {isAuthenticated ? (
+              <Stack.Screen name="(protected)" />
+            ) : (
+              <Stack.Screen name="(auth)" />
+            )}
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <StatusBar style="auto" />
+        </NavigationThemeProvider>
+      ) : null}
+    </View>
   );
 }

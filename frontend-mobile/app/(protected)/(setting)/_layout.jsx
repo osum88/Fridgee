@@ -11,6 +11,10 @@ export default function SettingLayout() {
         name="changeLanguage"
         options={{ title: i18n.t("language") }}
       />
+      <Stack.Screen
+        name="changeTheme"
+        options={{ title: i18n.t("theme") }}
+      />
     </Stack>
   );
 }

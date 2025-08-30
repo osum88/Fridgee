@@ -10,15 +10,14 @@ import { Link } from "expo-router";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedButton } from "@/components/themed/ThemedButton";
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { Colors } from "@/constants/Colors";
 import { FormGroup } from "../../components/common/FormGroup";
 import { useState, useEffect } from "react";
 import useForgotPasswordMutation from "@/hooks/auth/useForgotPasswordMutation";
+import { useThemeColor } from "@/hooks/useThemeColor";
+
 
 export default function ForgotPassword() {
-  const colorScheme = useColorScheme();
-  const currentColors = Colors[colorScheme ?? "light"];
+  const currentColors = useThemeColor();
   const [email, setEmail] = useState("");
   const [error, setError] = useState(null);
   const [countdown, setCountdown] = useState(0);

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import {
@@ -9,34 +9,39 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { router } from "expo-router";
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { Colors } from "@/constants/Colors";
 import { ThemedLine } from "@/components/themed/ThemedLine";
 import { Search } from "@/components/common/Search";
 import i18n from "@/constants/translations";
 import { useSearchUsersQuery } from "@/hooks/user/useUserQuery";
+import { useProfilePlaceHolder } from "@/hooks/useProfilePlaceHolder";
 import debounce from "lodash.debounce";
 import { ThemedText } from "@/components/themed/ThemedText";
+import { Skeleton } from "@/components/common/Skeleton";
+import { useThemeColor } from "@/hooks/useThemeColor";
+
 
 export default function SearchFriends() {
-  const colorScheme = useColorScheme();
-  const currentColors = Colors[colorScheme ?? "light"];
+  const currentColors = useThemeColor();
   const [username, setUsername] = useState("");
   const { height } = useWindowDimensions();
   const [limit, setLimit] = useState(Math.ceil(height / 100));
   const [debouncedUsername, setDebouncedUsername] = useState("");
+  const profilePlaceHolder = useProfilePlaceHolder();
+  const [errorMap, setErrorMap] = useState({});
 
-  const { data: users, isLoading } = useSearchUsersQuery(
-    debouncedUsername,
-    limit
-  );
+  const {
+    data: users,
+    isLoading,
+    isFetching,
+  } = useSearchUsersQuery(debouncedUsername, limit);
 
-  useEffect(() => {
-    console.log(users);
-    console.log(limit);
-    console.log(debouncedUsername);
-  }, [users]);
+  const isInitialLoading = isLoading && !users; //data z api
+  const isRefetching = isFetching && !!users; //data z cache
 
+  const showSkeleton =
+    (isInitialLoading || isRefetching) && username.length > 0;
+
+  //vytvari zpozdeni aby se api neposilalo po kazdem znaku
   const debounceSetUsername = useMemo(
     () =>
       debounce((value) => {
@@ -45,12 +50,19 @@ export default function SearchFriends() {
     []
   );
 
+  //nastavi username pri psani
   const handleChange = (text) => {
     setUsername(text);
     if (limit === 30) {
       setLimit(Math.ceil(height / 100));
     }
     debounceSetUsername(text);
+  };
+
+  //nastavi username pri vyhledani enterem
+  const handleOnSubmitEditing = () => {
+    setLimit(30);
+    setDebouncedUsername(username);
   };
 
   return (
@@ -72,7 +84,7 @@ export default function SearchFriends() {
             placeholder={i18n.t("searchUsername")}
             value={username}
             onChangeText={handleChange}
-            onSubmitEditing={() => setLimit(30)}
+            onSubmitEditing={handleOnSubmitEditing}
             transparent={true}
             style={[styles.search]}
           />
@@ -80,39 +92,71 @@ export default function SearchFriends() {
 
         <ThemedLine style={styles.line} />
 
-        <FlatList
-          data={(users && users.data) || []}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <ThemedView style={styles.userItem}>
-              <Image
-                source={{
-                  uri: `https://picsum.photos/id/${item.id}/200/300`,
-                }}
-                style={styles.profileImage}
-              />
-              <ThemedView style={styles.textContainer}>
-                <ThemedText style={styles.username}>{item.username}</ThemedText>
-                {item.name && item.surname && (
-                  <ThemedText type="fullName">
-                    {item.name} {item.surname}
-                  </ThemedText>
-                )}
-              </ThemedView>
-            </ThemedView>
-          )}
-          ListEmptyComponent={
-            !isLoading &&
-            username && (
-              <ThemedView style={{ padding: 16, alignItems: "center" }}>
-                <ThemedText>{i18n.t("noUsersFound")}</ThemedText>
-              </ThemedView>
-            )
-          }
-          contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 10 }}
-        />
+        {showSkeleton ? (
+          <ThemedView style={{ paddingHorizontal: 10 }}>
+            {Array.from({ length: limit }).map((_, i) => (
+              <Skeleton key={i} />
+            ))}
+          </ThemedView>
+        ) : (
+          <FlatList
+            data={(users && users.data) || []}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: `/profile/${item.id}`,
+                    params: { user: JSON.stringify(item) },
+                  })
+                }
+              >
+                <ThemedView style={styles.userItem}>
+                  <Image
+                    source={
+                      errorMap[item.id]
+                        ? profilePlaceHolder
+                        : {
+                            uri: `https://api.dicebear.com/7.x/adventurer/png?seed=${item.username}&backgroundColor=2fd300`,
+                          }
+                    }
+                    onError={() =>
+                      setErrorMap((prev) => ({ ...prev, [item.id]: true }))
+                    }
+                    style={styles.profileImage}
+                  />
+                  <ThemedView style={styles.textContainer}>
+                    <ThemedText style={styles.username}>
+                      {item.username}
+                    </ThemedText>
+                    {item.name && item.surname && (
+                      <ThemedText type="fullName">
+                        {item.name} {item.surname}
+                      </ThemedText>
+                    )}
+                  </ThemedView>
+                </ThemedView>
+              </TouchableOpacity>
+            )}
+            ListEmptyComponent={() => {
+              if (
+                !isLoading &&
+                !isFetching &&
+                users?.data?.length === 0 &&
+                username.length > 0
+              ) {
+                return (
+                  <ThemedView style={{ padding: 16, alignItems: "center" }}>
+                    <ThemedText>{i18n.t("noUsersFound")}</ThemedText>
+                  </ThemedView>
+                );
+              }
+              return null;
+            }}
+            contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 10 }}
+          />
+        )}
       </ThemedView>
-      <ThemedLine />
     </ThemedView>
   );
 }
@@ -140,15 +184,12 @@ const styles = StyleSheet.create({
     width: 55,
     height: 55,
     borderRadius: 50,
-    marginEnd: 12,
+    marginEnd: 14,
   },
   userItem: {
     flexDirection: "row",
     width: "100%",
-
     padding: 12,
-    // borderBottomWidth: StyleSheet.hairlineWidth,
-    // borderBottomColor: "#ccc",
   },
 
   username: {
