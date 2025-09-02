@@ -8,9 +8,11 @@ import { ThemedView } from "@/components/themed/ThemedView";
 import i18n from "@/constants/translations";
 import { useUser } from "@/hooks/useUser";
 import { useState } from "react";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 export default function HomeScreen() {
   const { user, userId, signOut, canFetchUser } = useUser();
+  const currentColors = useThemeColor();
 
   // console.log (user)
   // console.log (userId)
@@ -80,42 +82,94 @@ export default function HomeScreen() {
         />
       }
     >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welgc </ThemedText>
-      </ThemedView>
       <ThemedView style={styles.stepContainer}>
-
-
-        
         {/* <ThemedText>{user.username}</ThemedText> */}
 
-        <Link href="../login">
-          <ThemedText type="subtitle">Login</ThemedText>
-        </Link>
-        <Link href="../changeLanguage">
-          <ThemedText type="subtitle">{i18n.t("language")} </ThemedText>
-        </Link>
-        <Link href="../changeTheme">
-          <ThemedText type="subtitle">{i18n.t("theme")} </ThemedText>
+        <Link
+          href="../login"
+          style={[
+            styles.tap,
+            {
+              backgroundColor: currentColors.primary,
+              color: currentColors.onPrimary,
+            },
+          ]}
+        >
+          <ThemedText
+            type="subtitle"
+            style={[styles.tapText, { color: currentColors.onPrimary }]}
+          >
+            {i18n.t("loginButton")}
+          </ThemedText>
         </Link>
 
-        <Link style={[{paddingVertical: 10}]} href="../searchFriends" asChild>
-          <ThemedText >{i18n.t("search")}</ThemedText>
-        </Link>
-
-        <Pressable onPress={() => signOut()}>
-          <ThemedText>Log out</ThemedText>
+        <Pressable
+          onPress={() => signOut()}
+          style={[
+            styles.tap,
+            {
+              backgroundColor: currentColors.primary,
+            },
+          ]}
+        >
+          <ThemedText
+            type="subtitle"
+            style={[styles.tapText, { color: currentColors.onPrimary }]}
+          >
+            Log out
+          </ThemedText>
         </Pressable>
 
+        <Link
+          href="../changeLanguage"
+          style={[
+            styles.tap,
+            {
+              backgroundColor: currentColors.primary,
+            },
+          ]}
+        >
+          <ThemedText
+            type="subtitle"
+            style={[styles.tapText, { color: currentColors.onPrimary }]}
+          >
+            {i18n.t("language")}{" "}
+          </ThemedText>
+        </Link>
+        <Link
+          href="../changeTheme"
+          style={[
+            styles.tap,
+            {
+              backgroundColor: currentColors.primary,
+            },
+          ]}
+        >
+          <ThemedText
+            type="subtitle"
+            style={[styles.tapText, { color: currentColors.onPrimary }]}
+          >
+            {i18n.t("theme")}{" "}
+          </ThemedText>
+        </Link>
+        <Link
+          href="../searchFriends"
+          style={[
+            styles.tap,
+            {
+              backgroundColor: currentColors.primary,
+            },
+          ]}
+        >
+          <ThemedText
+            type="subtitle"
+            style={[styles.tapText, { color: currentColors.onPrimary }]}
+          >
+            {i18n.t("search")}{" "}
+          </ThemedText>
+        </Link>
+
         {/* <GetUserButton></GetUserButton> */}
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText></ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>{i18n.t("errorPasswordTooWeak")}</ThemedText>
       </ThemedView>
     </ParallaxScrollView>
   );
@@ -127,15 +181,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
+
   reactLogo: {
     height: 178,
     width: 290,
     bottom: 0,
     left: 0,
     position: "absolute",
+  },
+  stepContainer: {
+    gap: 12,
+    marginBottom: 8,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  tap: {
+    flexBasis: "48%",
+    padding: 16,
+    textAlign: "center",
+    borderRadius: 8,
+  },
+  tapText: {
+    textAlign: "center",
   },
 });

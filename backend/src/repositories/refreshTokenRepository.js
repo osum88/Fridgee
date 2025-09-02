@@ -51,7 +51,7 @@ export const deleteAllRefreshTokensByUserIdRepository = async (userId) => {
 
 export const deleteRefreshTokenByIdRepository = async (id) => {
     try {
-        const refreshTokens = await prisma.refreshToken.delete({
+        const refreshTokens = await prisma.refreshToken.deleteMany({
             where: {
                 id: id,
             }

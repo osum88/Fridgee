@@ -37,6 +37,7 @@ export function UserProvider({ children }) {
   const isSigningOutRef = useRef(false);
   const isInitialLoadRef = useRef(true);
   const refreshTimeoutRef = useRef(null);
+  const refreshingPromiseRef = useRef(null);
 
   const handleNewTokens = (newAccessToken) => {
     setAccessToken(newAccessToken);
@@ -56,6 +57,9 @@ export function UserProvider({ children }) {
   ) => {
     try {
       setCanFetchUser(false);
+      console.log("newAccessToken login:", newAccessToken);
+      console.log("newRefreshToken login:", newRefreshToken);
+      console.log("rememberMe login:", rememberMe);
       await storeTokens(newAccessToken, newRefreshToken);
       await storeRememberMe(rememberMe);
       setUserId(getUserIdFromToken(newAccessToken));
@@ -79,6 +83,7 @@ export function UserProvider({ children }) {
       }
       setCanFetchUser(false);
       const refreshToken = await getRefreshToken();
+      console.log("refreshToken logout", refreshToken); //smazat pak
       logoutMutation.mutate({ refreshToken });
       await removeTokens();
       await removeRememberMe();
@@ -124,20 +129,30 @@ export function UserProvider({ children }) {
 
   //refresh tokenu
   const refreshTokens = useCallback(async () => {
-    try {
-      const refreshToken = await getRefreshToken();
-      if (!refreshToken) {
-        console.log("No tokens found, signing out.");
-        signOut();
-        return;
-      }
-      const { data } = await refreshApi({ refreshToken });
-      await storeTokens(data.accessToken, data.refreshToken);
-      setAccessToken(data.accessToken);
-    } catch (refreshError) {
-      console.error("Failed to refresh token:", refreshError);
-      signOut();
+    if (refreshingPromiseRef.current) {
+      return refreshingPromiseRef.current;
     }
+    refreshingPromiseRef.current = (async () => {
+      try {
+        const refreshToken = await getRefreshToken();
+        if (!refreshToken) {
+          console.log("No tokens found, signing out.");
+          await signOut();
+          return;
+        }
+        const { data } = await refreshApi({ refreshToken });
+        await storeTokens(data.accessToken, data.refreshToken);
+        setAccessToken(data.accessToken);
+        return data.accessToken;
+      } catch (refreshError) {
+        console.error("Failed to refresh token:", refreshError);
+        await signOut();
+      } finally {
+        refreshingPromiseRef.current = null;
+      }
+    })();
+
+    return refreshingPromiseRef.current;
   }, [signOut]);
 
   //pokud tokenu ma min jak minutu do expirace tak ho obnovi
@@ -201,7 +216,8 @@ export function UserProvider({ children }) {
       };
       checkAuthentication();
     }
-  }, [signOut]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const value = {
     user,

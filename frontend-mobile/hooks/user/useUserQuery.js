@@ -14,7 +14,7 @@ export const useUpdatePreferredLanguageMutation = () => {
   return useMutation({
     mutationFn: updatePreferredLanguageApi,
     onError: (error) => {
-      console.log("Error updating language user: ", error)
+      console.error("Error updating language user: ", error)
     },
   });
 };

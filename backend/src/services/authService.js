@@ -23,6 +23,7 @@ export const signUpService = async ({username, email, password, preferredLanguag
     // const verificationLink = `${process.env.FRONTEND_URL}/api/auth/verify-email?token=${verifyToken}`;
     const verificationLink = `exp://10.0.0.2:8081/--/emailVerify?token=${verifyToken}`;
 
+    console.log("Tohle se nejak spustilo 22222")
     await sendVerificationEmail("josefnovak738@gmail.com", verificationLink, preferredLanguage);
     // await sendVerificationEmail(newUser.email, verificationLink, preferredLanguage);
 
@@ -99,8 +100,13 @@ export const refreshService = async (refreshToken) => {
     
     //kontrola expirace
     if (new Date() > foundToken.expiresAt) {
-        await deleteRefreshTokenByIdRepository(foundToken.id);
-        throw new UnauthorizedError("Refresh token expired. Please log in again.");
+        console.log("foundToken", foundToken)
+        try {
+            await deleteRefreshTokenByIdRepository(foundToken.id);          
+        } catch {
+        } finally{
+            throw new UnauthorizedError("Refresh token expired. Please log in again.");
+        }
     }
 
     // porovna token s hashem
@@ -125,7 +131,9 @@ export const logoutService = async (refreshToken) => {
         const [tokenId] = refreshToken.split(".");
 
         if (tokenId) {
-            await deleteRefreshTokenByIdRepository(tokenId);
+            try{
+                await deleteRefreshTokenByIdRepository(tokenId);
+            } catch { }
         }
     }
     return true;
@@ -239,6 +247,7 @@ export const resendVerifyEmailService = async (email) => {
     // const verificationLink = `${process.env.FRONTEND_URL}/api/auth/verify-email?token=${verifyToken}`;
     const verificationLink = `exp://10.0.0.2:8081/--/emailVerify?token=${verifyToken}`;
 
+    console.log("Tohle se nejak spustilo 111");
     await sendVerificationEmail("josefnovak738@gmail.com", verificationLink, user.preferredLanguage);
     // await sendVerificationEmail(user.email, verificationLink, user.preferredLanguage);
     

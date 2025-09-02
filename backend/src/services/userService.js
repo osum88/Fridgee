@@ -1,4 +1,5 @@
 import { BadRequestError, ConflictError, NotFoundError } from "../errors/errors.js";
+import { getFriendshipRepository } from "../repositories/friendRepository.js";
 import { createUserRepository, deleteUserRepository, getBankNumberRepository, getUserByEmailRepository, getUserByIdRepository, getUserByUsernameRepository, searchUsersRepository, updatePreferredLanguageByUserIdRepository, updateUserRepository } from "../repositories/userRepository.js";
 
 export const createUserService = async (name, surname, username, birthDate, email, password, bankNumber, preferredLanguage) => {
@@ -95,7 +96,23 @@ export const searchUsersService = async (userId, username, limit = 10) => {
     
     const users = await searchUsersRepository(userId, sanitizedUsername, parseInt(limit, 10));
 
-    return users;
+    // pokud nejsou nalezeni zadni uzivatele
+    if (users.length === 0) {
+        return users;
+    }
+
+    const friendshipPromises = users.map(user => 
+        getFriendshipRepository(userId, user.id)
+    );
+
+    const friendships = await Promise.all(friendshipPromises);
+
+    const usersWithFriendships = users.map((user, index) => ({
+        ...user, 
+        friendships: friendships[index], 
+    }));
+
+    return usersWithFriendships;
 };
 
 //updatuje jazky

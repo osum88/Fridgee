@@ -1,3 +1,4 @@
+import { console } from "inspector";
 import { acceptFriendService, addFriendService, cancelRequestFriendService, deleteFriendService,  getAllFriendsService, getReceivedFriendRequestsService, getSentFriendRequestsService } from "../services/friendService.js";
 import handleResponse from "../utils/responseHandler.js";
 

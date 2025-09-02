@@ -4,6 +4,7 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import {
   FlatList,
   Image,
+  Pressable,
   StyleSheet,
   TouchableOpacity,
   useWindowDimensions,
@@ -16,9 +17,12 @@ import { useSearchUsersQuery } from "@/hooks/user/useUserQuery";
 import { useProfilePlaceHolder } from "@/hooks/useProfilePlaceHolder";
 import debounce from "lodash.debounce";
 import { ThemedText } from "@/components/themed/ThemedText";
-import { Skeleton } from "@/components/common/Skeleton";
+import { Skeleton } from "@/components/animated/Skeleton";
+import { FriendActionButton } from "@/components/friends/FriendActionButton";
 import { useThemeColor } from "@/hooks/useThemeColor";
-
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useUser } from "@/hooks/useUser";
+import useFriendshipManager from "@/hooks/friends/useFriendshipManager";
 
 export default function SearchFriends() {
   const currentColors = useThemeColor();
@@ -28,12 +32,16 @@ export default function SearchFriends() {
   const [debouncedUsername, setDebouncedUsername] = useState("");
   const profilePlaceHolder = useProfilePlaceHolder();
   const [errorMap, setErrorMap] = useState({});
+  const insets = useSafeAreaInsets();
+  const { userId } = useUser();
 
   const {
     data: users,
     isLoading,
     isFetching,
   } = useSearchUsersQuery(debouncedUsername, limit);
+
+  const { friendshipManager } = useFriendshipManager();
 
   const isInitialLoading = isLoading && !users; //data z api
   const isRefetching = isFetching && !!users; //data z cache
@@ -46,14 +54,14 @@ export default function SearchFriends() {
     () =>
       debounce((value) => {
         setDebouncedUsername(value);
-      }, 400),
+      }, 500),
     []
   );
 
   //nastavi username pri psani
   const handleChange = (text) => {
     setUsername(text);
-    if (limit === 30) {
+    if (limit === 40) {
       setLimit(Math.ceil(height / 100));
     }
     debounceSetUsername(text);
@@ -61,7 +69,7 @@ export default function SearchFriends() {
 
   //nastavi username pri vyhledani enterem
   const handleOnSubmitEditing = () => {
-    setLimit(30);
+    setLimit(40);
     setDebouncedUsername(username);
   };
 
@@ -93,17 +101,17 @@ export default function SearchFriends() {
         <ThemedLine style={styles.line} />
 
         {showSkeleton ? (
-          <ThemedView style={{ paddingHorizontal: 10 }}>
+          <ThemedView style={{ paddingHorizontal: 8 }}>
             {Array.from({ length: limit }).map((_, i) => (
               <Skeleton key={i} />
             ))}
           </ThemedView>
         ) : (
           <FlatList
-            data={(users && users.data) || []}
+            data={users?.data || []}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
-              <TouchableOpacity
+              <Pressable
                 onPress={() =>
                   router.push({
                     pathname: `/profile/${item.id}`,
@@ -111,32 +119,57 @@ export default function SearchFriends() {
                   })
                 }
               >
-                <ThemedView style={styles.userItem}>
-                  <Image
-                    source={
-                      errorMap[item.id]
-                        ? profilePlaceHolder
-                        : {
-                            uri: `https://api.dicebear.com/7.x/adventurer/png?seed=${item.username}&backgroundColor=2fd300`,
-                          }
-                    }
-                    onError={() =>
-                      setErrorMap((prev) => ({ ...prev, [item.id]: true }))
-                    }
-                    style={styles.profileImage}
-                  />
-                  <ThemedView style={styles.textContainer}>
-                    <ThemedText style={styles.username}>
-                      {item.username}
-                    </ThemedText>
-                    {item.name && item.surname && (
-                      <ThemedText type="fullName">
-                        {item.name} {item.surname}
+                <ThemedView style={styles.itemContainer}>
+                  <ThemedView style={styles.userItem}>
+                    <Image
+                      source={
+                        errorMap[item.id]
+                          ? profilePlaceHolder
+                          : {
+                              uri: `https://picsum.photos/id/${item.id}/200/300`,
+                            }
+                      }
+                      onError={() =>
+                        setErrorMap((prev) => ({ ...prev, [item.id]: true }))
+                      }
+                      style={styles.profileImage}
+                    />
+                    <ThemedView style={styles.textContainer}>
+                      <ThemedText
+                        style={styles.username}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
+                        {item.username}
                       </ThemedText>
-                    )}
+                      {item.name && item.surname && (
+                        <ThemedText
+                          type="fullName"
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                          style={styles.fullName}
+                        >
+                          {item.name} {item.surname}
+                        </ThemedText>
+                      )}
+                    </ThemedView>
                   </ThemedView>
+                  <FriendActionButton
+                    status={item.friendships?.status}
+                    isRequestSend={userId === item.friendships?.senderId}
+                    onPress={() =>
+                      friendshipManager(
+                        item.id,
+                        debouncedUsername,
+                        limit,
+                        item.friendships?.status,
+                        item.friendships?.senderId,
+                        item.friendships?.receiverId
+                      )
+                    }
+                  />
                 </ThemedView>
-              </TouchableOpacity>
+              </Pressable>
             )}
             ListEmptyComponent={() => {
               if (
@@ -153,7 +186,11 @@ export default function SearchFriends() {
               }
               return null;
             }}
-            contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 10 }}
+            contentContainerStyle={{
+              flexGrow: 1,
+              paddingHorizontal: 10,
+              paddingBottom: insets.bottom,
+            }}
           />
         )}
       </ThemedView>
@@ -164,7 +201,7 @@ export default function SearchFriends() {
 const styles = StyleSheet.create({
   contentWrapper: {
     flexGrow: 1,
-    paddingVertical: 14,
+    paddingTop: 14,
   },
   searchContainer: {
     paddingHorizontal: 8,
@@ -181,23 +218,32 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   profileImage: {
-    width: 55,
-    height: 55,
+    width: 60,
+    height: 60,
     borderRadius: 50,
     marginEnd: 14,
   },
   userItem: {
     flexDirection: "row",
-    width: "100%",
-    padding: 12,
+    alignItems: "center",
+    flex: 1,
   },
-
+  itemContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 8,
+  },
   username: {
     fontSize: 16,
     lineHeight: 20,
     fontWeight: "600",
+    flexShrink: 1,
+  },
+  fullName: {
+    flexShrink: 1,
   },
   textContainer: {
     justifyContent: "center",
+    flex: 1,
   },
 });

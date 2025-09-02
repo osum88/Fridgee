@@ -49,6 +49,7 @@ export const changeRoleInventoryUser = async (req, res, next) => {
     }
 };
 
+//smaze sam sebe z inventare
 export const deleteFoodInventoryUser = async (req, res, next) => {
     try {
         const inventoryId = parseInt(req.params.inventoryId, 10);
@@ -64,6 +65,7 @@ export const deleteFoodInventoryUser = async (req, res, next) => {
     }
 };
 
+//admin smaze jine uzivatele z invenatre
 export const deleteOtherFoodInventoryUser = async (req, res, next) => {
     try {
         const inventoryId = parseInt(req.params.inventoryId, 10);
@@ -123,7 +125,7 @@ export const unarchiveFoodInventory = async (req, res, next) => {
     }
 };
 
-//zruseni archivace invenatre
+//updatuje nazev a popisek inventare
 export const updateFoodInventory = async (req, res, next) => {
     try {
         const inventoryId = parseInt(req.params.inventoryId, 10);

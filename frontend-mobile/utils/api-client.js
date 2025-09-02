@@ -23,7 +23,8 @@ export const setTokensCallback = (callback) => {
 const apiClient = axios.create({
   // baseURL: "http://localhost:3001/api",
 
-  baseURL: `http://10.0.0.2:3001/api`,
+  baseURL: `http://10.0.0.2:3001/api`, //wifi doma
+  // baseURL: `http://10.160.48.141:3001/api`,           //mobil hotspot
   headers: {
     "Content-Type": "application/json",
   },
@@ -34,8 +35,8 @@ apiClient.interceptors.request.use(
   (config) => {
     if (accessTokenGetter) {
       const accessToken = accessTokenGetter();
-      console.log("Header Bearer token:", accessToken);
       if (accessToken) {
+        console.log("Header Bearer token:", accessToken.substring(0, 30));
         config.headers.Authorization = `Bearer ${accessToken}`;
       }
     }
@@ -72,13 +73,15 @@ apiClient.interceptors.response.use(
           throw new Error("No refresh token available");
         }
 
-        const { data } = await apiClient.post("/auth/refresh", { refreshToken },
+        const { data } = await apiClient.post(
+          "/auth/refresh",
+          { refreshToken },
           {
             headers: {
               "X-Client-Type": "mobile",
             },
           }
-        ); 
+        );
         const accessToken = data.data.accessToken;
         await storeTokens(accessToken, data.data.refreshToken);
 

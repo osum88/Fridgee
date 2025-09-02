@@ -22,7 +22,10 @@ export const Colors = {
     input: "#F5F5F5",
     input_text: "#787683",
     fullName: "#9c9a9aff",
-    surfaceGradient: "#EBEBEB"
+    surfaceGradient: "#EBEBEB",
+    noneButton: "#007bff",
+    pendingButton: "#efeff1",
+    pendingTextButton: "#28292aff",
   },
   dark: {
     text: "#e0e0e0",
@@ -39,6 +42,9 @@ export const Colors = {
     input: "#252527",
     input_text: "#787683",
     fullName: "#9c9a9aff",
-    surfaceGradient: "#262626"
+    surfaceGradient: "#262626",
+    noneButton: "#2f98daff",
+    pendingButton: "#2c2c2e",
+    pendingTextButton: "#d1d1d1",
   },
 };

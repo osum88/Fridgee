@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useColorScheme, View } from "react-native";
-import { ThemedView } from "@/components/themed/ThemedView";
 
 const ThemeContext = createContext();
 

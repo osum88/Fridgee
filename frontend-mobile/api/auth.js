@@ -125,7 +125,7 @@ export const refreshApi = async (refreshData) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error refreshApi: ", error);
+    console.error("Error refreshApi: ", error, error.response?.data?.message || error.message);
     throw error;
   }
 };
@@ -191,7 +191,6 @@ export const resendVerifyEmailApi = async (resendVerifyEmailData) => {
 
 export const resetPasswordApi = async (token, resetPasswordData) => {
   try {
-    console.log(token, resetPasswordData);
     const response = await apiClient.post(
       `/auth/reset-password?token=${token}`,
       resetPasswordData

@@ -31,7 +31,7 @@ app.use(cors({
 
 //rate limit
 const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, 
+    windowMs: 1 * 60 * 1000,                   //nastavit 15 potom
     max: 500, 
     message: "Too many requests from this IP address, please try again later.", 
     standardHeaders: true, 
@@ -39,7 +39,7 @@ const apiLimiter = rateLimit({
 });
 
 const authLimiter = rateLimit({
-    windowMs: 5 * 60 * 1000, 
+    windowMs: 1 * 60 * 1000,                        //nastavit 5 potom
     max: 15, 
     message: "Too many requests from this IP address, please try again in 5 minutes.",
     standardHeaders: true,
@@ -72,7 +72,7 @@ app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
    
     cleanExpiredRefreshTokens(); 
-    cron.schedule("0 3 * * *", () => {
+    cron.schedule("0 3 * * *", () => {                //minuta, hodina, den, mesic, dev v tydnu 
         console.log("Running daily refresh token cleanup task...");
         cleanExpiredRefreshTokens();
     });
