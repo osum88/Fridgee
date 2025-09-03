@@ -3,51 +3,57 @@ import { ThemedText } from "@/components/themed/ThemedText";
 import { useLocalSearchParams } from "expo-router";
 import { useUser } from "@/hooks/useUser";
 import { StyleSheet } from "react-native";
-import { useThemeColor } from "@/hooks/useThemeColor";
 import { FriendActionButton } from "@/components/friends/FriendActionButton";
-import useFriendshipManager from "@/hooks/friends/useFriendshipManager";
+import useFriendManager from "@/hooks/friends/useFriendManager";
 import { useState } from "react";
 
 export default function FriendProfile() {
   const params = useLocalSearchParams();
-  const user = JSON.parse(params.user);
 
+  const [userData, setUserData] = useState(JSON.parse(params.user));
   const { userId } = useUser();
   const [request, setRequest] = useState(
     !!(
-      user.friendships?.status === "pending" &&
-      userId === user.friendships?.receiverId
+      userData.friendships?.status === "PENDING" &&
+      userId === userData.friendships?.receiverId
     )
   );
 
-
+  console.log(userData);
   // --------------------------------------------------------------
   // ------------                TODO                --------------
   // --------------------------------------------------------------
-  const { respondToFriendRequest } = useFriendshipManager();
+  const { respondToFriendRequest } = useFriendManager();
 
   const handleAccept = () => {
     respondToFriendRequest(
-      user.id,
-      null,
-      null,
-      user.friendships?.status,
-      user.friendships?.receiverId,
+      userData.id,
+      userData.friendships?.status,
+      userData.friendships?.receiverId,
       "accept"
     );
     setRequest(false);
+    setUserData((prev) => ({
+      ...prev,
+      friendships: {
+        ...prev.friendships,
+        status: "ACCEPTED",
+      },
+    }));
   };
 
   const handleRefuse = () => {
     respondToFriendRequest(
-      user.id,
-      null,
-      null,
-      user.friendships?.status,
-      user.friendships?.receiverId,
+      userData.id,
+      userData.friendships?.status,
+      userData.friendships?.receiverId,
       "refuse"
     );
     setRequest(false);
+    setUserData((prev) => ({
+      ...prev,
+      friendships: null,
+    }));
   };
 
   return (
@@ -57,16 +63,18 @@ export default function FriendProfile() {
       <ThemedText style={{ fontSize: 24, fontWeight: "bold" }}>
         Profil uživatele
       </ThemedText>
-      <ThemedText style={{ marginTop: 10 }}>ID: {user.id}</ThemedText>
-      <ThemedText style={{ marginTop: 10 }}>name: {user.name}</ThemedText>
-      <ThemedText style={{ marginTop: 10 }}>surname: {user.surname}</ThemedText>
+      <ThemedText style={{ marginTop: 10 }}>ID: {userData.id}</ThemedText>
+      <ThemedText style={{ marginTop: 10 }}>name: {userData.name}</ThemedText>
       <ThemedText style={{ marginTop: 10 }}>
-        username: {user.username}
+        surname: {userData.surname}
+      </ThemedText>
+      <ThemedText style={{ marginTop: 10 }}>
+        username: {userData.username}
       </ThemedText>
 
-      {user.friendships ? (
+      {userData.friendships ? (
         <ThemedText style={{ marginTop: 10 }}>
-          friendship: {user.friendships?.status}
+          friendship: {userData.friendships?.status}
         </ThemedText>
       ) : (
         <ThemedText style={{ marginTop: 10 }}>friendship: none</ThemedText>

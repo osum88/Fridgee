@@ -1,6 +1,7 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Pressable, StyleSheet } from "react-native";
 import { ThemedText } from "@/components/themed/ThemedText";
+import i18n from "@/constants/translations";
 
 export function FriendActionButton({
   status = null,
@@ -15,27 +16,27 @@ export function FriendActionButton({
     default: {
       colorButton: color.noneButton,
       colorText: color.onPrimary,
-      label: "Přidat",
+      label: i18n.t("addFriend"),
     },
     pending: {
       colorButton: color.pendingButton,
       colorText: color.pendingTextButton,
-      label: "Žádost",
+      label: i18n.t("cancelRequest"),
     },
     accepted: {
       colorButton: color.pendingButton,
       colorText: color.pendingTextButton,
-      label: "Přátelé",
+      label: i18n.t("friends"),
     },
     accept: {
       colorButton: color.noneButton,
       colorText: color.onPrimary,
-      label: "Přijmout",
+      label: i18n.t("acceptRequest"),
     },
     decline: {
       colorButton: color.pendingButton,
       colorText: color.pendingTextButton,
-      label: "Odmítnout",
+      label: i18n.t("rejectRequest"),
     },
   };
 

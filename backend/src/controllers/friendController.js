@@ -72,8 +72,9 @@ export const getAllFriends = async (req, res, next) => {
     try {
         const userId = req.userId;
         const isAdmin = req.adminRoute;
+        const { username } = req.query;
 
-        const allFriends = await getAllFriendsService(userId, isAdmin);
+        const allFriends = await getAllFriendsService(userId, username, isAdmin);
         
         return handleResponse(res, 200, "Friends fetched successfully", allFriends);
     } catch (err) {
@@ -86,8 +87,9 @@ export const getSentFriendRequests = async (req, res, next) => {
     try {
         const userId = req.userId;
         const isAdmin = req.adminRoute;
+         const { username } = req.query;
 
-        const sentRequests = await getSentFriendRequestsService(userId, isAdmin);
+        const sentRequests = await getSentFriendRequestsService(userId, username, isAdmin);
 
         return handleResponse(res, 200, "Sent requests fetched successfully", sentRequests);
     } catch (err) {
@@ -100,8 +102,9 @@ export const getReceivedFriendRequests = async (req, res, next) => {
     try {
         const userId = req.userId;
         const isAdmin = req.adminRoute;
+         const { username } = req.query;
 
-        const receivedRequests = await getReceivedFriendRequestsService(userId, isAdmin);
+        const receivedRequests = await getReceivedFriendRequestsService(userId, username, isAdmin);
 
         return handleResponse(res, 200, "Received requests fetched successfully", receivedRequests);
     } catch (err) {

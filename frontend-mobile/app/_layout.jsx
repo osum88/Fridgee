@@ -38,7 +38,7 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <StrictMode>
+      {/* <StrictMode> */}
         <UserProvider>
           <LanguageWrapper>
             <ThemeProvider>
@@ -46,7 +46,7 @@ export default function RootLayout() {
             </ThemeProvider>
           </LanguageWrapper>
         </UserProvider>
-      </StrictMode>
+      {/* </StrictMode> */}
     </QueryClientProvider>
   );
 }

@@ -22,7 +22,7 @@ import { FriendActionButton } from "@/components/friends/FriendActionButton";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useUser } from "@/hooks/useUser";
-import useFriendshipManager from "@/hooks/friends/useFriendshipManager";
+import useFriendManager from "@/hooks/friends/useFriendManager";
 
 export default function SearchFriends() {
   const currentColors = useThemeColor();
@@ -41,7 +41,7 @@ export default function SearchFriends() {
     isFetching,
   } = useSearchUsersQuery(debouncedUsername, limit);
 
-  const { friendshipManager } = useFriendshipManager();
+  const { friendshipManager } = useFriendManager();
 
   const isInitialLoading = isLoading && !users; //data z api
   const isRefetching = isFetching && !!users; //data z cache
@@ -119,6 +119,7 @@ export default function SearchFriends() {
                   })
                 }
               >
+              {console.log("item:", item)}
                 <ThemedView style={styles.itemContainer}>
                   <ThemedView style={styles.userItem}>
                     <Image
@@ -154,6 +155,7 @@ export default function SearchFriends() {
                       )}
                     </ThemedView>
                   </ThemedView>
+
                   <FriendActionButton
                     status={item.friendships?.status}
                     isRequestSend={userId === item.friendships?.senderId}

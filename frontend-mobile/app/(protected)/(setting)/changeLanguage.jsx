@@ -15,7 +15,7 @@ export default function ChangeLanguage() {
   const handleLanguageChange = useCallback((newLanguage) => {
       setAppLanguage(newLanguage);
 
-      //vypne caovac pokud je zapnuty
+      //vypne casovac pokud je zapnuty
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current);
       }

@@ -6,6 +6,7 @@ import validate from "../middlewares/validator.js";
 import { updateUserSchema } from "../validation/userValidation.js";
 import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, getAllFoodInventory, getInventoryDetailsWithUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
 import { archiveInventoryAdminSchema, changeRoleAdminSchema, changeSettingAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema } from "../validation/foodInventoryValidation.js";
+import { getFriendsAdminSchema } from "../validation/friendValidation.js";
 
 const router = express.Router();
 
@@ -24,13 +25,13 @@ router.delete("/users/:id/friends/:friendId", authenticateToken, authorizeAdmin,
 router.patch("/users/:id/friends/accept/:friendId", authenticateToken, authorizeAdmin, acceptFriend);
 
 //seznam vsech odeslanych zadosti
-router.get("/users/:id/friends/requests/sent", authenticateToken, authorizeAdmin, getSentFriendRequests);
+router.get("/users/:id/friends/requests/sent", validate(getFriendsAdminSchema), authenticateToken, authorizeAdmin, getSentFriendRequests);
 
 //seznam vsech prijatych zadosti
-router.get("/users/:id/friends/requests/received", authenticateToken, authorizeAdmin, getReceivedFriendRequests);
+router.get("/users/:id/friends/requests/received", validate(getFriendsAdminSchema), authenticateToken, authorizeAdmin, getReceivedFriendRequests);
 
 //seznam vsech pratel
-router.get("/users/:id/friends", authenticateToken, authorizeAdmin, getAllFriends);
+router.get("/users/:id/friends", validate(getFriendsAdminSchema), authenticateToken, authorizeAdmin, getAllFriends);
 
 
 //                               FOOD INVENTORY

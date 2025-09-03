@@ -59,7 +59,16 @@
   "theme": "Motiv",
   "light": "Světlý",
   "dark": "Tmavý",
-  "system": "Systém"
+  "system": "Systém",
+  "addFriend": "Přidat",
+  "cancelRequest": "Zrušit",
+  "friends": "Přátelé",
+  "acceptRequest": "Potvrdit",
+  "rejectRequest": "Odmítnout",
+  "noFriendsFound": "Nebyli nalezeni žádní přátelé",
+  "searchFriends": "Hledat přátelé"
+
+
 
 
 

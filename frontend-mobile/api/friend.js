@@ -45,9 +45,9 @@ export const acceptFriendRequestApi = async (friendId) => {
 };
 
 // ziska seznam vsech odeslanych zadosti o pratelstvi
-export const getSentFriendRequestsApi = async () => {
+export const getSentFriendRequestsApi = async (username) => {
   try {
-    const response = await apiClient.get("/friends/requests/sent");
+    const response = await apiClient.get(`/friends/requests/sent?username=${username}`);
     return response.data;
   } catch (error) {
     console.error("Error in getSentFriendRequestsApi: ", error, "->", error.response?.data?.message || error.message);
@@ -56,9 +56,9 @@ export const getSentFriendRequestsApi = async () => {
 };
 
 // ziska seznam vsech prijatych zadosti o pratelstvi
-export const getReceivedFriendRequestsApi = async () => {
+export const getReceivedFriendRequestsApi = async (username) => {
   try {
-    const response = await apiClient.get("/friends/requests/received");
+    const response = await apiClient.get(`/friends/requests/received?username=${username}`);
     return response.data;
   } catch (error) {
     console.error("Error in getReceivedFriendRequestsApi: ", error, "->", error.response?.data?.message || error.message);
@@ -67,9 +67,9 @@ export const getReceivedFriendRequestsApi = async () => {
 };
 
 // ziska seznam vsech pratel
-export const getAllFriendsApi = async () => {
+export const getAllFriendsApi = async (username) => {
   try {
-    const response = await apiClient.get("/friends");
+    const response = await apiClient.get(`/friends?username=${username}`);
     return response.data;
   } catch (error) {
     console.error("Error in getAllFriendsApi: ", error, "->", error.response?.data?.message || error.message);

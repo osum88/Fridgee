@@ -140,29 +140,54 @@ export const cancelRequestFriendService = async (user1Id, user2Id, isAdmin) => {
 };
 
 
-export const getAllFriendsService = async (userId, isAdmin) => {
+export const getAllFriendsService = async (userId, username, isAdmin) => {
     if (isAdmin) {
         await getUserByIdRepository(userId);
     } 
-    const allFriends = await getAllFriendsRepository(userId);
+
+    let sanitizedUsername
+    if (username) {
+        sanitizedUsername = username.trim().replace(/\s+/g, "").toLowerCase();
+    } else {
+        sanitizedUsername = "";
+    }
+    
+
+    const allFriends = await getAllFriendsRepository(userId, sanitizedUsername);
     
     return allFriends;
 };
 
-export const getSentFriendRequestsService = async (userId, isAdmin) => {
+export const getSentFriendRequestsService = async (userId, username, isAdmin) => {
     if (isAdmin) {
         await getUserByIdRepository(userId);
     } 
-    const sentRequests = await getSentFriendRequestsRepository(userId);
+
+    let sanitizedUsername
+    if (username) {
+        sanitizedUsername = username.trim().replace(/\s+/g, "").toLowerCase();
+    } else {
+        sanitizedUsername = "";
+    }
+
+    const sentRequests = await getSentFriendRequestsRepository(userId, sanitizedUsername);
     
     return sentRequests;
 };
 
-export const getReceivedFriendRequestsService = async (userId, isAdmin) => {
+export const getReceivedFriendRequestsService = async (userId, username, isAdmin) => {
     if (isAdmin) {
         await getUserByIdRepository(userId);
     } 
-    const receivedRequests = await getReceivedFriendRequestsRepository(userId);
+
+    let sanitizedUsername
+    if (username) {
+        sanitizedUsername = username.trim().replace(/\s+/g, "").toLowerCase();
+    } else {
+        sanitizedUsername = "";
+    }
+
+    const receivedRequests = await getReceivedFriendRequestsRepository(userId, sanitizedUsername);
     
     return receivedRequests;
 };

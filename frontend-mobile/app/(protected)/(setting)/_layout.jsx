@@ -6,15 +6,17 @@ export default function SettingLayout() {
   useLanguage();
 
   return (
-    <Stack screenOptions={{ headerTitleAlign: "center" }}>
+    <Stack
+      screenOptions={{
+        headerTitleAlign: "center",
+     
+      }}
+    >
       <Stack.Screen
         name="changeLanguage"
         options={{ title: i18n.t("language") }}
       />
-      <Stack.Screen
-        name="changeTheme"
-        options={{ title: i18n.t("theme") }}
-      />
+      <Stack.Screen name="changeTheme" options={{ title: i18n.t("theme") }} />
     </Stack>
   );
 }

@@ -134,15 +134,48 @@ export const deleteAllFriendshipRepository = async (userId) => {
     }
 };
 
-export const getAllFriendsRepository = async (userId) => {
+export const getAllFriendsRepository = async (userId, searchUsername) => {
     try {
         const allFriends = await prisma.friendship.findMany({
             where: {
                 OR: [
-                    { senderId: userId },
-                    { receiverId: userId },
+                    {
+                        senderId: userId,
+                        receiver: {
+                            username: { contains: searchUsername, mode: "insensitive" },
+                        },
+                    },
+                    {
+                        receiverId: userId,
+                        sender: {
+                            username: { contains: searchUsername, mode: "insensitive" },
+                        },
+                    },
                 ],
                 status: "ACCEPTED",
+            },
+            include: {
+                sender: {
+                    select: {
+                        id: true,
+                        username: true,
+                        name: true,
+                        surname: true,
+                        profilePictureUrl: true,
+                    },
+                },
+                receiver: {
+                    select: {
+                        id: true,
+                        username: true,
+                        name: true,
+                        surname: true,
+                        profilePictureUrl: true,
+                    },
+                },
+            },
+            orderBy: {
+                updatedAt: 'desc',
             },
         });
         return allFriends;
@@ -152,12 +185,29 @@ export const getAllFriendsRepository = async (userId) => {
     }
 };
 
-export const getSentFriendRequestsRepository = async (userId) => {
+export const getSentFriendRequestsRepository = async (userId, searchUsername) => {
     try {
         const sentRequests = await prisma.friendship.findMany({
             where: {
                 senderId: userId,
                 status: "PENDING",
+                receiver: {        
+                     username: { contains: searchUsername, mode: "insensitive" } 
+                },
+            },
+            include: {
+                receiver: {
+                    select: {
+                        id: true,
+                        username: true,
+                        name: true,
+                        surname: true,
+                        profilePictureUrl: true,
+                    },
+                },
+            },
+            orderBy: {
+                updatedAt: 'desc',
             },
         });
         return sentRequests;
@@ -167,12 +217,29 @@ export const getSentFriendRequestsRepository = async (userId) => {
     }
 };
 
-export const getReceivedFriendRequestsRepository = async (userId) => {
+export const getReceivedFriendRequestsRepository = async (userId, searchUsername) => {
     try {
         const receivedRequests = await prisma.friendship.findMany({
-            where: {
+           where: {
                 receiverId: userId,
                 status: "PENDING",
+                sender: {
+                    username: { contains: searchUsername, mode: "insensitive" } 
+                },
+            },
+            include: {
+                sender: {
+                    select: {
+                        id: true,
+                        username: true,
+                        name: true,
+                        surname: true,
+                        profilePictureUrl: true,
+                    },
+                },
+            },
+            orderBy: {
+                updatedAt: 'desc',
             },
         });
         return receivedRequests;

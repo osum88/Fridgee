@@ -59,7 +59,17 @@
   "theme": "Theme",
   "light": "Light",
   "dark": "Dark",
-  "system": "System"
+  "system": "System",
+  "addFriend": "Add",
+  "cancelRequest": "Remove",
+  "friends": "Friends",
+  "acceptRequest": "Accept",
+  "rejectRequest": "Reject",
+  "noFriendsFound": "No friends were found",
+  "searchFriends": "Search friends"
+
+
+
 
 
 }

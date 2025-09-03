@@ -92,7 +92,7 @@ export const searchUsersService = async (userId, username, limit = 10) => {
         throw new BadRequestError("Username is required for search.");
     }
     
-    const sanitizedUsername = username.trim().replace(/\s+/g, "");
+    const sanitizedUsername = username.trim().replace(/\s+/g, "").toLowerCase();
     
     const users = await searchUsersRepository(userId, sanitizedUsername, parseInt(limit, 10));
 
