@@ -2,11 +2,13 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { Pressable, StyleSheet } from "react-native";
 import { ThemedText } from "@/components/themed/ThemedText";
 import i18n from "@/constants/translations";
+import { IconSymbol } from "@/components/ui/IconSymbol";
 
 export function FriendActionButton({
   status = null,
   textButton = "",
   isRequestSend = true,
+  icon,
   style,
   ...props
 }) {
@@ -52,9 +54,10 @@ export function FriendActionButton({
     }
   }
 
-  if (textButton === "Přijmout") {
+
+  if (textButton === "accept" || icon === "checkmark") {
     variant = "accept";
-  } else if (textButton === "Odmítnout") {
+  } else if (textButton === "decline" || icon === "xmark") {
     variant = "decline";
   }
 
@@ -71,7 +74,16 @@ export function FriendActionButton({
       ]}
     >
       <ThemedText style={[styles.text, { color: colorText }]}>
-        {label}
+        {icon ? (
+          <IconSymbol
+            size={24}
+            name={icon}
+            color={colorText}
+            style={styles.iconCheck}
+          />
+        ) : (
+          label
+        )}
       </ThemedText>
     </Pressable>
   );
@@ -92,5 +104,8 @@ const styles = StyleSheet.create({
   },
   text: {
     fontWeight: "500",
+  },
+  iconCheck: {
+    fontWeight: "bold",
   },
 });

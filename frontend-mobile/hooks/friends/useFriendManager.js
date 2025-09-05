@@ -2,6 +2,7 @@ import { useUser } from "@/hooks/useUser";
 import useFriendMutation from "@/hooks/friends/useFriendMutation";
 import { useDebouncedMutation } from "@/hooks/useDebouncedMutation";
 import { useQueryClient } from "@tanstack/react-query";
+import { invalidateQueries } from "@/utils/invalidateQueries";
 
 const useFriendManager = () => {
   const { userId } = useUser();
@@ -13,46 +14,35 @@ const useFriendManager = () => {
     limit,
     cache,
     status = "",
-    friendData = {}
+    friendData = {},
   }) => {
     const key = limit == null ? [cache, username] : [cache, username, limit];
 
     const previousUsers = queryClient.getQueryData(key);
     if (!previousUsers) return;
 
-    const updatedUsers = previousUsers.data.map((user) => {
-      if (user.id === user2Id) {
-        return status
-          ? {
-              ...user,
-              friendships: { receiverId: user.id, senderId: userId, status },
-            }
-          : { ...user, friendships: null };
-      }
-      return user;
-    });
+    const updatedUsers = previousUsers.data
+      .map((user) => {
+        // friend search
+        if (user.id === user2Id) {
+          return status
+            ? {
+                ...user,
+                friendships: { receiverId: user.id, senderId: userId, status },
+              }
+            : { ...user, friendships: null };
+        }
+        return user;
+      })
+      .filter((user) => {
+        // friend list a requesty
+        return user.senderId !== user2Id && user.receiverId !== user2Id;
+      });
 
     queryClient.setQueryData(key, {
       ...previousUsers,
       data: updatedUsers,
     });
-
-    // //vytvori pole quary klicu
-    // const allCaches = [
-    //   "searchUsername",
-    //   "allFriends",
-    //   "receivedFriendRequests",
-    // ];
-    // const keysToInvalidate = allCaches
-    //   .filter((c) => c !== cache)
-    //   .map((c) => [c]);
-
-    // // invalidace
-    // Promise.all(
-    //   keysToInvalidate.map((qKey) =>
-    //     queryClient.invalidateQueries({ queryKey: qKey })
-    //   )
-    // );
 
     if (cache !== "searchUsername") {
       queryClient.invalidateQueries({ queryKey: ["searchUsername"] });
@@ -64,33 +54,35 @@ const useFriendManager = () => {
       queryClient.invalidateQueries({ queryKey: ["receivedFriendRequests"] });
     }
 
-    //optimisticky update cache pri pridani pritele
-    if (cache !== "allFriends") {
-      const friendsKey = ["allFriends", username];
+    // //optimisticky update cache pri pridani pritele
+    // if (cache === "receivedFriendRequests") {
+    //   const friendsKey = ["allFriends", username];
 
-      const previousFriends = queryClient.getQueryData(friendsKey);
+    //   const previousFriends = queryClient.getQueryData(friendsKey);
 
-      const newFriend = {
-        id: Date.now(), 
-        senderId: userId,
-        receiverId: user2Id,
-        sender: { id: userId },
-        receiver: { id: user2Id, username: friendData?.username, name: friendData?.name, surname: friendData?.surname },
-        status: "ACCEPTED",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
+    //   const newFriend = {
+    //     id: Date.now(),
+    //     senderId: userId,
+    //     receiverId: user2Id,
+    //     sender: { id: userId },
+    //     receiver: { id: user2Id, username: friendData?.username, name: friendData?.name, surname: friendData?.surname },
+    //     status: "ACCEPTED",
+    //     createdAt: new Date().toISOString(),
+    //     updatedAt: new Date().toISOString(),
+    //   };
 
-      if (previousFriends?.data) {
-        queryClient.setQueryData(friendsKey, {
-          ...previousFriends,
-          data: [newFriend, ...previousFriends.data],
-        });
-      } else {
-        // pokud jeste zadna quary neexistuje vytvori se
-        queryClient.setQueryData(friendsKey, { data: [newFriend] });
-      }
-    }
+    //   if (previousFriends?.data) {
+    //     queryClient.setQueryData(friendsKey, {
+    //       ...previousFriends,
+    //       data: [newFriend, ...previousFriends.data],
+    //     });
+    //   } else {
+    //     // pokud jeste zadna quary neexistuje vytvori se
+    //     queryClient.setQueryData(friendsKey, { data: [newFriend] });
+    //   }
+    // }
+
+    return previousUsers;
   };
 
   const {
@@ -101,32 +93,50 @@ const useFriendManager = () => {
   } = useFriendMutation();
   const debouncedMutate = useDebouncedMutation();
 
-    const friendshipManager = (user2Id, username, limit, status, senderId, receiverId, cache = "searchUsername", friendData = {}) => {
+  const friendshipManager = (user2Id, username, limit, status, senderId, receiverId, cache = "searchUsername", friendData = {}) => {
     if (!status) {
-      updateCacheOptimistic({ user2Id, username, limit, cache, status: "PENDING", friendData });
-      debouncedMutate(addFriendMutation, `${user2Id}`, { user2Id, username, limit, cache});
+      const previousUsers = updateCacheOptimistic({ user2Id, username, limit, cache, status: "PENDING", friendData });
+      debouncedMutate(addFriendMutation, `${user2Id}`, { user2Id, username, limit, cache, previousUsers});
+
     } else if (status?.toLowerCase() === "pending") {
       if (userId === senderId) {
-        updateCacheOptimistic({ user2Id, username, limit, cache, friendData });
-        debouncedMutate(cancelFriendRequestMutation, `${user2Id}`, { user2Id, username, limit, cache});
+        const previousUsers = updateCacheOptimistic({ user2Id, username, limit, cache, friendData });
+        debouncedMutate(cancelFriendRequestMutation, `${user2Id}`, { user2Id, username, limit, cache, previousUsers});
+
       } else if (userId === receiverId) {
-        updateCacheOptimistic({ user2Id, username, limit, cache, status: "ACCEPTED", friendData});
+        const previousUsers = updateCacheOptimistic({ user2Id, username, limit, cache, status: "ACCEPTED", friendData, previousUsers});
         acceptFriendRequestMutation.mutate({ user2Id, username, limit, cache});
       }
     } else if (status.toLowerCase() === "accepted") {
-      updateCacheOptimistic({ user2Id, username, limit, cache, friendData });
+      const previousUsers = updateCacheOptimistic({ user2Id, username, limit, cache, friendData, previousUsers });
       deleteFriendMutation.mutate({ user2Id, username, limit, cache });
     }
   };
 
-  const respondToFriendRequest = (user2Id, status, receiverId, action, username = null, limit = null, cache = "searchUsername") => {
+  const respondToFriendRequest = async (user2Id, status, receiverId, action, invalidateAll = false,  username = null, friendData = {}, cache = "receivedFriendRequests", limit = null, ) => {
     if (status?.toLowerCase() === "pending" && userId === receiverId) {
+      let previousUsers
+      if (!invalidateAll) {
+        previousUsers = updateCacheOptimistic({ user2Id, username, limit, cache, friendData });
+      }
+    
       if (action === "accept") {
-        updateCacheOptimistic({ user2Id, username, limit, cache });
-        acceptFriendRequestMutation.mutate({ user2Id, username, limit, cache });
+        try {
+          await acceptFriendRequestMutation.mutateAsync({ user2Id, username, limit, cache, previousUsers });
+          invalidateQueries(queryClient, ["allFriends"]);
+        } catch (error) {
+          throw error
+        }
       } else if (action === "refuse") {
-        updateCacheOptimistic({ user2Id, username, limit, cache });
-        deleteFriendMutation.mutate({ user2Id, username, limit, cache });
+        try {
+          await deleteFriendMutation.mutateAsync({ user2Id, username, limit, cache, previousUsers });
+
+        } catch (error) {
+           throw error
+        }
+      }
+      if (invalidateAll) {
+        invalidateQueries(queryClient, ["searchUsername", "allFriends", "receivedFriendRequests",]);
       }
     }
   };

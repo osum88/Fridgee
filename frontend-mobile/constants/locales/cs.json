@@ -66,8 +66,11 @@
   "acceptRequest": "Potvrdit",
   "rejectRequest": "Odmítnout",
   "noFriendsFound": "Nebyli nalezeni žádní přátelé",
-  "searchFriends": "Hledat přátelé"
+  "searchFriends": "Hledat přátelé",
+  "friendRequestMessage": "vás žádá o přátelství.",
+  "requests": "Žádosti"
 
+  
 
 
 

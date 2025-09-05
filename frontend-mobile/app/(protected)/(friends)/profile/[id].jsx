@@ -11,49 +11,54 @@ export default function FriendProfile() {
   const params = useLocalSearchParams();
 
   const [userData, setUserData] = useState(JSON.parse(params.user));
+
   const { userId } = useUser();
   const [request, setRequest] = useState(
-    !!(
-      userData.friendships?.status === "PENDING" &&
-      userId === userData.friendships?.receiverId
-    )
+    !!(userData?.status === "PENDING" && userId === userData?.receiverId)
   );
 
-  console.log(userData);
   // --------------------------------------------------------------
   // ------------                TODO                --------------
   // --------------------------------------------------------------
   const { respondToFriendRequest } = useFriendManager();
 
-  const handleAccept = () => {
-    respondToFriendRequest(
-      userData.id,
-      userData.friendships?.status,
-      userData.friendships?.receiverId,
-      "accept"
-    );
-    setRequest(false);
-    setUserData((prev) => ({
-      ...prev,
-      friendships: {
-        ...prev.friendships,
+  const handleAccept = async () => {
+    try {
+      await respondToFriendRequest(
+        userData?.friendId,
+        userData?.status,
+        userData?.receiverId,
+        "accept",
+        true
+      );
+      setRequest(false);
+      setUserData((prev) => ({
+        ...prev,
         status: "ACCEPTED",
-      },
-    }));
+      }));
+    } catch (error) {
+      console.error("Failed to accept friend request:", error);
+    }
   };
 
-  const handleRefuse = () => {
-    respondToFriendRequest(
-      userData.id,
-      userData.friendships?.status,
-      userData.friendships?.receiverId,
-      "refuse"
-    );
-    setRequest(false);
-    setUserData((prev) => ({
-      ...prev,
-      friendships: null,
-    }));
+  const handleRefuse = async () => {
+    try {
+      await respondToFriendRequest(
+        userData?.friendId,
+        userData?.status,
+        userData?.receiverId,
+        "refuse",
+        true
+      );
+
+      setRequest(false);
+      setUserData((prev) => ({
+        ...prev,
+        status: "NONE",
+      }));
+    } catch (error) {
+      console.error("Failed to refuse friend request:", error);
+    }
   };
 
   return (
@@ -63,18 +68,20 @@ export default function FriendProfile() {
       <ThemedText style={{ fontSize: 24, fontWeight: "bold" }}>
         Profil uživatele
       </ThemedText>
-      <ThemedText style={{ marginTop: 10 }}>ID: {userData.id}</ThemedText>
-      <ThemedText style={{ marginTop: 10 }}>name: {userData.name}</ThemedText>
       <ThemedText style={{ marginTop: 10 }}>
-        surname: {userData.surname}
+        ID: {userData?.friendId}
+      </ThemedText>
+      <ThemedText style={{ marginTop: 10 }}>name: {userData?.name}</ThemedText>
+      <ThemedText style={{ marginTop: 10 }}>
+        surname: {userData?.surname}
       </ThemedText>
       <ThemedText style={{ marginTop: 10 }}>
-        username: {userData.username}
+        username: {userData?.username}
       </ThemedText>
 
-      {userData.friendships ? (
+      {userData?.status ? (
         <ThemedText style={{ marginTop: 10 }}>
-          friendship: {userData.friendships?.status}
+          friendship: {userData?.status}
         </ThemedText>
       ) : (
         <ThemedText style={{ marginTop: 10 }}>friendship: none</ThemedText>
@@ -84,12 +91,12 @@ export default function FriendProfile() {
         <ThemedView style={styles.request}>
           <FriendActionButton
             style={styles.btn}
-            textButton="Přijmout"
+            textButton="accept"
             onPress={() => handleAccept()}
           />
           <FriendActionButton
             style={styles.btn}
-            textButton="Odmítnout"
+            textButton="decline"
             onPress={() => handleRefuse()}
           />
         </ThemedView>

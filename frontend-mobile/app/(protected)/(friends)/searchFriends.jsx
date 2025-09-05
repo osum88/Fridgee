@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import {
@@ -23,6 +23,108 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useUser } from "@/hooks/useUser";
 import useFriendManager from "@/hooks/friends/useFriendManager";
+
+const FriendItem = React.memo(
+  ({
+    item,
+    profilePlaceHolder,
+    errorMap,
+    setErrorMap,
+    debouncedUsername,
+    limit,
+    userId,
+    friendshipManager,
+  }) => {
+    const onPressItem = useCallback(() => {
+      router.push({
+        pathname: `/profile/${item.id}`,
+        params: {
+          user: JSON.stringify({
+            friendId: item.id,
+            name: item.name,
+            surname: item.surname,
+            username: item.username,
+            profilePictureUrl: item.profilePictureUrl,
+            friendshipId: item.friendships?.id,
+            receiverId: item.friendships?.receiverId,
+            senderId: item.friendships?.senderId,
+            status: item.friendships?.status,
+          }),
+        },
+      });
+    }, [item]);
+
+    const imageSource = useMemo(() => {
+      return errorMap[item.id]
+        ? profilePlaceHolder
+        : { uri: `https://picsum.photos/id/${item.id}/200/300` };
+    }, [errorMap, item.id, profilePlaceHolder]);
+
+    const onErrorImage = useCallback(() => {
+      setErrorMap((prev) => ({ ...prev, [item.id]: true }));
+    }, [item.id, setErrorMap]);
+
+    const onPressAction = useCallback(() => {
+      friendshipManager(
+        item.id,
+        debouncedUsername,
+        limit,
+        item.friendships?.status,
+        item.friendships?.senderId,
+        item.friendships?.receiverId
+      );
+    }, [
+      item.id,
+      debouncedUsername,
+      limit,
+      item.friendships?.status,
+      item.friendships?.senderId,
+      item.friendships?.receiverId,
+      friendshipManager,
+    ]);
+
+    return (
+      <Pressable onPress={onPressItem}>
+        <ThemedView style={styles.itemContainer}>
+          <ThemedView style={styles.userItem}>
+            <Image
+              source={imageSource}
+              onError={onErrorImage}
+              style={styles.profileImage}
+            />
+            <ThemedView style={styles.textContainer}>
+              <ThemedText
+                style={styles.username}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {item.username}
+              </ThemedText>
+              {item.name && item.surname && (
+                <ThemedText
+                  type="fullName"
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={styles.fullName}
+                >
+                  {item.name} {item.surname}
+                </ThemedText>
+              )}
+            </ThemedView>
+          </ThemedView>
+
+          <FriendActionButton
+            status={item.friendships?.status}
+            isRequestSend={userId === item.friendships?.senderId}
+            onPress={onPressAction}
+          />
+        </ThemedView>
+      </Pressable>
+    );
+  }
+);
+
+FriendItem.displayName = "FriendItem";
 
 export default function SearchFriends() {
   const currentColors = useThemeColor();
@@ -59,19 +161,22 @@ export default function SearchFriends() {
   );
 
   //nastavi username pri psani
-  const handleChange = (text) => {
-    setUsername(text);
-    if (limit === 40) {
-      setLimit(Math.ceil(height / 100));
-    }
-    debounceSetUsername(text);
-  };
+  const handleChange = useCallback(
+    (text) => {
+      setUsername(text);
+      if (limit === 40) {
+        setLimit(Math.ceil(height / 100));
+      }
+      debounceSetUsername(text);
+    },
+    [limit, height, debounceSetUsername]
+  );
 
   //nastavi username pri vyhledani enterem
-  const handleOnSubmitEditing = () => {
+  const handleOnSubmitEditing = useCallback(() => {
     setLimit(40);
     setDebouncedUsername(username);
-  };
+  }, [username]);
 
   return (
     <ThemedView safe={true} style={{ flex: 1 }}>
@@ -111,68 +216,21 @@ export default function SearchFriends() {
             data={users?.data || []}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
-              <Pressable
-                onPress={() =>
-                  router.push({
-                    pathname: `/profile/${item.id}`,
-                    params: { user: JSON.stringify(item) },
-                  })
-                }
-              >
-              {console.log("item:", item)}
-                <ThemedView style={styles.itemContainer}>
-                  <ThemedView style={styles.userItem}>
-                    <Image
-                      source={
-                        errorMap[item.id]
-                          ? profilePlaceHolder
-                          : {
-                              uri: `https://picsum.photos/id/${item.id}/200/300`,
-                            }
-                      }
-                      onError={() =>
-                        setErrorMap((prev) => ({ ...prev, [item.id]: true }))
-                      }
-                      style={styles.profileImage}
-                    />
-                    <ThemedView style={styles.textContainer}>
-                      <ThemedText
-                        style={styles.username}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {item.username}
-                      </ThemedText>
-                      {item.name && item.surname && (
-                        <ThemedText
-                          type="fullName"
-                          numberOfLines={1}
-                          ellipsizeMode="tail"
-                          style={styles.fullName}
-                        >
-                          {item.name} {item.surname}
-                        </ThemedText>
-                      )}
-                    </ThemedView>
-                  </ThemedView>
-
-                  <FriendActionButton
-                    status={item.friendships?.status}
-                    isRequestSend={userId === item.friendships?.senderId}
-                    onPress={() =>
-                      friendshipManager(
-                        item.id,
-                        debouncedUsername,
-                        limit,
-                        item.friendships?.status,
-                        item.friendships?.senderId,
-                        item.friendships?.receiverId
-                      )
-                    }
-                  />
-                </ThemedView>
-              </Pressable>
+              <FriendItem
+                item={item}
+                profilePlaceHolder={profilePlaceHolder}
+                errorMap={errorMap}
+                setErrorMap={setErrorMap}
+                debouncedUsername={debouncedUsername}
+                limit={limit}
+                userId={userId}
+                friendshipManager={friendshipManager}
+              />
             )}
+            initialNumToRender={10}
+            windowSize={5}
+            maxToRenderPerBatch={10}
+            removeClippedSubviews={true}
             ListEmptyComponent={() => {
               if (
                 !isLoading &&

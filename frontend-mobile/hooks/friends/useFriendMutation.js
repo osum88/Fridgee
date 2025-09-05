@@ -10,29 +10,12 @@ import { invalidateQuaryExcept } from "@/utils/invalidateQuaryExcept";
 const useFriendMutationItem = (apiFn) => {
   const queryClient = useQueryClient();
 
-  // Funkce pro optimistickou aktualizaci cache
-  const savePreviousCache = async ({ username, limit, cache }) => {
-    const key =
-      limit == null
-        ? [cache, username]
-        : [cache, username, limit];
-
-    //zrusi probihajici dotazy s klicem
-    await queryClient.cancelQueries({
-      queryKey: key,
-    });
-
-    //data pred zmenou
-    const previousUsers = queryClient.getQueryData(key);
-    return { previousUsers };
-  };
-
   const returnPreviousCache = ({ variables, context }) => {
     const key =
       variables.limit == null
         ? [variables.cache, variables.username]
         : [variables.cache, variables.username, variables.limit];
-    queryClient.setQueryData(key, context.previousUsers);
+    queryClient.setQueryData(key, variables.previousUsers);
   };
 
   const mutation = useMutation({
@@ -40,20 +23,22 @@ const useFriendMutationItem = (apiFn) => {
       return apiFn(userData.user2Id);
     },
     // spusti se pred odeslanim zadosti na backend
-    onMutate: async ({ user2Id, username, limit, cache }) => {
+    onMutate: async ({ user2Id, username, limit, cache, previousUsers }) => {
       if (!username) return;
-      return await savePreviousCache({ username, limit, cache });
+
+      const key = limit == null ? [cache, username] : [cache, username, limit];
+      //zrusi probihajici dotazy s klicem
+      await queryClient.cancelQueries({
+        queryKey: key,
+      });
+      
     },
     onSuccess: async (_, variables) => {
       console.log(`${apiFn.name} success`);
       if (!variables?.username) {
         await queryClient.invalidateQueries({ queryKey: [variables.cache] });
       } else if (variables.limit == null) {
-        invalidateQuaryExcept(
-          queryClient,
-          variables.cache,
-          variables.username
-        );
+        invalidateQuaryExcept(queryClient, variables.cache, variables.username);
       } else {
         //znevalidni vsechny quarries s timto klicem krome aktualniho
         invalidateQuaryExcept(

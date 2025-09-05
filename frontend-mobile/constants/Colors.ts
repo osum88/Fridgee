@@ -26,6 +26,9 @@ export const Colors = {
     noneButton: "#007bff",
     pendingButton: "#efeff1",
     pendingTextButton: "#28292aff",
+    tabsBackground: "#fff",
+    tabsText: "#34a1c5ff",
+    tabsPress: "#e4e4e4ce",
   },
   dark: {
     text: "#e0e0e0",
@@ -46,5 +49,9 @@ export const Colors = {
     noneButton: "#2f98daff",
     pendingButton: "#2c2c2e",
     pendingTextButton: "#d1d1d1",
+    tabsBackground: "#1f1f1f",
+    tabsText: "#fff",
+    tabsPress: "#373739ff",
+
   },
 };

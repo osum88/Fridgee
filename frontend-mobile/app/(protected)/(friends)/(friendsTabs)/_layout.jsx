@@ -1,53 +1,65 @@
-import React, { useState } from "react";
-import { Platform } from "react-native";
-import { HapticTab } from "@/components/HapticTab";
+import React from "react";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 
 import FriendsList from "./friendsList";
 import FriendsRequests from "./friendsRequests";
+import i18n from "@/constants/translations";
 
 const TopTab = createMaterialTopTabNavigator();
 
 export default function TopTabLayout() {
   const colorScheme = useThemeColor();
 
+  const tabsCount = 2;
+  const tab1Len = i18n.t("friends").length;
+  const tab2Len = i18n.t("requests").length;
+
+  const width = (tab1Len < tab2Len ? tab2Len : tab1Len) + 16;
+  const marginLeft = (100 / tabsCount - width) / 2;
+
+  console.log(width);
+
   return (
     <TopTab.Navigator
+      // tabBar={(props) => <TopTabBar {...props} />}
       screenOptions={{
-        // tabBarActiveTintColor: colorScheme.tint,
-        // headerShown: true,
-        // tabBarButton: HapticTab,
-        // tabBarBackground: colorScheme.background,
-        // tabBarLabelStyle: { fontSize: 14, fontWeight: "bold" },
-        // tabBarIndicatorStyle: { backgroundColor: colorScheme.tint },
-        tabBarActiveTintColor: colorScheme.tint, // barva aktivního tabu
-        // tabBarInactiveTintColor: "#888",        // šedá pro neaktivní tab
-        tabBarIndicatorStyle: { backgroundColor: colorScheme.tint }, // čára pod aktivním tabem
-        // tabBarStyle: {
-        //   backgroundColor: Platform.OS === "ios" ? "transparent" : "#fff", // bílá na Androidu
-        //   elevation: 0,
-        // },
-
-        tabBarLabelStyle: { fontSize: 14, fontWeight: "bold" },
-        tabBarStyle: {
-          backgroundColor: Platform.OS === "ios" ? "transparent" : colorScheme.background,
-          elevation: 0,
+        swipeEnabled: true,
+        tabBarActiveTintColor: colorScheme.tabsText,
+        tabBarInactiveTintColor: colorScheme.fullName,
+        tabBarIndicatorStyle: {
+          backgroundColor: colorScheme.tabsText,
+          height: 3,
+          width: width.toString() + "%",
+          marginLeft: marginLeft.toString() + "%",
+          borderTopStartRadius: 10,
+          borderTopEndRadius: 10,
         },
+        tabBarStyle: {
+          backgroundColor: colorScheme.tabsBackground,
+          elevation: 0,
+          shadowOpacity: 0,
+        },
+        tabBarLabelStyle: {
+          fontSize: 16,
+          fontWeight: "bold",
+        },
+        tabBarPressColor: colorScheme.tabsPress,
       }}
     >
       <TopTab.Screen
         component={FriendsList}
         name="friendsList"
         options={{
-          title: "Friends",
+          title: i18n.t("friends"),
         }}
       />
+
       <TopTab.Screen
         component={FriendsRequests}
         name="friendsRequests"
         options={{
-          title: "Requests",
+          title: i18n.t("requests"),
         }}
       />
     </TopTab.Navigator>

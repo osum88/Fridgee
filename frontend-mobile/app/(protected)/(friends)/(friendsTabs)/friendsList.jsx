@@ -1,16 +1,13 @@
-import { useMemo, useState } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import { ThemedView } from "@/components/themed/ThemedView";
-import { IconSymbol } from "@/components/ui/IconSymbol";
 import {
   FlatList,
   Image,
   Pressable,
   StyleSheet,
-  TouchableOpacity,
   useWindowDimensions,
 } from "react-native";
 import { router } from "expo-router";
-import { ThemedLine } from "@/components/themed/ThemedLine";
 import { Search } from "@/components/common/Search";
 import i18n from "@/constants/translations";
 import { useAllFriendsApiQuery } from "@/hooks/friends/useFriendQuery";
@@ -19,13 +16,110 @@ import debounce from "lodash.debounce";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { Skeleton } from "@/components/animated/Skeleton";
 import { FriendActionButton } from "@/components/friends/FriendActionButton";
-import { useThemeColor } from "@/hooks/useThemeColor";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useUser } from "@/hooks/useUser";
 import useFriendManager from "@/hooks/friends/useFriendManager";
+import { Alert } from "react-native";
+import { ThemedLine } from "@/components/themed/ThemedLine";
+import { useTheme } from "@/contexts/ThemeContext";
 
-export default function SearchFriends() {
-  const currentColors = useThemeColor();
+//zabrani zbytecnemu renderu itemu flatlistu pokud se nezmeni props
+const FriendItem = React.memo(
+  ({
+    item,
+    errorMap,
+    setErrorMap,
+    debouncedUsername,
+    friendshipManager,
+    friendInfo,
+    profilePlaceHolder,
+  }) => {
+    //useMemo zabrani aby se uri objekt vytvarel pokaznem renderu
+    const imageSource = useMemo(() => {
+      return errorMap[item.id]
+        ? profilePlaceHolder
+        : { uri: `https://picsum.photos/id/${item.id}/200/300` };
+    }, [errorMap, item.id, profilePlaceHolder]);
+
+    const onErrorImage = useCallback(() => {
+      setErrorMap((prev) => ({ ...prev, [item.id]: true }));
+    }, [item.id, setErrorMap]);
+
+    //usecallback - memoizovana funkce, nemeni se mezi rendery dokud se nezmeni zavislosti, jiank by vznikali nove reference a React.memo by si myslle ze se zmenily prop
+    const onPressItem = useCallback(() => {
+      router.push({
+        pathname: `/profile/${item.id}`,
+        params: {
+          user: JSON.stringify({
+            friendId: friendInfo(item, "id"),
+            name: friendInfo(item, "name"),
+            surname: friendInfo(item, "surname"),
+            username: friendInfo(item, "username"),
+            profilePictureUrl: friendInfo(item, "profilePictureUrl"),
+            friendshipId: item.id,
+            receiverId: item.receiverId,
+            senderId: item.senderId,
+            status: item.status,
+          }),
+        },
+      });
+    }, [item, friendInfo]);
+
+    const onAction = useCallback(() => {
+      friendshipManager(
+        friendInfo(item, "id"),
+        debouncedUsername,
+        null,
+        item.status,
+        item.senderId,
+        item.receiverId,
+        "allFriends"
+      );
+      // Alert.alert("Nadpis", "Text zprávy", [
+      //   { text: "OK", onPress: () => console.log("Potvrzeno") },
+      // ]);
+    }, [item, debouncedUsername, friendshipManager, friendInfo]);
+
+    return (
+      <Pressable onPress={onPressItem}>
+        <ThemedView style={styles.itemContainer}>
+          <ThemedView style={styles.userItem}>
+            <Image
+              source={imageSource}
+              onError={onErrorImage}
+              style={styles.profileImage}
+            />
+            <ThemedView style={styles.textContainer}>
+              <ThemedText
+                style={styles.username}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {friendInfo(item, "username")}
+              </ThemedText>
+
+              {friendInfo(item, "name") && friendInfo(item, "surname") && (
+                <ThemedText
+                  type="fullName"
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={styles.fullName}
+                >
+                  {friendInfo(item, "name")} {friendInfo(item, "surname")}
+                </ThemedText>
+              )}
+            </ThemedView>
+          </ThemedView>
+          <FriendActionButton status={item.status} onPress={onAction} />
+        </ThemedView>
+      </Pressable>
+    );
+  }
+);
+
+FriendItem.displayName = "FriendItem";
+
+export default function FriendsList() {
   const [username, setUsername] = useState("");
   const { height } = useWindowDimensions();
 
@@ -35,6 +129,7 @@ export default function SearchFriends() {
   const insets = useSafeAreaInsets();
   const { userId } = useUser();
   const limit = Math.ceil(height / 100);
+  const { colorScheme } = useTheme();
 
   const {
     data: users,
@@ -42,7 +137,6 @@ export default function SearchFriends() {
     isFetching,
   } = useAllFriendsApiQuery(debouncedUsername);
 
-  // console.log("nactena data :",users)
   const { friendshipManager } = useFriendManager();
 
   const isInitialLoading = isLoading && !users; //data z api
@@ -71,20 +165,25 @@ export default function SearchFriends() {
     setDebouncedUsername(username);
   };
 
-  const friendInfo = (friendship, type) => {
-    if (!friendship) return null;
-
-    if (friendship.sender?.id === userId) {
-      return friendship.receiver?.[type] ?? null;
-    }
-    if (friendship.receiver?.id === userId) {
-      return friendship.sender?.[type] ?? null;
-    }
-    return null;
-  };
+  const friendInfo = useCallback(
+    (friendship, type) => {
+      if (!friendship) return null;
+      if (friendship.sender?.id === userId) {
+        return friendship.receiver?.[type] ?? null;
+      }
+      if (friendship.receiver?.id === userId) {
+        return friendship.sender?.[type] ?? null;
+      }
+      return null;
+    },
+    [userId]
+  );
 
   return (
-    <ThemedView safe={true} style={{ flex: 1 }}>
+    <ThemedView style={{ flex: 1 }}>
+
+      {colorScheme === "light" && <ThemedLine style={styles.line} /> }
+
       <ThemedView style={styles.searchContainer}>
         <Search
           placeholder={i18n.t("searchFriends")}
@@ -94,8 +193,6 @@ export default function SearchFriends() {
           style={[styles.search]}
         />
       </ThemedView>
-
-      {/* <ThemedLine style={styles.line} /> */}
 
       {showSkeleton ? (
         <ThemedView style={{ paddingHorizontal: 8 }}>
@@ -108,74 +205,15 @@ export default function SearchFriends() {
           data={users?.data || []}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <Pressable
-              onPress={() =>
-                router.push({
-                  pathname: `/profile/${item.id}`,
-                  params: { user: JSON.stringify(item) },
-                })
-              }
-            >
-              <ThemedView style={styles.itemContainer}>
-                <ThemedView style={styles.userItem}>
-                  <Image
-                    source={
-                      errorMap[item.id]
-                        ? profilePlaceHolder
-                        : {
-                            uri: `https://picsum.photos/id/${item.id}/200/300`,
-                          }
-                    }
-                    onError={() =>
-                      setErrorMap((prev) => ({ ...prev, [item.id]: true }))
-                    }
-                    style={styles.profileImage}
-                  />
-                  <ThemedView style={styles.textContainer}>
-                    <ThemedText
-                      style={styles.username}
-                      numberOfLines={1}
-                      ellipsizeMode="tail"
-                    >
-                      {friendInfo(item, "username")}
-                    </ThemedText>
-
-                    {friendInfo(item, "name") &&
-                      friendInfo(item, "surname") && (
-                        <ThemedText
-                          type="fullName"
-                          numberOfLines={1}
-                          ellipsizeMode="tail"
-                          style={styles.fullName}
-                        >
-                          {friendInfo(item, "name")}{" "}
-                          {friendInfo(item, "surname")}
-                        </ThemedText>
-                      )}
-                  </ThemedView>
-                </ThemedView>
-                {/* {console.log("items",item)} */}
-                {/* {console.log(item.id)}
-                {console.log("dsd",debouncedUsername)}
-                {console.log(item.status)}
-                {console.log(item.senderId)}
-                {console.log(item.receiverId)} */}
-                <FriendActionButton
-                  status={item.status}
-                  onPress={() =>
-                    friendshipManager(
-                      friendInfo(item, "id"),
-                      debouncedUsername,
-                      null,
-                      item.status,
-                      item.senderId,
-                      item.receiverId,
-                      "allFriends"
-                    )
-                  }
-                />
-              </ThemedView>
-            </Pressable>
+            <FriendItem
+              item={item}
+              errorMap={errorMap}
+              setErrorMap={setErrorMap}
+              debouncedUsername={debouncedUsername}
+              friendshipManager={friendshipManager}
+              friendInfo={friendInfo}
+              profilePlaceHolder={profilePlaceHolder}
+            />
           )}
           ListEmptyComponent={() => {
             if (
@@ -197,6 +235,10 @@ export default function SearchFriends() {
             paddingHorizontal: 10,
             paddingBottom: insets.bottom,
           }}
+          initialNumToRender={10}
+          windowSize={5}
+          maxToRenderPerBatch={10}
+          removeClippedSubviews
         />
       )}
     </ThemedView>
@@ -205,18 +247,14 @@ export default function SearchFriends() {
 
 const styles = StyleSheet.create({
   searchContainer: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 10,
     flexDirection: "row",
     alignItems: "center",
   },
   search: {
     flex: 1,
     fontSize: 16,
-  },
-  line: {
-    width: "100%",
-    height: 0.6,
-    marginVertical: 10,
   },
   profileImage: {
     width: 60,
@@ -246,5 +284,9 @@ const styles = StyleSheet.create({
   textContainer: {
     justifyContent: "center",
     flex: 1,
+  },
+  line: {
+    width: "100%",
+    height: 0.6,
   },
 });

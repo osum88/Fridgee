@@ -30,7 +30,7 @@ export function UserProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
   const [userId, setUserId] = useState(null);
   const [canFetchUser, setCanFetchUser] = useState(false);
-  const { data: userData, isError } = useGetUserQuery(userId, canFetchUser);
+  // const { data: userData, isError } = useGetUserQuery(userId, canFetchUser);
 
   const { logoutMutation } = useLogoutMutation();
 
@@ -112,19 +112,19 @@ export function UserProvider({ children }) {
 
   //------mozna pak odstranit------------------------------------------------------
   //nacte uzivatele na zacatku pokud byl predtim remmeber true
-  useEffect(() => {
-    if (userData?.data) {
-      setUser(userData.data);
-      console.log("User data saved to context.");
-    }
-  }, [userData]);
+  // useEffect(() => {
+  //   if (userData?.data) {
+  //     setUser(userData.data);
+  //     console.log("User data saved to context.");
+  //   }
+  // }, [userData]);
 
-  useEffect(() => {
-    if (isError) {
-      console.error("Error fetching user data:", isError);
-      // signOut();
-    }
-  }, [isError]);
+  // useEffect(() => {
+  //   if (isError) {
+  //     console.error("Error fetching user data:", isError);
+  //     // signOut();
+  //   }
+  // }, [isError]);
   //.----------------------------------------------------------------------------------
 
   //refresh tokenu
