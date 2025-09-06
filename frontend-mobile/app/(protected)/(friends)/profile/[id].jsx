@@ -6,21 +6,18 @@ import { StyleSheet } from "react-native";
 import { FriendActionButton } from "@/components/friends/FriendActionButton";
 import useFriendManager from "@/hooks/friends/useFriendManager";
 import { useState } from "react";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 export default function FriendProfile() {
   const params = useLocalSearchParams();
-
   const [userData, setUserData] = useState(JSON.parse(params.user));
-
   const { userId } = useUser();
   const [request, setRequest] = useState(
     !!(userData?.status === "PENDING" && userId === userData?.receiverId)
   );
-
-  // --------------------------------------------------------------
-  // ------------                TODO                --------------
-  // --------------------------------------------------------------
   const { respondToFriendRequest } = useFriendManager();
+
+  const color = useThemeColor();
 
   const handleAccept = async () => {
     try {
@@ -32,10 +29,7 @@ export default function FriendProfile() {
         true
       );
       setRequest(false);
-      setUserData((prev) => ({
-        ...prev,
-        status: "ACCEPTED",
-      }));
+      setUserData((prev) => ({ ...prev, status: "ACCEPTED" }));
     } catch (error) {
       console.error("Failed to accept friend request:", error);
     }
@@ -50,12 +44,8 @@ export default function FriendProfile() {
         "refuse",
         true
       );
-
       setRequest(false);
-      setUserData((prev) => ({
-        ...prev,
-        status: "NONE",
-      }));
+      setUserData((prev) => ({ ...prev, status: "NONE" }));
     } catch (error) {
       console.error("Failed to refuse friend request:", error);
     }
@@ -78,26 +68,21 @@ export default function FriendProfile() {
       <ThemedText style={{ marginTop: 10 }}>
         username: {userData?.username}
       </ThemedText>
-
-      {userData?.status ? (
-        <ThemedText style={{ marginTop: 10 }}>
-          friendship: {userData?.status}
-        </ThemedText>
-      ) : (
-        <ThemedText style={{ marginTop: 10 }}>friendship: none</ThemedText>
-      )}
+      <ThemedText style={{ marginTop: 10 }}>
+        friendship: {userData?.status || "none"}
+      </ThemedText>
 
       {request && (
         <ThemedView style={styles.request}>
           <FriendActionButton
             style={styles.btn}
             textButton="accept"
-            onPress={() => handleAccept()}
+            onPress={handleAccept}
           />
           <FriendActionButton
             style={styles.btn}
             textButton="decline"
-            onPress={() => handleRefuse()}
+            onPress={handleRefuse}
           />
         </ThemedView>
       )}

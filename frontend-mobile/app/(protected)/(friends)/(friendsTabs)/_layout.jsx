@@ -18,8 +18,6 @@ export default function TopTabLayout() {
   const width = (tab1Len < tab2Len ? tab2Len : tab1Len) + 16;
   const marginLeft = (100 / tabsCount - width) / 2;
 
-  console.log(width);
-
   return (
     <TopTab.Navigator
       // tabBar={(props) => <TopTabBar {...props} />}

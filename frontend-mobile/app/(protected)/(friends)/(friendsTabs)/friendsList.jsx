@@ -6,6 +6,7 @@ import {
   Pressable,
   StyleSheet,
   useWindowDimensions,
+  Alert,
 } from "react-native";
 import { router } from "expo-router";
 import { Search } from "@/components/common/Search";
@@ -19,9 +20,9 @@ import { FriendActionButton } from "@/components/friends/FriendActionButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useUser } from "@/hooks/useUser";
 import useFriendManager from "@/hooks/friends/useFriendManager";
-import { Alert } from "react-native";
 import { ThemedLine } from "@/components/themed/ThemedLine";
 import { useTheme } from "@/contexts/ThemeContext";
+import { DeleteFriendAlert } from "@/components/friends/DeleteFriendAlert";
 
 //zabrani zbytecnemu renderu itemu flatlistu pokud se nezmeni props
 const FriendItem = React.memo(
@@ -33,6 +34,8 @@ const FriendItem = React.memo(
     friendshipManager,
     friendInfo,
     profilePlaceHolder,
+    setSelectedFriend,
+    setVisible,
   }) => {
     //useMemo zabrani aby se uri objekt vytvarel pokaznem renderu
     const imageSource = useMemo(() => {
@@ -45,7 +48,7 @@ const FriendItem = React.memo(
       setErrorMap((prev) => ({ ...prev, [item.id]: true }));
     }, [item.id, setErrorMap]);
 
-    //usecallback - memoizovana funkce, nemeni se mezi rendery dokud se nezmeni zavislosti, jiank by vznikali nove reference a React.memo by si myslle ze se zmenily prop
+    //usecallback - memoizovana funkce, nemeni se mezi rendery dokud se nezmeni zavislosti, jinak by vznikali nove reference a React.memo by si myslel ze se zmenily props
     const onPressItem = useCallback(() => {
       router.push({
         pathname: `/profile/${item.id}`,
@@ -66,19 +69,12 @@ const FriendItem = React.memo(
     }, [item, friendInfo]);
 
     const onAction = useCallback(() => {
-      friendshipManager(
-        friendInfo(item, "id"),
-        debouncedUsername,
-        null,
-        item.status,
-        item.senderId,
-        item.receiverId,
-        "allFriends"
-      );
-      // Alert.alert("Nadpis", "Text zprávy", [
-      //   { text: "OK", onPress: () => console.log("Potvrzeno") },
-      // ]);
-    }, [item, debouncedUsername, friendshipManager, friendInfo]);
+      setSelectedFriend({
+        ...item,
+        imageSource,
+      });
+      setVisible(true);
+    }, [item, setSelectedFriend, imageSource, setVisible]);
 
     return (
       <Pressable onPress={onPressItem}>
@@ -130,6 +126,9 @@ export default function FriendsList() {
   const { userId } = useUser();
   const limit = Math.ceil(height / 100);
   const { colorScheme } = useTheme();
+  const [selectedFriend, setSelectedFriend] = useState(null);
+  const [visible, setVisible] = useState(false);
+  const [profileError, setProfileError] = useState(false);
 
   const {
     data: users,
@@ -181,8 +180,7 @@ export default function FriendsList() {
 
   return (
     <ThemedView style={{ flex: 1 }}>
-
-      {colorScheme === "light" && <ThemedLine style={styles.line} /> }
+      {colorScheme === "light" && <ThemedLine style={styles.line} />}
 
       <ThemedView style={styles.searchContainer}>
         <Search
@@ -193,6 +191,27 @@ export default function FriendsList() {
           style={[styles.search]}
         />
       </ThemedView>
+
+      {selectedFriend && (
+        <DeleteFriendAlert
+          visible={visible}
+          setVisible={setVisible}
+          imageSource={selectedFriend?.imageSource}
+          username={friendInfo(selectedFriend, "username")}
+          setProfileError={setProfileError}
+          onPress={() => {
+            friendshipManager(
+              friendInfo(selectedFriend, "id"),
+              debouncedUsername,
+              null,
+              selectedFriend?.status,
+              selectedFriend?.senderId,
+              selectedFriend?.receiverId,
+              "allFriends"
+            );
+          }}
+        />
+      )}
 
       {showSkeleton ? (
         <ThemedView style={{ paddingHorizontal: 8 }}>
@@ -213,6 +232,8 @@ export default function FriendsList() {
               friendshipManager={friendshipManager}
               friendInfo={friendInfo}
               profilePlaceHolder={profilePlaceHolder}
+              setSelectedFriend={setSelectedFriend}
+              setVisible={setVisible}
             />
           )}
           ListEmptyComponent={() => {

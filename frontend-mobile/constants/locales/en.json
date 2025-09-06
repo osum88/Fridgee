@@ -68,7 +68,11 @@
   "noFriendsFound": "No friends were found",
   "searchFriends": "Search friends",
   "friendRequestMessage": "sent you a friend request.",
-  "requests": "Requests"
+  "requests": "Requests",
+  "remove": "Remove",
+  "cancel": "Cancel",
+  "removeFromFriends1": "Are you sure you want to remove",
+  "removeFromFriends2": "from your friends?"
 
 
 

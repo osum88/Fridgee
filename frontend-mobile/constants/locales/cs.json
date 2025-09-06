@@ -68,7 +68,11 @@
   "noFriendsFound": "Nebyli nalezeni žádní přátelé",
   "searchFriends": "Hledat přátelé",
   "friendRequestMessage": "vás žádá o přátelství.",
-  "requests": "Žádosti"
+  "requests": "Žádosti",
+  "remove": "Odebrat",
+  "cancel": "Zrušit",
+  "removeFromFriends1": "Opravdu chcete odebrat",
+  "removeFromFriends2": "ze svých přátel?"
 
   
 

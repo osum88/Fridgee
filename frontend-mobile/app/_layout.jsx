@@ -14,6 +14,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { UserProvider } from "@/contexts/UserContext";
 import { useUser } from "@/hooks/useUser";
 import { View } from "react-native";
+import { Provider } from "react-native-paper";
+
 
 //vytvoreni instance TanStack Query
 const queryClient = new QueryClient();
@@ -42,7 +44,9 @@ export default function RootLayout() {
         <UserProvider>
           <LanguageWrapper>
             <ThemeProvider>
+             <Provider>
               <RootLayoutContent CustomDarkTheme={CustomDarkTheme} />
+              </Provider>
             </ThemeProvider>
           </LanguageWrapper>
         </UserProvider>

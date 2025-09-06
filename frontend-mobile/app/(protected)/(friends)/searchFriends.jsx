@@ -23,6 +23,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useUser } from "@/hooks/useUser";
 import useFriendManager from "@/hooks/friends/useFriendManager";
+import { DeleteFriendAlert } from "@/components/friends/DeleteFriendAlert";
 
 const FriendItem = React.memo(
   ({
@@ -34,6 +35,8 @@ const FriendItem = React.memo(
     limit,
     userId,
     friendshipManager,
+    setSelectedFriend,
+    setVisible,
   }) => {
     const onPressItem = useCallback(() => {
       router.push({
@@ -65,22 +68,30 @@ const FriendItem = React.memo(
     }, [item.id, setErrorMap]);
 
     const onPressAction = useCallback(() => {
-      friendshipManager(
-        item.id,
-        debouncedUsername,
-        limit,
-        item.friendships?.status,
-        item.friendships?.senderId,
-        item.friendships?.receiverId
-      );
+      if (item.friendships?.status === "ACCEPTED") {
+        setSelectedFriend({
+          ...item,
+          imageSource,
+        });
+        setVisible(true);
+      } else {
+        friendshipManager(
+          item.id,
+          debouncedUsername,
+          limit,
+          item.friendships?.status,
+          item.friendships?.senderId,
+          item.friendships?.receiverId
+        );
+      }
     }, [
-      item.id,
+      item,
       debouncedUsername,
       limit,
-      item.friendships?.status,
-      item.friendships?.senderId,
-      item.friendships?.receiverId,
       friendshipManager,
+      setSelectedFriend,
+      setVisible,
+      imageSource,
     ]);
 
     return (
@@ -136,6 +147,9 @@ export default function SearchFriends() {
   const [errorMap, setErrorMap] = useState({});
   const insets = useSafeAreaInsets();
   const { userId } = useUser();
+  const [selectedFriend, setSelectedFriend] = useState(null);
+  const [visible, setVisible] = useState(false);
+  const [profileError, setProfileError] = useState(false);
 
   const {
     data: users,
@@ -205,6 +219,26 @@ export default function SearchFriends() {
 
         <ThemedLine style={styles.line} />
 
+        {selectedFriend && (
+          <DeleteFriendAlert
+            visible={visible}
+            setVisible={setVisible}
+            imageSource={selectedFriend?.imageSource}
+            username={selectedFriend.username}
+            setProfileError={setProfileError}
+            onPress={() => {
+              friendshipManager(
+                selectedFriend.id,
+                debouncedUsername,
+                limit,
+                selectedFriend.friendships?.status,
+                selectedFriend.friendships?.senderId,
+                selectedFriend.friendships?.receiverId
+              );
+            }}
+          />
+        )}
+
         {showSkeleton ? (
           <ThemedView style={{ paddingHorizontal: 8 }}>
             {Array.from({ length: limit }).map((_, i) => (
@@ -225,6 +259,8 @@ export default function SearchFriends() {
                 limit={limit}
                 userId={userId}
                 friendshipManager={friendshipManager}
+                setSelectedFriend={setSelectedFriend}
+                setVisible={setVisible}
               />
             )}
             initialNumToRender={10}
