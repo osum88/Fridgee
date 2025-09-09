@@ -11,10 +11,8 @@ export const loginApi = async (loginData) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error loginApi: ", error);
+      console.error("Error in loginApi: ", error, "->", error.response?.data?.message || error.message);
     if (error.response) {
-      console.error("Error loginApi: ", error.response.data);
-
       if (
         error.response.status === 400 &&
         error.response.data.message === "Wrong email or password"

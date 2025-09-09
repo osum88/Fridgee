@@ -59,7 +59,8 @@ export const loginService = async ({ email, password }) => {
         const tokenExpiresAt = new Date(Date.now() + 6 * 60 * 60 * 1000); //token plati 6h
         await updateVerificationTokenRepository(user.id, verifyToken, tokenExpiresAt);
 
-        const verificationLink = `${process.env.FRONTEND_URL}/api/auth/verify-email?token=${verifyToken}`;
+        // const verificationLink = `${process.env.FRONTEND_URL}/api/auth/verify-email?token=${verifyToken}`;
+        const verificationLink = `exp://10.0.0.2:8081/--/emailVerify?token=${verifyToken}`;
         // await sendVerificationEmail("josefnovak738@gmail.com", verificationLink, user.preferredLanguage);
         // await sendVerificationEmail(user.email, verificationLink, user.preferredLanguage);
     

@@ -72,7 +72,14 @@
   "remove": "Odebrat",
   "cancel": "Zrušit",
   "removeFromFriends1": "Opravdu chcete odebrat",
-  "removeFromFriends2": "ze svých přátel?"
+  "removeFromFriends2": "ze svých přátel?",
+  "profile": "Profil",
+  "profileImage": "Profilový obrázek",
+  "requiredPermissions": "Potřebná oprávnění",
+  "requiredPermissionsCameraMessage": "Pro správné fungování aplikace je nutný přístup ke kameře. Zkontrolujte prosím oprávnění v nastavení zařízení.",
+  "requiredPermissionsStorageMessage": "Pro ukládání a načítání souborů je nutný přístup k úložišti. Zkontrolujte prosím oprávnění v nastavení zařízení.",
+  "openSettings": "Otevřít nastavení"
+      
 
   
 

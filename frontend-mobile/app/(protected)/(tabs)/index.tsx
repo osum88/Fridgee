@@ -124,7 +124,23 @@ export default function HomeScreen() {
           </ThemedText>
         </Link>
 
-        {/* <GetUserButton></GetUserButton> */}
+        <Link
+          href="../profile"
+          style={[
+            styles.tap,
+            {
+              backgroundColor: currentColors.primary,
+            },
+          ]}
+        >
+          <ThemedText
+            type="subtitle"
+            style={[styles.tapText, { color: currentColors.onPrimary }]}
+          >
+            {i18n.t("profile")}{" "}
+          </ThemedText>
+        </Link>
+
       </ThemedView>
     </ParallaxScrollView>
   );

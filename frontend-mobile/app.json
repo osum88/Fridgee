@@ -18,7 +18,11 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.osum88.fridgee"
+      "package": "com.osum88.fridgee",
+      "permissions": [
+        "CAMERA",
+        "READ_MEDIA_IMAGES"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -37,7 +41,14 @@
         }
       ],
       "expo-barcode-scanner",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Fridgee needs access to your photos to let you upload ingredients or profile pictures.",
+          "cameraPermission": "Fridgee needs access to your camera to let you scan barcodes, take food photos or profile picture"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

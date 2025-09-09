@@ -72,7 +72,17 @@
   "remove": "Remove",
   "cancel": "Cancel",
   "removeFromFriends1": "Are you sure you want to remove",
-  "removeFromFriends2": "from your friends?"
+  "removeFromFriends2": "from your friends?",
+  "profile": "Profile",
+  "profileImage": "Profile image",
+  "requiredPermissions": "Required Permissions",
+  "requiredPermissionsCameraMessage": "The app requires access to the camera for proper functionality. Please check the permissions in your device settings.",
+  "requiredPermissionsStorageMessage": "The app requires access to storage to save and load files. Please check the permissions in your device settings.",
+  "openSettings": "Open Settings"
+     
+ 
+
+
 
 
 

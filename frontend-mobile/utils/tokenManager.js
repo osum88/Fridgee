@@ -1,5 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Platform } from "react-native";
 
 const ACCESS_TOKEN_KEY = "accessToken";
 const REFRESH_TOKEN_KEY = "refreshToken";
@@ -8,10 +9,15 @@ const REMEMBER_ME_KEY = "rememberMe";
 // ulozeni tokenu
 export const storeTokens = async (accessToken, refreshToken) => {
   try {
-    if (accessToken)
-      await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, accessToken);
-    if (refreshToken)
-      await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refreshToken);
+    if (Platform.OS === "web") {                // pak zmenit local neni zabezpecen
+      if (accessToken) localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+      if (refreshToken) localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    } else {
+      if (accessToken)
+        await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, accessToken);
+      if (refreshToken)
+        await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refreshToken);
+    }
     console.log("Tokens stored successfully");
   } catch (error) {
     console.error("Error storing tokens", error);
@@ -22,8 +28,14 @@ export const storeTokens = async (accessToken, refreshToken) => {
 // nacteni tokenu
 export const getTokens = async () => {
   try {
-    const accessToken = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
-    const refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+    let accessToken, refreshToken;
+    if (Platform.OS === "web") {
+      accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
+      refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+    } else {
+      accessToken = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
+      refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+    }
     return { accessToken, refreshToken };
   } catch (error) {
     console.error("Error fetching tokens:", error);
@@ -34,7 +46,12 @@ export const getTokens = async () => {
 // nacteni tokenu
 export const getRefreshToken = async () => {
   try {
-    const refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+    let refreshToken;
+    if (Platform.OS === "web") {
+      refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+    } else {
+      refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+    }
     return refreshToken;
   } catch (error) {
     console.error("Error fetching tokens:", error);
@@ -45,8 +62,13 @@ export const getRefreshToken = async () => {
 // odstraneni tokenu
 export const removeTokens = async () => {
   try {
-    await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
-    await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+    if (Platform.OS === "web") {
+      localStorage.removeItem(ACCESS_TOKEN_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
+    } else {
+      await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
+      await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+    }
     console.log("Tokens removed successfully");
   } catch (error) {
     console.error("Error removing tokens:", error);

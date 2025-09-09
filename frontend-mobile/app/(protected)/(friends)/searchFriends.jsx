@@ -100,6 +100,7 @@ const FriendItem = React.memo(
           <ThemedView style={styles.userItem}>
             <Image
               source={imageSource}
+              defaultSource={imageSource}
               onError={onErrorImage}
               style={styles.profileImage}
             />
@@ -149,7 +150,6 @@ export default function SearchFriends() {
   const { userId } = useUser();
   const [selectedFriend, setSelectedFriend] = useState(null);
   const [visible, setVisible] = useState(false);
-  const [profileError, setProfileError] = useState(false);
 
   const {
     data: users,
@@ -225,7 +225,6 @@ export default function SearchFriends() {
             setVisible={setVisible}
             imageSource={selectedFriend?.imageSource}
             username={selectedFriend.username}
-            setProfileError={setProfileError}
             onPress={() => {
               friendshipManager(
                 selectedFriend.id,

@@ -22,7 +22,7 @@ export const Colors = {
     input: "#F5F5F5",
     input_text: "#787683",
     fullName: "#9c9a9aff",
-    surfaceGradient: "#2b2b2bff",
+    surfaceGradient: "#edececff",
     noneButton: "#007bff",
     pendingButton: "#efeff1",
     pendingTextButton: "#28292aff",
@@ -31,6 +31,7 @@ export const Colors = {
     tabsPress: "#e4e4e4ce",
     outlineButton: "#555",
     removeButton: "#d32f2f",
+    borderImage: "#e5e0e5",
   },
   dark: {
     text: "#e0e0e0",
@@ -54,6 +55,9 @@ export const Colors = {
     tabsBackground: "#1f1f1f",
     tabsText: "#fff",
     tabsPress: "#373739ff",
+    outlineButton: "#7e7979ff",
+    removeButton: "#d63330ff",
+    borderImage: "#444444",
 
   },
 };

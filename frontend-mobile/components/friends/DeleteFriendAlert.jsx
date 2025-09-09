@@ -9,9 +9,8 @@ export function DeleteFriendAlert({
   setVisible,
   imageSource,
   username,
-  setProfileError,
   onPress,
-  ...props
+  ...otherProps
 }) {
   const color = useThemeColor();
 
@@ -25,13 +24,10 @@ export function DeleteFriendAlert({
         visible={visible}
         style={[styles.dialogContainer, { backgroundColor: color.background }]}
         onDismiss={handleClose}
+        {...otherProps}
       >
         <Dialog.Content style={styles.dialog}>
-          <Image
-            source={imageSource}
-            style={styles.alertProfileImage}
-            onError={() => setProfileError(true)}
-          />
+          <Image source={imageSource} style={styles.alertProfileImage} />
 
           <ThemedText style={styles.dialogText}>
             {i18n.t("removeFromFriends1")}{" "}
@@ -42,7 +38,10 @@ export function DeleteFriendAlert({
 
         <Dialog.Actions style={styles.actions}>
           <TouchableOpacity
-            style={[styles.actionButton, { borderColor: color.outlineButton, marginRight: 10 }]}
+            style={[
+              styles.actionButton,
+              { borderColor: color.outlineButton, marginRight: 10 },
+            ]}
             onPress={() => handleClose()}
           >
             <ThemedText

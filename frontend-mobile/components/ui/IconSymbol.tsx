@@ -30,6 +30,7 @@ const MAPPING = {
   "moon.stars":"nightlight-round",                        //dark mode
   "sun.max":"light-mode",                                 //dark mode
   "circle.lefthalf.fill":"contrast",                      //system mode
+  "camera.fill":"photo-camera",                                //fotak
 } as IconMapping; 
 
 /**

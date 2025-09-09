@@ -6,7 +6,6 @@ import {
   Pressable,
   StyleSheet,
   useWindowDimensions,
-  Alert,
 } from "react-native";
 import { router } from "expo-router";
 import { Search } from "@/components/common/Search";
@@ -30,8 +29,6 @@ const FriendItem = React.memo(
     item,
     errorMap,
     setErrorMap,
-    debouncedUsername,
-    friendshipManager,
     friendInfo,
     profilePlaceHolder,
     setSelectedFriend,
@@ -82,6 +79,7 @@ const FriendItem = React.memo(
           <ThemedView style={styles.userItem}>
             <Image
               source={imageSource}
+              defaultSource={imageSource}
               onError={onErrorImage}
               style={styles.profileImage}
             />
@@ -128,7 +126,6 @@ export default function FriendsList() {
   const { colorScheme } = useTheme();
   const [selectedFriend, setSelectedFriend] = useState(null);
   const [visible, setVisible] = useState(false);
-  const [profileError, setProfileError] = useState(false);
 
   const {
     data: users,
@@ -164,6 +161,7 @@ export default function FriendsList() {
     setDebouncedUsername(username);
   };
 
+  //vraci info o friend
   const friendInfo = useCallback(
     (friendship, type) => {
       if (!friendship) return null;
@@ -198,7 +196,6 @@ export default function FriendsList() {
           setVisible={setVisible}
           imageSource={selectedFriend?.imageSource}
           username={friendInfo(selectedFriend, "username")}
-          setProfileError={setProfileError}
           onPress={() => {
             friendshipManager(
               friendInfo(selectedFriend, "id"),
@@ -228,8 +225,6 @@ export default function FriendsList() {
               item={item}
               errorMap={errorMap}
               setErrorMap={setErrorMap}
-              debouncedUsername={debouncedUsername}
-              friendshipManager={friendshipManager}
               friendInfo={friendInfo}
               profilePlaceHolder={profilePlaceHolder}
               setSelectedFriend={setSelectedFriend}

@@ -5,7 +5,7 @@ export const getUserByIdApi = async (userData) => {
     const response = await apiClient.get("/users", userData);
     return response.data;
   } catch (error) {
-    console.error("Error in getUserByIdApi: ", error);
+    console.error("Error in getUserByIdApi: ", error, "->", error.response?.data?.message || error.message);
     throw error;
   }
 };

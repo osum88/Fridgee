@@ -8,7 +8,7 @@ import i18n from "@/constants/translations";
 
 const TopTab = createMaterialTopTabNavigator();
 
-export default function TopTabLayout() {
+export default function FriendsTab() {
   const colorScheme = useThemeColor();
 
   const tabsCount = 2;

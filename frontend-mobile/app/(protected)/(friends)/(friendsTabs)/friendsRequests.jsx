@@ -94,6 +94,7 @@ const FriendItem = React.memo(
           <ThemedView style={styles.userItem}>
             <Image
               source={imageSource}
+              defaultSource={imageSource}
               onError={onErrorImage}
               style={styles.profileImage}
             />
