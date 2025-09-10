@@ -78,8 +78,11 @@
   "requiredPermissions": "Required Permissions",
   "requiredPermissionsCameraMessage": "The app requires access to the camera for proper functionality. Please check the permissions in your device settings.",
   "requiredPermissionsStorageMessage": "The app requires access to storage to save and load files. Please check the permissions in your device settings.",
-  "openSettings": "Open Settings"
-     
+  "openSettings": "Open Settings",
+  "camera": "Camera",
+  "gallery": "Gallery",
+  "remove1": "Remove"
+    
  
 
 

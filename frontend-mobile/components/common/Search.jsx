@@ -3,7 +3,7 @@ import { ThemedTextInput } from "@/components/themed/ThemedTextInput";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useThemeColor } from "@/hooks/useThemeColor";
-
+import { responsiveSize } from "@/utils/scale";
 
 export function Search({ placeholder, value, onChangeText, transparent = false, ...props }) {
   const currentColors = useThemeColor();
@@ -15,7 +15,7 @@ export function Search({ placeholder, value, onChangeText, transparent = false, 
         styles.searchInputWrapper,
       ]}
     >
-      <IconSymbol size={24} name="magnifyingglass" color={currentColors.icon} />
+      <IconSymbol size={responsiveSize.moderate(22)} name="magnifyingglass" color={currentColors.icon} />
 
       <ThemedTextInput
         placeholder={placeholder}
@@ -27,14 +27,14 @@ export function Search({ placeholder, value, onChangeText, transparent = false, 
         returnKeyType="search"
         style={[
           styles.search,
-          { backgroundColor: currentColors.backgroundColor },
+          { backgroundColor: currentColors.background },
         ]}
         {...props}
       />
 
       {value?.length > 0 && (
         <TouchableOpacity onPress={() => onChangeText("")}>
-          <IconSymbol size={16} name="xmark" color={currentColors.icon} />
+          <IconSymbol size={responsiveSize.moderate(15)} name="xmark" color={currentColors.icon} />
         </TouchableOpacity>
       )}
     </ThemedView>
@@ -47,11 +47,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderRadius: 12,
-    paddingHorizontal: 10,
-    marginHorizontal: 10,
+    paddingHorizontal: responsiveSize.horizontal(9),
+    marginHorizontal: responsiveSize.horizontal(9),
   },
   search: {
     flex: 1,
-    fontSize: 16,
+   
   },
 });

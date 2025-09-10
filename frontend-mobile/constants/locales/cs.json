@@ -78,7 +78,10 @@
   "requiredPermissions": "Potřebná oprávnění",
   "requiredPermissionsCameraMessage": "Pro správné fungování aplikace je nutný přístup ke kameře. Zkontrolujte prosím oprávnění v nastavení zařízení.",
   "requiredPermissionsStorageMessage": "Pro ukládání a načítání souborů je nutný přístup k úložišti. Zkontrolujte prosím oprávnění v nastavení zařízení.",
-  "openSettings": "Otevřít nastavení"
+  "openSettings": "Otevřít nastavení",
+  "camera": "Foťák",
+  "gallery": "Galerie",
+  "remove1": "Odstranit"
       
 
   

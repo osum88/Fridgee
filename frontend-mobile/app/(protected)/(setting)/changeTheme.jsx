@@ -6,6 +6,7 @@ import { useCallback } from "react";
 import i18n from "@/constants/translations";
 import { Colors } from "@/constants/Colors";
 import { useTheme } from "@/contexts/ThemeContext";
+import { responsiveSize, responsivePadding } from "@/utils/scale";
 
 export default function ChangeTheme() {
   const { theme, setTheme, colorScheme } = useTheme();
@@ -53,16 +54,8 @@ export default function ChangeTheme() {
 
 const styles = StyleSheet.create({
   checkableItemContainer: {
-    padding: 32,
+    ...responsivePadding(28),
     flex: 1,
-    gap: 20,
-  },
-  itemWrapper: {
-    borderBottomWidth: 0.2,
-    borderBottomColor: "#3333",
-  },
-  item: {
-    // flexDirection: "row",
-    // alignItems:"center",
+    gap: responsiveSize.vertical(18),
   },
 });

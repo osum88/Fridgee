@@ -1,6 +1,7 @@
 import { ActivityIndicator, Pressable, StyleSheet } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedText } from "@/components/themed/ThemedText";
+import { responsiveSize, responsiveFont } from "@/utils/scale";
 
 
 export function ThemedButton({ style, loading, lightColor, darkColor, titleLightColor, titleDarkColor, ...otherProps }) {
@@ -26,8 +27,8 @@ export function ThemedButton({ style, loading, lightColor, darkColor, titleLight
 
 const styles = StyleSheet.create({
     btn: {
-        marginVertical: 2,
-        borderRadius: 12,
+        marginVertical: responsiveSize.vertical(2),
+        borderRadius: responsiveFont(12, 0,3),
         justifyContent: "center",
         alignItems: "center",
     },

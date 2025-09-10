@@ -14,7 +14,7 @@ import { FormGroup } from "../../components/common/FormGroup";
 import { useState, useEffect } from "react";
 import useForgotPasswordMutation from "@/hooks/auth/useForgotPasswordMutation";
 import { useThemeColor } from "@/hooks/useThemeColor";
-
+import { responsiveSize } from "@/utils/scale";
 
 export default function ForgotPassword() {
   const currentColors = useThemeColor();
@@ -67,7 +67,7 @@ export default function ForgotPassword() {
           <ThemedView
             style={[
               styles.contentWrapper,
-              { width: isTablet ? "50%" : "100%" },
+              { width: isTablet ? "80%" : "100%" },
             ]}
           >
             <ThemedText style={styles.title} type="title">
@@ -129,11 +129,11 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 20,
+    paddingVertical: responsiveSize.vertical(18),
   },
   contentWrapper: {
-    gap: 30,
-    paddingHorizontal: 20,
+    gap: responsiveSize.vertical(26),
+    paddingHorizontal: responsiveSize.horizontal(18),
   },
   title: {
     alignSelf: "flex-start",
@@ -142,21 +142,21 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
   btn: {
-    paddingVertical: 16,
+    paddingVertical: responsiveSize.vertical(14),
     width: "100%",
   },
   input: {
-    paddingVertical: 18,
+    paddingVertical: responsiveSize.vertical(16),
     width: "100%",
   },
   bottomLinkContainer: {
     position: "absolute",
-    bottom: 15,
+    bottom: responsiveSize.vertical(13),
     left: 0,
     right: 0,
     alignItems: "center",
   },
   formsButtonContainer: {
-    gap: 20,
+    gap: responsiveSize.vertical(12),
   },
 });

@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useTheme } from "@/contexts/ThemeContext";
-
+import { responsiveSize } from "@/utils/scale";
 
 export function FormGroupPassword({
   label,
@@ -27,7 +27,7 @@ export function FormGroupPassword({
         {label}
       </ThemedText>
       <ThemedView>
-        <ThemedView style={styles.inputContainer}>
+        <ThemedView style={[styles.inputContainer, { paddingBottom: responsiveSize.vertical(3)}]}>
           <ThemedTextInput
             placeholder={placeholder}
             style={[
@@ -45,14 +45,20 @@ export function FormGroupPassword({
             onPress={() => setShowPassword(!showPassword)}
           >
             <IconSymbol
-              size={28}
+              size={responsiveSize.moderate(26)}
               name={showPassword ? "eye" : "eye.slash"}
               color={currentColors.input_text}
             />
           </TouchableOpacity>
         </ThemedView>
         {(!moveAround || error) && (
-          <ThemedText style={{ paddingLeft: 2 }} type="error">
+          <ThemedText
+            style={{
+              paddingLeft: responsiveSize.horizontal(2),
+             
+            }}
+            type="error"
+          >
             {showError && error}
           </ThemedText>
         )}
@@ -63,13 +69,10 @@ export function FormGroupPassword({
 
 const styles = StyleSheet.create({
   container: {
-    gap: 7,
+    gap: responsiveSize.vertical(6),
   },
   text: {
     fontWeight: "600",
-  },
-  input: {
-    paddingRight: 50,
   },
   inputContainer: {
     flexDirection: "row",
@@ -79,11 +82,12 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     position: "absolute",
-    right: 6,
-    padding: 5,
+    right: responsiveSize.horizontal(9),
+    paddingVertical: responsiveSize.vertical(5),
+    paddingHorizontal: responsiveSize.horizontal(5),
   },
   borderInput: {
-    marginVertical: 1.7,
+    marginVertical: responsiveSize.vertical(1.7),
   },
   errorWarning: {
     borderWidth: 1.7,

@@ -17,7 +17,8 @@ import { useState } from "react";
 import { ThemedCheckbox } from "@/components/themed/ThemedCheckbox";
 import useLoginMutation from "@/hooks/auth/useLoginMutation";
 import { useThemeColor } from "@/hooks/useThemeColor";
-
+import { responsiveSize } from "@/utils/scale";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Login() {
   const currentColors = useThemeColor();
@@ -25,6 +26,7 @@ export default function Login() {
   const [rememberMe, setToggleCheckBox] = useState(false);
   const [email, setEmail] = useState("");
   const [error, setError] = useState(null);
+  const insets = useSafeAreaInsets();
 
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
@@ -54,7 +56,7 @@ export default function Login() {
           <ThemedView
             style={[
               styles.contentWrapper,
-              { width: isTablet ? "50%" : "100%" },
+              { width: isTablet ? "80%" : "100%" },
             ]}
           >
             <ThemedText style={styles.login} type="title">
@@ -124,7 +126,10 @@ export default function Login() {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      <ThemedView safe={true} style={styles.bottomLinkContainer}>
+      <ThemedView
+        safe={true}
+        style={[styles.bottomLinkContainer, { paddingBottom: insets.bottom }]}
+      >
         <ThemedView style={styles.textRow}>
           <ThemedText>{i18n.t("notRegisteredYet")}</ThemedText>
           <Link href="/register" replace asChild>
@@ -152,37 +157,38 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 20,
   },
   contentWrapper: {
-    gap: 30,
-    paddingHorizontal: 20,
+    gap: responsiveSize.vertical(26),
+    paddingHorizontal: responsiveSize.vertical(17),
   },
   btn: {
-    paddingVertical: 16,
+    paddingVertical: responsiveSize.vertical(14),
     width: "100%",
   },
   input: {
-    paddingVertical: 18,
+    paddingVertical: responsiveSize.vertical(15.5),
     width: "100%",
   },
   textRow: {
     flexDirection: "row",
-    gap: 5,
+    gap: responsiveSize.horizontal(4),
     alignSelf: "center",
+    flexWrap: "wrap",
+    justifyContent: "center",
   },
   textRowCheckbox: {
     flexDirection: "row",
-    gap: 10,
+    gap: responsiveSize.horizontal(9),
     alignSelf: "flex-start",
     alignItems: "center",
-    marginLeft: 3,
+    marginLeft: responsiveSize.horizontal(2.5),
   },
   passwordSection: {
-    gap: 7,
+    gap: responsiveSize.vertical(6),
   },
   formSection: {
-    gap: 22,
+    gap: responsiveSize.vertical(16),
   },
   flexEnd: {
     alignSelf: "flex-end",
@@ -192,7 +198,7 @@ const styles = StyleSheet.create({
   },
   bottomLinkContainer: {
     position: "absolute",
-    bottom: 15,
+    bottom: responsiveSize.vertical(13),
     left: 0,
     right: 0,
     alignItems: "center",

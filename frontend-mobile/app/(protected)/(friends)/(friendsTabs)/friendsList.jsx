@@ -22,6 +22,12 @@ import useFriendManager from "@/hooks/friends/useFriendManager";
 import { ThemedLine } from "@/components/themed/ThemedLine";
 import { useTheme } from "@/contexts/ThemeContext";
 import { DeleteFriendAlert } from "@/components/friends/DeleteFriendAlert";
+import {
+  responsiveFont,
+  responsiveSize,
+  responsiveVertical,
+  responsivePadding,
+} from "@/utils/scale";
 
 //zabrani zbytecnemu renderu itemu flatlistu pokud se nezmeni props
 const FriendItem = React.memo(
@@ -263,19 +269,18 @@ export default function FriendsList() {
 
 const styles = StyleSheet.create({
   searchContainer: {
-    paddingHorizontal: 6,
-    paddingVertical: 10,
+    paddingHorizontal: responsiveSize.horizontal(5),
+    paddingVertical: responsiveSize.vertical(9),
     flexDirection: "row",
     alignItems: "center",
   },
   search: {
     flex: 1,
-    fontSize: 16,
   },
   profileImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 50,
+    width: responsiveSize.moderate(57),
+    height: responsiveSize.moderate(57),
+    borderRadius: responsiveSize.moderate(50),
     marginEnd: 14,
   },
   userItem: {
@@ -286,11 +291,11 @@ const styles = StyleSheet.create({
   itemContainer: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 8,
+    ...responsivePadding(7),
   },
   username: {
-    fontSize: 16,
-    lineHeight: 20,
+    fontSize: responsiveFont(15),
+    lineHeight: responsiveVertical(19),
     fontWeight: "600",
     flexShrink: 1,
   },
@@ -303,6 +308,6 @@ const styles = StyleSheet.create({
   },
   line: {
     width: "100%",
-    height: 0.6,
+    height: responsiveSize.vertical(0.7),
   },
 });

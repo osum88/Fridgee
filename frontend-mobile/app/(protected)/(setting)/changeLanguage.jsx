@@ -5,6 +5,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { CheckableItem } from "@/components/common/CheckableItem";
 import { useUpdatePreferredLanguageMutation } from "@/hooks/user/useUserQuery";
 import { useRef, useCallback } from "react";
+import { responsiveSize, responsivePadding } from "@/utils/scale";
+
 
 export default function ChangeLanguage() {
   const { locale, setAppLanguage } = useLanguage();
@@ -50,12 +52,8 @@ export default function ChangeLanguage() {
 
 const styles = StyleSheet.create({
   checkableItemContainer: {
-    padding: 32,
+    ...responsivePadding(28),
     flex: 1,
-    gap: 20,
-  },
-  itemWrapper: {
-    borderBottomWidth: 0.2,
-    borderBottomColor: "#3333",
+    gap: responsiveSize.vertical(18),
   },
 });

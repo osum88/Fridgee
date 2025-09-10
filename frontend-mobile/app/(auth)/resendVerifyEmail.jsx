@@ -15,7 +15,7 @@ import { useState, useEffect } from "react";
 import useResendVerifyEmailMutation from "@/hooks/auth/useResendVerifyEmailMutation";
 import { useUser } from "@/hooks/useUser";
 import { useThemeColor } from "@/hooks/useThemeColor";
-
+import { responsiveSize } from "@/utils/scale";
 
 export default function ResendVerifyEmail() {
   const currentColors = useThemeColor();
@@ -23,13 +23,15 @@ export default function ResendVerifyEmail() {
   const [error, setError] = useState(null);
   const [countdown, setCountdown] = useState(0);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
-  const { resendVerifyEmailMutation } = useResendVerifyEmailMutation({ setError });
+  const { resendVerifyEmailMutation } = useResendVerifyEmailMutation({
+    setError,
+  });
   const { isAuthenticated } = useUser();
 
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
 
-  const link = isAuthenticated ? "/(tabs)" : "/login"
+  const link = isAuthenticated ? "/(tabs)" : "/login";
 
   useEffect(() => {
     let timerId;
@@ -70,7 +72,7 @@ export default function ResendVerifyEmail() {
           <ThemedView
             style={[
               styles.contentWrapper,
-              { width: isTablet ? "50%" : "100%" },
+              { width: isTablet ? "80%" : "100%" },
             ]}
           >
             <ThemedText style={styles.title} type="title">
@@ -113,7 +115,7 @@ export default function ResendVerifyEmail() {
             lightColor={currentColors.primary}
             darkColor={currentColors.primary}
           >
-           {isAuthenticated ? i18n.t("backHome") : i18n.t("backToLogin")} 
+            {isAuthenticated ? i18n.t("backHome") : i18n.t("backToLogin")}
           </ThemedText>
         </Link>
       </ThemedView>
@@ -132,11 +134,11 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 20,
+    paddingVertical: responsiveSize.vertical(18),
   },
   contentWrapper: {
-    gap: 30,
-    paddingHorizontal: 20,
+    gap: responsiveSize.vertical(26),
+    paddingHorizontal: responsiveSize.horizontal(18),
   },
   title: {
     alignSelf: "flex-start",
@@ -145,21 +147,21 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
   btn: {
-    paddingVertical: 16,
+    paddingVertical: responsiveSize.vertical(14),
     width: "100%",
   },
   input: {
-    paddingVertical: 18,
+    paddingVertical: responsiveSize.vertical(16),
     width: "100%",
   },
   bottomLinkContainer: {
     position: "absolute",
-    bottom: 15,
+    bottom: responsiveSize.vertical(13),
     left: 0,
     right: 0,
     alignItems: "center",
   },
   formsButtonContainer: {
-    gap: 20,
+    gap: responsiveSize.vertical(12),
   },
 });

@@ -16,7 +16,8 @@ import { useState } from "react";
 import useRegisterMutation from "@/hooks/auth/useRegisterMutation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
-
+import { responsiveSize } from "@/utils/scale";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Register() {
   const currentColors = useThemeColor();
@@ -28,9 +29,16 @@ export default function Register() {
   const [emailError, setEmailError] = useState(null);
   const [passwordError, setPasswordError] = useState(null);
   const { locale } = useLanguage();
+  const insets = useSafeAreaInsets();
+  const [bottomHeight, setBottomHeight] = useState(0);
+  const [viewHeight, setViewHeight] = useState(0);
 
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const isTablet = width >= 768;
+
+  //pokud je obrazovka mala, odkaz se zobrazuje pres tlacitko a scrollview se nezapne, tohle prida padding pro srollview pokud je podminka splnena
+  const isViewBlocked =
+    viewHeight + bottomHeight + insets.top + insets.bottom > height;
 
   const { registerMutation, isLoading } = useRegisterMutation({
     setUsernameError,
@@ -43,7 +51,8 @@ export default function Register() {
     setEmailError(null);
     setPasswordError(null);
 
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
     if (!username || !email || !password || !confirmPassword) {
@@ -74,12 +83,18 @@ export default function Register() {
         style={styles.keyboardContainer}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        <ScrollView
+          contentContainerStyle={[
+            styles.scrollViewContent,
+            isViewBlocked && { paddingBottom: bottomHeight },
+          ]}
+        >
           <ThemedView
             style={[
               styles.contentWrapper,
-              { width: isTablet ? "50%" : "100%" },
+              { width: isTablet ? "80%" : "100%" },
             ]}
+            onLayout={(e) => setViewHeight(e.nativeEvent.layout.height)}
           >
             <ThemedText style={styles.register} type="title">
               {i18n.t("registration")}
@@ -118,6 +133,7 @@ export default function Register() {
                 error={passwordError}
                 showError={false}
               />
+         
               <FormGroupPassword
                 label={i18n.t("confirmPassword")}
                 placeholder={i18n.t("passwordAgain")}
@@ -142,7 +158,10 @@ export default function Register() {
           </ThemedView>
         </ScrollView>
       </KeyboardAvoidingView>
-      <ThemedView safe={true} style={styles.bottomLinkContainer}>
+      <ThemedView
+        onLayout={(e) => setBottomHeight(e.nativeEvent.layout.height)}
+        style={[styles.bottomLinkContainer, { paddingBottom: insets.bottom }]}
+      >
         <ThemedView style={styles.textRow}>
           <ThemedText>{i18n.t("alreadyHaveAnAccount")}</ThemedText>
           <Link href="/login" replace asChild>
@@ -167,38 +186,42 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 20,
+    paddingVertical: responsiveSize.vertical(18),
   },
   contentWrapper: {
     alignItems: "center",
-    gap: 20,
-    paddingHorizontal: 20,
+    gap: responsiveSize.vertical(17),
+    paddingHorizontal: responsiveSize.horizontal(18),
     width: "100%",
   },
   btn: {
-    paddingVertical: 16,
+    paddingVertical: responsiveSize.vertical(14),
     width: "100%",
   },
   input: {
-    paddingVertical: 18,
+    paddingVertical: responsiveSize.vertical(16),
     width: "100%",
   },
   textRow: {
     flexDirection: "row",
-    gap: 5,
+    gap: responsiveSize.vertical(4),
     alignSelf: "center",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    width: "100%",
   },
   formSection: {
-    gap: 4,
+
     width: "100%",
   },
   register: {
     alignSelf: "flex-start",
-    marginBottom: 8,
+    marginBottom: responsiveSize.vertical(6),
   },
   bottomLinkContainer: {
+    padding: 0,
     position: "absolute",
-    bottom: 15,
+    bottom: responsiveSize.vertical(13),
     left: 0,
     right: 0,
     alignItems: "center",

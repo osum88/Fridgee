@@ -14,6 +14,7 @@ import { FormGroupPassword } from "@/components/common/FormGroupPassword";
 import { useState } from "react";
 import useResetPasswordMutation from "@/hooks/auth/useResetPasswordMutation";
 import { SuccessAnimation } from "@/components/animated/SuccessAnimation";
+import { responsiveSize } from "@/utils/scale";
 
 export default function ResetPassword() {
   const [newPassword, setPassword] = useState(null);
@@ -33,7 +34,7 @@ export default function ResetPassword() {
 
   const handleSubmit = async () => {
     setError(null);
-    setSuccess(true)
+    setSuccess(true);
 
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
@@ -50,9 +51,9 @@ export default function ResetPassword() {
       resetPasswordMutation.mutate({ token, newPassword });
     }
   };
-  
+
   const handleContinue = async () => {
-    router.replace("/login")
+    router.replace("/login");
   };
 
   return (
@@ -65,21 +66,23 @@ export default function ResetPassword() {
           <ThemedView
             style={[
               styles.contentWrapper,
-              { width: isTablet ? "50%" : "100%" },
+              { width: isTablet ? "80%" : "100%" },
             ]}
           >
             {success ? (
               <>
-                <SuccessAnimation />
+                <SuccessAnimation size={responsiveSize.vertical(100)} />
                 <ThemedView style={styles.changeSuccesfullyContainer}>
                   <ThemedText style={styles.changeSuccesfully} type="title">
                     {i18n.t("success")}
                   </ThemedText>
                   <ThemedView style={styles.changeSuccesfullyText}>
-                    <ThemedText style={[{textAlign: "center"}]}>
+                    <ThemedText style={[{ textAlign: "center" }]}>
                       {i18n.t("passwordChangedSuccessfully")}
                     </ThemedText>
-                    <ThemedText style={[{textAlign: "center"}]}>{i18n.t("nowSingIn")}</ThemedText>
+                    <ThemedText style={[{ textAlign: "center" }]}>
+                      {i18n.t("nowSingIn")}
+                    </ThemedText>
                   </ThemedView>
                 </ThemedView>
               </>
@@ -132,13 +135,10 @@ export default function ResetPassword() {
           safe={true}
           style={[
             styles.bottomButtonContainer,
-            { width: isTablet ? "50%" : "100%" },
+            { width: isTablet ? "80%" : "100%" },
           ]}
         >
-          <ThemedButton
-            onPress={handleContinue}
-            style={[styles.btn]}
-          >
+          <ThemedButton onPress={handleContinue} style={[styles.btn]}>
             {i18n.t("continue")}
           </ThemedButton>
         </ThemedView>
@@ -155,48 +155,48 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 20,
+    paddingVertical: responsiveSize.vertical(18),
   },
   contentWrapper: {
     alignItems: "center",
-    gap: 20,
-    paddingHorizontal: 20,
+    gap: responsiveSize.vertical(18),
+    paddingHorizontal: responsiveSize.horizontal(18),
     width: "100%",
   },
   btn: {
-    paddingVertical: 16,
+    paddingVertical: responsiveSize.vertical(14),
     width: "100%",
   },
   input: {
-    paddingVertical: 18,
+    paddingVertical: responsiveSize.vertical(16),
     width: "100%",
   },
   formSection: {
-    gap: 4,
+    gap: responsiveSize.vertical(4),
     width: "100%",
   },
   register: {
     alignSelf: "flex-start",
-    marginBottom: 8,
+    marginBottom: responsiveSize.vertical(7),
   },
   changeSuccesfully: {
-    marginBottom: 8,
+    marginBottom: responsiveSize.vertical(7),
   },
   changeSuccesfullyContainer: {
-    marginTop: 20,
-    gap: 8,
+    marginTop: responsiveSize.vertical(18),
+    gap: responsiveSize.vertical(7),
     alignItems: "center",
   },
   changeSuccesfullyText: {
-    gap: 2,
+    gap: responsiveSize.vertical(2),
     alignItems: "center",
     textAlign: "center",
   },
   bottomButtonContainer: {
-    alignSelf: 'center',
+    alignSelf: "center",
     position: "absolute",
     width: "100%",
-    paddingHorizontal: 16,
-    bottom: 30,
+    paddingHorizontal: responsiveSize.horizontal(18),
+    bottom: responsiveSize.vertical(28),
   },
 });

@@ -12,6 +12,7 @@ import Animated, {
 import { ThemedView } from "@/components/themed/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
+
 const AnimatedView = Animated.createAnimatedComponent(View);
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const AnimatedPath = Animated.createAnimatedComponent(Path);

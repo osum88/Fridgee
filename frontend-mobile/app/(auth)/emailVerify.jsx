@@ -9,6 +9,7 @@ import useVerifyEmailMutation from "@/hooks/auth/useVerifyEmailMutation";
 import { SuccessAnimation } from "@/components/animated/SuccessAnimation";
 import { JumpingDots } from "@/components/animated/JumpingDots";
 import { useUser } from "@/hooks/useUser";
+import { responsiveSize } from "@/utils/scale";
 
 export default function EmailVerify() {
   const { isAuthenticated } = useUser();
@@ -52,11 +53,11 @@ export default function EmailVerify() {
     <ThemedView safe={true} style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <ThemedView
-          style={[styles.contentWrapper, { width: isTablet ? "50%" : "100%" }]}
+          style={[styles.contentWrapper, { width: isTablet ? "80%" : "100%" }]}
         >
           {isTokenVerified === "verify" ? (
             <>
-              <SuccessAnimation />
+              <SuccessAnimation size={responsiveSize.vertical(100)} />
               <ThemedView style={styles.changeSuccesfullyContainer}>
                 <ThemedText style={styles.changeSuccesfully} type="title">
                   {i18n.t("success")}
@@ -84,7 +85,7 @@ export default function EmailVerify() {
           safe={true}
           style={[
             styles.bottomButtonContainer,
-            { width: isTablet ? "50%" : "100%" },
+            { width: isTablet ? "70%" : "100%" },
           ]}
         >
           <ThemedButton onPress={handleContinue} style={[styles.btn]}>
@@ -101,29 +102,28 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 20,
+    paddingVertical: responsiveSize.vertical(18),
   },
   contentWrapper: {
     alignItems: "center",
-    gap: 20,
-    paddingHorizontal: 20,
+    gap: responsiveSize.vertical(18),
+    paddingHorizontal: responsiveSize.horizontal(18),
     width: "100%",
   },
   btn: {
-    paddingVertical: 16,
+    paddingVertical: responsiveSize.vertical(14),
     width: "100%",
   },
-  loadingText: {},
   changeSuccesfully: {
-    marginBottom: 8,
+    marginBottom: responsiveSize.vertical(6),
   },
   changeSuccesfullyContainer: {
-    marginTop: 20,
-    gap: 8,
+    marginTop: responsiveSize.vertical(18),
+    gap: responsiveSize.vertical(6),
     alignItems: "center",
   },
   changeSuccesfullyText: {
-    gap: 2,
+    gap: responsiveSize.vertical(2),
     alignItems: "center",
     textAlign: "center",
   },
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     position: "absolute",
     width: "100%",
-    paddingHorizontal: 16,
-    bottom: 30,
+    paddingHorizontal: responsiveSize.horizontal(18),
+    bottom: responsiveSize.vertical(28),
   },
 });

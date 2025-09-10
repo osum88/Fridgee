@@ -59,6 +59,56 @@ export default function HomeScreen() {
         </Pressable>
 
         <Link
+          href="../resendVerifyEmail"
+          style={[
+            styles.tap,
+            {
+              backgroundColor: currentColors.primary,
+            },
+          ]}
+        >
+          <ThemedText
+            type="subtitle"
+            style={[styles.tapText, { color: currentColors.onPrimary }]}
+          >
+            Resend verify email
+          </ThemedText>
+        </Link>
+        <Link
+          href="../resetPassword"
+          style={[
+            styles.tap,
+            {
+              backgroundColor: currentColors.primary,
+            },
+          ]}
+        >
+          <ThemedText
+            type="subtitle"
+            style={[styles.tapText, { color: currentColors.onPrimary }]}
+          >
+            Reset password
+          </ThemedText>
+        </Link>
+
+        <Link
+          href="../emailVerify"
+          style={[
+            styles.tap,
+            {
+              backgroundColor: currentColors.primary,
+            },
+          ]}
+        >
+          <ThemedText
+            type="subtitle"
+            style={[styles.tapText, { color: currentColors.onPrimary }]}
+          >
+            Email verify
+          </ThemedText>
+        </Link>
+
+        <Link
           href="../changeLanguage"
           style={[
             styles.tap,

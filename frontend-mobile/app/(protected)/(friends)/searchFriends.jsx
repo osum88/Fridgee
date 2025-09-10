@@ -24,6 +24,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useUser } from "@/hooks/useUser";
 import useFriendManager from "@/hooks/friends/useFriendManager";
 import { DeleteFriendAlert } from "@/components/friends/DeleteFriendAlert";
+import {
+  responsiveFont,
+  responsiveSize,
+  responsiveVertical,
+  responsivePadding,
+} from "@/utils/scale";
 
 const FriendItem = React.memo(
   ({
@@ -197,11 +203,11 @@ export default function SearchFriends() {
       <ThemedView style={styles.contentWrapper}>
         <ThemedView style={styles.searchContainer}>
           <TouchableOpacity
-            style={{ paddingHorizontal: 3 }}
+            style={{ paddingLeft: responsiveSize.horizontal(3) }}
             onPress={() => router.back()}
           >
             <IconSymbol
-              size={30}
+              size={responsiveSize.moderate(26)}
               name="chevron.left"
               color={currentColors.text}
             />
@@ -239,7 +245,9 @@ export default function SearchFriends() {
         )}
 
         {showSkeleton ? (
-          <ThemedView style={{ paddingHorizontal: 8 }}>
+          <ThemedView
+            style={{ paddingHorizontal: responsiveSize.horizontal(7) }}
+          >
             {Array.from({ length: limit }).map((_, i) => (
               <Skeleton key={i} />
             ))}
@@ -274,7 +282,7 @@ export default function SearchFriends() {
                 username.length > 0
               ) {
                 return (
-                  <ThemedView style={{ padding: 16, alignItems: "center" }}>
+                  <ThemedView style={styles.noUsersFound}>
                     <ThemedText>{i18n.t("noUsersFound")}</ThemedText>
                   </ThemedView>
                 );
@@ -283,7 +291,7 @@ export default function SearchFriends() {
             }}
             contentContainerStyle={{
               flexGrow: 1,
-              paddingHorizontal: 10,
+              paddingHorizontal: responsiveSize.horizontal(9),
               paddingBottom: insets.bottom,
             }}
           />
@@ -296,26 +304,25 @@ export default function SearchFriends() {
 const styles = StyleSheet.create({
   contentWrapper: {
     flexGrow: 1,
-    paddingTop: 14,
+    paddingTop: responsiveSize.vertical(13),
   },
   searchContainer: {
-    paddingHorizontal: 8,
+    paddingHorizontal: responsiveSize.horizontal(7),
     flexDirection: "row",
     alignItems: "center",
   },
   search: {
     flex: 1,
-    fontSize: 16,
   },
   line: {
     width: "100%",
-    height: 0.6,
-    marginVertical: 10,
+    height: responsiveSize.vertical(0.7) < 0.6 ? responsiveSize.vertical(0.7) : StyleSheet.hairlineWidth,
+    marginVertical: responsiveSize.vertical(9),
   },
   profileImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 50,
+    width: responsiveSize.moderate(57),
+    height: responsiveSize.moderate(57),
+    borderRadius: responsiveSize.moderate(50),
     marginEnd: 14,
   },
   userItem: {
@@ -326,11 +333,11 @@ const styles = StyleSheet.create({
   itemContainer: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 8,
+    ...responsivePadding(7),
   },
   username: {
-    fontSize: 16,
-    lineHeight: 20,
+    fontSize: responsiveFont(15),
+    lineHeight: responsiveVertical(19),
     fontWeight: "600",
     flexShrink: 1,
   },
@@ -340,5 +347,9 @@ const styles = StyleSheet.create({
   textContainer: {
     justifyContent: "center",
     flex: 1,
+  },
+  noUsersFound: {
+    ...responsivePadding(15),
+    alignItems: "center",
   },
 });

@@ -2,7 +2,6 @@ import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { useUser } from "@/hooks/useUser";
 import {
-  Alert,
   Image,
   Linking,
   Pressable,
@@ -15,10 +14,14 @@ import i18n from "@/constants/translations";
 import { useProfilePlaceHolder } from "@/hooks/useProfilePlaceHolder";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useGetUserQuery } from "@/hooks/user/useUserQuery";
-import * as ImagePicker from "expo-image-picker";
-import * as ImageManipulator from "expo-image-manipulator";
-import * as FileSystem from "expo-file-system";
 import { useImageUpload } from "@/hooks/image/useImageUpload";
+import { ProfileImageSelector } from "@/components/image/ProfileImageSelector";
+import {
+  responsiveFont,
+  responsiveSize,
+  responsiveVertical,
+  responsivePadding,
+} from "@/utils/scale";
 
 export default function Profile() {
   const color = useThemeColor();
@@ -26,19 +29,18 @@ export default function Profile() {
   const [onErrorImage, setOnErrorImage] = useState(false);
   const profilePlaceHolder = useProfilePlaceHolder();
   const { pickImage, takePhoto, uploadImage } = useImageUpload();
+  const [visible, setVisible] = useState(false);
 
   const [image, setImage] = useState(null);
-  const [image1, setImage1] = useState(null);
 
   const { data: userData } = useGetUserQuery(userId, true);
 
   const handleImagePick = async () => {
-    const uri = await pickImage();
-    setImage(uri)
-    uploadImage(uri)
+    // const uri = await pickImage();
+    // setImage(uri);
+    // uploadImage(uri);
   };
 
-  
   return (
     <ThemedView style={[styles.contentWrapper]}>
       <ThemedView>
@@ -52,15 +54,21 @@ export default function Profile() {
         />
         <TouchableOpacity
           onPress={() => {
-            handleImagePick();
+            setVisible(true);
           }}
           style={[styles.cameraButton, { backgroundColor: color.borderImage }]}
         >
-          <IconSymbol size={26} name="camera.fill" color={color.text} />
+          <IconSymbol size={responsiveSize.moderate(25)} name="camera.fill" color={color.text} />
         </TouchableOpacity>
       </ThemedView>
 
-      {/* <ThemedText style={{ fontSize: 24, fontWeight: "bold" }}>
+      <ProfileImageSelector
+        visible={visible}
+        setVisible={setVisible}
+        onPress={() => handleImagePick()}
+      />
+
+      <ThemedText style={{ fontSize: 24, fontWeight: "bold" }}>
         Profil uživatele
       </ThemedText>
       <ThemedText>Name: {userData?.data?.name}</ThemedText>
@@ -84,16 +92,7 @@ export default function Profile() {
           Photo
         </ThemedText> 
       
-      </Pressable>*/}
-
-      <Image
-        alt={i18n.t("profileImage")}
-        accessibilityLabel={i18n.t("profileImage")}
-        source={onErrorImage ? profilePlaceHolder : { uri: image1 }}
-        defaultSource={profilePlaceHolder}
-        onError={() => setOnErrorImage(true)}
-        style={[styles.profileImage, { borderColor: color.borderImage }]}
-      />
+      </Pressable>
     </ThemedView>
   );
 }
@@ -102,26 +101,26 @@ const styles = StyleSheet.create({
   contentWrapper: {
     flexGrow: 1,
     alignItems: "center",
-    gap: 20,
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    gap: responsiveSize.vertical(18),
+    paddingHorizontal: responsiveSize.horizontal(20),
+    paddingTop: responsiveSize.vertical(18),
     width: "100%",
   },
-  tap: {
+  tap: {//pak smazat
     padding: 16,
     textAlign: "center",
     borderRadius: 8,
   },
   profileImage: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
+    width: responsiveSize.moderate(130),
+    height: responsiveSize.moderate(130),
+    borderRadius: responsiveSize.moderate(70),
     borderWidth: 3,
   },
   cameraButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 65,
+    width: responsiveSize.moderate(47),
+    height: responsiveSize.moderate(47),
+    borderRadius: responsiveSize.moderate(70),
     justifyContent: "center",
     alignItems: "center",
     position: "absolute",

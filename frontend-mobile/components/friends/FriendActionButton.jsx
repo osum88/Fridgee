@@ -3,6 +3,7 @@ import { Pressable, StyleSheet } from "react-native";
 import { ThemedText } from "@/components/themed/ThemedText";
 import i18n from "@/constants/translations";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { responsiveFont, responsiveSize } from "@/utils/scale";
 
 export function FriendActionButton({
   status = null,
@@ -54,7 +55,6 @@ export function FriendActionButton({
     }
   }
 
-
   if (textButton === "accept" || icon === "checkmark") {
     variant = "accept";
   } else if (textButton === "decline" || icon === "xmark") {
@@ -76,7 +76,7 @@ export function FriendActionButton({
       <ThemedText style={[styles.text, { color: colorText }]}>
         {icon ? (
           <IconSymbol
-            size={24}
+            size={responsiveSize.moderate(23)}
             name={icon}
             color={colorText}
             style={styles.iconCheck}
@@ -91,13 +91,13 @@ export function FriendActionButton({
 
 const styles = StyleSheet.create({
   btn: {
-    borderRadius: 10,
-    height: 32,
-    minWidth: 110,
+    borderRadius: responsiveFont(9, 0, 3),
+    height: responsiveSize.vertical(27),
+    minWidth: responsiveSize.horizontal(100),
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 2,
+    paddingHorizontal: responsiveSize.horizontal(11),
+    paddingVertical: responsiveSize.vertical(2),
   },
   pressed: {
     opacity: 0.9,

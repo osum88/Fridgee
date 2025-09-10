@@ -2,10 +2,15 @@ import { useEffect, useRef } from "react";
 import { Animated, StyleSheet } from "react-native";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
-
+import { responsiveSize, responsivePadding } from "@/utils/scale";
 
 //vytvari "loading" než se nactou uzivatele
-export function Skeleton({ textHeight = 15, text1Width = 200, text2Width = 150, ...props }) {
+export function Skeleton({
+  textHeight = 15,
+  text1Width = 200,
+  text2Width = 150,
+  ...props
+}) {
   const baseColor = useThemeColor().surface;
   const highlightColor = useThemeColor().surfaceGradient;
 
@@ -42,10 +47,24 @@ export function Skeleton({ textHeight = 15, text1Width = 200, text2Width = 150, 
       />
       <ThemedView style={styles.textContainer}>
         <Animated.View
-          style={[styles.text1, { backgroundColor: animatedBg, height: textHeight, width: text1Width, }]}
+          style={[
+            styles.text1,
+            {
+              backgroundColor: animatedBg,
+              height: textHeight,
+              width: text1Width,
+            },
+          ]}
         />
         <Animated.View
-          style={[styles.text2, { backgroundColor: animatedBg, height: textHeight, width: text2Width, }]}
+          style={[
+            styles.text2,
+            {
+              backgroundColor: animatedBg,
+              height: textHeight,
+              width: text2Width,
+            },
+          ]}
         />
       </ThemedView>
     </ThemedView>
@@ -54,15 +73,15 @@ export function Skeleton({ textHeight = 15, text1Width = 200, text2Width = 150, 
 
 const styles = StyleSheet.create({
   profileImage: {
-    width: 55,
-    height: 55,
-    borderRadius: 50,
+    width: responsiveSize.moderate(57),
+    height: responsiveSize.moderate(57),
+    borderRadius: responsiveSize.moderate(50),
     marginEnd: 14,
   },
   userItem: {
     flexDirection: "row",
     width: "100%",
-    padding: 12,
+    ...responsivePadding(7),
   },
   text1: {
     borderRadius: 10,
@@ -72,6 +91,6 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     justifyContent: "center",
-    gap: 8,
+    gap: responsiveSize.vertical(7),
   },
 });

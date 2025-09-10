@@ -1,7 +1,7 @@
 import { TouchableOpacity, StyleSheet } from "react-native";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-
+import { responsiveSize } from "@/utils/scale";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
@@ -14,12 +14,12 @@ export function CheckableItem({ label, value, selected, onPress, iconName, iconC
       style={styles.checkableItemContainer}
       onPress={() => onPress(value)}
     >
-      {iconName && <IconSymbol style={styles.icon} size={28} name={iconName} color={iconColor} />}
+      {iconName && <IconSymbol style={styles.icon} size={responsiveSize.moderate(26)} name={iconName} color={iconColor} />}
       <ThemedView style={styles.itemContainer}>
         <ThemedText type="checkableItem">{label}</ThemedText>
         {selected && (
           <IconSymbol
-            size={26}
+            size={responsiveSize.moderate(24)}
             name="checkmark"
             color={color}
             style={styles.iconCheck}
@@ -45,6 +45,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   icon: {
-    marginEnd: 10,
+    marginEnd: responsiveSize.vertical(9),
   },
 });

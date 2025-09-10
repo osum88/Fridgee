@@ -7,6 +7,7 @@ import { FriendActionButton } from "@/components/friends/FriendActionButton";
 import useFriendManager from "@/hooks/friends/useFriendManager";
 import { useState } from "react";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { responsiveFont, responsiveSize } from "@/utils/scale";
 
 export default function FriendProfile() {
   const params = useLocalSearchParams();
@@ -55,7 +56,7 @@ export default function FriendProfile() {
     <ThemedView
       style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
     >
-      <ThemedText style={{ fontSize: 24, fontWeight: "bold" }}>
+      <ThemedText style={{ fontSize: responsiveFont(23), fontWeight: "bold" }}>
         Profil uživatele
       </ThemedText>
       <ThemedText style={{ marginTop: 10 }}>
@@ -92,11 +93,11 @@ export default function FriendProfile() {
 
 const styles = StyleSheet.create({
   btn: {
-    minWidth: 140,
+    minWidth: responsiveSize.horizontal(120),
   },
   request: {
     flexDirection: "row",
-    gap: 18,
-    marginTop: 14,
+    gap: responsiveSize.horizontal(18),
+    marginTop: responsiveSize.vertical(13),
   },
 });

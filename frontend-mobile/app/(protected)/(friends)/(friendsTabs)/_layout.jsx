@@ -1,7 +1,7 @@
 import React from "react";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-
+import { responsiveFont, responsiveSize } from "@/utils/scale";
 import FriendsList from "./friendsList";
 import FriendsRequests from "./friendsRequests";
 import i18n from "@/constants/translations";
@@ -27,7 +27,7 @@ export default function FriendsTab() {
         tabBarInactiveTintColor: colorScheme.fullName,
         tabBarIndicatorStyle: {
           backgroundColor: colorScheme.tabsText,
-          height: 3,
+          height: responsiveSize.vertical(2.5),
           width: width.toString() + "%",
           marginLeft: marginLeft.toString() + "%",
           borderTopStartRadius: 10,
@@ -39,7 +39,7 @@ export default function FriendsTab() {
           shadowOpacity: 0,
         },
         tabBarLabelStyle: {
-          fontSize: 16,
+          fontSize: Math.round(responsiveFont(15)),
           fontWeight: "bold",
         },
         tabBarPressColor: colorScheme.tabsPress,

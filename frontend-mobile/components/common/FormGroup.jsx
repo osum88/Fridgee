@@ -4,7 +4,7 @@ import { ThemedTextInput } from "@/components/themed/ThemedTextInput";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
-
+import { responsiveSize } from "@/utils/scale";
 
 export function FormGroup({
   label,
@@ -24,17 +24,30 @@ export function FormGroup({
         {label}
       </ThemedText>
       <ThemedView>
+      <ThemedView style={ { paddingBottom: responsiveSize.vertical(3)}}>
         <ThemedTextInput
           placeholder={placeholder}
           style={[
             error && styles.errorWarning,
             !error && styles.borderInput,
             { borderColor: color.error },
+           
             style,
           ]}
           {...props}
         />
-        {showError && (!moveAround || error) && <ThemedText style={{paddingLeft: 2}} type="error">{error}</ThemedText>}
+        </ThemedView>
+        {showError && (!moveAround || error) && (
+          <ThemedText
+            style={{
+              paddingLeft: responsiveSize.horizontal(2),
+             
+            }}
+            type="error"
+          >
+            {error}
+          </ThemedText>
+        )}
       </ThemedView>
     </ThemedView>
   );
@@ -42,13 +55,13 @@ export function FormGroup({
 
 const styles = StyleSheet.create({
   container: {
-    gap: 7,
+    gap: responsiveSize.vertical(6),
   },
   text: {
     fontWeight: "600",
   },
   borderInput: {
-    marginVertical: 1.7,
+    marginVertical: responsiveSize.vertical(1.7),
   },
   errorWarning: {
     borderWidth: 1.7,

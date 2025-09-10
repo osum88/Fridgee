@@ -32,6 +32,7 @@ export const Colors = {
     outlineButton: "#555",
     removeButton: "#d32f2f",
     borderImage: "#e5e0e5",
+    notFoccusIcon: "#555",
   },
   dark: {
     text: "#e0e0e0",
@@ -58,6 +59,6 @@ export const Colors = {
     outlineButton: "#7e7979ff",
     removeButton: "#d63330ff",
     borderImage: "#444444",
-
+    notFoccusIcon: "#fff",
   },
 };

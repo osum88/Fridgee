@@ -1,6 +1,10 @@
 import { StyleSheet, Text, type TextProps } from "react-native";
-
 import { useThemeColor } from "@/hooks/useThemeColor";
+import {
+  responsiveFont,
+  responsiveVertical,
+  responsiveSize,
+} from "@/utils/scale";
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
@@ -43,7 +47,9 @@ export function ThemedText({
 
   return (
     <Text
+      allowFontScaling={false}
       style={[
+        { includeFontPadding: false },
         { color },
         type === "default" ? styles.default : undefined,
         type === "title" ? styles.title : undefined,
@@ -64,8 +70,7 @@ export function ThemedText({
 
 const styles = StyleSheet.create({
   default: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: responsiveFont(15),
   },
   defaultSemiBold: {
     fontSize: 16,
@@ -73,37 +78,35 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   title: {
-    fontSize: 32,
+    fontSize: responsiveFont(30),
     fontWeight: "bold",
-    lineHeight: 36,
+    
   },
   subtitle: {
-    fontSize: 20,
+    fontSize: responsiveFont(18),
     fontWeight: "bold",
   },
   link: {
-    lineHeight: 30,
-    fontSize: 16,
+    lineHeight: responsiveVertical(28),
+    fontSize: responsiveFont(14),
     color: "#0a7ea4",
   },
   checkableItem: {
-    fontSize: 16,
-    lineHeight: 30,
+    fontSize: responsiveFont(14),
     fontWeight: "600",
   },
   btn: {
-    fontSize: 18,
+    fontSize: responsiveFont(17),
     fontWeight: "bold",
   },
   loading: {
-    fontSize: 27,
+    fontSize: responsiveFont(25),
     fontWeight: "400",
   },
   error: {
-    fontSize: 12.5,
+    fontSize: responsiveFont(11.5),
   },
   fullName: {
-    fontSize: 14,
-    lineHeight: 18,
+    fontSize: responsiveFont(13),
   },
 });

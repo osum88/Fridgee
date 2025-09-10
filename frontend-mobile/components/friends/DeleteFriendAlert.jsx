@@ -3,6 +3,11 @@ import { Image, StyleSheet, TouchableOpacity } from "react-native";
 import { Dialog, Portal } from "react-native-paper";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import i18n from "@/constants/translations";
+import {
+  responsiveFont,
+  responsiveSize,
+  responsiveVertical,
+} from "@/utils/scale";
 
 export function DeleteFriendAlert({
   visible,
@@ -85,22 +90,22 @@ const styles = StyleSheet.create({
     width: "70%",
     maxWidth: 400,
     alignSelf: "center",
-    borderRadius: 12,
+    borderRadius: responsiveFont(12, 0.3),
   },
   dialog: {
     alignItems: "center",
-    gap: 22,
+    gap: responsiveSize.horizontal(20),
   },
   alertProfileImage: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    marginTop: 10,
+    width: responsiveSize.moderate(85),
+    height: responsiveSize.moderate(85),
+    borderRadius: responsiveSize.moderate(70),
+    marginTop: responsiveSize.vertical(9),
   },
   dialogText: {
     textAlign: "center",
-    fontSize: 16,
-    lineHeight: 22,
+    fontSize: responsiveFont(15),
+    lineHeight: responsiveVertical(20),
   },
   username: {
     fontWeight: "700",
@@ -108,20 +113,20 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 13,
-    paddingBottom: 13,
+    paddingHorizontal: responsiveSize.horizontal(12),
+    paddingBottom: responsiveSize.vertical(12),
   },
   actionButton: {
     flex: 1,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    borderRadius: responsiveFont(8, 0.3),
+    paddingHorizontal: responsiveSize.horizontal(9),
+    paddingVertical: responsiveSize.vertical(7),
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1.5,
+    borderWidth: responsiveFont(1.5, 0.3),
   },
   buttonLabel: {
-    fontSize: 14,
+    fontSize: responsiveFont(13.5),
     fontWeight: "bold",
   },
   pressed: {
