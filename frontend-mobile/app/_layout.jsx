@@ -15,16 +15,20 @@ import { UserProvider } from "@/contexts/UserContext";
 import { useUser } from "@/hooks/useUser";
 import { View } from "react-native";
 import { Provider } from "react-native-paper";
-
+import { Toasts } from "@backpackapp-io/react-native-toast";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 //vytvoreni instance TanStack Query
 const queryClient = new QueryClient();
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [loaded] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-  });
+const [fontsLoaded] = useFonts({
+  SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+  MaterialCommunityIcons: require("@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"),
+});
+
 
   const CustomDarkTheme = {
     ...DarkTheme,
@@ -34,22 +38,22 @@ export default function RootLayout() {
     },
   };
 
-  if (!loaded) {
+  if (!fontsLoaded) {
     return null;
   }
 
   return (
     <QueryClientProvider client={queryClient}>
       {/* <StrictMode> */}
-        <UserProvider>
-          <LanguageWrapper>
-            <ThemeProvider>
-             <Provider>
+      <UserProvider>
+        <LanguageWrapper>
+          <ThemeProvider>
+            <Provider>
               <RootLayoutContent CustomDarkTheme={CustomDarkTheme} />
-              </Provider>
-            </ThemeProvider>
-          </LanguageWrapper>
-        </UserProvider>
+            </Provider>
+          </ThemeProvider>
+        </LanguageWrapper>
+      </UserProvider>
       {/* </StrictMode> */}
     </QueryClientProvider>
   );
@@ -100,22 +104,27 @@ function RootLayoutContent({ CustomDarkTheme }) {
   const backgroundColor = colorScheme === "dark" ? "#000000" : "#ffffff";
 
   return (
-    <View style={{ flex: 1, backgroundColor: backgroundColor }}>
-      {isAppReady ? (
-        <NavigationThemeProvider
-          value={colorScheme === "dark" ? CustomDarkTheme : DefaultTheme}
-        >
-          <Stack screenOptions={{ headerShown: false }}>
-            {isAuthenticated ? (
-              <Stack.Screen name="(protected)" />
-            ) : (
-              <Stack.Screen name="(auth)" />
-            )}
-            <Stack.Screen name="+not-found" />
-          </Stack>
-          <StatusBar style="auto" />
-        </NavigationThemeProvider>
-      ) : null}
-    </View>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <Toasts key={colorScheme} />
+        <View style={{ flex: 1, backgroundColor: backgroundColor }}>
+          {isAppReady ? (
+            <NavigationThemeProvider
+              value={colorScheme === "dark" ? CustomDarkTheme : DefaultTheme}
+            >
+              <Stack screenOptions={{ headerShown: false }}>
+                {isAuthenticated ? (
+                  <Stack.Screen name="(protected)" />
+                ) : (
+                  <Stack.Screen name="(auth)" />
+                )}
+                <Stack.Screen name="+not-found" />
+              </Stack>
+              <StatusBar style="auto" />
+            </NavigationThemeProvider>
+          ) : null}
+        </View>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

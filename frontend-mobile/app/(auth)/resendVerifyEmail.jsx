@@ -90,7 +90,7 @@ export default function ResendVerifyEmail() {
                 autoComplete="email"
                 style={styles.input}
                 autoCapitalize="none"
-                value={email}
+                value={email?.replace(/\s+/g, "")}
                 onChangeText={setEmail}
                 error={error}
               />

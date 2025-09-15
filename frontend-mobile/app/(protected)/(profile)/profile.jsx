@@ -6,9 +6,11 @@ import {
   Linking,
   Pressable,
   StyleSheet,
+  Text,
   TouchableOpacity,
+  View,
 } from "react-native";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import i18n from "@/constants/translations";
 import { useProfilePlaceHolder } from "@/hooks/useProfilePlaceHolder";
@@ -22,6 +24,10 @@ import {
   responsiveVertical,
   responsivePadding,
 } from "@/utils/scale";
+import { Snackbar } from "react-native-paper";
+import { toast, ToastPosition } from "@backpackapp-io/react-native-toast";
+import { ToastProvider } from "@backpackapp-io/react-native-toast";
+
 
 export default function Profile() {
   const color = useThemeColor();
@@ -30,16 +36,48 @@ export default function Profile() {
   const profilePlaceHolder = useProfilePlaceHolder();
   const { pickImage, takePhoto, uploadImage } = useImageUpload();
   const [visible, setVisible] = useState(false);
-
   const [image, setImage] = useState(null);
-
+ 
   const { data: userData } = useGetUserQuery(userId, true);
 
-  const handleImagePick = async () => {
-    // const uri = await pickImage();
-    // setImage(uri);
-    // uploadImage(uri);
+  // useEffect(() => {
+  //   toast("Zprávaaax praahkkgjao uživatele", {
+  //     position: ToastPosition.BOTTOM,
+  //     isSwipeable: true,
+  //     onPress: () => {
+  //       toast.remove();
+  //     },
+  //   });
+  // }, []);
+
+  const handleImagePick = async (type) => {
+    if (type === "camera") {
+      // toast.success("Obrázek nahrán!");
+      const uri = await takePhoto();
+      if (uri) {
+        setImage(uri);
+        uploadImage(uri);
+      }
+    } else if (type === "photo") {
+      const uri = await pickImage();
+      if (uri) {
+        setImage(uri);
+        uploadImage(uri);
+      }
+    } else if (type === "remove") {
+      setImage("none");
+    }
   };
+
+  //profilova fotka
+  const sourceImage = useMemo(() => {
+    if (!image) {
+      return onErrorImage
+        ? profilePlaceHolder
+        : { uri: `https://picsum.photos/id/${userId}/200/300` }; //tady pak upravti na url fotky z db
+    }
+    return image === "none" ? profilePlaceHolder : { uri: image };
+  }, [profilePlaceHolder, image, onErrorImage, userId]);
 
   return (
     <ThemedView style={[styles.contentWrapper]}>
@@ -47,7 +85,7 @@ export default function Profile() {
         <Image
           alt={i18n.t("profileImage")}
           accessibilityLabel={i18n.t("profileImage")}
-          source={onErrorImage ? profilePlaceHolder : { uri: image }}
+          source={sourceImage}
           defaultSource={profilePlaceHolder}
           onError={() => setOnErrorImage(true)}
           style={[styles.profileImage, { borderColor: color.borderImage }]}
@@ -58,14 +96,18 @@ export default function Profile() {
           }}
           style={[styles.cameraButton, { backgroundColor: color.borderImage }]}
         >
-          <IconSymbol size={responsiveSize.moderate(25)} name="camera.fill" color={color.text} />
+          <IconSymbol
+            size={responsiveSize.moderate(25)}
+            name="camera.fill"
+            color={color.text}
+          />
         </TouchableOpacity>
       </ThemedView>
 
       <ProfileImageSelector
         visible={visible}
         setVisible={setVisible}
-        onPress={() => handleImagePick()}
+        onPress={(type) => handleImagePick(type)}
       />
 
       <ThemedText style={{ fontSize: 24, fontWeight: "bold" }}>
@@ -90,9 +132,20 @@ export default function Profile() {
           style={[styles.tapText, { color: color.onPrimary }]}
         >
           Photo
-        </ThemedText> 
-      
+        </ThemedText>
       </Pressable>
+      {/* 
+      <Snackbar
+        visible={visible}
+        onDismiss={() => setVisible(false)}
+        duration={3000}
+        action={{
+          label: 'Zavřít',
+          onPress: () => setVisible(false),
+        }}
+      >
+        Úspěšně uloženo!
+      </Snackbar> */}
     </ThemedView>
   );
 }
@@ -106,7 +159,8 @@ const styles = StyleSheet.create({
     paddingTop: responsiveSize.vertical(18),
     width: "100%",
   },
-  tap: {//pak smazat
+  tap: {
+    //pak smazat
     padding: 16,
     textAlign: "center",
     borderRadius: 8,

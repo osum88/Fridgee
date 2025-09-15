@@ -403,7 +403,7 @@ export const searchUsersRepository = async (userId, username, limit) => {
 };  
 
 //updatuje url user profilovaho obrazku
-export const updateUserProfilePictureRepository = async (id, imageUrl) => {
+export const updateUserProfileImageRepository = async (id, imageUrl) => {
     try {
         const updatedUser = await prisma.user.update({ 
             where: {
@@ -424,6 +424,7 @@ export const updateUserProfilePictureRepository = async (id, imageUrl) => {
     }
 };
 
+//updatuje posledni login
 export const updateLastLoginRepository = async (id) => {
     try {
         const updatedUser = await prisma.user.update({ 
@@ -441,6 +442,24 @@ export const updateLastLoginRepository = async (id) => {
         return updatedUser;
     } catch (error) {
         console.error("Error updating last login:", error);
+        throw error;
+    }
+};
+
+//vrati cloud image url
+export const getImageUrlRepository = async (id) => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: parseInt(id),
+            },
+            select: {
+                profilePictureUrl: true,
+            },
+        });
+        return user?.profilePictureUrl; 
+    } catch (error) {
+        console.error("Error fetching image url by Id:", error); 
         throw error;
     }
 };

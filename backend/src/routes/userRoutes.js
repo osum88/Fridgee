@@ -1,11 +1,12 @@
 import express from "express";
-import { createUser, deleteUser, getAllUsersAdmin, getUserById, updateUser, getBankNumber, searchUsers, updateUserProfilePicture, updatePreferredLanguageByUserId } from "../controllers/userController.js";
+import { createUser, deleteUser, getUserById, updateUser, getBankNumber, searchUsers, updateUserProfileImage, updatePreferredLanguageByUserId } from "../controllers/userController.js";
 import validate from "../middlewares/validator.js";
 import { createUserSchema, updateLanguageSchema, updateUserSchema } from "../validation/userValidation.js";
-import { authenticateToken, authorizeUser, authorizeUserOrAdmin } from "../middlewares/authMiddleware.js";
-
+import { authenticateToken, authorizeUser } from "../middlewares/authMiddleware.js";
+import multer from "multer";
 
 const router = express.Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
 //vytvoreni uzivatele
 router.post("/users", validate(createUserSchema), createUser);
@@ -17,8 +18,8 @@ router.get("/users/search", authenticateToken, authorizeUser, searchUsers);
 //vrati uzivatele podle id
 router.get("/users", authenticateToken, authorizeUser, getUserById);
 
-//TODO  middlevare pro profile picture
-router.put("/users/profile-image", authenticateToken, /*tady upload middleware,*/ updateUserProfilePicture);
+//zmeni profile image
+router.patch("/users/profile-image", authenticateToken, authorizeUser, upload.single("file"), updateUserProfileImage);
 
 //updatuje jazyk
 router.patch("/users/language", validate(updateLanguageSchema), authenticateToken, authorizeUser, updatePreferredLanguageByUserId);

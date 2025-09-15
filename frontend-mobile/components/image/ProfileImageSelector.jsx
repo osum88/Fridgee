@@ -35,7 +35,7 @@ export function ProfileImageSelector({
             style={[styles.actionButton, { backgroundColor: color.surface }]}
             onPress={() => {
               handleClose();
-              onPress?.();
+              onPress?.("camera");
             }}
           >
             <IconSymbol
@@ -53,7 +53,7 @@ export function ProfileImageSelector({
             style={[styles.actionButton, { backgroundColor: color.surface }]}
             onPress={() => {
               handleClose();
-              onPress?.();
+              onPress?.("photo");
             }}
           >
             <IconSymbol
@@ -71,7 +71,7 @@ export function ProfileImageSelector({
             style={[styles.actionButton, { backgroundColor: color.surface }]}
             onPress={() => {
               handleClose();
-              onPress?.();
+              onPress?.("remove");
             }}
           >
             <IconSymbol
@@ -101,13 +101,11 @@ const styles = StyleSheet.create({
   dialog: {
     alignItems: "center",
   },
-
   titleText: {
     fontSize: responsiveSize.moderate(24, 0.4),
     lineHeight: responsiveSize.vertical(32),
     fontWeight: "bold",
   },
-
   actions: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -124,7 +122,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   buttonLabel: {
-    fontSize: responsiveSize.moderate(12),
+    fontSize: responsiveSize.moderate(11),
     fontWeight: "400",
     lineHeight: responsiveSize.vertical(16),
   },

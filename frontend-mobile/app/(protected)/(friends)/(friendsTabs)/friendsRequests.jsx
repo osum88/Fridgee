@@ -37,7 +37,7 @@ const FriendItem = React.memo(
     setErrorMap,
     profilePlaceHolder,
   }) => {
-    //usecallback - memoizovana funkce, nemeni se mezi rendery dokud se nezmeni zavislosti, jinak by vznikali nove reference a React.memo by si myslle ze se zmenily props
+    //usecallback - memorizovana funkce, nemeni se mezi rendery dokud se nezmeni zavislosti, jinak by vznikali nove reference a React.memo by si myslel ze se zmenily props
 
     const onPressItem = useCallback(() => {
       router.push({

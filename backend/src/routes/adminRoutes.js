@@ -1,15 +1,16 @@
 import express from "express";
 import { authenticateToken, authorizeAdmin, authorizeAdminWithOutId } from "../middlewares/authMiddleware.js";
 import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFriends, getReceivedFriendRequests, getSentFriendRequests } from "../controllers/friendController.js";
-import { deleteUser, getAllUsersAdmin, getUserById, updateUser } from "../controllers/userController.js";
+import { deleteUser, getAllUsersAdmin, getUserById, updateUser, updateUserProfileImage } from "../controllers/userController.js";
 import validate from "../middlewares/validator.js";
 import { updateUserSchema } from "../validation/userValidation.js";
 import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, getAllFoodInventory, getInventoryDetailsWithUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
 import { archiveInventoryAdminSchema, changeRoleAdminSchema, changeSettingAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema } from "../validation/foodInventoryValidation.js";
 import { getFriendsAdminSchema } from "../validation/friendValidation.js";
+import multer from "multer";
 
 const router = express.Router();
-
+const upload = multer({ storage: multer.memoryStorage() });
 
 //                                 FRIENDSHIP
 //pridani do pratel
@@ -82,6 +83,8 @@ router.patch("/users/:id", validate(updateUserSchema), authenticateToken, author
 //smaze uzivatele
 router.delete("/users/:id", authenticateToken, authorizeAdmin, deleteUser);
 
+//zmeni profile image
+router.patch("/users/:id/profile-image", authenticateToken, authorizeAdmin, upload.single("file"), updateUserProfileImage);
 
 
 export default router;

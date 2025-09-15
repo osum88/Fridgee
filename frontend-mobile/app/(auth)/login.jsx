@@ -70,7 +70,7 @@ export default function Login() {
                 keyboardType="email-address"
                 autoComplete="email"
                 style={styles.input}
-                value={email}
+                value={email?.replace(/\s+/g, "")}
                 autoCapitalize="none"
                 onChangeText={setEmail}
                 error={error}
@@ -87,7 +87,7 @@ export default function Login() {
                   maxLength={70}
                   autoCapitalize="none"
                   importantForAutofill="yes"
-                  value={password}
+                  value={password?.replace(/\s+/g, "")}
                   onChangeText={setPassword}
                   error={error}
                   moveAround={true}

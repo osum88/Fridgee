@@ -70,3 +70,9 @@ export const responsivePadding = (size) => ({
   paddingHorizontal: responsiveSize.horizontal(size),
   paddingVertical: responsiveSize.vertical(size),
 });
+
+export const responsiveMargin = (size) => ({
+  marginHorizontal: responsiveSize.horizontal(size),
+  marginVertical: responsiveSize.vertical(size),
+});
+

@@ -106,7 +106,7 @@ export default function Register() {
                 maxLength={30}
                 autoCapitalize="none"
                 style={styles.input}
-                value={username}
+                value={username?.replace(/\s+/g, "")}
                 onChangeText={setUsername}
                 error={usernameError}
               />
@@ -115,7 +115,7 @@ export default function Register() {
                 placeholder={i18n.t("enterYourEmail")}
                 keyboardType="email-address"
                 style={styles.input}
-                value={email}
+                value={email?.replace(/\s+/g, "")}
                 maxLength={150}
                 autoCapitalize="none"
                 onChangeText={setEmail}
@@ -128,7 +128,7 @@ export default function Register() {
                 maxLength={100}
                 autoCapitalize="none"
                 importantForAutofill="no"
-                value={password}
+                value={password?.replace(/\s+/g, "")}
                 onChangeText={setPassword}
                 error={passwordError}
                 showError={false}
@@ -141,7 +141,7 @@ export default function Register() {
                 maxLength={100}
                 autoCapitalize="none"
                 importantForAutofill="no"
-                value={confirmPassword}
+                value={confirmPassword?.replace(/\s+/g, "")}
                 onChangeText={setConfirmPassword}
                 error={passwordError}
               />

@@ -20,23 +20,14 @@ const port = process.env.SERVER_PORT || 3001;
 
 // secure HTTP headers
 app.use(helmet()); 
-console.log("--------------:");
-
-console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
-console.log("--------------:");
 
 // middlewares
 app.use(cookieParser());
 app.use(express.json());
 app.use(cors({
-    // origin: "http://localhost:8081", 
     origin: process.env.FRONTEND_URL, 
     credentials: true, 
 }));
-console.log("--------------:");
-
-console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
-console.log("--------------:");
 
 //rate limit
 const apiLimiter = rateLimit({

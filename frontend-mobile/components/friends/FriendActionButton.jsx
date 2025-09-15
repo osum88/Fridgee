@@ -92,7 +92,7 @@ export function FriendActionButton({
 const styles = StyleSheet.create({
   btn: {
     borderRadius: responsiveFont(9, 0, 3),
-    height: responsiveSize.vertical(27),
+    minHeight: responsiveSize.vertical(28),
     minWidth: responsiveSize.horizontal(100),
     justifyContent: "center",
     alignItems: "center",

@@ -56,4 +56,5 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: responsiveSize.vertical(18),
   },
+  
 });

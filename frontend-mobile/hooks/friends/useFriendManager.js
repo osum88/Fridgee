@@ -53,35 +53,6 @@ const useFriendManager = () => {
     if (cache !== "receivedFriendRequests") {
       queryClient.invalidateQueries({ queryKey: ["receivedFriendRequests"] });
     }
-
-    // //optimisticky update cache pri pridani pritele
-    // if (cache === "receivedFriendRequests") {
-    //   const friendsKey = ["allFriends", username];
-
-    //   const previousFriends = queryClient.getQueryData(friendsKey);
-
-    //   const newFriend = {
-    //     id: Date.now(),
-    //     senderId: userId,
-    //     receiverId: user2Id,
-    //     sender: { id: userId },
-    //     receiver: { id: user2Id, username: friendData?.username, name: friendData?.name, surname: friendData?.surname },
-    //     status: "ACCEPTED",
-    //     createdAt: new Date().toISOString(),
-    //     updatedAt: new Date().toISOString(),
-    //   };
-
-    //   if (previousFriends?.data) {
-    //     queryClient.setQueryData(friendsKey, {
-    //       ...previousFriends,
-    //       data: [newFriend, ...previousFriends.data],
-    //     });
-    //   } else {
-    //     // pokud jeste zadna quary neexistuje vytvori se
-    //     queryClient.setQueryData(friendsKey, { data: [newFriend] });
-    //   }
-    // }
-
     return previousUsers;
   };
 

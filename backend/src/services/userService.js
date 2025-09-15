@@ -1,6 +1,8 @@
 import { BadRequestError, ConflictError, NotFoundError } from "../errors/errors.js";
 import { getFriendshipRepository } from "../repositories/friendRepository.js";
-import { createUserRepository, deleteUserRepository, getBankNumberRepository, getUserByEmailRepository, getUserByIdRepository, getUserByUsernameRepository, searchUsersRepository, updatePreferredLanguageByUserIdRepository, updateUserRepository } from "../repositories/userRepository.js";
+import { createUserRepository, deleteUserRepository, getBankNumberRepository, getImageUrlRepository, getUserByEmailRepository, getUserByIdRepository, getUserByUsernameRepository, searchUsersRepository, updatePreferredLanguageByUserIdRepository, updateUserProfileImageRepository, updateUserRepository } from "../repositories/userRepository.js";
+import sharp from "sharp";
+import { generateImageFilename, resizeImage } from "../services/imageService.js"
 
 export const createUserService = async (name, surname, username, birthDate, email, password, bankNumber, preferredLanguage) => {
     const existingUserByEmail = await getUserByEmailRepository(email);
@@ -125,3 +127,19 @@ export const updatePreferredLanguageByUserIdService = async (id, language) => {
     }
     return updatedUser;
 };
+
+export const updateUserProfileImageService = async (userId, image, isAdmin) => {
+    if (isAdmin) {
+        await getUserByIdRepository(userId); 
+    }
+    const imageUrl = await getImageUrlRepository(userId);
+    if (!imageUrl) {
+
+    }
+ 
+
+    const profileImage400x400 = await resizeImage(image, 400, userId, "profile", "webp");
+    const profileImage200x200 = await resizeImage(image, 200, userId, "profile", "webp");
+
+   
+}

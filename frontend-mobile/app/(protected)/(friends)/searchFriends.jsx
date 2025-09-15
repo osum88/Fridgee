@@ -207,7 +207,7 @@ export default function SearchFriends() {
             onPress={() => router.back()}
           >
             <IconSymbol
-              size={responsiveSize.moderate(26)}
+              size={responsiveSize.moderate(24)}
               name="chevron.left"
               color={currentColors.text}
             />
@@ -316,7 +316,10 @@ const styles = StyleSheet.create({
   },
   line: {
     width: "100%",
-    height: responsiveSize.vertical(0.7) < 0.6 ? responsiveSize.vertical(0.7) : StyleSheet.hairlineWidth,
+    height:
+      responsiveSize.vertical(0.7) < 0.6
+        ? StyleSheet.hairlineWidth
+        : responsiveSize.vertical(0.7),
     marginVertical: responsiveSize.vertical(9),
   },
   profileImage: {

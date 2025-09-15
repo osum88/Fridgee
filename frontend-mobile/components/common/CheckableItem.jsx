@@ -16,7 +16,7 @@ export function CheckableItem({ label, value, selected, onPress, iconName, iconC
     >
       {iconName && <IconSymbol style={styles.icon} size={responsiveSize.moderate(26)} name={iconName} color={iconColor} />}
       <ThemedView style={styles.itemContainer}>
-        <ThemedText type="checkableItem">{label}</ThemedText>
+        <ThemedText type="checkableItem" style={styles.text}>{label}</ThemedText>
         {selected && (
           <IconSymbol
             size={responsiveSize.moderate(24)}
@@ -47,4 +47,7 @@ const styles = StyleSheet.create({
   icon: {
     marginEnd: responsiveSize.vertical(9),
   },
+  text:{
+    paddingVertical: responsiveSize.vertical(4),
+  }
 });

@@ -99,7 +99,7 @@ export default function ResetPassword() {
                     maxLength={100}
                     autoCapitalize="none"
                     importantForAutofill="no"
-                    value={newPassword}
+                    value={newPassword?.replace(/\s+/g, "")}
                     onChangeText={setPassword}
                     error={error}
                     showError={false}
@@ -111,7 +111,7 @@ export default function ResetPassword() {
                     maxLength={100}
                     autoCapitalize="none"
                     importantForAutofill="no"
-                    value={confirmPassword}
+                    value={confirmPassword?.replace(/\s+/g, "")}
                     onChangeText={setConfirmPassword}
                     error={error}
                   />
