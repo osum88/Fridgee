@@ -26,6 +26,7 @@ import {
   responsiveVertical,
   responsivePadding,
 } from "@/utils/scale";
+import { IMAGEKIT_URL_ENDPOINT } from "@/config/config";
 
 //zabrani zbytecnemu renderu itemu flatlistu pokud se nezmeni props
 const FriendItem = React.memo(
@@ -84,14 +85,16 @@ const FriendItem = React.memo(
 
     //useMemo zabrani aby se uri objekt vytvarel pokaznem renderu
     const imageSource = useMemo(() => {
-      return errorMap[item.id]
+      return errorMap[item.sender.id]
         ? profilePlaceHolder
-        : { uri: `https://picsum.photos/id/${item.id}/200/300` };
-    }, [item.id, profilePlaceHolder, errorMap]);
+        : {
+            uri: `${IMAGEKIT_URL_ENDPOINT}/users/${item.sender.id}/profile/profile_${item.sender.id}_150x150.webp`,
+          };
+    }, [item, profilePlaceHolder, errorMap]);
 
     const onErrorImage = useCallback(() => {
-      setErrorMap((prev) => ({ ...prev, [item.id]: true }));
-    }, [item.id, setErrorMap]);
+      setErrorMap((prev) => ({ ...prev, [item.sender.id]: true }));
+    }, [item.sender.id, setErrorMap]);
 
     return (
       <Pressable onPress={onPressItem}>

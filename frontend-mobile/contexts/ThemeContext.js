@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useColorScheme, View } from "react-native";
+import { useColorScheme } from "react-native";
 
 const ThemeContext = createContext();
 
@@ -51,10 +51,6 @@ export function ThemeProvider({ children }) {
   const colorScheme = theme === "system" ? systemColorScheme : theme;
   const value = { theme, setTheme, colorScheme, isThemeLoaded };
 
-  if (!isThemeLoaded) {
-    const splashColor = colorScheme === "dark" ? "black" : "white";
-    return <View style={{ flex: 1, backgroundColor: splashColor }} />;
-  }
   return (
     <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
   );

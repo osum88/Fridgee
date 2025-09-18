@@ -69,3 +69,19 @@ export const updateUserProfileImageApi = async (file) => {
     throw error;
   }
 };
+
+//updatuje profile image
+export const deleteUserProfileImageApi = async () => {
+  try {
+    const response = await apiClient.delete("/users/profile-image");
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error in deleteUserProfileImageApi: ",
+      error,
+      "->",
+      error.response?.data?.message || error.message
+    );
+    throw error;
+  }
+};

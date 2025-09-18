@@ -30,6 +30,8 @@ import {
   responsiveVertical,
   responsivePadding,
 } from "@/utils/scale";
+import { IMAGEKIT_URL_ENDPOINT } from "@/config/config";
+
 
 const FriendItem = React.memo(
   ({
@@ -66,7 +68,7 @@ const FriendItem = React.memo(
     const imageSource = useMemo(() => {
       return errorMap[item.id]
         ? profilePlaceHolder
-        : { uri: `https://picsum.photos/id/${item.id}/200/300` };
+        : { uri: `${IMAGEKIT_URL_ENDPOINT}/users/${item.id}/profile/profile_${item.id}_150x150.webp`};
     }, [errorMap, item.id, profilePlaceHolder]);
 
     const onErrorImage = useCallback(() => {

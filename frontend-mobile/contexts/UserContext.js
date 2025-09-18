@@ -21,6 +21,8 @@ import { useGetUserQuery } from "@/hooks/user/useUserQuery";
 import { jwtDecode } from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useLogoutMutation from "@/hooks/auth/useLogoutMutation";
+import { invalidateQueries } from "@/utils/invalidateQueries";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const UserContext = createContext();
 
@@ -30,6 +32,8 @@ export function UserProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
   const [userId, setUserId] = useState(null);
   const [canFetchUser, setCanFetchUser] = useState(false);
+  const queryClient = useQueryClient();
+
   // const { data: userData, isError } = useGetUserQuery(userId, canFetchUser);
 
   const { logoutMutation } = useLogoutMutation();
@@ -57,9 +61,6 @@ export function UserProvider({ children }) {
   ) => {
     try {
       setCanFetchUser(false);
-      console.log("newAccessToken login:", newAccessToken);
-      console.log("newRefreshToken login:", newRefreshToken);
-      console.log("rememberMe login:", rememberMe);
       await storeTokens(newAccessToken, newRefreshToken);
       await storeRememberMe(rememberMe);
       setUserId(getUserIdFromToken(newAccessToken));
@@ -83,13 +84,13 @@ export function UserProvider({ children }) {
       }
       setCanFetchUser(false);
       const refreshToken = await getRefreshToken();
-      console.log("refreshToken logout", refreshToken); //smazat pak
       logoutMutation.mutate({ refreshToken });
       await removeTokens();
       await removeRememberMe();
       setAccessToken(null);
       setUserId(null);
       setUser(null);
+      invalidateQueries(queryClient, ["searchUsername", "allFriends", "receivedFriendRequests",]);
       await AsyncStorage.removeItem("selected_language");
       console.log("sign out...");
     } catch (error) {
@@ -99,7 +100,7 @@ export function UserProvider({ children }) {
       SplashScreen.hideAsync();
       isSigningOutRef.current = false;
     }
-  }, [logoutMutation]);
+  }, [logoutMutation, queryClient]);
 
   const getAccessToken = useCallback(() => accessToken, [accessToken]);
 

@@ -1,5 +1,5 @@
 import express from "express";
-import { createUser, deleteUser, getUserById, updateUser, getBankNumber, searchUsers, updateUserProfileImage, updatePreferredLanguageByUserId } from "../controllers/userController.js";
+import { createUser, deleteUser, getUserById, updateUser, getBankNumber, searchUsers, updateUserProfileImage, updatePreferredLanguageByUserId, deleteUserProfileImage } from "../controllers/userController.js";
 import validate from "../middlewares/validator.js";
 import { createUserSchema, updateLanguageSchema, updateUserSchema } from "../validation/userValidation.js";
 import { authenticateToken, authorizeUser } from "../middlewares/authMiddleware.js";
@@ -20,6 +20,9 @@ router.get("/users", authenticateToken, authorizeUser, getUserById);
 
 //zmeni profile image
 router.patch("/users/profile-image", authenticateToken, authorizeUser, upload.single("file"), updateUserProfileImage);
+
+//smaže profile image
+router.delete("/users/profile-image", authenticateToken, authorizeUser, deleteUserProfileImage);
 
 //updatuje jazyk
 router.patch("/users/language", validate(updateLanguageSchema), authenticateToken, authorizeUser, updatePreferredLanguageByUserId);

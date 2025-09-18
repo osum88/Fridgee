@@ -5,6 +5,7 @@ import {
 } from "../repositories/userRepository.js";
 import {
   createUserService,
+  deleteUserProfileImageService,
   deleteUserService,
   getBankNumberService,
   getUserByIdService,
@@ -132,9 +133,22 @@ export const updateUserProfileImage = async (req, res, next) => {
 
     const updatedUser = await updateUserProfileImageService(userId, image, isAdmin);
 
-    return handleResponse(res, 200, "Profile picture updated successfully.", 
-        // updatedUser
-    );
+    return handleResponse(res, 200, "Profile picture updated successfully.", updatedUser);
+  } catch (err) {
+    next(err);
+  }
+};
+
+//updatuje user profile image
+export const deleteUserProfileImage = async (req, res, next) => {
+  try {
+  
+    const userId = req.userId;
+    const isAdmin = req.adminRoute;
+
+    const deletedUserImage = await deleteUserProfileImageService(userId, isAdmin);
+
+    return handleResponse(res, 200, "Profile picture delete successfully.", deletedUserImage);
   } catch (err) {
     next(err);
   }

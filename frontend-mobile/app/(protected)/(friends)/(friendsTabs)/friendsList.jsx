@@ -28,6 +28,7 @@ import {
   responsiveVertical,
   responsivePadding,
 } from "@/utils/scale";
+import { IMAGEKIT_URL_ENDPOINT } from "@/config/config";
 
 //zabrani zbytecnemu renderu itemu flatlistu pokud se nezmeni props
 const FriendItem = React.memo(
@@ -42,16 +43,18 @@ const FriendItem = React.memo(
   }) => {
     //useMemo zabrani aby se uri objekt vytvarel pokaznem renderu
     const imageSource = useMemo(() => {
-      return errorMap[item.id]
+      return errorMap[friendInfo(item, "id")]
         ? profilePlaceHolder
-        : { uri: `https://picsum.photos/id/${item.id}/200/300` };
-    }, [errorMap, item.id, profilePlaceHolder]);
+        : {
+            uri: `${IMAGEKIT_URL_ENDPOINT}/users/${friendInfo(item, "id")}/profile/profile_${friendInfo(item, "id")}_150x150.webp`,
+          };
+    }, [errorMap, item, profilePlaceHolder, friendInfo]);
 
     const onErrorImage = useCallback(() => {
-      setErrorMap((prev) => ({ ...prev, [item.id]: true }));
-    }, [item.id, setErrorMap]);
+      setErrorMap((prev) => ({ ...prev, [friendInfo(item, "id")]: true }));
+    }, [item, setErrorMap, friendInfo]);
 
-    //usecallback - memoizovana funkce, nemeni se mezi rendery dokud se nezmeni zavislosti, jinak by vznikali nove reference a React.memo by si myslel ze se zmenily props
+    //usecallback - memorizovana funkce, nemeni se mezi rendery dokud se nezmeni zavislosti, jinak by vznikali nove reference a React.memo by si myslel ze se zmenily props
     const onPressItem = useCallback(() => {
       router.push({
         pathname: `/profile/${item.id}`,

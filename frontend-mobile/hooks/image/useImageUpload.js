@@ -1,6 +1,5 @@
 import { useImagePicker } from "@/hooks/image/useImagePicker";
 import { useImageCompressor } from "@/hooks/image/useImageCompressor";
-import useUpdateUserProfileImageMutation from "@/hooks/user/useUpdateUserProfileImageMutation";
 
 export const useImageUpload = () => {
   const { pickImage, takePhoto } = useImagePicker();
@@ -8,9 +7,6 @@ export const useImageUpload = () => {
     width: 1024,
     compressSize: 0.9,
   });
-  
-  const { updateUserProfileImageMutation, isLoading } =
-    useUpdateUserProfileImageMutation();
 
   const uploadImage = async (uri) => {
     const compressedUri = await compressImage(uri);
@@ -24,7 +20,7 @@ export const useImageUpload = () => {
       type: "image/webp",
     });
 
-    updateUserProfileImageMutation.mutate(formData)
+    return {formData, uri: compressedUri};
   };
 
   return { pickImage, takePhoto, uploadImage };

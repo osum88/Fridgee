@@ -4,7 +4,7 @@ export const emailVerificationTexts = {
         body: (verificationLink) => `
             <p>Hello,</p>
             <p>Thank you for registering with Fridgee. To complete your registration, please verify your email by clicking the link below:</p>
-            <p><a href="${verificationLink}">${verificationLink}</a></p>
+            <p><a href="${verificationLink}">Verify Account</a></p>
             <p>This link will expire in 24 hours. If you did not register, please ignore this email.</p>
         `
     },
@@ -13,7 +13,7 @@ export const emailVerificationTexts = {
         body: (verificationLink) => `
             <p>Dobrý den,</p>
             <p>Děkujeme vám za registraci ve službě Fridgee. Pro dokončení registrace ověřte prosím svůj e-mail kliknutím na níže uvedený odkaz:</p>
-            <p><a href="${verificationLink}">${verificationLink}</a></p>
+            <p><a href="${verificationLink}">Verify Account</a></p>
             <p>Tento odkaz vyprší za 6 hodin. Pokud jste se neregistroval(a), tento e-mail prosím ignorujte.</p>
         `
     }
@@ -26,7 +26,7 @@ export const passwordResetTexts = {
             <p>Hello,</p>
             <p>We received a request to reset the password for your account. If you did not request this, you can safely ignore this email.</p>
             <p>To reset your password, click the following link:</p>
-            <p><a href="${resetLink}">${resetLink}</a></p>
+            <p><a href="${resetLink}">Reset password</a></p>
         `
     },
     "cs": {
@@ -35,7 +35,7 @@ export const passwordResetTexts = {
             <p>Dobrý den,</p>
             <p>Obdrželi jsme požadavek na změnu hesla pro váš účet. Pokud jste o to nežádal(a), můžete tuto zprávu ignorovat.</p>
             <p>Pro resetování hesla klikněte na následující odkaz:</p>
-            <p><a href="${resetLink}">${resetLink}</a></p>
+            <p><a href="${resetLink}">Reset password</a></p>
         `
     }
 };

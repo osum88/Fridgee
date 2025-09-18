@@ -1,7 +1,7 @@
 import express from "express";
 import { authenticateToken, authorizeAdmin, authorizeAdminWithOutId } from "../middlewares/authMiddleware.js";
 import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFriends, getReceivedFriendRequests, getSentFriendRequests } from "../controllers/friendController.js";
-import { deleteUser, getAllUsersAdmin, getUserById, updateUser, updateUserProfileImage } from "../controllers/userController.js";
+import { deleteUser, deleteUserProfileImage, getAllUsersAdmin, getUserById, updateUser, updateUserProfileImage } from "../controllers/userController.js";
 import validate from "../middlewares/validator.js";
 import { updateUserSchema } from "../validation/userValidation.js";
 import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, getAllFoodInventory, getInventoryDetailsWithUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
@@ -77,14 +77,18 @@ router.get("/users/:id", authenticateToken, authorizeAdmin, getUserById);
 //vrati vsechny uzivatele
 router.get("/users", authenticateToken, authorizeAdminWithOutId, getAllUsersAdmin);   
 
+//zmeni profile image
+router.patch("/users/:id/profile-image", authenticateToken, authorizeAdmin, upload.single("file"), updateUserProfileImage);
+
+//smaže profile image
+router.delete("/users/:id/profile-image", authenticateToken, authorizeAdmin, deleteUserProfileImage);
+
 //updatuje uzivatele
 router.patch("/users/:id", validate(updateUserSchema), authenticateToken, authorizeAdmin, updateUser);
 
 //smaze uzivatele
 router.delete("/users/:id", authenticateToken, authorizeAdmin, deleteUser);
 
-//zmeni profile image
-router.patch("/users/:id/profile-image", authenticateToken, authorizeAdmin, upload.single("file"), updateUserProfileImage);
 
 
 export default router;

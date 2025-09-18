@@ -1,8 +1,7 @@
 import { BadRequestError, ConflictError, NotFoundError } from "../errors/errors.js";
 import { getFriendshipRepository } from "../repositories/friendRepository.js";
-import { createUserRepository, deleteUserRepository, getBankNumberRepository, getImageUrlRepository, getUserByEmailRepository, getUserByIdRepository, getUserByUsernameRepository, searchUsersRepository, updatePreferredLanguageByUserIdRepository, updateUserProfileImageRepository, updateUserRepository } from "../repositories/userRepository.js";
-import sharp from "sharp";
-import { generateImageFilename, resizeImage } from "../services/imageService.js"
+import { createUserRepository, deleteUserRepository, getBankNumberRepository, getUserByEmailRepository, getUserByIdRepository, getUserByUsernameRepository, searchUsersRepository, updatePreferredLanguageByUserIdRepository, updateUserProfileImageRepository, updateUserRepository } from "../repositories/userRepository.js";
+import { deleteUserFolderFromCloud, generateImageFilename, getImageUpdateTimeFromCloude, resizeImage, uploadImageToCloud } from "../services/imageService.js"
 
 export const createUserService = async (name, surname, username, birthDate, email, password, bankNumber, preferredLanguage) => {
     const existingUserByEmail = await getUserByEmailRepository(email);
@@ -74,6 +73,7 @@ export const deleteUserService = async (id, admin) => {
     if (!deletedUser) {
         throw new NotFoundError("User not found.");
     }
+    await deleteUserFolderFromCloud(`/users/${id}/profile`);
     
     return deletedUser;
 };
@@ -128,18 +128,54 @@ export const updatePreferredLanguageByUserIdService = async (id, language) => {
     return updatedUser;
 };
 
+//updatuje profilovou fotku
 export const updateUserProfileImageService = async (userId, image, isAdmin) => {
     if (isAdmin) {
         await getUserByIdRepository(userId); 
     }
-    const imageUrl = await getImageUrlRepository(userId);
-    if (!imageUrl) {
 
+    //zmensi fotku
+    const profileImageBuffer150 = await resizeImage(image, 150, "webp");
+    //vytvori nazev
+    const filename150 = generateImageFilename("profile", userId, 150, 150, "webp", false);
+    //uploaduje fotku na cloud
+    const result150 = await uploadImageToCloud(profileImageBuffer150, filename150, `/users/${userId}/profile`, ["profile", `user-${userId}`]);
+
+    if (!result150) {
+        throw new BadRequestError("Error uploading 150px user profile image");
     }
- 
 
-    const profileImage400x400 = await resizeImage(image, 400, userId, "profile", "webp");
-    const profileImage200x200 = await resizeImage(image, 200, userId, "profile", "webp");
+    // zmensi fotku
+    const profileImageBuffer350 = await resizeImage(image, 350, "webp");
+    //vytvori nazev
+    const filename350 = generateImageFilename("profile", userId, 350, 350, "webp", false);
+    //uploaduje fotku na cloud
+    const result350 = await uploadImageToCloud(profileImageBuffer350, filename350, `/users/${userId}/profile`, ["profile", `user-${userId}`]);
 
-   
+    if (!result350) {
+        throw new BadRequestError("Error uploading 350px user profile image");
+    }
+
+    const updateTime = await getImageUpdateTimeFromCloude(result350.fileId);
+
+    try {
+        const updatedUser = await updateUserProfileImageRepository(userId, `${result350.filePath}?v=${updateTime}`);
+        return updatedUser;
+    } catch (error) {
+        throw new BadRequestError("Upload succeeded, but DB update failed");
+    }
+}
+
+//smaze profilovou fotku
+export const deleteUserProfileImageService = async (userId, isAdmin) => {
+    if (isAdmin) {
+        await getUserByIdRepository(userId); 
+    }
+    await deleteUserFolderFromCloud(`/users/${userId}/profile`);
+    try {
+        const deletedUserImage = await updateUserProfileImageRepository(userId, null);
+        return deletedUserImage;
+    } catch (error) {
+        throw new BadRequestError("Error delete profile image");
+    }
 }

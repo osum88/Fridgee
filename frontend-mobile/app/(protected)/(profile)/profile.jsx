@@ -1,16 +1,8 @@
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { useUser } from "@/hooks/useUser";
-import {
-  Image,
-  Linking,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { useEffect, useMemo, useState } from "react";
+import { Image, Pressable, StyleSheet, TouchableOpacity } from "react-native";
+import { useMemo, useState } from "react";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import i18n from "@/constants/translations";
 import { useProfilePlaceHolder } from "@/hooks/useProfilePlaceHolder";
@@ -24,21 +16,43 @@ import {
   responsiveVertical,
   responsivePadding,
 } from "@/utils/scale";
-import { Snackbar } from "react-native-paper";
+import { ActivityIndicator, Snackbar } from "react-native-paper";
 import { toast, ToastPosition } from "@backpackapp-io/react-native-toast";
 import { ToastProvider } from "@backpackapp-io/react-native-toast";
-
+import useUpdateUserProfileImageMutation from "@/hooks/user/useUpdateUserProfileImageMutation";
+import useDeleteUserProfileImageMutation from "@/hooks/user/useDeleteUserProfileImageMutation";
+import { IMAGEKIT_URL_ENDPOINT } from "@/config/config";
+import { useCachedProfileImage } from "@/hooks/image/useCachedProfileImage";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Profile() {
   const color = useThemeColor();
   const { userId } = useUser();
-  const [onErrorImage, setOnErrorImage] = useState(false);
   const profilePlaceHolder = useProfilePlaceHolder();
   const { pickImage, takePhoto, uploadImage } = useImageUpload();
   const [visible, setVisible] = useState(false);
   const [image, setImage] = useState(null);
- 
-  const { data: userData } = useGetUserQuery(userId, true);
+  const [imageIndex, setImageIndex] = useState(0);
+  const queryClient = useQueryClient(); //smazat
+
+  //update profilovky
+  const { updateUserProfileImageMutation } = useUpdateUserProfileImageMutation({
+    setImage,
+  });
+  //smazani profilovky
+  const { deleteUserProfileImageMutation } = useDeleteUserProfileImageMutation({
+    setImage,
+  });
+
+  //user data
+  const { data: userData, isLoading } = useGetUserQuery(userId, true);
+
+  //nacteni profilovky z cache
+  const { cacheProfileImage } = useCachedProfileImage(
+    userId,
+    isLoading,
+    userData?.data
+  );
 
   // useEffect(() => {
   //   toast("Zprávaaax praahkkgjao uživatele", {
@@ -50,46 +64,92 @@ export default function Profile() {
   //   });
   // }, []);
 
+  //vyber moznosti pri zmene profilovky
   const handleImagePick = async (type) => {
     if (type === "camera") {
       // toast.success("Obrázek nahrán!");
       const uri = await takePhoto();
       if (uri) {
         setImage(uri);
-        uploadImage(uri);
+        const { formData, uri: uploadUri } = await uploadImage(uri);
+        updateUserProfileImageMutation.mutate({ formData, uploadUri });
       }
     } else if (type === "photo") {
       const uri = await pickImage();
       if (uri) {
         setImage(uri);
-        uploadImage(uri);
+        const { formData, uri: uploadUri } = await uploadImage(uri);
+        updateUserProfileImageMutation.mutate({ formData, uploadUri });
       }
     } else if (type === "remove") {
       setImage("none");
+      deleteUserProfileImageMutation.mutate();
     }
   };
 
+  //pole odkazu, pokud nefunguje odkza z cache pak se pouzije cloud jinak placeholder
+  const imageSources = useMemo(() => {
+    const version = userData?.data?.profilePictureUrl?.includes("?v=")
+      ? userData.data.profilePictureUrl.split("?v=")[1]
+      : Date.now();
+
+    const cacheUri = cacheProfileImage
+      ? `${cacheProfileImage}?v=${version}`
+      : null;
+    const cloudUri = userData?.data?.profilePictureUrl
+      ? `${IMAGEKIT_URL_ENDPOINT}${userData.data.profilePictureUrl}`
+      : null;
+
+    return [
+      cacheUri ? { uri: cacheUri } : null,
+      cloudUri ? { uri: cloudUri } : null,
+      profilePlaceHolder,
+    ].filter(Boolean);
+  }, [
+    cacheProfileImage,
+    userData?.data?.profilePictureUrl,
+    profilePlaceHolder,
+  ]);
+
   //profilova fotka
   const sourceImage = useMemo(() => {
-    if (!image) {
-      return onErrorImage
-        ? profilePlaceHolder
-        : { uri: `https://picsum.photos/id/${userId}/200/300` }; //tady pak upravti na url fotky z db
-    }
-    return image === "none" ? profilePlaceHolder : { uri: image };
-  }, [profilePlaceHolder, image, onErrorImage, userId]);
+    if (image === "none") return profilePlaceHolder;
+    if (image) return { uri: image };
+    if (userData?.data?.profilePictureUrl === "none") return profilePlaceHolder;
+
+    return imageSources[imageIndex] ?? profilePlaceHolder;
+  }, [
+    image,
+    imageIndex,
+    imageSources,
+    userData?.data?.profilePictureUrl,
+    profilePlaceHolder,
+  ]);
 
   return (
     <ThemedView style={[styles.contentWrapper]}>
       <ThemedView>
-        <Image
-          alt={i18n.t("profileImage")}
-          accessibilityLabel={i18n.t("profileImage")}
-          source={sourceImage}
-          defaultSource={profilePlaceHolder}
-          onError={() => setOnErrorImage(true)}
-          style={[styles.profileImage, { borderColor: color.borderImage }]}
-        />
+        {isLoading && !userData?.data?.profilePictureUrl ? (
+          <ActivityIndicator
+            size="large"
+            color={color.borderImage}
+            style={[styles.profileImage, { borderColor: color.borderImage }]}
+          />
+        ) : (
+          <Image
+            alt={i18n.t("profileImage")}
+            accessibilityLabel={i18n.t("profileImage")}
+            defaultSource={profilePlaceHolder}
+            source={sourceImage}
+            onError={() => {
+              if (imageIndex < imageSources.length - 1) {
+                setImageIndex(imageIndex + 1);
+              }
+            }}
+            style={[styles.profileImage, { borderColor: color.borderImage }]}
+          />
+        )}
+
         <TouchableOpacity
           onPress={() => {
             setVisible(true);
@@ -119,7 +179,9 @@ export default function Profile() {
       <ThemedText>Username: {userData?.data?.username}</ThemedText>
 
       <Pressable
-        onPress={() => console.log("daa")}
+        onPress={() =>
+          queryClient.invalidateQueries({ queryKey: ["user", userId] })
+        }
         style={[
           styles.tap,
           {
