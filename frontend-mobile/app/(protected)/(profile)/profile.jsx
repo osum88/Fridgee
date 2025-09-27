@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import i18n from "@/constants/translations";
 import { useProfilePlaceHolder } from "@/hooks/useProfilePlaceHolder";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+import { IconSymbol } from "@/components/icons/IconSymbol";
 import { useGetUserQuery } from "@/hooks/user/useUserQuery";
 import { useImageUpload } from "@/hooks/image/useImageUpload";
 import { ProfileImageSelector } from "@/components/image/ProfileImageSelector";

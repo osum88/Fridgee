@@ -1,6 +1,6 @@
 import { TouchableOpacity, StyleSheet } from "react-native";
 import { ThemedText } from "@/components/themed/ThemedText";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+import { IconSymbol } from "@/components/icons/IconSymbol";
 import { responsiveSize } from "@/utils/scale";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";

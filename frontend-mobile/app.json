@@ -40,13 +40,18 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-barcode-scanner",
       "expo-secure-store",
       [
         "expo-image-picker",
         {
           "photosPermission": "Fridgee needs access to your photos to let you upload ingredients or profile pictures.",
-          "cameraPermission": "Fridgee needs access to your camera to let you scan barcodes, take food photos or profile picture"
+          "cameraPermission": "Fridgee needs access to your camera to let you scan barcodes, take food photos or profile picture."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Fridgee needs access to your camera to let you scan barcodes."
         }
       ]
     ],

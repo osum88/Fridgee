@@ -3,7 +3,7 @@ import { StyleSheet, TouchableOpacity } from "react-native";
 import { Dialog, Portal } from "react-native-paper";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import i18n from "@/constants/translations";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+import { IconSymbol } from "@/components/icons/IconSymbol";
 import { responsiveFont, responsiveSize } from "@/utils/scale";
 
 export function ProfileImageSelector({

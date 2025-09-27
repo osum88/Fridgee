@@ -2,7 +2,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { Pressable, StyleSheet } from "react-native";
 import { ThemedText } from "@/components/themed/ThemedText";
 import i18n from "@/constants/translations";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+import { IconSymbol } from "@/components/icons/IconSymbol";
 import { responsiveFont, responsiveSize } from "@/utils/scale";
 
 export function FriendActionButton({

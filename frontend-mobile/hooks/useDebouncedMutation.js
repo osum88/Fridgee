@@ -1,5 +1,6 @@
 import { useRef, useCallback } from "react";
 
+//zajisti ze opakovane spustena funkce se spusti pouze na posledni zavolani v danem intervalu
 export const useDebouncedMutation = (defaultDelay = 1000) => {
   const debounceTimeoutRef = useRef({});
 

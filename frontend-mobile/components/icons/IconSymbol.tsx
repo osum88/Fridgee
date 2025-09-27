@@ -1,5 +1,3 @@
-// Fallback for using MaterialIcons on Android and web.
-
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { SymbolWeight, SymbolViewProps } from "expo-symbols";
@@ -15,7 +13,6 @@ type IconDefinition = {
   source: IconSource;
 };
 
-// type IconMapping = Record<SymbolViewProps["name"], ComponentProps<typeof MaterialIcons>["name"]>;
 type IconMapping = Record<SymbolViewProps["name"], IconDefinition>;
 type IconSymbolName = keyof typeof MAPPING;
 
@@ -72,6 +69,17 @@ const MAPPING = {
   "trash": { name: "delete-outline", source: "MaterialCommunityIcons" },
   // kos
   "trash.fill": { name: "delete", source: "MaterialCommunityIcons" },
+  //baterka
+  "bolt.fill": { name: "flash-on", source: "MaterialIcons" },
+  //vypnuta baterka
+  "bolt.slash.fill": { name: "flash-off", source: "MaterialIcons" },
+  //obraceni fotaku
+  "camera.rotate": { name: "camera-flip-outline", source: "MaterialCommunityIcons" },
+  //ramecek skenu
+  "viewfinder": { name: "scan-helper", source: "MaterialCommunityIcons" },
+  //plus outline
+  "plus.circle": { name: "plus-circle-outline", source: "MaterialCommunityIcons" },
+
 } as IconMapping;
 
 /**

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getRefreshToken, storeTokens } from "./tokenManager";
+import { API_BASE_URL } from "@/config/config";
 
 let accessTokenGetter = null;
 let signOutCallback = null;
@@ -21,10 +22,7 @@ export const setTokensCallback = (callback) => {
 
 //instance axiosu
 const apiClient = axios.create({
-  // baseURL: "http://localhost:3001/api",
-
-  baseURL: `http://10.0.0.2:3001/api`, //wifi doma
-  // baseURL: `http://10.160.48.141:3001/api`,           //mobil hotspot
+  baseURL: API_BASE_URL, 
   headers: {
     "Content-Type": "application/json",
   },
@@ -36,7 +34,7 @@ apiClient.interceptors.request.use(
     if (accessTokenGetter) {
       const accessToken = accessTokenGetter();
       if (accessToken) {
-        console.log("Header Bearer token:", accessToken.substring(0, 30));
+        console.log("Header Bearer token:", accessToken.substring(0, 20));
         config.headers.Authorization = `Bearer ${accessToken}`;
       }
     }

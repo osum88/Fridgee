@@ -111,23 +111,6 @@ export function UserProvider({ children }) {
     setTokensCallback(handleNewTokens);
   }, [getAccessToken, signOut]);
 
-  //------mozna pak odstranit------------------------------------------------------
-  //nacte uzivatele na zacatku pokud byl predtim remmeber true
-  // useEffect(() => {
-  //   if (userData?.data) {
-  //     setUser(userData.data);
-  //     console.log("User data saved to context.");
-  //   }
-  // }, [userData]);
-
-  // useEffect(() => {
-  //   if (isError) {
-  //     console.error("Error fetching user data:", isError);
-  //     // signOut();
-  //   }
-  // }, [isError]);
-  //.----------------------------------------------------------------------------------
-
   //refresh tokenu
   const refreshTokens = useCallback(async () => {
     if (refreshingPromiseRef.current) {

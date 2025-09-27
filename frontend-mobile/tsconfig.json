@@ -13,5 +13,5 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-, "app/(auth)/login.jsx", "app/(auth)/register.jsx", "components/themed/ThemedLine.jsx", "app/_layout.jsx", "hooks/useProfilePlaceHolder.js", "hooks/useThemeColor.ts", "app/(protected)/(friends)/(friendsTabs)/_layout.jsx"  ]
+, "app/(auth)/login.jsx", "app/(auth)/register.jsx", "components/themed/ThemedLine.jsx", "app/_layout.jsx", "hooks/useProfilePlaceHolder.js", "hooks/useThemeColor.ts", "app/(protected)/(friends)/(friendsTabs)/_layout.jsx", "app/(protected)/(tabs)/scannerAdd.jsx", "app/(protected)/(tabs)/_layout.jsx"  ]
 }

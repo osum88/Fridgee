@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useCallback } from "react";
 import { ThemedView } from "@/components/themed/ThemedView";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+import { IconSymbol } from "@/components/icons/IconSymbol";
 import {
   FlatList,
   Image,

@@ -3,12 +3,14 @@ import { StyleSheet, TouchableOpacity } from "react-native";
 
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+import { IconSymbol } from "@/components/icons/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { useTheme } from "@/contexts/ThemeContext";
 
-
-export function Collapsible({ children, title }: PropsWithChildren & { title: string }) {
+export function Collapsible({
+  children,
+  title,
+}: PropsWithChildren & { title: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const { colorScheme } = useTheme();
   const theme = colorScheme ?? "light";
@@ -18,7 +20,8 @@ export function Collapsible({ children, title }: PropsWithChildren & { title: st
       <TouchableOpacity
         style={styles.heading}
         onPress={() => setIsOpen((value) => !value)}
-        activeOpacity={0.8}>
+        activeOpacity={0.8}
+      >
         <IconSymbol
           name="chevron.right"
           size={18}
