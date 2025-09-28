@@ -31,7 +31,7 @@ export function LanguageProvider({ children, user, isUserLoggedIn }) {
         const storedLanguage = await AsyncStorage.getItem("selected_language");
 
         if (storedLanguage) {
-          //pokud je remmeber me true
+          //pokud je remmember me true
           languageToSet = storedLanguage;
         } else if (isUserLoggedIn && user?.preferredLanguage) {
           //pokud se prihlasuje

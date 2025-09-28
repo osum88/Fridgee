@@ -24,11 +24,10 @@ const queryClient = new QueryClient();
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-const [fontsLoaded] = useFonts({
-  SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-  MaterialCommunityIcons: require("@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"),
-});
-
+  const [fontsLoaded] = useFonts({
+    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    MaterialCommunityIcons: require("@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"),
+  });
 
   const CustomDarkTheme = {
     ...DarkTheme,
@@ -45,15 +44,17 @@ const [fontsLoaded] = useFonts({
   return (
     <QueryClientProvider client={queryClient}>
       {/* <StrictMode> */}
-      <UserProvider>
-        <LanguageWrapper>
-          <ThemeProvider>
-            <Provider>
-              <RootLayoutContent CustomDarkTheme={CustomDarkTheme} />
-            </Provider>
-          </ThemeProvider>
-        </LanguageWrapper>
-      </UserProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <UserProvider>
+          <LanguageWrapper>
+            <ThemeProvider>
+              <Provider>
+                <RootLayoutContent CustomDarkTheme={CustomDarkTheme} />
+              </Provider>
+            </ThemeProvider>
+          </LanguageWrapper>
+        </UserProvider>
+      </GestureHandlerRootView>
       {/* </StrictMode> */}
     </QueryClientProvider>
   );
@@ -104,27 +105,25 @@ function RootLayoutContent({ CustomDarkTheme }) {
   const backgroundColor = colorScheme === "dark" ? "#000000" : "#ffffff";
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <Toasts key={colorScheme} />
-        <View style={{ flex: 1, backgroundColor: backgroundColor }}>
-          {isAppReady ? (
-            <NavigationThemeProvider
-              value={colorScheme === "dark" ? CustomDarkTheme : DefaultTheme}
-            >
-              <Stack screenOptions={{ headerShown: false }}>
-                {isAuthenticated ? (
-                  <Stack.Screen name="(protected)" />
-                ) : (
-                  <Stack.Screen name="(auth)" />
-                )}
-                <Stack.Screen name="+not-found" />
-              </Stack>
-              <StatusBar style="auto" />
-            </NavigationThemeProvider>
-          ) : null}
-        </View>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+    <SafeAreaProvider>
+      <Toasts key={colorScheme} />
+      <View style={{ flex: 1, backgroundColor: backgroundColor }}>
+        {isAppReady ? (
+          <NavigationThemeProvider
+            value={colorScheme === "dark" ? CustomDarkTheme : DefaultTheme}
+          >
+            <Stack screenOptions={{ headerShown: false }}>
+              {isAuthenticated ? (
+                <Stack.Screen name="(protected)" />
+              ) : (
+                <Stack.Screen name="(auth)" />
+              )}
+              <Stack.Screen name="+not-found" />
+            </Stack>
+            <StatusBar style="auto" />
+          </NavigationThemeProvider>
+        ) : null}
+      </View>
+    </SafeAreaProvider>
   );
 }

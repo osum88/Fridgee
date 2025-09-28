@@ -1,5 +1,5 @@
-import { router, Tabs } from "expo-router";
-import { Alert, Linking, Platform } from "react-native";
+import { router, Tabs, useNavigation } from "expo-router";
+import { Alert, Linking, Platform, Pressable } from "react-native";
 import { responsiveFont, responsiveSize } from "@/utils/scale";
 import { HapticTab } from "@/components/HapticTab";
 import { IconSymbol } from "@/components/icons/IconSymbol";
@@ -8,18 +8,25 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { useCameraPermissions } from "expo-camera";
 import i18n from "@/constants/translations";
 import { IconOverlay } from "@/components/icons/IconOverlay";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function TabLayout() {
   const colorScheme = useThemeColor();
   const [permission, requestPermission] = useCameraPermissions();
+  const navigation = useNavigation();
+  useLanguage();
 
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: colorScheme.tint,
         headerShown: false,
+        headerStyle: {
+          height: responsiveSize.vertical(78),
+        },
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
+        headerTitleAlign: "center",
         headerTitleStyle: {
           fontSize: Math.round(responsiveFont(19)),
         },
@@ -43,9 +50,18 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: i18n.t("home"),
           headerShown: true,
-
+          headerLeft: () => (
+            <Pressable onPress={() => navigation.openDrawer()}>
+              <IconSymbol
+                name="line.horizontal.3"
+                size={responsiveSize.moderate(23)}
+                color={colorScheme.text}
+                style={{ marginStart: responsiveSize.horizontal(12) }}
+              />
+            </Pressable>
+          ),
           tabBarIcon: ({ color }) => (
             <IconSymbol
               size={responsiveSize.moderate(23)}
@@ -58,11 +74,11 @@ export default function TabLayout() {
       <Tabs.Screen
         name="scannerAdd"
         options={{
-          title: "Scan add",
+          title: i18n.t("scanAdd"),
           tabBarIcon: ({ color }) => (
             <IconOverlay
               size={responsiveSize.moderate(20)}
-              icons ={["viewfinder", "plus.circle"]}
+              icons={["viewfinder", "plus.circle"]}
               color={color}
             />
           ),
@@ -98,6 +114,16 @@ export default function TabLayout() {
         options={{
           title: "Explore",
           headerShown: true,
+          headerLeft: () => (
+            <Pressable onPress={() => navigation.openDrawer()}>
+              <IconSymbol
+                name="line.horizontal.3"
+                size={responsiveSize.moderate(23)}
+                color={colorScheme.text}
+                style={{ marginStart: responsiveSize.horizontal(12) }}
+              />
+            </Pressable>
+          ),
           tabBarIcon: ({ color }) => (
             <IconSymbol
               size={responsiveSize.moderate(22)}

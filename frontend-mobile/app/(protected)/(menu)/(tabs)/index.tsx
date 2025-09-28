@@ -7,10 +7,12 @@ import { ThemedView } from "@/components/themed/ThemedView";
 import i18n from "@/constants/translations";
 import { useUser } from "@/hooks/useUser";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function HomeScreen() {
-  const {  signOut } = useUser();
+  const { signOut } = useUser();
   const currentColors = useThemeColor();
+  useLanguage();
 
   return (
     <ParallaxScrollView
@@ -24,7 +26,7 @@ export default function HomeScreen() {
     >
       <ThemedView style={styles.stepContainer}>
         <Link
-          href="../login"
+          href="../../login"
           style={[
             styles.tap,
             {
@@ -59,7 +61,7 @@ export default function HomeScreen() {
         </Pressable>
 
         <Link
-          href="../resendVerifyEmail"
+          href="../../resendVerifyEmail"
           style={[
             styles.tap,
             {
@@ -71,11 +73,11 @@ export default function HomeScreen() {
             type="subtitle"
             style={[styles.tapText, { color: currentColors.onPrimary }]}
           >
-            Resend verify email
+            {i18n.t("resendEmail")}
           </ThemedText>
         </Link>
         <Link
-          href="../resetPassword"
+          href="../../resetPassword"
           style={[
             styles.tap,
             {
@@ -87,12 +89,12 @@ export default function HomeScreen() {
             type="subtitle"
             style={[styles.tapText, { color: currentColors.onPrimary }]}
           >
-            Reset password
+            {i18n.t("resetPassword")}
           </ThemedText>
         </Link>
 
         <Link
-          href="../emailVerify"
+          href="../../emailVerify"
           style={[
             styles.tap,
             {
@@ -104,7 +106,7 @@ export default function HomeScreen() {
             type="subtitle"
             style={[styles.tapText, { color: currentColors.onPrimary }]}
           >
-            Email verify
+            {i18n.t("emailVerify")}
           </ThemedText>
         </Link>
 
@@ -170,7 +172,7 @@ export default function HomeScreen() {
             type="subtitle"
             style={[styles.tapText, { color: currentColors.onPrimary }]}
           >
-            Friends
+            {i18n.t("friends")}
           </ThemedText>
         </Link>
 
@@ -190,7 +192,6 @@ export default function HomeScreen() {
             {i18n.t("profile")}{" "}
           </ThemedText>
         </Link>
-
       </ThemedView>
     </ParallaxScrollView>
   );
