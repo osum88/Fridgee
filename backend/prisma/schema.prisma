@@ -78,7 +78,7 @@ enum FriendshipStatus {
   BLOCKED
 }
 
-//inventar potravin, spolecny i soukromí
+//inventar potravin
 model FoodInventory {
   id              Int                   @id @default(autoincrement())
   title           String                @db.VarChar(100)

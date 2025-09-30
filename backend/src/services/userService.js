@@ -1,7 +1,7 @@
 import { BadRequestError, ConflictError, NotFoundError } from "../errors/errors.js";
 import { getFriendshipRepository } from "../repositories/friendRepository.js";
 import { createUserRepository, deleteUserRepository, getBankNumberRepository, getUserByEmailRepository, getUserByIdRepository, getUserByUsernameRepository, searchUsersRepository, updatePreferredLanguageByUserIdRepository, updateUserProfileImageRepository, updateUserRepository } from "../repositories/userRepository.js";
-import { deleteUserFolderFromCloud, generateImageFilename, getImageUpdateTimeFromCloude, resizeImage, uploadImageToCloud } from "../services/imageService.js"
+import { deleteUserFolderFromCloud, generateImageFilename, getImageUpdateTimeFromCloud, resizeImage, uploadImageToCloud } from "../services/imageService.js"
 
 export const createUserService = async (name, surname, username, birthDate, email, password, bankNumber, preferredLanguage) => {
     const existingUserByEmail = await getUserByEmailRepository(email);
@@ -89,6 +89,7 @@ export const getBankNumberService = async (id) => {
     return bankNumber;
 };
 
+//vyhleda uzivatele
 export const searchUsersService = async (userId, username, limit = 10) => {
     if (!username || username.trim() === "") {
         throw new BadRequestError("Username is required for search.");
@@ -156,7 +157,7 @@ export const updateUserProfileImageService = async (userId, image, isAdmin) => {
         throw new BadRequestError("Error uploading 350px user profile image");
     }
 
-    const updateTime = await getImageUpdateTimeFromCloude(result350.fileId);
+    const updateTime = await getImageUpdateTimeFromCloud(result350.fileId);
 
     try {
         const updatedUser = await updateUserProfileImageRepository(userId, `${result350.filePath}?v=${updateTime}`);

@@ -252,7 +252,7 @@ export const archiveFoodInventoryService = async (userId, inventoryId, isArchive
     return updatedInventory;
 };
 
-//vrati uzivatele podle id a role
+//updatuje nazev a label inventare
 export const updateFoodInventoryService = async (userId, inventoryId, title, label, isAdmin) => {
     if (isNaN(inventoryId)) {
         throw new BadRequestError("Invalid inventory ID provided.");
@@ -277,7 +277,7 @@ export const updateFoodInventoryService = async (userId, inventoryId, title, lab
     return updatedInventory;
 };
 
-//vrati uzivatele podle id a role
+//vrati uzivatele inventare
 export const getAllFoodInventoryService = async (userId, isAdmin) => {
     if (isAdmin) {
         await getUserByIdRepository(userId);
@@ -288,6 +288,7 @@ export const getAllFoodInventoryService = async (userId, isAdmin) => {
     return inventories;
 };
 
+//vrati invetar s informacemi o uzivateli
 export const getInventoryDetailsWithUserService = async (userId, inventoryId, isAdmin) => {
     if (isNaN(inventoryId)) {
         throw new BadRequestError("Invalid inventory ID provided.");
@@ -313,7 +314,7 @@ export const getInventoryDetailsWithUserService = async (userId, inventoryId, is
 };
 
 //zmena settingu pro uzivatele
-export const changeSettingFoodInventoryUserService = async (userId, inventoryId, setting, isAdmin) => {
+export const changeSettingFoodInventoryUserService = async (userId, inventoryId, settings, isAdmin) => {
     if (isNaN(inventoryId)) {
         throw new BadRequestError("Invalid inventory ID provided.");
     }
@@ -328,6 +329,6 @@ export const changeSettingFoodInventoryUserService = async (userId, inventoryId,
     }
     
     // zmena settingu usera
-    const updatedUser = await changeSettingFoodInventoryUserRepository(userId, inventoryId, setting);
+    const updatedUser = await changeSettingFoodInventoryUserRepository(userId, inventoryId, settings);
     return updatedUser;
 };

@@ -21,9 +21,9 @@ export default function SettingLayout() {
       }}
     >
       <Stack.Screen
-        name="setting"
+        name="settings"
         options={{
-          title: i18n.t("setting"),
+          title: i18n.t("settings"),
           headerLeft: () => (
             <Pressable onPress={() => navigation.openDrawer()}>
               <IconSymbol

@@ -1,15 +1,15 @@
-import { acceptInventoryInvitationService, rejectInventoryInvitationService, sentInventoryInvitationService } from "../services/inventoryInvitationService.js";
+import { acceptInventoryInvitationService, rejectInventoryInvitationService, sendInventoryInvitationService } from "../services/inventoryInvitationService.js";
 import handleResponse from "../utils/responseHandler.js";
 
 
 //odesle pozvanky do inventare
-export const sentInventoryInvitation = async (req, res, next) => {
+export const sendInventoryInvitation = async (req, res, next) => {
     try {
         const inventoryId = parseInt(req.params.inventoryId, 10);
         const { receiverId, role } = req.body;
         const senderId = req.userId;
      
-        const newInventoryInvitation = await sentInventoryInvitationService(senderId, receiverId, inventoryId, role);
+        const newInventoryInvitation = await sendInventoryInvitationService(senderId, receiverId, inventoryId, role);
         handleResponse(res, 201, "Invitation to inventory sent successfully", newInventoryInvitation);
     }
     catch(err){

@@ -73,7 +73,7 @@ export const updateFoodInventorySchema = Joi.object({
 
 export const changeSettingSchema = Joi.object({
     inventoryId: Joi.number().integer().positive().required(),
-    setting: Joi.object({
+    settings: Joi.object({
         expiringFood: Joi.boolean().optional(),
         lowStock: Joi.boolean().optional(),
         inventoryUpdates: Joi.boolean().optional(),
@@ -83,7 +83,7 @@ export const changeSettingSchema = Joi.object({
 export const changeSettingAdminSchema = Joi.object({
     id: Joi.number().integer().positive().required(),
     inventoryId: Joi.number().integer().positive().required(),
-    setting: Joi.object({
+    settings: Joi.object({
         expiringFood: Joi.boolean().optional(),
         lowStock: Joi.boolean().optional(),
         inventoryUpdates: Joi.boolean().optional(),

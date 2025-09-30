@@ -3,7 +3,8 @@ import { createInventoryUserRepository, getFoodInventoryRepository, getFoodInven
 import { createInventoryInvitationRepository, deleteInventoryInvitationRepository, getInventoryInvitationRepository, getInvitationByIdRepository } from "../repositories/inventoryInvitationRepository.js";
 import { getUserByIdRepository } from "../repositories/userRepository.js";
 
-export const sentInventoryInvitationService = async (senderId, receiverId, inventoryId, role) => {
+//odesle zadost do inventare
+export const sendInventoryInvitationService = async (senderId, receiverId, inventoryId, role) => {
     
     if (isNaN(inventoryId)) {
         throw new BadRequestError("Invalid inventory ID provided.");
@@ -44,6 +45,7 @@ export const sentInventoryInvitationService = async (senderId, receiverId, inven
     return newInventoryInvitation;
 };
 
+//akceptuje pozvanku do inventare
 export const acceptInventoryInvitationService = async (receiverId, invitationId) => {
     
     const invitation = await getInvitationByIdRepository(invitationId);
@@ -74,6 +76,7 @@ export const acceptInventoryInvitationService = async (receiverId, invitationId)
     return newInventoryUser;
 };
 
+//odmitne zadost do inventare
 export const rejectInventoryInvitationService = async (receiverId, invitationId) => {
     
     const invitation = await getInvitationByIdRepository(invitationId);

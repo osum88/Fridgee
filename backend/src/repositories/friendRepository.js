@@ -1,5 +1,6 @@
 import prisma from "../utils/prisma.js";
 
+//vytvori pratelstvi ve stavu PENDING
 export const createFriendshipRepository = async (senderId, receiverId) => {
     try {
         if (senderId === receiverId) {
@@ -30,6 +31,7 @@ export const createFriendshipRepository = async (senderId, receiverId) => {
     }
 };
 
+//vrati status pratelstvi
 export const getStatusFriendshipRepository = async (senderId, receiverId) => {
     try {
         const friendship = await prisma.friendship.findFirst({
@@ -50,6 +52,7 @@ export const getStatusFriendshipRepository = async (senderId, receiverId) => {
     }
 };
 
+//vrati pratelstvi
 export const getFriendshipRepository = async (senderId, receiverId) => {
     try {
         const friendship = await prisma.friendship.findFirst({
@@ -73,7 +76,7 @@ export const getFriendshipRepository = async (senderId, receiverId) => {
     }
 };
 
-
+//updatuje friend status 
 export const updateFriendshipStatusRepository = async (senderId, receiverId, status) => {
     try {
         const updatedFriendship = await prisma.friendship.updateMany({
@@ -97,6 +100,7 @@ export const updateFriendshipStatusRepository = async (senderId, receiverId, sta
     }
 };
 
+//smaze pratelstvi
 export const deleteFriendshipRepository = async (senderId, receiverId) => {
     try {
         const deletedFriendships = await prisma.friendship.deleteMany({
@@ -117,6 +121,7 @@ export const deleteFriendshipRepository = async (senderId, receiverId) => {
     }
 };
 
+//smaze vsechny pratele
 export const deleteAllFriendshipRepository = async (userId) => {
     try {
         const deletedFriendships = await prisma.friendship.deleteMany({
@@ -134,6 +139,7 @@ export const deleteAllFriendshipRepository = async (userId) => {
     }
 };
 
+//vyhleda pratele
 export const getAllFriendsRepository = async (userId, searchUsername) => {
     try {
         const allFriends = await prisma.friendship.findMany({
@@ -185,6 +191,7 @@ export const getAllFriendsRepository = async (userId, searchUsername) => {
     }
 };
 
+//vyhleda odeslane zadsoti o pratelstvi
 export const getSentFriendRequestsRepository = async (userId, searchUsername) => {
     try {
         const sentRequests = await prisma.friendship.findMany({
@@ -217,6 +224,7 @@ export const getSentFriendRequestsRepository = async (userId, searchUsername) =>
     }
 };
 
+//vyhleda prijate zadsoti o pratelstvi
 export const getReceivedFriendRequestsRepository = async (userId, searchUsername) => {
     try {
         const receivedRequests = await prisma.friendship.findMany({

@@ -79,6 +79,8 @@ const MAPPING = {
   "viewfinder": { name: "scan-helper", source: "MaterialCommunityIcons" },
   //plus outline
   "plus.circle": { name: "plus-circle-outline", source: "MaterialCommunityIcons" },
+  //otaznik
+  "questionmark.circle": { name: "help", source: "MaterialIcons" },
 
 } as IconMapping;
 

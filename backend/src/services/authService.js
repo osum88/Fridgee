@@ -23,7 +23,6 @@ export const signUpService = async ({username, email, password, preferredLanguag
     // const verificationLink = `${process.env.FRONTEND_URL}/api/auth/verify-email?token=${verifyToken}`;
     const verificationLink = `exp://10.0.0.2:8081/--/emailVerify?token=${verifyToken}`;
 
-    console.log("Tohle se nejak spustilo 22222")
     await sendVerificationEmail("josefnovak738@gmail.com", verificationLink, preferredLanguage);
     // await sendVerificationEmail(newUser.email, verificationLink, preferredLanguage);
 

@@ -114,9 +114,13 @@ function RootLayoutContent({ CustomDarkTheme }) {
           >
             <Stack screenOptions={{ headerShown: false }}>
               {isAuthenticated ? (
-                <Stack.Screen name="(protected)" />
+                <Stack.Protected guard={isAuthenticated}>
+                  <Stack.Screen name="(protected)" />
+                </Stack.Protected>
               ) : (
-                <Stack.Screen name="(auth)" />
+                <Stack.Protected guard={!isAuthenticated}>
+                  <Stack.Screen name="(auth)" />
+                </Stack.Protected>
               )}
               <Stack.Screen name="+not-found" />
             </Stack>

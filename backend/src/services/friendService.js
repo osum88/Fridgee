@@ -36,6 +36,7 @@ export const addFriendService = async (user1Id, user2Id, isAdmin) => {
     return newFriendship;
 };
 
+//smaze pratesltvi
 export const deleteFriendService = async (user1Id, user2Id, isAdmin) => {
     // validace user2id
     if (!user2Id) {
@@ -65,6 +66,7 @@ export const deleteFriendService = async (user1Id, user2Id, isAdmin) => {
     return deletedFriendship;
 };
 
+//akceptuje zadost o pratelstvi PENDING -> ACCEPT
 export const acceptFriendService = async (user1Id, user2Id, isAdmin) => {
     // validace user2id
     if (!user2Id) {
@@ -102,6 +104,7 @@ export const acceptFriendService = async (user1Id, user2Id, isAdmin) => {
     throw new BadRequestError("There is no pending friendship request to accept.");
 };
 
+//odmitne zadost 
 export const cancelRequestFriendService = async (user1Id, user2Id, isAdmin) => {
     // validace user2id
     if (!user2Id) {
@@ -139,7 +142,7 @@ export const cancelRequestFriendService = async (user1Id, user2Id, isAdmin) => {
     throw new BadRequestError("There is no pending friendship request to cancel");
 };
 
-
+//vyhleda pratele
 export const getAllFriendsService = async (userId, username, isAdmin) => {
     if (isAdmin) {
         await getUserByIdRepository(userId);
@@ -158,6 +161,7 @@ export const getAllFriendsService = async (userId, username, isAdmin) => {
     return allFriends;
 };
 
+//vyhleda vsechny odeslane zadosti
 export const getSentFriendRequestsService = async (userId, username, isAdmin) => {
     if (isAdmin) {
         await getUserByIdRepository(userId);
@@ -175,6 +179,7 @@ export const getSentFriendRequestsService = async (userId, username, isAdmin) =>
     return sentRequests;
 };
 
+//vyhleda vsechny prijate zadosti
 export const getReceivedFriendRequestsService = async (userId, username, isAdmin) => {
     if (isAdmin) {
         await getUserByIdRepository(userId);

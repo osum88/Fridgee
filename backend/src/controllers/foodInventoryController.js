@@ -80,6 +80,7 @@ export const deleteOtherFoodInventoryUser = async (req, res, next) => {
     }
 };
 
+//vrati usera z inventare podle id
 export const getUsersByInventoryId = async (req, res, next) => {
     try {
         const inventoryId = parseInt(req.params.inventoryId, 10);
@@ -155,7 +156,7 @@ export const getAllFoodInventory = async (req, res, next) => {
     }
 };
 
-//zruseni archivace invenatre
+//vrati invetar s informacemi o uzivateli
 export const getInventoryDetailsWithUser = async (req, res, next) => {
     try {
         const inventoryId = parseInt(req.params.inventoryId, 10);
@@ -170,16 +171,16 @@ export const getInventoryDetailsWithUser = async (req, res, next) => {
     }
 };
 
-//zmena setting
+//zmena settings
 export const changeSettingFoodInventoryUser = async (req, res, next) => {
     try {
         const inventoryId = parseInt(req.params.inventoryId, 10);
         const userId = req.userId;
         const isAdmin = req.adminRoute;
-        const setting = req.body.setting;
+        const settings = req.body.settings;
         
-        const inventoryDetails = await changeSettingFoodInventoryUserService(userId, inventoryId, setting, isAdmin);
-        handleResponse(res, 200, "User setting updated successfully", inventoryDetails);
+        const inventoryDetails = await changeSettingFoodInventoryUserService(userId, inventoryId, settings, isAdmin);
+        handleResponse(res, 200, "User settings updated successfully", inventoryDetails);
     }
     catch(err){
         next(err);

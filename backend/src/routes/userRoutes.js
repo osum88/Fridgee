@@ -4,15 +4,16 @@ import validate from "../middlewares/validator.js";
 import { createUserSchema, updateLanguageSchema, updateUserSchema } from "../validation/userValidation.js";
 import { authenticateToken, authorizeUser } from "../middlewares/authMiddleware.js";
 import multer from "multer";
+import { sanitize } from "../middlewares/sanitize.js";
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 //vytvoreni uzivatele
-router.post("/users", validate(createUserSchema), createUser);
+router.post("/users", validate(createUserSchema), sanitize, createUser);
 
 //hledani podle username
-router.get("/users/search", authenticateToken, authorizeUser, searchUsers);  
+router.get("/users/search", authenticateToken, sanitize, authorizeUser, searchUsers);  
 //http://localhost:3001/api/users/search?username=josef&limit=2
 
 //vrati uzivatele podle id
@@ -25,10 +26,10 @@ router.patch("/users/profile-image", authenticateToken, authorizeUser, upload.si
 router.delete("/users/profile-image", authenticateToken, authorizeUser, deleteUserProfileImage);
 
 //updatuje jazyk
-router.patch("/users/language", validate(updateLanguageSchema), authenticateToken, authorizeUser, updatePreferredLanguageByUserId);
+router.patch("/users/language", validate(updateLanguageSchema), authenticateToken, sanitize, authorizeUser, updatePreferredLanguageByUserId);
 
 //updatuje uzivatele
-router.patch("/users", validate(updateUserSchema), authenticateToken, authorizeUser, updateUser);
+router.patch("/users", validate(updateUserSchema), authenticateToken, sanitize, authorizeUser, updateUser);
 
 //smazani uzivatele
 router.delete("/users", authenticateToken, authorizeUser, deleteUser);

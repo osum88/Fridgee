@@ -3,6 +3,7 @@ import prisma from "../utils/prisma.js";
 const SALT_ROUNDS = 11;
 const DAYS_15 = 15 * 24 * 60 * 60 * 1000;
 
+//vytvori refresh token
 export const createRefreshTokenRepository = async (tokenId, tokenHash, userId) => {
     try {
         await prisma.refreshToken.create({
@@ -21,6 +22,7 @@ export const createRefreshTokenRepository = async (tokenId, tokenHash, userId) =
     }
 };
 
+//vrati vsechny validni tokeny
 export const getValidRefreshTokensByUserIdRepository = async (userId) => {
     try {
         const refreshTokens = await prisma.refreshToken.findMany({
@@ -36,6 +38,7 @@ export const getValidRefreshTokensByUserIdRepository = async (userId) => {
     }
 };
 
+//smaze vsechny tokeny
 export const deleteAllRefreshTokensByUserIdRepository = async (userId) => {
     try {
         const refreshTokens = await prisma.refreshToken.deleteMany({
@@ -49,6 +52,7 @@ export const deleteAllRefreshTokensByUserIdRepository = async (userId) => {
     }
 };
 
+//smaze konkretni (id) token
 export const deleteRefreshTokenByIdRepository = async (id) => {
     try {
         const refreshTokens = await prisma.refreshToken.deleteMany({
@@ -62,6 +66,7 @@ export const deleteRefreshTokenByIdRepository = async (id) => {
     }
 };
 
+//najde konkretni token
 export const findRefreshTokenByIdRepository = async (tokenId) => {
     try {
         const refreshTokens = await prisma.refreshToken.findUnique({

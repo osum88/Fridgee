@@ -8,7 +8,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 
-export default function ChangeTheme() {
+export default function Settings() {
   const color = useThemeColor();
   useLanguage();
 

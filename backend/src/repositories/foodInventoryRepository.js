@@ -421,7 +421,7 @@ export const changeSettingFoodInventoryUserRepository = async (userId, foodInven
         });
         return updatedUser;
     } catch (error) {
-        console.error("Error updating user setting:", error);
+        console.error("Error updating user settings:", error);
         throw error;
     }
 };

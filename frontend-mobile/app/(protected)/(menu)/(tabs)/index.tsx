@@ -110,38 +110,7 @@ export default function HomeScreen() {
           </ThemedText>
         </Link>
 
-        <Link
-          href="../changeLanguage"
-          style={[
-            styles.tap,
-            {
-              backgroundColor: currentColors.primary,
-            },
-          ]}
-        >
-          <ThemedText
-            type="subtitle"
-            style={[styles.tapText, { color: currentColors.onPrimary }]}
-          >
-            {i18n.t("language")}{" "}
-          </ThemedText>
-        </Link>
-        <Link
-          href="../changeTheme"
-          style={[
-            styles.tap,
-            {
-              backgroundColor: currentColors.primary,
-            },
-          ]}
-        >
-          <ThemedText
-            type="subtitle"
-            style={[styles.tapText, { color: currentColors.onPrimary }]}
-          >
-            {i18n.t("theme")}{" "}
-          </ThemedText>
-        </Link>
+       
         <Link
           href="../searchFriends"
           style={[

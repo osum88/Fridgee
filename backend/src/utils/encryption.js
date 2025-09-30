@@ -15,6 +15,7 @@ if (IV_KEY.length !== 32) {
     console.warn("WARNING: IV_KEY should be 32 characters (16 bytes) long for AES-256.");
 }
 
+//zasifruje
 export const encrypt = (text) => {
     if (text == null || typeof text == "undefined" || text == "") {
         console.warn("Attempted to encrypt null, undefined or empty text");
@@ -29,6 +30,7 @@ export const encrypt = (text) => {
     return encrypted;
 };
 
+//desifruje
 export const decrypt = (encryptedText) => {
     if (encryptedText == null || typeof encryptedText == "undefined" || encryptedText == "") {
         console.warn("Attempted to decrypt null, undefined or empty text");

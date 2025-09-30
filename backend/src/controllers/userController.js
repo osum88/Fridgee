@@ -108,6 +108,7 @@ export const getBankNumber = async (req, res, next) => {
   }
 };
 
+//vyhleda uzivatele
 export const searchUsers = async (req, res, next) => {
   try {
     const userId = req.userId;
@@ -154,6 +155,7 @@ export const deleteUserProfileImage = async (req, res, next) => {
   }
 };
 
+//updatuje jazyk uzivatele
 export const updatePreferredLanguageByUserId = async (req, res, next) => {
   try {
     const userId = req.userId;

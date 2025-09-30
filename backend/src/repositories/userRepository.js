@@ -195,7 +195,7 @@ export const getUserByUsernameRepository = async (username) => {
     }
 };
 
- 
+//updatuje email verfikacni token
 export const updateVerificationTokenRepository = async (id, verificationToken, tokenExpiresAt) => {
   try {
       const updatedVerificationToken = await prisma.user.update({
@@ -214,6 +214,7 @@ export const updateVerificationTokenRepository = async (id, verificationToken, t
   }
 };
 
+//updatuje password token
 export const updatePasswordResetTokenRepository = async (id, passwordResetToken, passwordResetExpiresAt) => {
   try {
       const updatedPasswordResetToken = await prisma.user.update({

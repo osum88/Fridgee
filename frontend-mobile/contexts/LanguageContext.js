@@ -59,7 +59,7 @@ export function LanguageProvider({ children, user, isUserLoggedIn }) {
       await AsyncStorage.setItem("selected_language", newLocale);
       setLocale(newLocale);
     } catch (error) {
-      console.error("Error setting language:", error);
+      console.error("Error settings language:", error);
     }
   };
 

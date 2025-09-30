@@ -39,7 +39,7 @@ export const authorizeAdmin = (req, res, next) => {
     next();
 };
 
-// alouzi pro routu ktera nema v url id
+//overi admina, slouzi pro admin routu ktera nema v url id
 export const authorizeAdminWithOutId = (req, res, next) => {
     if (!req.user || !req.user.isAdmin) {
         throw new ForbiddenError("Access denied: Administrator privileges required.");
@@ -47,13 +47,6 @@ export const authorizeAdminWithOutId = (req, res, next) => {
     req.adminRoute = true;
     next();
 };
-
-export const authorizeUserOrAdmin = (req, res, next) => {
-    if (req.user.id != parseInt(req.params.id) && !req.user.isAdmin) {
-        throw new ForbiddenError(res, 403, "You are not authorized to use this service.");
-    }
-    next();
-};     
 
 //overi uzivatele a ulozi id (pro user routy)
 export const authorizeUser = (req, res, next) => {
