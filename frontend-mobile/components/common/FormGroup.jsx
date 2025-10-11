@@ -24,24 +24,23 @@ export function FormGroup({
         {label}
       </ThemedText>
       <ThemedView>
-      <ThemedView style={ { paddingBottom: responsiveSize.vertical(3)}}>
-        <ThemedTextInput
-          placeholder={placeholder}
-          style={[
-            error && styles.errorWarning,
-            !error && styles.borderInput,
-            { borderColor: color.error },
-           
-            style,
-          ]}
-          {...props}
-        />
+        <ThemedView style={{ paddingBottom: responsiveSize.vertical(3) }}>
+          <ThemedTextInput
+            placeholder={placeholder}
+            style={[
+              error && styles.errorWarning,
+              !error && styles.borderInput,
+              { borderColor: color.error },
+
+              style,
+            ]}
+            {...props}
+          />
         </ThemedView>
         {showError && (!moveAround || error) && (
           <ThemedText
             style={{
               paddingLeft: responsiveSize.horizontal(2),
-             
             }}
             type="error"
           >

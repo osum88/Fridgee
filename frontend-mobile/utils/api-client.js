@@ -80,8 +80,8 @@ apiClient.interceptors.response.use(
             },
           }
         );
-        const accessToken = data.data.accessToken;
-        await storeTokens(accessToken, data.data.refreshToken);
+        const accessToken = data?.data?.accessToken;
+        await storeTokens(accessToken, data?.data?.refreshToken);
 
         //nastavim novy access token do kontextu
         if (setNewAccessTokenCallback) {

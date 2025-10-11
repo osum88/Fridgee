@@ -16,7 +16,7 @@ export const signUp = async (req, res, next) => {
         } 
         else { 
             // pro web se refresh token nastavi do HTTP-only cookie kvuli XSS utokum
-            res.cookie("refreshToken", responseData.accessToken, {
+            res.cookie("refreshToken", responseData.refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production", 
                 sameSite: "Lax",

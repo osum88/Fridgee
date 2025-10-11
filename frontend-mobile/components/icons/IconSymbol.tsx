@@ -81,6 +81,28 @@ const MAPPING = {
   "plus.circle": { name: "plus-circle-outline", source: "MaterialCommunityIcons" },
   //otaznik
   "questionmark.circle": { name: "help", source: "MaterialIcons" },
+  //setting
+  "gear": { name: "settings", source: "MaterialIcons" },
+  //lednice
+  "refrigerator": { name: "fridge", source: "MaterialCommunityIcons" },
+  //email
+  "envelope": { name: "email-outline", source: "MaterialCommunityIcons" },
+  //banka
+  "building.columns": { name: "bank-outline", source: "MaterialCommunityIcons" },
+  //dort
+  "birthday.cake": { name: "cake-variant-outline", source: "MaterialCommunityIcons" },
+  //kalendar
+  "calendar": { name: "calendar-outline", source: "MaterialCommunityIcons" },
+  //admin 
+  "checkmark.shield": { name: "badge-account-horizontal-outline", source: "MaterialCommunityIcons" },
+  //osoba
+  "person": { name: "account-outline", source: "MaterialCommunityIcons" },
+  //gender
+  "person.crop.square": { name: "human-male", source: "MaterialCommunityIcons" },
+  //sipka dolu
+  "chevron.down": { name: "chevron-down", source: "MaterialCommunityIcons" },
+  //sipka nahoru
+  "chevron.up": { name: "chevron-up", source: "MaterialCommunityIcons" },
 
 } as IconMapping;
 

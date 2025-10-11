@@ -1,5 +1,5 @@
 import { router, Tabs, useNavigation } from "expo-router";
-import { Alert, Linking, Platform, Pressable } from "react-native";
+import { Alert, Linking, Platform, Pressable, StyleSheet } from "react-native";
 import { responsiveFont, responsiveSize } from "@/utils/scale";
 import { HapticTab } from "@/components/HapticTab";
 import { IconSymbol } from "@/components/icons/IconSymbol";
@@ -53,18 +53,32 @@ export default function TabLayout() {
           title: i18n.t("home"),
           headerShown: true,
           headerLeft: () => (
-            <Pressable onPress={() => navigation.openDrawer()}>
+            <Pressable
+              style={styles.settingIcon}
+              onPress={() => navigation.openDrawer()}
+            >
               <IconSymbol
                 name="line.horizontal.3"
                 size={responsiveSize.moderate(23)}
                 color={colorScheme.text}
-                style={{ marginStart: responsiveSize.horizontal(12) }}
+              />
+            </Pressable>
+          ),
+          headerRight: () => (
+            <Pressable
+              style={styles.settingIcon}
+              onPress={() => navigation.openDrawer()}
+            >
+              <IconSymbol
+                name="bell"
+                size={responsiveSize.moderate(24)}
+                color={colorScheme.text}
               />
             </Pressable>
           ),
           tabBarIcon: ({ color }) => (
             <IconSymbol
-              size={responsiveSize.moderate(23)}
+              size={responsiveSize.moderate(24)}
               name="house.fill"
               color={color}
             />
@@ -80,6 +94,8 @@ export default function TabLayout() {
               size={responsiveSize.moderate(20)}
               icons={["viewfinder", "plus.circle"]}
               color={color}
+              lightColorBackground={colorScheme.tabsBackground}
+              darkColorBackground={colorScheme.tabsBackground}
             />
           ),
         }}
@@ -115,12 +131,14 @@ export default function TabLayout() {
           title: "Explore",
           headerShown: true,
           headerLeft: () => (
-            <Pressable onPress={() => navigation.openDrawer()}>
+            <Pressable
+              style={styles.settingIcon}
+              onPress={() => navigation.openDrawer()}
+            >
               <IconSymbol
                 name="line.horizontal.3"
-                size={responsiveSize.moderate(23)}
+                size={responsiveSize.moderate(24)}
                 color={colorScheme.text}
-                style={{ marginStart: responsiveSize.horizontal(12) }}
               />
             </Pressable>
           ),
@@ -136,3 +154,10 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  settingIcon: {
+    paddingHorizontal: responsiveSize.horizontal(12),
+    paddingVertical: responsiveSize.vertical(5),
+  },
+});

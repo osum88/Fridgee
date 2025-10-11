@@ -6,7 +6,7 @@ export const useGetUserQuery = (userId, enabled) => {
     queryKey: ["user", userId],
     queryFn: () => getUserByIdApi(userId),
     enabled: enabled && !!userId,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 60,    //hodina
   });
 };
 

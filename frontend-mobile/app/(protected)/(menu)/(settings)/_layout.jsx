@@ -2,7 +2,7 @@ import { Stack, useNavigation } from "expo-router";
 import i18n from "@/constants/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { responsiveFont, responsiveSize } from "@/utils/scale";
-import { Pressable } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
@@ -25,10 +25,13 @@ export default function SettingLayout() {
         options={{
           title: i18n.t("settings"),
           headerLeft: () => (
-            <Pressable onPress={() => navigation.openDrawer()}>
+            <Pressable
+              style={styles.settingIcon}
+              onPress={() => navigation.openDrawer()}
+            >
               <IconSymbol
                 name="line.horizontal.3"
-                size={responsiveSize.moderate(23)}
+                size={responsiveSize.moderate(24)}
                 color={color.text}
               />
             </Pressable>
@@ -43,3 +46,10 @@ export default function SettingLayout() {
     </Stack>
   );
 }
+
+const styles = StyleSheet.create({
+  settingIcon: {
+    paddingRight: responsiveSize.horizontal(12),
+    paddingVertical: responsiveSize.vertical(5),
+  },
+});

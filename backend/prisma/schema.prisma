@@ -21,6 +21,7 @@ model User {
   username                     String                @unique @db.VarChar(150)
   birthDate                    DateTime?             @map("birth_date")
   email                        String                @unique
+  gender                       Gender?               @default(UNSPECIFIED)
   passwordHash                 String                @map("password_hash")
   profilePictureUrl            String?               @map("profile_picture_url")
   emailIsVerified              Boolean               @default(false) @map("email_is_verified")
@@ -42,6 +43,13 @@ model User {
   receivedInventoryInvitations InventoryInvitation[] @relation("receivedInvitations")
 
   @@map("users")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  UNSPECIFIED
 }
 
 // JWT refresh tokeny

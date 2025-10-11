@@ -18,7 +18,7 @@ export function ThemedTextInput({ style, transparent = false, ...otherProps }) {
         },
         style,
       ]}
-      placeholderTextColor={currentColors.input_text}
+      placeholderTextColor={currentColors.inputText}
       {...otherProps}
     />
   );

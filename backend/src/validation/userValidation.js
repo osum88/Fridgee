@@ -1,6 +1,7 @@
 import Joi from "joi";
 
 const allowedLanguages = ["en", "cs"];
+const allowedGenders = ["MALE", "FEMALE", "OTHER", "UNSPECIFIED"];
 
 export const createUserSchema = Joi.object({
     name: Joi.string().max(40).optional(),
@@ -17,6 +18,7 @@ export const createUserSchema = Joi.object({
     bankNumber: Joi.string().min(1).max(50).pattern(/^[a-zA-Z0-9]+$/).optional(), 
     isAdmin: Joi.boolean().default(false), 
     preferredLanguage: Joi.string().valid(...allowedLanguages).default("en").optional(),
+    
 });
 
 export const updateUserSchema = Joi.object({
@@ -34,6 +36,7 @@ export const updateUserSchema = Joi.object({
     bankNumber: Joi.string().min(1).max(50).pattern(/^[a-zA-Z0-9]+$/).optional(),
     isAdmin: Joi.boolean().optional(),
     preferredLanguage: Joi.string().valid(...allowedLanguages).optional(),
+    gender: Joi.string().valid(...allowedGenders).default("UNSPECIFIED").optional(),
 });
 
 export const updateLanguageSchema = Joi.object({

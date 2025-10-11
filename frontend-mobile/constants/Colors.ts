@@ -21,7 +21,7 @@ export const Colors = {
     primary: "#1d9bc5ff",
     onPrimary: "#fff",
     input: "#F5F5F5",
-    input_text: "#787683",
+    inputText: "#787683",
     fullName: "#9c9a9aff",
     surfaceGradient: "#edececff",
     noneButton: "#007bff",
@@ -34,6 +34,9 @@ export const Colors = {
     removeButton: "#d32f2f",
     borderImage: "#e5e0e5",
     notFoccusIcon: "#555",
+    navigationHeader: "#1d9bc5ff",
+    inputIcon: "#69686fff",
+    whiteAndSurface: "#fff"
   },
   dark: {
     text: "#e0e0e0",
@@ -49,7 +52,7 @@ export const Colors = {
     primary: "#22b2e2ff",
     onPrimary: "#11181C",
     input: "#252527",
-    input_text: "#787683",
+    inputText: "#787683",
     fullName: "#9c9a9aff",
     surfaceGradient: "#262626",
     noneButton: "#2f98daff",
@@ -62,5 +65,8 @@ export const Colors = {
     removeButton: "#d63330ff",
     borderImage: "#444444",
     notFoccusIcon: "#fff",
+    navigationHeader: "#232323",
+    inputIcon: "#9c9a9aff",
+    whiteAndSurface: "#1e1e1e"
   },
 };

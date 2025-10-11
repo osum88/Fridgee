@@ -1,9 +1,19 @@
 import { ThemedView } from "@/components/themed/ThemedView";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 
-export function IconOverlay({ size = 22, color, icons = [] }) {
+export function IconOverlay({
+  size = 22,
+  color,
+  icons = [],
+  lightColorBackground,
+  darkColorBackground,
+}) {
   return (
-    <ThemedView style={{ width: size, height: size }}>
+    <ThemedView
+      lightColor={lightColorBackground}
+      darkColor={darkColorBackground}
+      style={{ width: size, height: size }}
+    >
       <IconSymbol size={size} name={icons[0]} color={color} />
       {icons[1] && (
         <IconSymbol

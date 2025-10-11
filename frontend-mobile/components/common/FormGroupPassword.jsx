@@ -52,7 +52,7 @@ export function FormGroupPassword({
             <IconSymbol
               size={responsiveSize.moderate(26)}
               name={showPassword ? "eye" : "eye.slash"}
-              color={currentColors.input_text}
+              color={currentColors.inputText}
             />
           </TouchableOpacity>
         </ThemedView>

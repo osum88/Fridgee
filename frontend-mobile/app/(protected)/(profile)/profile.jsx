@@ -1,7 +1,13 @@
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { useUser } from "@/hooks/useUser";
-import { Image, Pressable, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import { useMemo, useState } from "react";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import i18n from "@/constants/translations";
@@ -24,6 +30,11 @@ import useDeleteUserProfileImageMutation from "@/hooks/user/useDeleteUserProfile
 import { IMAGEKIT_URL_ENDPOINT } from "@/config/config";
 import { useCachedProfileImage } from "@/hooks/image/useCachedProfileImage";
 import { useQueryClient } from "@tanstack/react-query";
+import { formatDate } from "@/utils/stringUtils";
+import { ThemedLine } from "@/components/themed/ThemedLine";
+import { Card } from "@/components/Card/Card";
+import { CardItem } from "@/components/Card/CardItem";
+import { Link } from "expo-router";
 
 export default function Profile() {
   const color = useThemeColor();
@@ -127,57 +138,62 @@ export default function Profile() {
   ]);
 
   return (
-    <ThemedView style={[styles.contentWrapper]}>
-      <ThemedView>
-        {isLoading && !userData?.data?.profilePictureUrl ? (
-          <ActivityIndicator
-            size="large"
-            color={color.borderImage}
-            style={[styles.profileImage, { borderColor: color.borderImage }]}
-          />
-        ) : (
-          <Image
-            alt={i18n.t("profileImage")}
-            accessibilityLabel={i18n.t("profileImage")}
-            defaultSource={profilePlaceHolder}
-            source={sourceImage}
-            onError={() => {
-              if (imageIndex < imageSources.length - 1) {
-                setImageIndex(imageIndex + 1);
-              }
+    <ScrollView
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
+    >
+      <ThemedView safe={true} style={[styles.contentWrapper]}>
+        <ThemedView>
+          {isLoading && !userData?.data?.profilePictureUrl ? (
+            <ActivityIndicator
+              size="large"
+              color={color.borderImage}
+              style={[styles.profileImage, { borderColor: color.borderImage }]}
+            />
+          ) : (
+            <Image
+              alt={i18n.t("profileImage")}
+              accessibilityLabel={i18n.t("profileImage")}
+              defaultSource={profilePlaceHolder}
+              source={sourceImage}
+              onError={() => {
+                if (imageIndex < imageSources.length - 1) {
+                  setImageIndex(imageIndex + 1);
+                }
+              }}
+              style={[styles.profileImage, { borderColor: color.borderImage }]}
+            />
+          )}
+
+          <TouchableOpacity
+            onPress={() => {
+              setVisible(true);
             }}
-            style={[styles.profileImage, { borderColor: color.borderImage }]}
-          />
+            style={[
+              styles.cameraButton,
+              { backgroundColor: color.borderImage },
+            ]}
+          >
+            <IconSymbol
+              size={responsiveSize.moderate(25)}
+              name="camera.fill"
+              color={color.text}
+            />
+          </TouchableOpacity>
+        </ThemedView>
+        <ProfileImageSelector
+          visible={visible}
+          setVisible={setVisible}
+          onPress={(type) => handleImagePick(type)}
+        />
+
+        {(userData?.data?.name || userData?.data?.surname) && (
+          <ThemedText style={[styles.title, { textTransform: "capitalize" }]}>
+            {userData?.data?.name} {userData?.data?.surname}
+          </ThemedText>
         )}
 
-        <TouchableOpacity
-          onPress={() => {
-            setVisible(true);
-          }}
-          style={[styles.cameraButton, { backgroundColor: color.borderImage }]}
-        >
-          <IconSymbol
-            size={responsiveSize.moderate(25)}
-            name="camera.fill"
-            color={color.text}
-          />
-        </TouchableOpacity>
-      </ThemedView>
-
-      <ProfileImageSelector
-        visible={visible}
-        setVisible={setVisible}
-        onPress={(type) => handleImagePick(type)}
-      />
-
-      <ThemedText style={{ fontSize: 24, fontWeight: "bold" }}>
-        Profil uživatele
-      </ThemedText>
-      <ThemedText>Name: {userData?.data?.name}</ThemedText>
-      <ThemedText>Surname: {userData?.data?.surname}</ThemedText>
-      <ThemedText>Email: {userData?.data?.email}</ThemedText>
-      <ThemedText>Username: {userData?.data?.username}</ThemedText>
-
+        {/* 
       <Pressable
         onPress={() =>
           queryClient.invalidateQueries({ queryKey: ["user", userId] })
@@ -195,24 +211,137 @@ export default function Profile() {
         >
           Photo
         </ThemedText>
-      </Pressable>
-      {/* 
-      <Snackbar
-        visible={visible}
-        onDismiss={() => setVisible(false)}
-        duration={3000}
-        action={{
-          label: 'Zavřít',
-          onPress: () => setVisible(false),
-        }}
-      >
-        Úspěšně uloženo!
-      </Snackbar> */}
-    </ThemedView>
+      </Pressable> */}
+
+        {/* informace o profilu */}
+        <ThemedView style={styles.section}>
+          <ThemedView style={styles.sectionText}>
+            <ThemedText style={styles.sectionTitle}>
+              {i18n.t("personalInfo")}
+            </ThemedText>
+            <Link
+              href={{
+                pathname: "/editProfile",
+                params: {
+                  userData: JSON.stringify(userData), // nebo jiný objekt
+                },
+              }}
+              asChild
+            >
+              <ThemedText>{i18n.t("edit")}</ThemedText>
+            </Link>
+          </ThemedView>
+          <Card>
+            <CardItem
+              iconName={"person"}
+              iconSize={responsiveSize.moderate(19)}
+              label={i18n.t("username")}
+              value={userData?.data?.username}
+              isLoading={isLoading}
+            />
+
+            <ThemedLine style={{ height: 1 }} />
+
+            <CardItem
+              iconName={"envelope"}
+              iconSize={responsiveSize.moderate(19)}
+              label={i18n.t("email")}
+              value={userData?.data?.email}
+              isLoading={isLoading}
+            />
+
+            {userData?.data?.birthDate && <ThemedLine style={{ height: 1 }} />}
+
+            {userData?.data?.birthDate && (
+              <CardItem
+                iconName={"birthday.cake"}
+                iconSize={responsiveSize.moderate(19)}
+                label={i18n.t("birthdate")}
+                value={formatDate(userData?.data?.birthDate)}
+                isLoading={isLoading}
+              />
+            )}
+
+            {userData?.data?.gender !== "UNSPECIFIED" && (
+              <ThemedLine style={{ height: 1 }} />
+            )}
+
+            {userData?.data?.gender !== "UNSPECIFIED" && (
+              <CardItem
+                iconName={"person.crop.square"}
+                iconSize={responsiveSize.moderate(19)}
+                label={i18n.t("gender")}
+                value={userData?.data?.gender}
+                isLoading={isLoading}
+              />
+            )}
+
+            <ThemedLine style={{ height: 1 }} />
+
+            <CardItem
+              iconName={"building.columns"}
+              iconSize={responsiveSize.moderate(19)}
+              label={i18n.t("bankNumber")}
+              value={"*******************"}
+              isLoading={isLoading}
+              isSecrete={true}
+            />
+
+            {userData?.data?.isAdmin && <ThemedLine style={{ height: 1 }} />}
+
+            {userData?.data?.isAdmin && (
+              <CardItem
+                iconName={"checkmark.shield"}
+                iconSize={responsiveSize.moderate(19)}
+                label={i18n.t("administrator")}
+                value={i18n.t("yes")}
+                isLoading={isLoading}
+              />
+            )}
+
+            <ThemedLine style={{ height: 1 }} />
+
+            <CardItem
+              iconName={"calendar"}
+              iconSize={responsiveSize.moderate(19)}
+              label={i18n.t("registrationDate")}
+              value={formatDate(userData?.data?.createdAt)}
+              isLoading={isLoading}
+            />
+          </Card>
+        </ThemedView>
+
+        {/* Actions */}
+        <ThemedView style={styles.section}>
+          <ThemedText
+            style={[
+              styles.sectionTitle,
+              { marginBottom: responsiveSize.vertical(8) },
+            ]}
+          >
+            {i18n.t("tools")}
+          </ThemedText>
+
+          <TouchableOpacity style={styles.actionButton}>
+            <IconSymbol name="gear" size={20} color={"#007AFF"} />
+            <ThemedText style={styles.actionButtonText}>
+              {i18n.t("changePassword")}
+            </ThemedText>
+            <IconSymbol name="chevron.right" size={16} color={"#6C757D"} />
+          </TouchableOpacity>
+        </ThemedView>
+      </ThemedView>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollContent: {
+    flexGrow: 1,
+    alignItems: "center",
+    // paddingBottom: responsiveSize.vertical(20),
+  },
+
   contentWrapper: {
     flexGrow: 1,
     alignItems: "center",
@@ -228,8 +357,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   profileImage: {
-    width: responsiveSize.moderate(130),
-    height: responsiveSize.moderate(130),
+    width: responsiveSize.moderate(125),
+    height: responsiveSize.moderate(125),
     borderRadius: responsiveSize.moderate(70),
     borderWidth: 3,
   },
@@ -242,5 +371,56 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     right: 0,
+  },
+
+  title: {
+    fontSize: responsiveFont(24),
+    fontWeight: "700",
+    textAlign: "center",
+  },
+  section: {
+    width: "100%",
+  },
+  sectionText: {
+    marginBottom: responsiveSize.vertical(2),
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "baseline",
+  },
+  sectionTitle: {
+    fontSize: responsiveFont(16),
+    fontWeight: "600",
+  },
+  edit: {
+    paddingBottom: responsiveSize.vertical(6),
+    paddingRight: responsiveSize.horizontal(1),
+    paddingLeft: responsiveSize.horizontal(6),
+    fontSize: responsiveFont(14),
+    fontWeight: "400",
+  },
+
+  actionButton: {
+    backgroundColor: "#FFFFFF",
+    borderColor: "transparent",
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+
+    // ios
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+
+    // Android
+    elevation: 4,
+  },
+  actionButtonText: {
+    flex: 1,
+    marginLeft: 16,
+    fontSize: 16,
+    fontWeight: "500",
   },
 });

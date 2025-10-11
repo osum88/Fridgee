@@ -85,9 +85,25 @@
   "settings": "Settings",
   "home":"Home",
   "scanAdd":"Scan add",
-  "emailVerify":"Email verify"
- 
-
+  "emailVerify":"Email verify",
+  "yes":"Yes",
+  "no":"No",
+  "administrator": "Administrator",
+  "bankNumber": "Bank number",
+  "birthdate": "Date of birth",
+  "email": "Email",
+  "registrationDate": "Registration date",
+  "personalInfo": "Personal information",
+  "edit": "Edit",
+  "changePassword": "Change Password",
+  "tools": "Tools",
+  "editProfile": "Edit profile",
+  "gender": "Gender",
+  "firstName": "First name",
+  "lastName": "Last name",
+  "errorDay": "Day must be between 1 and 31",
+  "errorMonth": "Month must be between 1 and 12",
+  "errorYear": "Year cannot be greater than"
 
 
 

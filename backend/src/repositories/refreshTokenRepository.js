@@ -86,3 +86,21 @@ export const findRefreshTokenByIdRepository = async (tokenId) => {
         throw error;
     }
 };
+
+// oznaci refresh token jako neplatny
+export const invalidateRefreshTokenByIdRepository = async (id) => {
+    try {
+        const updatedToken = await prisma.refreshToken.updateMany({
+            where: { 
+                id 
+            },
+            data: { 
+                isValid: false 
+            },
+        });
+        return updatedToken;
+    } catch (error) {
+        console.error("Error invalidating refresh token:", error);
+        throw error;
+    }
+};

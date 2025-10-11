@@ -22,7 +22,8 @@
       "permissions": [
         "CAMERA",
         "READ_MEDIA_IMAGES"
-      ]
+      ],
+      "softwareKeyboardLayoutMode": "pan"
     },
     "web": {
       "bundler": "metro",

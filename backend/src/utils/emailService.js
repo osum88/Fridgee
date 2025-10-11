@@ -1,19 +1,24 @@
 import nodemailer from "nodemailer"
 import { emailVerificationTexts, passwordResetTexts, passwordResetSuccessTexts } from "./emailTexts.js";
 
-const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
-    port: process.env.EMAIL_PORT,
-    secure: process.env.EMAIL_SECURE === "true",
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
-    },
-        tls: {
-            rejectUnauthorized: false // zakaze kontrolu certifikátu, potom odstranit, ted potreba kvuli blokaci antivirem
-    }
-});
+//transportni udaje
+const transportOptions = {
+  host: process.env.EMAIL_HOST,
+  port: Number(process.env.EMAIL_PORT),
+  secure: process.env.EMAIL_SECURE === "true",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  }
+};
 
+if (process.env.NODE_ENV !== "production") {
+  transportOptions.tls = { rejectUnauthorized: false };
+}
+
+const transporter = nodemailer.createTransport(transportOptions);
+
+//odelani emailu verification email
 export const sendVerificationEmail = async (userEmail, verificationLink, language = "en") => {
     const texts = emailVerificationTexts[language];
 
@@ -32,7 +37,7 @@ export const sendVerificationEmail = async (userEmail, verificationLink, languag
     }
 };
 
-
+//odelani emailu password reset email
 export const sendPasswordResetEmail = async (userEmail, resetLink, language = "en") => {
     const texts = passwordResetTexts[language];
 
@@ -51,7 +56,7 @@ export const sendPasswordResetEmail = async (userEmail, resetLink, language = "e
     }
 };
 
-
+//odelani emailu password reset success email
 export const sendPasswordResetSuccessEmail  = async (userEmail, language = "en") => {
     const texts = passwordResetSuccessTexts[language];
 

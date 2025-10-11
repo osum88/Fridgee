@@ -4,7 +4,7 @@ import { getUserByEmailRepository, getUserByIdRepository, getUserByPasswordReset
 import { BadRequestError, ConflictError, ForbiddenError, NotFoundError, UnauthorizedError } from "../errors/errors.js";
 import { sendPasswordResetEmail, sendPasswordResetSuccessEmail, sendVerificationEmail } from "../utils/emailService.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
-import { createRefreshTokenRepository, deleteAllRefreshTokensByUserIdRepository, deleteRefreshTokenByIdRepository, findRefreshTokenByIdRepository,  } from "../repositories/refreshTokenRepository.js";
+import { createRefreshTokenRepository, deleteAllRefreshTokensByUserIdRepository, deleteRefreshTokenByIdRepository, findRefreshTokenByIdRepository, invalidateRefreshTokenByIdRepository,  } from "../repositories/refreshTokenRepository.js";
 import { createUserService } from "./userService.js";
 
 export const signUpService = async ({username, email, password, preferredLanguage}) => {
@@ -21,7 +21,7 @@ export const signUpService = async ({username, email, password, preferredLanguag
     await updateVerificationTokenRepository(newUser.id, verifyToken, tokenExpiresAt);
     
     // const verificationLink = `${process.env.FRONTEND_URL}/api/auth/verify-email?token=${verifyToken}`;
-    const verificationLink = `exp://10.0.0.2:8081/--/emailVerify?token=${verifyToken}`;
+    const verificationLink = `exp://100.125.168.39:8081/--/emailVerify?token=${verifyToken}`;
 
     await sendVerificationEmail("josefnovak738@gmail.com", verificationLink, preferredLanguage);
     // await sendVerificationEmail(newUser.email, verificationLink, preferredLanguage);
@@ -97,10 +97,15 @@ export const refreshService = async (refreshToken) => {
     if (!foundToken) {
         throw new ForbiddenError("Invalid or revoked refresh token. Please log in again.");
     }
+
+    // pokud uz byl token oznacen jako neplatny (nekdo se snazi pouzit stary token => mozny replay attack)
+    if (!foundToken.isValid) {
+        await deleteAllRefreshTokensByUserIdRepository(foundToken.userId);
+        throw new ForbiddenError("Reused refresh token. All sessions revoked.");
+    }
     
     //kontrola expirace
     if (new Date() > foundToken.expiresAt) {
-        console.log("foundToken", foundToken)
         try {
             await deleteRefreshTokenByIdRepository(foundToken.id);          
         } catch {
@@ -111,11 +116,12 @@ export const refreshService = async (refreshToken) => {
 
     // porovna token s hashem
     const isMatch = await bcrypt.compare(tokenSecret, foundToken.tokenHash);
-    if (!isMatch || !foundToken.isValid) {
+    if (!isMatch) {
         await deleteAllRefreshTokensByUserIdRepository(foundToken.userId);
         throw new ForbiddenError("Invalid refresh token. Please log in again.");
     }
-    await deleteRefreshTokenByIdRepository(tokenId);
+
+    await invalidateRefreshTokenByIdRepository(tokenId);
     const user = await getUserByIdRepository(foundToken.userId);
 
     //vytvareni novych tokenu
@@ -132,7 +138,7 @@ export const logoutService = async (refreshToken) => {
 
         if (tokenId) {
             try{
-                await deleteRefreshTokenByIdRepository(tokenId);
+                await invalidateRefreshTokenByIdRepository(tokenId);
             } catch { }
         }
     }

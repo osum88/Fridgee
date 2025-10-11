@@ -85,10 +85,28 @@
   "settings": "Nastavení",
   "home":"Domů",
   "scanAdd":"Přidat",
-  "emailVerify":"Ověřit email"
-      
+  "emailVerify":"Ověřit email",
+  "yes":"Ano",
+  "no":"Ne",
+  "administrator": "Administrátor",
+  "bankNumber": "Bankovní číslo",
+  "birthdate": "Datum narození",
+  "email": "Email",
+  "registrationDate": "Datum registrace",
+  "personalInfo": "Osobní informace",
+  "edit": "Upravit",
+  "changePassword": "Změna hesla",
+  "tools": "Nástroje",
+  "editProfile": "Upravit profil",
+  "gender": "Pohlaví",
+  "firstName": "Jméno",
+  "lastName": "Příjmení",
+  "errorDay": "Den musí být mezi 1 a 31",
+  "errorMonth": "Měsíc musí být mezi 1 a 12",
+  "errorYear": "Rok nemůže být větší než"
 
   
+
 
 
 

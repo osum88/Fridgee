@@ -25,7 +25,8 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    SpaceMono: require("@/assets/fonts/SpaceMono-Regular.ttf"),
+    Pattaya: require("@/assets/fonts/subset-Pattaya-Regular.ttf"),
     MaterialCommunityIcons: require("@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"),
   });
 

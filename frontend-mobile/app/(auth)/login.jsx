@@ -104,15 +104,16 @@ export default function Login() {
               </ThemedView>
             </ThemedView>
 
-            <ThemedView style={styles.textRowCheckbox}>
+            <Pressable
+              style={styles.textRowCheckbox}
+              onPress={() => setToggleCheckBox(!rememberMe)}
+            >
               <ThemedCheckbox
                 value={rememberMe}
                 onValueChange={(newValue) => setToggleCheckBox(newValue)}
               />
-              <Pressable onPress={() => setToggleCheckBox(!rememberMe)}>
-                <ThemedText>{i18n.t("rememberMe")}</ThemedText>
-              </Pressable>
-            </ThemedView>
+              <ThemedText>{i18n.t("rememberMe")}</ThemedText>
+            </Pressable>
 
             <ThemedButton
               style={styles.btn}
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   contentWrapper: {
-    gap: responsiveSize.vertical(26),
+    gap: responsiveSize.vertical(16),
     paddingHorizontal: responsiveSize.vertical(17),
   },
   btn: {
@@ -182,7 +183,8 @@ const styles = StyleSheet.create({
     gap: responsiveSize.horizontal(9),
     alignSelf: "flex-start",
     alignItems: "center",
-    marginLeft: responsiveSize.horizontal(2.5),
+    paddingHorizontal: responsiveSize.horizontal(3),
+    paddingVertical: responsiveSize.vertical(10),
   },
   passwordSection: {
     gap: responsiveSize.vertical(6),

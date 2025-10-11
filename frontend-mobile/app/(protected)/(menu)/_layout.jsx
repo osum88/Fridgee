@@ -26,17 +26,17 @@ export default function MenuLayout() {
         },
       }}
     >
-      {/* <Drawer.Screen
+       {/* <Drawer.Screen
         name="(tabs)"
-        options={{ drawerItemStyle: { display: "none" }, headerShown: false }}
-      /> */}
+         options={{ drawerItemStyle: { display: "none" }, headerShown: false }} 
+      />  */}
       <Drawer.Screen name="(tabs)" options={{ headerShown: false }} />
       <Drawer.Screen
         name="(settings)"
         options={{
           drawerLabel: i18n.t("settings"),
           headerShown: false,
-          drawerIconName: "house.fill",
+          drawerIconName: "gear",
       
         }}
       />

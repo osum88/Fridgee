@@ -67,6 +67,7 @@ export const getUserByIdRepository = async (id) => {
                 createdAt: true,
                 lastLogin: true,
                 preferredLanguage: true,
+                gender: true,
             },
         });
         if (!user) {
@@ -168,6 +169,7 @@ export const getUserByEmailRepository = async (email) => {
                 createdAt: true,
                 lastLogin: true,
                 preferredLanguage: true,
+                gender: true,
             },
         });
         return user; 
