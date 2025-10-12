@@ -13,7 +13,7 @@ import { ThemedButton } from "@/components/themed/ThemedButton";
 import { FormGroup } from "../../components/common/FormGroup";
 import { useState, useEffect } from "react";
 import useForgotPasswordMutation from "@/hooks/auth/useForgotPasswordMutation";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { responsiveSize } from "@/utils/scale";
 
 export default function ForgotPassword() {

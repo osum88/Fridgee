@@ -1,7 +1,7 @@
 import { ThemedView } from "@/components/themed/ThemedView";
 import { Platform } from "react-native";
 import { useState } from "react";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
 import { responsiveSize } from "@/utils/scale";
 import { TextInput, HelperText } from "react-native-paper";

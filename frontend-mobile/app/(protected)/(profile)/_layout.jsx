@@ -15,6 +15,7 @@ export default function ProfileLayout() {
       <Stack.Screen
         name="profile"
         options={{
+               animation: "fade",
           title: i18n.t("profile"),
           headerShown: true,
         }}

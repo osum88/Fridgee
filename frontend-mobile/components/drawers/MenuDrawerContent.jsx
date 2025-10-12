@@ -1,5 +1,5 @@
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { responsiveFont, responsiveSize } from "@/utils/scale";

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Animated, StyleSheet } from "react-native";
 import { ThemedView } from "@/components/themed/ThemedView";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { responsiveSize, responsivePadding } from "@/utils/scale";
 
 //vytvari "loading" než se nactou uzivatele

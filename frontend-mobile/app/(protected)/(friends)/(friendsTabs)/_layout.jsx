@@ -1,5 +1,5 @@
 import React from "react";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { responsiveFont, responsiveSize } from "@/utils/scale";
 import FriendsList from "./friendsList";

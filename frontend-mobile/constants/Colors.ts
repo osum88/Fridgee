@@ -36,6 +36,7 @@ export const Colors = {
     notFoccusIcon: "#555",
     navigationHeader: "#1d9bc5ff",
     inputIcon: "#69686fff",
+    inputTextPaper: "#49464d",
     whiteAndSurface: "#fff"
   },
   dark: {
@@ -67,6 +68,7 @@ export const Colors = {
     notFoccusIcon: "#fff",
     navigationHeader: "#232323",
     inputIcon: "#9c9a9aff",
+    inputTextPaper: "#c6c1ca",
     whiteAndSurface: "#1e1e1e"
   },
 };

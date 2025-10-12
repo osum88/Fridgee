@@ -1,4 +1,4 @@
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { Pressable, StyleSheet } from "react-native";
 import { ThemedText } from "@/components/themed/ThemedText";
 import i18n from "@/constants/translations";

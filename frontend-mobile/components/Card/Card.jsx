@@ -1,6 +1,6 @@
 import { ThemedView } from "@/components/themed/ThemedView";
 import { StyleSheet } from "react-native";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 
 export function Card({ style, ...props }) {
   const color = useThemeColor();

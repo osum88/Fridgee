@@ -4,14 +4,14 @@ import { responsiveFont, responsiveSize } from "@/utils/scale";
 import { HapticTab } from "@/components/HapticTab";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { useCameraPermissions } from "expo-camera";
 import i18n from "@/constants/translations";
 import { IconOverlay } from "@/components/icons/IconOverlay";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function TabLayout() {
-  const colorScheme = useThemeColor();
+  const colorCurrent = useThemeColor();
   const [permission, requestPermission] = useCameraPermissions();
   const navigation = useNavigation();
   useLanguage();
@@ -19,7 +19,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colorScheme.tint,
+        tabBarActiveTintColor: colorCurrent.tint,
         headerShown: false,
         headerStyle: {
           height: responsiveSize.vertical(78),
@@ -60,7 +60,7 @@ export default function TabLayout() {
               <IconSymbol
                 name="line.horizontal.3"
                 size={responsiveSize.moderate(23)}
-                color={colorScheme.text}
+                color={colorCurrent.text}
               />
             </Pressable>
           ),
@@ -72,7 +72,7 @@ export default function TabLayout() {
               <IconSymbol
                 name="bell"
                 size={responsiveSize.moderate(24)}
-                color={colorScheme.text}
+                color={colorCurrent.text}
               />
             </Pressable>
           ),
@@ -94,8 +94,8 @@ export default function TabLayout() {
               size={responsiveSize.moderate(20)}
               icons={["viewfinder", "plus.circle"]}
               color={color}
-              lightColorBackground={colorScheme.tabsBackground}
-              darkColorBackground={colorScheme.tabsBackground}
+              lightColorBackground={colorCurrent.tabsBackground}
+              darkColorBackground={colorCurrent.tabsBackground}
             />
           ),
         }}
@@ -138,7 +138,7 @@ export default function TabLayout() {
               <IconSymbol
                 name="line.horizontal.3"
                 size={responsiveSize.moderate(24)}
-                color={colorScheme.text}
+                color={colorCurrent.text}
               />
             </Pressable>
           ),

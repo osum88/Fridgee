@@ -4,9 +4,11 @@ import {
   ScrollView,
   StyleSheet,
   KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
 import { useEffect, useMemo, useState } from "react";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
 import {
   responsiveFont,
@@ -60,14 +62,16 @@ export default function EditProfile() {
     }
   }, [userData]);
 
-  console.log(inputText);
+  // console.log(inputText);
 
   const inputColor = {
     colors: {
+   
       outline: color.fullName,
       background: color.background,
       primary: color.tabsText,
       error: color.error,
+
     },
   };
 
@@ -81,6 +85,9 @@ export default function EditProfile() {
         showsVerticalScrollIndicator={false}
       >
         <ThemedView style={[styles.contentWrapper]}>
+
+         
+        
           <ThemedView style={styles.doubleInput}>
             {/* jmeno */}
             <ThemedView style={styles.input}>
@@ -107,6 +114,7 @@ export default function EditProfile() {
                 style={{
                   fontSize: responsiveSize.moderate(15),
                   height: responsiveSize.vertical(41),
+                  
                 }}
                 cursorColor={color.text}
                 theme={inputColor}
@@ -160,6 +168,7 @@ export default function EditProfile() {
             inputColor={inputColor}
           />
 
+          {/* pohlavi */}
           <DropdownMenu
             value={inputText.gender}
             onChange={(gender) =>
@@ -209,5 +218,19 @@ const styles = StyleSheet.create({
 
   input: {
     flexBasis: "48%",
+  },
+
+    item: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  overlay: {
+    backgroundColor:"#5633",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 998,
   },
 });

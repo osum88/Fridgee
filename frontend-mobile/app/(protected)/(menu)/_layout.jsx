@@ -2,7 +2,7 @@ import { Drawer } from "expo-router/drawer";
 import { responsiveFont, responsiveSize } from "@/utils/scale";
 import i18n from "@/constants/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import MenuDrawerContent from "@/components/drawers/MenuDrawerContent";
 

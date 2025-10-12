@@ -1,6 +1,6 @@
 import React from "react";
 import { TextInput } from "react-native";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { responsiveFont, responsivePadding } from "@/utils/scale";
 
 export function ThemedTextInput({ style, transparent = false, ...otherProps }) {

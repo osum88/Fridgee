@@ -4,7 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { responsiveFont, responsiveSize } from "@/utils/scale";
 import { Pressable, StyleSheet } from "react-native";
 import { IconSymbol } from "@/components/icons/IconSymbol";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 
 export default function SettingLayout() {
   useLanguage();

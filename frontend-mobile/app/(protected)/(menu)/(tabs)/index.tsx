@@ -6,7 +6,7 @@ import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import i18n from "@/constants/translations";
 import { useUser } from "@/hooks/useUser";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function HomeScreen() {
@@ -110,7 +110,6 @@ export default function HomeScreen() {
           </ThemedText>
         </Link>
 
-       
         <Link
           href="../searchFriends"
           style={[

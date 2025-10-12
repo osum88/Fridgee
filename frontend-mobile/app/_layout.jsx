@@ -18,6 +18,7 @@ import { Provider } from "react-native-paper";
 import { Toasts } from "@backpackapp-io/react-native-toast";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { useSystemNavigationBarTheme } from "@/hooks/colors/useSystemNavigationBarTheme";
 
 //vytvoreni instance TanStack Query
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ export default function RootLayout() {
     colors: {
       ...DarkTheme.colors,
       card: "#1f1f1f",
+      background: "#121212",
     },
   };
 
@@ -76,6 +78,7 @@ function RootLayoutContent({ CustomDarkTheme }) {
   const { isLoading, isAuthenticated } = useUser();
   const [isAppReady, setIsAppReady] = useState(false);
   const { colorScheme, isThemeLoaded } = useTheme();
+  useSystemNavigationBarTheme();
 
   useEffect(() => {
     if (!isLoading && isLanguageLoaded && isThemeLoaded) {
@@ -103,7 +106,7 @@ function RootLayoutContent({ CustomDarkTheme }) {
     return null;
   }
 
-  const backgroundColor = colorScheme === "dark" ? "#000000" : "#ffffff";
+  const backgroundColor = colorScheme === "dark" ? "#121212" : "#ffffff";
 
   return (
     <SafeAreaProvider>

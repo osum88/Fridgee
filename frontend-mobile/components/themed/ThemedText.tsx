@@ -1,5 +1,5 @@
 import { StyleSheet, Text, type TextProps } from "react-native";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import {
   responsiveFont,
   responsiveVertical,
@@ -80,7 +80,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: responsiveFont(30),
     fontWeight: "bold",
-    
   },
   subtitle: {
     fontSize: responsiveFont(18),

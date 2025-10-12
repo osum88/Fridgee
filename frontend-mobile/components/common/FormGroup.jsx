@@ -3,7 +3,7 @@ import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedTextInput } from "@/components/themed/ThemedTextInput";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { responsiveSize } from "@/utils/scale";
 
 export function FormGroup({

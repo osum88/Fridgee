@@ -1,7 +1,7 @@
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { StyleSheet, Animated, TouchableOpacity } from "react-native";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { useEffect, useRef, useState } from "react";
 import { responsiveFont, responsiveSize } from "@/utils/scale";

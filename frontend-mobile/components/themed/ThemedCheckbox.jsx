@@ -1,4 +1,4 @@
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { Checkbox } from "expo-checkbox";
 
 export function ThemedCheckbox({

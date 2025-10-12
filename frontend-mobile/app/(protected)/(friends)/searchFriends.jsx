@@ -19,7 +19,7 @@ import debounce from "lodash.debounce";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { Skeleton } from "@/components/animated/Skeleton";
 import { FriendActionButton } from "@/components/friends/FriendActionButton";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useUser } from "@/hooks/useUser";
 import useFriendManager from "@/hooks/friends/useFriendManager";

@@ -1,12 +1,16 @@
 import { View, StyleSheet } from "react-native";
-import { useThemeColor } from "@/hooks/useThemeColor";
-
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 
 export function ThemedLine({ style, lightColor, darkColor, ...otherProps }) {
-  const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, "outline");
+  const backgroundColor = useThemeColor(
+    { light: lightColor, dark: darkColor },
+    "outline"
+  );
 
-  return <View style={[{ backgroundColor, height: StyleSheet.hairlineWidth }, style]} {...otherProps} />;
+  return (
+    <View
+      style={[{ backgroundColor, height: StyleSheet.hairlineWidth }, style]}
+      {...otherProps}
+    />
+  );
 }
-
-
-

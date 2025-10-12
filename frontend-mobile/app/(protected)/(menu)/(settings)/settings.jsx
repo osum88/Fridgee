@@ -4,7 +4,7 @@ import i18n from "@/constants/translations";
 import { responsiveSize, responsivePadding } from "@/utils/scale";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { Link } from "expo-router";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 

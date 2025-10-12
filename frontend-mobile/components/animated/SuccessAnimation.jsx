@@ -10,7 +10,7 @@ import Animated, {
   useAnimatedStyle,
 } from "react-native-reanimated";
 import { ThemedView } from "@/components/themed/ThemedView";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 
 
 const AnimatedView = Animated.createAnimatedComponent(View);

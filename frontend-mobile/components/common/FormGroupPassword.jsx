@@ -3,7 +3,7 @@ import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedTextInput } from "@/components/themed/ThemedTextInput";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { useState } from "react";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { useTheme } from "@/contexts/ThemeContext";
 import { responsiveSize } from "@/utils/scale";

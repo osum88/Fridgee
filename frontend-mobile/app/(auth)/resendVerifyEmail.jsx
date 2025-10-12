@@ -14,7 +14,7 @@ import { FormGroup } from "../../components/common/FormGroup";
 import { useState, useEffect } from "react";
 import useResendVerifyEmailMutation from "@/hooks/auth/useResendVerifyEmailMutation";
 import { useUser } from "@/hooks/useUser";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { responsiveSize } from "@/utils/scale";
 
 export default function ResendVerifyEmail() {

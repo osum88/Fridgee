@@ -16,7 +16,7 @@ import { FormGroupPassword } from "../../components/common/FormGroupPassword";
 import { useState } from "react";
 import { ThemedCheckbox } from "@/components/themed/ThemedCheckbox";
 import useLoginMutation from "@/hooks/auth/useLoginMutation";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { responsiveSize } from "@/utils/scale";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 

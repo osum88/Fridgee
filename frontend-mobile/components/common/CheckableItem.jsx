@@ -3,7 +3,7 @@ import { ThemedText } from "@/components/themed/ThemedText";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { responsiveSize } from "@/utils/scale";
 import { ThemedView } from "@/components/themed/ThemedView";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 
 
 export function CheckableItem({ label, value, selected, onPress, iconName, iconColor, ...props }) {

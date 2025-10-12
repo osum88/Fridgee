@@ -15,7 +15,7 @@ import { FormGroupPassword } from "@/components/common/FormGroupPassword";
 import { useState } from "react";
 import useRegisterMutation from "@/hooks/auth/useRegisterMutation";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { responsiveSize } from "@/utils/scale";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -133,7 +133,7 @@ export default function Register() {
                 error={passwordError}
                 showError={false}
               />
-         
+
               <FormGroupPassword
                 label={i18n.t("confirmPassword")}
                 placeholder={i18n.t("passwordAgain")}
@@ -211,7 +211,6 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   formSection: {
-
     width: "100%",
   },
   register: {

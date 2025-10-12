@@ -1,7 +1,7 @@
 import { ThemedText } from "@/components/themed/ThemedText";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { Dialog, Portal } from "react-native-paper";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { responsiveFont, responsiveSize } from "@/utils/scale";

@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useMemo, useState } from "react";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
 import { useProfilePlaceHolder } from "@/hooks/useProfilePlaceHolder";
 import { IconSymbol } from "@/components/icons/IconSymbol";
@@ -223,7 +223,7 @@ export default function Profile() {
               href={{
                 pathname: "/editProfile",
                 params: {
-                  userData: JSON.stringify(userData), // nebo jiný objekt
+                  userData: JSON.stringify(userData),
                 },
               }}
               asChild

@@ -6,7 +6,7 @@ import { StyleSheet } from "react-native";
 import { FriendActionButton } from "@/components/friends/FriendActionButton";
 import useFriendManager from "@/hooks/friends/useFriendManager";
 import { useState } from "react";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { responsiveFont, responsiveSize } from "@/utils/scale";
 
 export default function FriendProfile() {
