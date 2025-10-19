@@ -68,12 +68,16 @@ export const getUserByIdRepository = async (id) => {
                 lastLogin: true,
                 preferredLanguage: true,
                 gender: true,
+                country: true,
+                bankNumber: true,
             },
         });
         if (!user) {
             throw new NotFoundError("User not found");
         }
-        return user; 
+        const { bankNumber, ...rest } = user;
+
+        return { ...rest, bankNumber: !!bankNumber };
     } catch (error) {
         console.error("Error fetching user by ID:", error); 
         throw error;
@@ -82,11 +86,11 @@ export const getUserByIdRepository = async (id) => {
 
 //updatuje uzivatele podle id
 export const updateUserRepository = async (id, updateData) => {
-    if (updateData.password) {
+    if (updateData?.password) {
         updateData.passwordHash = await bcrypt.hash(updateData.password, SALT_ROUNDS);
         delete updateData.password; 
     }
-    if (updateData.bankNumber) {
+    if (updateData?.bankNumber) {
         updateData.bankNumber = encrypt(updateData.bankNumber);
     }
     const updatedUser = await prisma.user.update({
@@ -102,10 +106,13 @@ export const updateUserRepository = async (id, updateData) => {
             bankNumber: true,
             preferredLanguage: true,
             isAdmin: true,
+            gender: true,
+            country: true,
         },
+          
     });
     const { bankNumber, ...rest } = updatedUser;
-    return { ...rest, bankNumber: "***ENCRYPTED***" };
+    return { ...rest, bankNumber: !!bankNumber };    
 };
 
 //smaze uzivatele
@@ -463,6 +470,27 @@ export const getImageUrlRepository = async (id) => {
         return user?.profilePictureUrl; 
     } catch (error) {
         console.error("Error fetching image url by Id:", error); 
+        throw error;
+    }
+};
+
+//vrati hash hesla podle id
+export const getUserHashPasswordRepository = async (id) => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: parseInt(id),
+            },
+            select: {
+                passwordHash: true,
+            },
+        });
+        if (!user) {
+            throw new NotFoundError("User not found");
+        }
+        return user;
+    } catch (error) {
+        console.error("Error fetching hash password by ID:", error); 
         throw error;
     }
 };

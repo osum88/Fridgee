@@ -1,25 +1,30 @@
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedText } from "@/components/themed/ThemedText";
-import { StyleSheet, Animated } from "react-native";
+import { StyleSheet, Animated, TouchableOpacity } from "react-native";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { IconSymbol } from "@/components/icons/IconSymbol";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { responsiveFont, responsiveSize } from "@/utils/scale";
+import { SecureAccessModal } from "@/components/modals/SecureAccessModal";
 
 //jeden item card se skeletonem a moznosti zakryt obsah
-export function CardItem({
+export function CardItemSecret({
   iconName,
   iconSize = responsiveSize.moderate(19),
   label,
   value,
   isLoading,
   isSecrete = false,
+  type = "iban",
   styleOverrides = {},
+  onChangeText,
   ...props
 }) {
   const color = useThemeColor();
   const { container, icon, content, labelText, valueText } = styleOverrides;
   const shimmerAnim = useRef(new Animated.Value(0)).current;
+  const [showSecrete, setShowSecrete] = useState(false);
+  const [showModal, setModal] = useState(false);
 
   useEffect(() => {
     Animated.loop(
@@ -73,9 +78,33 @@ export function CardItem({
             ]}
           />
         ) : (
-          <ThemedText style={[styles.infoValue, valueText]}>{value}</ThemedText>
+          <ThemedText style={[styles.infoValue, valueText]}>
+            {showSecrete ? value : "*************"}
+          </ThemedText>
         )}
       </ThemedView>
+      {isSecrete && (
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => {
+            setModal(!showModal && !showSecrete);
+            setShowSecrete(false);
+          }}
+        >
+          <IconSymbol
+            size={responsiveSize.moderate(24)}
+            name={showSecrete ? "eye" : "eye.slash"}
+            color={color.icon}
+          />
+        </TouchableOpacity>
+      )}
+      <SecureAccessModal
+        visible={showModal}
+        setVisible={setModal}
+        type={type}
+        onPress={() => setShowSecrete(true)}
+        onChangeText={onChangeText}
+      />
     </ThemedView>
   );
 }
@@ -103,5 +132,11 @@ const styles = StyleSheet.create({
     height: responsiveFont(15),
     width: "80%",
     borderRadius: responsiveFont(6),
+  },
+  iconButton: {
+    position: "absolute",
+    right: responsiveSize.horizontal(-4),
+    paddingVertical: responsiveSize.vertical(5),
+    paddingHorizontal: responsiveSize.horizontal(5),
   },
 });

@@ -94,6 +94,8 @@ export function DropdownMenu({
         background: color.background,
         primary: color.tabsText,
         error: color.error,
+        onSurface: color.text,
+        onSurfaceVariant: color.inputTextPaper,
       },
     };
   }

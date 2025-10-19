@@ -1,6 +1,6 @@
 import { ThemedView } from "@/components/themed/ThemedView";
 import { Platform } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
 import { responsiveSize } from "@/utils/scale";
@@ -18,18 +18,31 @@ export function DateInput({
   label,
   isSubmitting,
   autoComplete,
+  error: externalError,
+  setError: externalSetError,
   inputColor,
   inputStyles,
   ...props
 }) {
-  const [dateText, setDateText] = useState(value ? formatDate(value) : "");
-  const [prevDate, setPrevDate] = useState(dateText);
+  const [dateText, setDateText] = useState("");
+  const [prevDate, setPrevDate] = useState("");
   const [showPicker, setShowPicker] = useState(false);
   const [isEditable, setIsEditable] = useState(true);
   const [isFocused, setIsFocused] = useState(false);
-  const [error, setError] = useState(false);
-  const [textError, setTextError] = useState("");
+  const [internalError, internalSetError] = useState("");
+
+  const error = externalError !== undefined ? externalError : internalError;
+  const setError = externalSetError || internalSetError;
+
   const color = useThemeColor();
+
+  useEffect(() => {
+    if (!dateText && !prevDate) {
+      setDateText(value ? formatDate(value) : "");
+      setPrevDate(value ? formatDate(value) : "");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
 
   if (!inputColor) {
     inputColor = {
@@ -38,33 +51,36 @@ export function DateInput({
         background: color.background,
         primary: color.tabsText,
         error: color.error,
+        onSurface: color.text,
+        onSurfaceVariant: color.inputTextPaper,
       },
     };
   }
 
   //zpracuje datum zadany rucne a a opravuje smazani tecek ktere se automaticky doplnuji
   const handleDateInput = (text) => {
-    setError(false);
+    setError("");
     if (text) {
       const [day, month, year] = text.split(".").map(Number);
 
       // validace dne
       if (day && Number(day) > 31) {
-        setTextError(i18n.t("errorDay"));
-        setError(true);
+        setError(i18n.t("errorDay"));
       }
 
       // validace mesice
       if (month && Number(month) > 12) {
-        setTextError(i18n.t("errorMonth"));
-        setError(true);
+        setError(i18n.t("errorMonth"));
       }
 
       // validace roku
       const currentYear = new Date().getFullYear();
       if (year && Number(year) > currentYear) {
-        setTextError(`${i18n.t("errorYear")} ${currentYear}`);
-        setError(true);
+        setError(`${i18n.t("errorYear")} ${currentYear}`);
+      }
+      const year1920 = new Date(1920, 0, 1).getFullYear();
+      if (Number(year) < year1920) {
+        setError(`${i18n.t("errorYearLow")} ${year1920}`);
       }
     }
 
@@ -137,12 +153,14 @@ export function DateInput({
         style={{ marginLeft: responsiveSize.horizontal(-9) }}
         theme={inputColor}
       >
-        {textError}
+        {error}
       </HelperText>
 
       {showPicker && (
         <DateTimePicker
-          value={value || new Date()}
+          value={
+            value instanceof Date ? value : value ? new Date(value) : new Date()
+          }
           mode="date"
           display={Platform.OS === "ios" ? "spinner" : "default"}
           onChange={handleDateCalendar}

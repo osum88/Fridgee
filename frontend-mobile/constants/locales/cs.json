@@ -18,12 +18,13 @@
   "username": "Uživatelské jméno",
   "enterYourUsername": "Zadejte své uživatelské jméno",
   "rememberMe": "Zapamatovat si mě",
-  "forgotPasswordDescription":"Zadejte svou e-mailovou adresu a pošleme vám odkaz pro obnovení hesla.",
-  "resetPasswordLink":"Odeslat odkaz",
+  "forgotPasswordDescription": "Zadejte svou e-mailovou adresu a pošleme vám odkaz pro obnovení hesla.",
+  "resetPasswordLink": "Odeslat odkaz",
   "backToLogin": "Zpět na přihlášení",
   "resendIn": "Znovu odeslat za",
   "errorNetwork": "Chyba sítě. Zkontrolujte připojení a zkuste to znovu.",
   "error400Login": "Špatný e-mail nebo heslo.",
+  "errorPassword": "Špatné heslo.",
   "errorDefault": "Vyskytla se neočekávaná chyba. Zkuste to prosím později.",
   "errorValidEmail": "Email musí být platná e-mailová adresa",
   "errorEmptyEmailPassword": "Email ani heslo nesmí být prázdné.",
@@ -41,7 +42,7 @@
   "saveNewPassword": "Uložit nové heslo",
   "errorTokenMissing": "Chybí token pro resetování hesla.",
   "success": "Úspěch",
-  "passwordChanged":"Heslo změněno",
+  "passwordChanged": "Heslo změněno",
   "passwordChangedSuccessfully": "Heslo bylo úspěšně změněno!",
   "nowSingIn": "Nyní se můžete přihlásit.",
   "continue": "Pokračovat",
@@ -83,11 +84,11 @@
   "gallery": "Galerie",
   "remove1": "Odstranit",
   "settings": "Nastavení",
-  "home":"Domů",
-  "scanAdd":"Přidat",
-  "emailVerify":"Ověřit email",
-  "yes":"Ano",
-  "no":"Ne",
+  "home": "Domů",
+  "scanAdd": "Přidat",
+  "emailVerify": "Ověřit email",
+  "yes": "Ano",
+  "no": "Ne",
   "administrator": "Administrátor",
   "bankNumber": "Bankovní číslo",
   "birthdate": "Datum narození",
@@ -103,16 +104,35 @@
   "lastName": "Příjmení",
   "errorDay": "Den musí být mezi 1 a 31",
   "errorMonth": "Měsíc musí být mezi 1 a 12",
-  "errorYear": "Rok nemůže být větší než"
-
-  
-
-
-
-
-
-
-
-
-
+  "errorYear": "Rok nemůže být větší než",
+  "errorYearLow": "Rok nemůže být menší než",
+  "male": "Muž",
+  "female": "Žena",
+  "otherZ": "Jiná",
+  "otherS": "Jiné",
+  "otherM": "Jiné",
+  "selectGender": "Vyberte pohlaví",
+  "selectCountry": "Vyberte zemi",
+  "czech": "Česko",
+  "slovakia": "Slovensko",
+  "bankAccountCountry": "Země bankovního účtu",
+  "showBankAccountNumber": "Zobrazit bankovní číslo",
+  "showIban": "Zobrazit IBAN",
+  "showBankAccountNumberTip": "Bankovní číslo slouží pro generování QR plateb. Pro české nebo slovenské bankovní účty je možné zadat účet v běžném formátu: předčíslí–číslo účtu/kód banky. Uživatelé z ostatních zemí zadávají účet ve formátu IBAN. Požadovaný formát čísla účtu závisí na zemi, kterou vyberete při zadávání údajů.",
+  "showBankAccountNumberDescription": "Zadejte své heslo pro ověření identity a zobrazení chráněného bankovního čísla.",
+  "showIbanDescription": "Zadejte své heslo pro ověření identity a zobrazení chráněného IBANu.",
+  "show": "Zobrazit",
+  "invalidIbanFormat": "Špatný formát IBANu, např. CZ6508000000191234567890",
+  "invalidBankAccountFormat": "Špatný formát bankovního čísla, např. 19-1234567890/0800",
+  "unsavedChanges": "Neuložené změny",
+  "unsavedChangesMessage": "Opravdu chcete zahodit neuložené změny?",
+  "discardChange": "Zahodit změny",
+  "save": "Uložit",
+   "errorBankNumberNeedCountry": "Pokud zadáte bankovní číslo nebo IBAN, musíte také vybrat zemi bankovního účtu.",
+  "errorName": "Jméno může mít nejvýše 40 znaků.",
+  "errorSurname": "Příjmení může mít nejvýše 40 znaků.",
+  "errorBirthDateInFuture": "Datum narození musí být mezi rokem 1920 a současností.",
+  "errorBankNumberInvalid": "Neplatné bankovní číslo nebo IBAN.",
+  "errorGender": "Pohlaví musí být vybráno z dostupných možností.",
+  "errorCountry": "Země musí být vybrána z dostupných možností."
 }

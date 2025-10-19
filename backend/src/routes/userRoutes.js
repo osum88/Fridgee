@@ -1,13 +1,16 @@
 import express from "express";
-import { createUser, deleteUser, getUserById, updateUser, getBankNumber, searchUsers, updateUserProfileImage, updatePreferredLanguageByUserId, deleteUserProfileImage } from "../controllers/userController.js";
+import { createUser, deleteUser, getUserById, updateUser, getBankNumber, searchUsers, updateUserProfileImage, updatePreferredLanguageByUserId, deleteUserProfileImage, getBankNumberPassword } from "../controllers/userController.js";
 import validate from "../middlewares/validator.js";
-import { createUserSchema, updateLanguageSchema, updateUserSchema } from "../validation/userValidation.js";
+import { createUserSchema, getBankNumberPasswordSchema, updateLanguageSchema, updateUserSchema } from "../validation/userValidation.js";
 import { authenticateToken, authorizeUser } from "../middlewares/authMiddleware.js";
 import multer from "multer";
 import { sanitize } from "../middlewares/sanitize.js";
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
+
+//vrati bankovni cislo po zadani hesla
+router.post("/users/bank-number", validate(getBankNumberPasswordSchema), authenticateToken, sanitize, authorizeUser, getBankNumberPassword);
 
 //vytvoreni uzivatele
 router.post("/users", validate(createUserSchema), sanitize, createUser);

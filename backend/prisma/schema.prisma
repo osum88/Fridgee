@@ -22,6 +22,7 @@ model User {
   birthDate                    DateTime?             @map("birth_date")
   email                        String                @unique
   gender                       Gender?               @default(UNSPECIFIED)
+  country                      String?               @db.VarChar(10)
   passwordHash                 String                @map("password_hash")
   profilePictureUrl            String?               @map("profile_picture_url")
   emailIsVerified              Boolean               @default(false) @map("email_is_verified")
@@ -52,7 +53,7 @@ enum Gender {
   UNSPECIFIED
 }
 
-// JWT refresh tokeny
+// refresh tokeny
 model RefreshToken {
   id        String   @id
   tokenHash String   @unique @map("token_hash")

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   View,
   TouchableOpacity,
@@ -7,7 +7,7 @@ import {
   Text,
   Pressable,
 } from "react-native";
-import { Portal } from "react-native-paper";
+import { HelperText, Portal } from "react-native-paper";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -26,8 +26,11 @@ export function DropdownMenu({
   label,
   items = [],
   placeholder,
+  isSubmitting,
   inputColor,
   inputStyles,
+  error: externalError,
+  setError: externalSetError,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownY, setDropdownY] = useState(0);
@@ -36,12 +39,23 @@ export function DropdownMenu({
   const dropdownRef = useRef(null);
   const color = useThemeColor();
   const isChanging = useRef(false);
+  const [internalError, internalSetError] = useState("");
+
+  const error = externalError !== undefined ? externalError : internalError;
+  const setError = externalSetError || internalSetError;
 
   const labelPosition = useSharedValue(value ? 1 : 0);
   const translateY = responsiveSize.vertical(-21);
   const prevTranslateY = responsiveSize.vertical(-1);
   const translateX = responsiveSize.vertical(6);
   const prevTranslateX = responsiveSize.vertical(16);
+
+  useEffect(() => {
+    if (value) {
+      labelPosition.value = withTiming(1, { duration: 300 });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
 
   //animace nadpisu
   const animatedLabelStyle = useAnimatedStyle(() => ({
@@ -69,7 +83,7 @@ export function DropdownMenu({
       setDropdownY(py + height);
       setDropdownX(px);
       setDropdownWidth(width);
-      setIsOpen(true);
+      setIsOpen(isSubmitting);
       labelPosition.value = withTiming(1, { duration: 300 });
     });
   };
@@ -87,7 +101,7 @@ export function DropdownMenu({
     } else {
       labelPosition.value = withTiming(0, { duration: 300 });
     }
-
+    setError("")
     setIsOpen(false);
     setTimeout(() => {
       isChanging.current = false;
@@ -101,6 +115,8 @@ export function DropdownMenu({
         background: color.background,
         primary: color.tabsText,
         error: color.error,
+        onSurface: color.text,
+        onSurfaceVariant: color.inputTextPaper,
       },
     };
   }
@@ -121,8 +137,13 @@ export function DropdownMenu({
           <ThemedText
             style={[
               styles.label,
-              isOpen && {
-                color: inputColor?.colors?.primary || color.tabsText,
+              {
+                color: error
+                  ? color.error
+                  : isOpen
+                    ? inputColor?.colors?.primary || color.tabsText
+                    : inputColor?.colors?.onSurfaceVariant ||
+                      color.inputTextPaper,
               },
             ]}
           >
@@ -145,22 +166,36 @@ export function DropdownMenu({
           style={[
             styles.dropdown,
             {
-              borderColor: isOpen
-                ? inputColor?.colors?.primary || color.tabsText
-                : inputColor?.colors?.outline || color.fullName,
-              borderWidth: isOpen ? 2 : 1,
+              borderColor: error
+                ? color.error
+                : isOpen
+                  ? inputColor?.colors?.primary || color.tabsText
+                  : inputColor?.colors?.outline || color.fullName,
+              borderWidth: isOpen || error ? 2 : 1,
             },
             inputStyles,
           ]}
         >
           {renderLabel()}
-          <ThemedText style={styles.selectedTextStyle}>
+          <ThemedText
+            style={[
+              styles.selectedTextStyle,
+              {
+                color: value
+                  ? inputColor?.colors?.onSurface || color.text
+                  : inputColor?.colors?.onSurfaceVariant ||
+                    color.inputTextPaper,
+              },
+            ]}
+          >
             {selectedLabel}
           </ThemedText>
           <IconSymbol
             name={isOpen ? "chevron.up" : "chevron.down"}
             size={responsiveSize.moderate(22)}
-            color={isOpen ? color.tabsText : color.inputIcon}
+            color={
+              error ? color.error : isOpen ? color.tabsText : color.inputIcon
+            }
           />
         </Pressable>
       </View>
@@ -196,6 +231,14 @@ export function DropdownMenu({
           </View>
         </Portal>
       )}
+      <HelperText
+        type="error"
+        visible={error}
+        style={{ marginLeft: responsiveSize.horizontal(-9) }}
+        theme={inputColor}
+      >
+        {error}
+      </HelperText>
     </ThemedView>
   );
 }
@@ -205,6 +248,8 @@ const styles = StyleSheet.create({
     height: responsiveSize.vertical(41),
     borderRadius: responsiveSize.moderate(7),
     paddingHorizontal: responsiveSize.horizontal(14),
+    marginTop: responsiveSize.vertical(5),
+    // marginVertical: 5,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",

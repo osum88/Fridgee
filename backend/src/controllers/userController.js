@@ -7,6 +7,7 @@ import {
   createUserService,
   deleteUserProfileImageService,
   deleteUserService,
+  getBankNumberPasswordService,
   getBankNumberService,
   getUserByIdService,
   searchUsersService,
@@ -71,8 +72,9 @@ export const updateUser = async (req, res, next) => {
   try {
     const userId = req.userId;
     const updateData = req.body;
-
-    const updatedUser = await updateUserService(userId, updateData);
+    const isAdmin = req.adminRoute;
+    
+    const updatedUser = await updateUserService(userId, updateData, isAdmin);
 
     return handleResponse(res, 200, "User updated successfully", updatedUser);
   } catch (err) {
@@ -92,6 +94,7 @@ export const deleteUser = async (req, res, next) => {
   }
 };
 
+//vrati cislo uctu usera
 export const getBankNumber = async (req, res, next) => {
   try {
     const userId = req.userId;
@@ -103,6 +106,20 @@ export const getBankNumber = async (req, res, next) => {
       "Bank number fetched successfully",
       bankNumber
     );
+  } catch (err) {
+    next(err);
+  }
+};
+
+//vrati cislo uctu usera po zadani hesla
+export const getBankNumberPassword = async (req, res, next) => {
+  try {
+    const userId = req.userId;
+    const { password } = req.body;
+
+    const bankNumber = await getBankNumberPasswordService(userId, password);
+
+    return handleResponse(res, 200, "Bank number fetched successfully", bankNumber);
   } catch (err) {
     next(err);
   }

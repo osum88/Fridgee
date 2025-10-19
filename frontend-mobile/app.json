@@ -19,10 +19,7 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.osum88.fridgee",
-      "permissions": [
-        "CAMERA",
-        "READ_MEDIA_IMAGES"
-      ],
+      "permissions": ["CAMERA", "READ_MEDIA_IMAGES"],
       "softwareKeyboardLayoutMode": "pan"
     },
     "web": {

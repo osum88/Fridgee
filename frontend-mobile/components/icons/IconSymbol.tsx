@@ -103,6 +103,9 @@ const MAPPING = {
   "chevron.down": { name: "chevron-down", source: "MaterialCommunityIcons" },
   //sipka nahoru
   "chevron.up": { name: "chevron-up", source: "MaterialCommunityIcons" },
+  //info
+  "info.circle": { name: "information-outline", source: "MaterialCommunityIcons" },
+
 
 } as IconMapping;
 

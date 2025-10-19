@@ -1,13 +1,7 @@
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { useUser } from "@/hooks/useUser";
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
+import { Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import { useMemo, useState } from "react";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
@@ -23,17 +17,21 @@ import {
   responsivePadding,
 } from "@/utils/scale";
 import { ActivityIndicator, Snackbar } from "react-native-paper";
-import { toast, ToastPosition } from "@backpackapp-io/react-native-toast";
-import { ToastProvider } from "@backpackapp-io/react-native-toast";
+import {
+  toast,
+  ToastPosition,
+  ToastProvider,
+} from "@backpackapp-io/react-native-toast";
 import useUpdateUserProfileImageMutation from "@/hooks/user/useUpdateUserProfileImageMutation";
 import useDeleteUserProfileImageMutation from "@/hooks/user/useDeleteUserProfileImageMutation";
 import { IMAGEKIT_URL_ENDPOINT } from "@/config/config";
 import { useCachedProfileImage } from "@/hooks/image/useCachedProfileImage";
 import { useQueryClient } from "@tanstack/react-query";
-import { formatDate } from "@/utils/stringUtils";
+import { formatDate, ibanToBban } from "@/utils/stringUtils";
 import { ThemedLine } from "@/components/themed/ThemedLine";
 import { Card } from "@/components/Card/Card";
 import { CardItem } from "@/components/Card/CardItem";
+import { CardItemSecret } from "@/components/Card/CardItemSecret";
 import { Link } from "expo-router";
 
 export default function Profile() {
@@ -42,6 +40,7 @@ export default function Profile() {
   const profilePlaceHolder = useProfilePlaceHolder();
   const { pickImage, takePhoto, uploadImage } = useImageUpload();
   const [visible, setVisible] = useState(false);
+  const [bankNumber, setBankNumber] = useState("");
   const [image, setImage] = useState(null);
   const [imageIndex, setImageIndex] = useState(0);
   const queryClient = useQueryClient(); //smazat
@@ -137,6 +136,9 @@ export default function Profile() {
     profilePlaceHolder,
   ]);
 
+  const isCZorSK =
+    userData?.data?.country === "CZ" || userData?.data?.country === "SK";
+
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContent}
@@ -192,26 +194,6 @@ export default function Profile() {
             {userData?.data?.name} {userData?.data?.surname}
           </ThemedText>
         )}
-
-        {/* 
-      <Pressable
-        onPress={() =>
-          queryClient.invalidateQueries({ queryKey: ["user", userId] })
-        }
-        style={[
-          styles.tap,
-          {
-            backgroundColor: color.primary,
-          },
-        ]}
-      >
-        <ThemedText
-          type="subtitle"
-          style={[styles.tapText, { color: color.onPrimary }]}
-        >
-          Photo
-        </ThemedText>
-      </Pressable> */}
 
         {/* informace o profilu */}
         <ThemedView style={styles.section}>
@@ -271,21 +253,37 @@ export default function Profile() {
                 iconName={"person.crop.square"}
                 iconSize={responsiveSize.moderate(19)}
                 label={i18n.t("gender")}
-                value={userData?.data?.gender}
+                value={
+                  userData?.data?.gender === "MALE"
+                    ? i18n.t("male")
+                    : userData?.data?.gender === "FEMALE"
+                      ? i18n.t("female")
+                      : userData?.data?.gender === "OTHER"
+                        ? i18n.t("otherS")
+                        : ""
+                }
                 isLoading={isLoading}
               />
             )}
 
-            <ThemedLine style={{ height: 1 }} />
+            {userData?.data?.bankNumber && <ThemedLine style={{ height: 1 }} />}
 
-            <CardItem
-              iconName={"building.columns"}
-              iconSize={responsiveSize.moderate(19)}
-              label={i18n.t("bankNumber")}
-              value={"*******************"}
-              isLoading={isLoading}
-              isSecrete={true}
-            />
+            {userData?.data?.bankNumber && (
+              <CardItemSecret
+                iconName={"building.columns"}
+                iconSize={responsiveSize.moderate(19)}
+                label={isCZorSK ? i18n.t("bankNumber") : "IBAN"}
+                value={
+                  isCZorSK
+                    ? ibanToBban(bankNumber)
+                    : bankNumber
+                }
+                isLoading={isLoading}
+                isSecrete={true}
+                type={isCZorSK ? "czOrSk" : "iban"}
+                onChangeText={(text) => setBankNumber(text)}
+              />
+            )}
 
             {userData?.data?.isAdmin && <ThemedLine style={{ height: 1 }} />}
 
@@ -322,7 +320,12 @@ export default function Profile() {
             {i18n.t("tools")}
           </ThemedText>
 
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() =>
+              queryClient.invalidateQueries({ queryKey: ["user", userId] })
+            }
+          >
             <IconSymbol name="gear" size={20} color={"#007AFF"} />
             <ThemedText style={styles.actionButtonText}>
               {i18n.t("changePassword")}

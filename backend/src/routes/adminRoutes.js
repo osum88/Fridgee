@@ -1,9 +1,9 @@
 import express from "express";
 import { authenticateToken, authorizeAdmin, authorizeAdminWithOutId } from "../middlewares/authMiddleware.js";
 import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFriends, getReceivedFriendRequests, getSentFriendRequests } from "../controllers/friendController.js";
-import { deleteUser, deleteUserProfileImage, getAllUsersAdmin, getUserById, updateUser, updateUserProfileImage } from "../controllers/userController.js";
+import { deleteUser, deleteUserProfileImage, getAllUsersAdmin, getBankNumberPassword, getUserById, updateUser, updateUserProfileImage } from "../controllers/userController.js";
 import validate from "../middlewares/validator.js";
-import { updateUserSchema } from "../validation/userValidation.js";
+import { updateUserAdminSchema, updateUserSchema } from "../validation/userValidation.js";
 import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, getAllFoodInventory, getInventoryDetailsWithUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
 import { archiveInventoryAdminSchema, changeRoleAdminSchema, changeSettingAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema } from "../validation/foodInventoryValidation.js";
 import { getFriendsAdminSchema } from "../validation/friendValidation.js";
@@ -85,7 +85,7 @@ router.patch("/users/:id/profile-image", authenticateToken, authorizeAdmin, uplo
 router.delete("/users/:id/profile-image", authenticateToken, authorizeAdmin, deleteUserProfileImage);
 
 //updatuje uzivatele
-router.patch("/users/:id", validate(updateUserSchema), authenticateToken, sanitize, authorizeAdmin, updateUser);
+router.patch("/users/:id", validate(updateUserAdminSchema), authenticateToken, sanitize, authorizeAdmin, updateUser);
 
 //smaze uzivatele
 router.delete("/users/:id", authenticateToken, authorizeAdmin, deleteUser);

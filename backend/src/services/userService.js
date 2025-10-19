@@ -1,7 +1,10 @@
 import { BadRequestError, ConflictError, NotFoundError } from "../errors/errors.js";
 import { getFriendshipRepository } from "../repositories/friendRepository.js";
-import { createUserRepository, deleteUserRepository, getBankNumberRepository, getUserByEmailRepository, getUserByIdRepository, getUserByUsernameRepository, searchUsersRepository, updatePreferredLanguageByUserIdRepository, updateUserProfileImageRepository, updateUserRepository } from "../repositories/userRepository.js";
+import { createUserRepository, deleteUserRepository, getBankNumberRepository, getUserByEmailRepository, getUserByIdRepository, getUserByUsernameRepository, getUserHashPasswordRepository, searchUsersRepository, updatePreferredLanguageByUserIdRepository, updateUserProfileImageRepository, updateUserRepository } from "../repositories/userRepository.js";
 import { deleteUserFolderFromCloud, generateImageFilename, getImageUpdateTimeFromCloud, resizeImage, uploadImageToCloud } from "../services/imageService.js"
+import bcrypt from "bcrypt";
+import { generateEpcPaymentFormat, generateSpaydPaymentFormat, isValidIbanOrBban } from "../utils/qrPayment.js";
+
 
 export const createUserService = async (name, surname, username, birthDate, email, password, bankNumber, preferredLanguage) => {
     const existingUserByEmail = await getUserByEmailRepository(email);
@@ -37,33 +40,71 @@ export const getUserByIdService = async (userId) => {
     return user;
 };
 
-export const updateUserService = async (id, updateData) => {
+// updatuje uzivatele
+export const updateUserService = async (id, updateData, isAdmin) => {
     
+    // zkontroluje zda uzivatel existuje
     const userToUpdate = await getUserByIdRepository(id);
+    if (!userToUpdate) {    
+        throw new NotFoundError("User not found.");
+    }
 
+    //kontrola unikatnosti emailu 
     if (updateData.email && updateData.email !== userToUpdate.email) {
-        const existingUserByEmail = await getUserByEmailRepository(updateData.email);
+        const existingUserByEmail = await getUserByEmailRepository(updateData?.email);
         if (existingUserByEmail) {
             throw new ConflictError("A user with this email already exists.");
         }
     }
 
+    //kontrola unikatnosti username
     if (updateData.username && updateData.username !== userToUpdate.username) {
-        const existingUserByUsername = await getUserByUsernameRepository(updateData.username);
+        const existingUserByUsername = await getUserByUsernameRepository(updateData?.username);
         if (existingUserByUsername) {
             throw new ConflictError("A user with this username already exists.");
         }
     }
 
-    const updatedUser = await updateUserRepository(id, updateData);
+    //filtruje pouze na povolene klice
+    const allowedKeys = ["name", "surname", "username", "birthDate", "email", "gender", "country", "bankNumber", "isAdmin", "preferredLanguage", ];
+    const filteredData = Object.fromEntries(
+        Object.entries(updateData).filter(([key, value]) => allowedKeys.includes(key) && value != null )
+    );
+
+    // pouze admin muze menit isAdmin
+    if (!isAdmin) {
+        delete filteredData.isAdmin;
+    }
+
+    // bankovni cislo lze zadat jen pokud je i vybrana zeme bankovniho cisla
+    if (filteredData?.bankNumber){
+        if (!filteredData?.country){
+            throw new BadRequestError("Error country is required for bank number.");
+        }
+        const iban = isValidIbanOrBban(filteredData?.bankNumber, filteredData.country);
+        filteredData.bankNumber = iban;
+    }
+   
+    // pokud je prazdny retezec, nastavi na null
+    if (filteredData?.birthDate === "") {
+        filteredData.birthDate = null;
+    }
+
+    // pokud neni nic na updatu, vrati puvodniho uzivatele
+    if (Object.keys(filteredData).length === 0) {
+        return userToUpdate; 
+    }
+
+    // provede update
+    const updatedUser = await updateUserRepository(id, filteredData);
 
     if (!updatedUser) {
         throw new NotFoundError("User not found after update.");
     }
-
     return updatedUser;
 };
 
+// smaze uzivatele
 export const deleteUserService = async (id, admin) => {
 
     if (admin){
@@ -78,6 +119,7 @@ export const deleteUserService = async (id, admin) => {
     return deletedUser;
 };
 
+//vrati bankovi cislo usera
 export const getBankNumberService = async (id) => {
 
     const bankNumber = await getBankNumberRepository(id);
@@ -85,8 +127,21 @@ export const getBankNumberService = async (id) => {
     if (bankNumber === null) {
         throw new NotFoundError("Bank number not found for given user.");
     }
+    return bankNumber || {bankNumber: ""};
+};
 
-    return bankNumber;
+//vrati bankovni cislo usera po zadani hesla
+export const getBankNumberPasswordService = async (id, password) => {
+
+    const user = await getUserHashPasswordRepository(id);
+
+    // overeni hesla
+    const isSame = await bcrypt.compare(password, user.passwordHash);
+    if (!isSame) {
+        throw new BadRequestError("Wrong password");
+    }
+    const bankNumber = await getBankNumberRepository(id);   
+    return bankNumber || {bankNumber: ""};
 };
 
 //vyhleda uzivatele
