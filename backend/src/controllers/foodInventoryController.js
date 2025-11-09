@@ -54,7 +54,7 @@ export const deleteFoodInventoryUser = async (req, res, next) => {
     try {
         const inventoryId = parseInt(req.params.inventoryId, 10);
         const userId = req.userId;
-        const newOwnerId =  req.body.newOwnerId;
+        const newOwnerId = req.body.newOwnerId;
         const isAdmin = req.adminRoute;
         
         const deletedUser = await deleteFoodInventoryUserService(userId, inventoryId, newOwnerId, isAdmin);

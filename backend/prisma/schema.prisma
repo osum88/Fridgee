@@ -16,9 +16,9 @@ datasource db {
 //uzivatele
 model User {
   id                           Int                   @id @default(autoincrement())
-  name                         String?               @db.VarChar(150)
-  surname                      String?               @db.VarChar(150)
-  username                     String                @unique @db.VarChar(150)
+  name                         String?               @db.VarChar(40)
+  surname                      String?               @db.VarChar(40)
+  username                     String                @unique @db.VarChar(30)
   birthDate                    DateTime?             @map("birth_date")
   email                        String                @unique
   gender                       Gender?               @default(UNSPECIFIED)
@@ -30,7 +30,7 @@ model User {
   tokenExpiresAt               DateTime?             @map("token_expires_at")
   passwordResetToken           String?               @unique @map("password_reset_token")
   passwordResetExpiresAt       DateTime?             @map("password_reset_expires_at")
-  bankNumber                   String?               @map("bank_number") @db.VarChar(255)
+  bankNumber                   String?               @map("bank_number") @db.VarChar(70)
   isAdmin                      Boolean               @default(false) @map("is_admin")
   createdAt                    DateTime              @default(now()) @map("created_at")
   lastLogin                    DateTime              @default(now()) @map("last_login")
@@ -42,6 +42,11 @@ model User {
   userInventory                InventoryUser[]       @relation("userInventory")
   sentInventoryInvitations     InventoryInvitation[] @relation("sentInvitations")
   receivedInventoryInvitations InventoryInvitation[] @relation("receivedInvitations")
+  foodCatalog                  FoodCatalog[]
+  foodInstancesAdded           FoodInstance[]        @relation("addedUserFoodInstance")
+  foodInstancesRemoved         FoodInstance[]        @relation("removeUserFoodInstance")
+  foodHistory                  FoodHistory[]
+  foodLabel                    FoodLabel[]
 
   @@map("users")
 }
@@ -90,8 +95,8 @@ enum FriendshipStatus {
 //inventar potravin
 model FoodInventory {
   id              Int                   @id @default(autoincrement())
-  title           String                @db.VarChar(100)
-  label           String?               @db.VarChar(150)
+  title           String                @db.VarChar(50)
+  label           String?               @db.VarChar(100)
   isArchived      Boolean               @default(false) @map("is_archived")
   memberCount     Int                   @default(0) @map("member_count")
   lastActivityAt  DateTime              @default(now()) @map("last_activity_at")
@@ -99,6 +104,8 @@ model FoodInventory {
   updatedAt       DateTime              @updatedAt @map("updated_at")
   inventory       InventoryUser[]       @relation("inventory")
   sentInvitations InventoryInvitation[] @relation("inventoryInvitations")
+  foods           Food[]
+  foodCategory    FoodCategory[]
 
   @@map("food_inventory")
 }
@@ -106,9 +113,9 @@ model FoodInventory {
 //uzivatele jednoho inventare
 model InventoryUser {
   id                   Int           @id @default(autoincrement())
-  user                 User          @relation("userInventory", fields: [userId], references: [id])
+  user                 User          @relation("userInventory", fields: [userId], references: [id], onDelete: Cascade)
   userId               Int           @map("user_id")
-  inventory            FoodInventory @relation("inventory", fields: [inventoryId], references: [id])
+  inventory            FoodInventory @relation("inventory", fields: [inventoryId], references: [id], onDelete: Cascade)
   inventoryId          Int           @map("inventory_id")
   role                 InventoryRole @default(USER)
   joinedAt             DateTime      @default(now()) @map("joined_at")
@@ -125,6 +132,7 @@ enum InventoryRole {
   USER
 }
 
+//pozvanka do inventare
 model InventoryInvitation {
   id          Int              @id @default(autoincrement())
   sender      User             @relation("sentInvitations", fields: [senderId], references: [id], onDelete: Cascade)
@@ -144,4 +152,183 @@ model InventoryInvitation {
 
 enum InvitationStatus {
   PENDING
+}
+
+//katalog potravin, slouzi pro predvyplneni
+model FoodCatalog {
+  id           Int           @id @default(autoincrement())
+  barcode      String?       @db.VarChar(150)
+  title        Json          @default("{}")
+  description  Json?         @default("{}")
+  price        Float         @default(0)
+  unit         Unit?
+  amount       Float         @default(0)
+  addedBy      Int?          @map("added_by")
+  isGlobal     Boolean       @default(false) @map("is_global")
+  foodImageUrl String?       @map("food_image_url")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updateAt     DateTime      @updatedAt @map("update_at")
+  user         User?         @relation(fields: [addedBy], references: [id], onDelete: SetNull)
+  variants     FoodVariant[]
+  foods        Food[]
+  labels       FoodLabel[]
+
+  @@unique([barcode, addedBy])
+  @@map("food_catalogs")
+}
+
+enum Unit {
+  MG
+  G
+  DG
+  KG
+  ML
+  CL
+  DL
+  L
+}
+
+// reprezentuje konkretni potravinu v inventari
+model Food {
+  id              Int      @id @default(autoincrement())
+  inventoryId     Int      @map("inventory_id")
+  categoryId      Int?     @map("category_id")
+  catalogId       Int      @map("catalog_id")
+  variantId       Int?     @map("variant_id")
+  quantity        Int
+  minimalQuantity Int      @default(0) @map("minimal_quantity")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updateAt        DateTime @updatedAt @map("update_at")
+
+  inventory FoodInventory  @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+  catalog   FoodCatalog    @relation(fields: [catalogId], references: [id])
+  variant   FoodVariant?   @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  category  FoodCategory?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  instances FoodInstance[]
+  history   FoodHistory[]
+
+  @@unique([inventoryId, catalogId, variantId])
+  @@index([inventoryId])
+  @@index([catalogId])
+  @@map("foods")
+}
+
+// konkretni instance jednoho jidla
+model FoodInstance {
+  id             Int           @id @default(autoincrement())
+  foodId         Int           @map("food_id")
+  // shop           String
+  priceId        Int?          @map("price_id")
+  expirationDate DateTime?     @map("expiration_date")
+  addedBy        Int?          @map("added_by")
+  addedAt        DateTime      @default(now()) @map("added_at")
+  removeBy       Int?          @map("remove_by")
+  removeAt       DateTime?     @map("remove_at")
+  unit           Unit?
+  amount         Float         @default(0)
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updateAt       DateTime      @updatedAt @map("update_at")
+  addedByUser    User?         @relation("addedUserFoodInstance", fields: [addedBy], references: [id], onDelete: SetNull)
+  removeByUser   User?         @relation("removeUserFoodInstance", fields: [removeBy], references: [id], onDelete: SetNull)
+  food           Food          @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  price          Price?        @relation(fields: [priceId], references: [id], onDelete: SetNull)
+  history        FoodHistory[]
+
+  // @@index([foodId])
+  // @@index([priceId])
+  @@map("food_instances")
+}
+
+// ruzne verze potraviny (mouka - hladná, hrubá..)
+model FoodVariant {
+  id            Int         @id @default(autoincrement())
+  foodCatalogId Int         @map("food_catalog_id")
+  title         String
+  createdAt     DateTime    @default(now()) @map("created_at")
+  catalog       FoodCatalog @relation(fields: [foodCatalogId], references: [id])
+  foods         Food[]
+
+  // @@index([foodCatalogId])
+  @@map("food_variants")
+}
+
+// kategorie jidel vramci jednoho inventare
+model FoodCategory {
+  id          Int           @id @default(autoincrement())
+  inventoryId Int           @map("inventory_id")
+  title       String
+  createdAt   DateTime      @default(now()) @map("created_at")
+  inventory   FoodInventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+  foods       Food[]
+
+  // @@index([inventoryId])
+
+  @@map("food_categories")
+}
+
+// castka v ruznych menach
+model Price {
+  id               Int            @id @default(autoincrement())
+  amount           Json           @default("{}")
+  base_currency    Currency       @default(CZK)
+  exchangeRate     Float          @default(0) @map("exchange_rate")
+  exchangeRateDate DateTime       @default(now()) @map("exchange_rate_date")
+  foodInstances    FoodInstance[]
+
+  @@map("prices")
+}
+
+//enum men
+enum Currency {
+  CZK
+  EUR
+}
+
+//historie vsech operaci nad jidlem
+model FoodHistory {
+  id             Int           @id @default(autoincrement())
+  inventoryId    Int           @map("inventory_id")
+  foodId         Int?          @map("food_id")
+  foodInstanceId Int?          @map("food_instance_id")
+  action         FoodAction    @default(ADD)
+  changedBy      Int?          @map("changed_by")
+  changedAt      DateTime      @default(now()) @map("changed_at")
+  quantityBefore Int           @default(0) @map("quantity_before")
+  quantityAfter  Int           @map("quantity_after")
+  user           User?         @relation(fields: [changedBy], references: [id], onDelete: SetNull)
+  food           Food?         @relation(fields: [foodId], references: [id], onDelete: SetNull)
+  instance       FoodInstance? @relation(fields: [foodInstanceId], references: [id], onDelete: SetNull)
+
+  //  @@index([inventoryId])
+  //   @@index([changedBy])
+  //   @@index([foodId])
+  //   @@index([foodInstanceId])
+  @@map("food_histories")
+}
+
+// enum akci v historii jidel
+enum FoodAction {
+  ADD
+  CONSUME
+  UPDATE
+  EXPIRE
+  REMOVE
+}
+
+// pridava moznost prepsat nazev, popisek, obrazek v katalogu vlastnim
+model FoodLabel {
+  id                 Int      @id @default(autoincrement())
+  userId             Int      @map("user_id")
+  catalogId          Int      @map("catalog_id")
+  customTitle        String?  @map("custom_title")
+  customDescription  String?  @map("custom_description")
+  customFoodImageUrl String?  @map("custom_food_image_url")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  catalog FoodCatalog @relation(fields: [catalogId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, catalogId])
+  @@map("food_labels")
 }

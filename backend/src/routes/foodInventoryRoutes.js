@@ -43,7 +43,7 @@ router.patch("/:inventoryId/archive", validate(archiveInventorySchema), authenti
 //zrusi archivaci inventare
 router.patch("/:inventoryId/unarchive", validate(archiveInventorySchema), authenticateToken, authorizeUser, unarchiveFoodInventory);
 
-//smena title a label
+//zmena title a label
 router.patch("/:inventoryId", validate(updateFoodInventorySchema), authenticateToken, sanitize, authorizeUser, updateFoodInventory);
 
 //vrati vsechny inventare uzivatele

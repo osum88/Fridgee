@@ -169,7 +169,7 @@ export const deleteOtherFoodInventoryUserService = async (removerId, inventoryId
     await getUserByIdRepository(targetUserId);
     await getFoodInventoryRepository(inventoryId);
 
-    // kontrola existence cilového uzivatele v inventari
+    // kontrola existence odstranujiciho uzivatele v inventari
     const removerInventoryUser = await getFoodInventoryUserRepository(removerId, inventoryId);
     if (!removerInventoryUser) {
         throw new ForbiddenError("You do not have permission to perform this action.");
@@ -214,7 +214,7 @@ export const getUsersByInventoryIdService = async (userId, inventoryId, rolesToF
     return inventoryUsers;
 };
 
-//owner smaze jineho uzivatele z inventare
+//archivace inventare
 export const archiveFoodInventoryService = async (userId, inventoryId, isArchived, isAdmin) => {
     if (isNaN(inventoryId)) {
         throw new BadRequestError("Invalid inventory ID provided.");

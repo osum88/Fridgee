@@ -9,6 +9,8 @@ import { archiveInventoryAdminSchema, changeRoleAdminSchema, changeSettingAdminS
 import { getFriendsAdminSchema } from "../validation/friendValidation.js";
 import multer from "multer";
 import { sanitize } from "../middlewares/sanitize.js";
+import { createFoodCatalogAdminSchema, createFoodCatalogSchema } from "../validation/foodCatalogValidation.js";
+import { createFoodCatalog } from "../controllers/foodCatalogController.js";
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -70,6 +72,10 @@ router.get("/users/:id/inventory", authenticateToken, authorizeAdmin, getAllFood
 //ziska detail inventare s opravnenim 
 router.get("/users/:id/inventory/:inventoryId", validate(archiveInventoryAdminSchema), authenticateToken, sanitize, authorizeAdmin, getInventoryDetailsWithUser);
 
+
+//                         FOOD CATALOG
+//vytvori food catalog
+router.post("/users/:id/food-catalog", validate(createFoodCatalogAdminSchema), authenticateToken, sanitize, authorizeAdmin, createFoodCatalog);
 
 //                                 USER
 //vrati uzivatele podle id

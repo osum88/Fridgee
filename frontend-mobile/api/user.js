@@ -132,22 +132,12 @@ export const getBankNumberPasswordApi = async (data) => {
   }
 };
 
-//vrati bankovni cislo po zadani hesla
+//updatuje profil info usera
 export const updateProfileApi = async (data) => {
   try {
     const response = await apiClient.patch("/users", data);
     return response.data;
   } catch (error) {
-    console.log("1--------------------------------------------------------");
-    console.log(data.country);
-    console.log({ error });
-    console.log("2--------------------------------------------------------");
-    // console.log(error?.response);
-    console.log("3--------------------------------------------------------");
-
-    console.log(error?.response?.data);
-    console.log("4--------------------------------------------------------");
-
     console.error(
       "Error in updateProfileApi: ",
       error,
@@ -157,8 +147,7 @@ export const updateProfileApi = async (data) => {
     if (error.response) {
       const errorData = error?.response?.data?.errors;
       const errorMessage = error?.response?.data?.message;
-      console.log(errorMessage)
-      console.log("--------------sds-----------sdsd-------------")
+
       if (error.response.status === 400) {
         if (errorMessage === "Error country is required for bank number.") {
           throw new BankNumberError(i18n.t("errorBankNumberNeedCountry"));
