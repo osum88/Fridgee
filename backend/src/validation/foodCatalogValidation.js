@@ -38,7 +38,8 @@ export const createFoodCatalogAdminSchema = createFoodCatalogSchema.keys({
 
 //validace vstupu pro aktualizaci food katalogu
 export const updateFoodCatalogSchema = Joi.object({
-  barcode: Joi.string().max(150).optional(),
+  foodCatalogId: Joi.number().integer().positive().required(),
+  barcode: Joi.string().max(150).allow("").optional(),
   title: Joi.alternatives()
     .try(
       Joi.string().max(40),
@@ -51,7 +52,7 @@ export const updateFoodCatalogSchema = Joi.object({
     .optional(),
   description: Joi.alternatives()
     .try(
-      Joi.string().max(100),
+      Joi.string().allow("").max(100),
       Joi.object({
         cs: Joi.string().max(100).optional(),
         en: Joi.string().max(100).optional(),
@@ -61,13 +62,20 @@ export const updateFoodCatalogSchema = Joi.object({
     .optional(),
   price: Joi.number().min(0).optional(),
   unit: Joi.string()
-    .valid("MG", "G", "DG", "KG", "ML", "CL", "DL", "L")
+    .valid("MG", "G", "DG", "KG", "ML", "CL", "DL", "L", "")
     .optional(),
   amount: Joi.number().min(0).optional(),
   isGlobal: Joi.boolean().optional(),
-  foodImageUrl: Joi.string().uri().optional(),
+  foodImageUrl: Joi.string().uri().allow("").optional(),
 });
 
+
+
 export const foodCatalogIdSchema = Joi.object({
-  inventoryId: Joi.number().integer().positive().required(),
+  foodCatalogId: Joi.number().integer().positive().required(),
+});
+
+export const foodCatalogIdAdminSchema = Joi.object({
+  id: Joi.number().integer().positive().required(),
+  foodCatalogId: Joi.number().integer().positive().required(),
 });

@@ -7,6 +7,7 @@ import authRoutes from "./routes/authRoutes.js";
 import friendRoutes from "./routes/friendRoutes.js"
 import foodInventoryRoutes from "./routes/foodInventoryRoutes.js"
 import foodCatalogRoutes from "./routes/foodCatalogRoutes.js"
+import foodCategoryRoutes from "./routes/foodCategoryRoutes.js"
 import adminRoutes from "./routes/adminRoutes.js";
 import helmet from "helmet";
 import cron from "node-cron";
@@ -48,13 +49,13 @@ const authLimiter = rateLimit({
 });
 
 // routes
-app.use("/api", apiLimiter, userRoutes);
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/friends", apiLimiter, friendRoutes);
 app.use("/api/inventory", apiLimiter, foodInventoryRoutes);
 app.use("/api/food-catalog", apiLimiter, foodCatalogRoutes);
+app.use("/api/food-category", apiLimiter, foodCategoryRoutes);
 app.use("/api/admin", adminRoutes);
-
+app.use("/api", apiLimiter, userRoutes);
 
 //not found
 app.use((req, res, next) => {

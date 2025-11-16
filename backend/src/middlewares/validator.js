@@ -1,7 +1,7 @@
 const validate = (schema) => (req, res, next) => {
     const validationObject = { ...req.body, ...req.params, ...req.query };
     const { error, value } = schema.validate(validationObject, { abortEarly: false });
-
+console.log(validationObject)
     if (error) {
         const errorMessages = error.details.map((detail) => detail.message);
         return res.status(400).json({
@@ -10,7 +10,7 @@ const validate = (schema) => (req, res, next) => {
             errors: errorMessages,
         });
     }
-    req.body = value;
+    // req.body = value;
     next();
 };
 

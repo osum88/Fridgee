@@ -57,3 +57,6 @@ export const getBankNumberPasswordSchema = Joi.object({
     password: Joi.string().min(6).required(), 
 });
 
+export const userIdAdminSchema = Joi.object({
+    id: Joi.number().integer().positive().required(),
+});

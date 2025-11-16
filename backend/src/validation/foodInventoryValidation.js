@@ -56,11 +56,11 @@ export const getInventoryUsersSchema = Joi.object({
         )).optional(),
 });
 
-export const archiveInventorySchema = Joi.object({
+export const inventoryIdSchema = Joi.object({
     inventoryId: Joi.number().integer().positive().required(),
 });
 
-export const archiveInventoryAdminSchema = Joi.object({
+export const inventoryIdAdminSchema = Joi.object({
     id: Joi.number().integer().positive().required(),
     inventoryId: Joi.number().integer().positive().required(),
 });

@@ -33,7 +33,5 @@ services:                                 # definuje jednotlivé kontejnery
     depends_on:                           # Zajistí pořadí spouštění služeb
       db:
         condition: service_healthy 
-    volumes:
-      - .:/app
 volumes:                                  # Sekce pro definici perzistentních svazků
   db_data:                                # Definice svazku 'db_data', který se pak použije u 'db'

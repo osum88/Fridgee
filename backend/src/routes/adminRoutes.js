@@ -1,16 +1,18 @@
 import express from "express";
 import { authenticateToken, authorizeAdmin, authorizeAdminWithOutId } from "../middlewares/authMiddleware.js";
 import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFriends, getReceivedFriendRequests, getSentFriendRequests } from "../controllers/friendController.js";
-import { deleteUser, deleteUserProfileImage, getAllUsersAdmin, getBankNumberPassword, getUserById, updateUser, updateUserProfileImage } from "../controllers/userController.js";
+import { deleteUser, deleteUserProfileImage, getAllUsersAdmin, getUserById, updateUser, updateUserProfileImage } from "../controllers/userController.js";
 import validate from "../middlewares/validator.js";
-import { updateUserAdminSchema, updateUserSchema } from "../validation/userValidation.js";
+import { updateUserAdminSchema, updateUserSchema, userIdAdminSchema } from "../validation/userValidation.js";
 import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, getAllFoodInventory, getInventoryDetailsWithUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
-import { archiveInventoryAdminSchema, changeRoleAdminSchema, changeSettingAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema } from "../validation/foodInventoryValidation.js";
+import { inventoryIdAdminSchema, changeRoleAdminSchema, changeSettingAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema, inventoryIdSchema } from "../validation/foodInventoryValidation.js";
 import { getFriendsAdminSchema } from "../validation/friendValidation.js";
 import multer from "multer";
 import { sanitize } from "../middlewares/sanitize.js";
-import { createFoodCatalogAdminSchema, createFoodCatalogSchema } from "../validation/foodCatalogValidation.js";
-import { createFoodCatalog } from "../controllers/foodCatalogController.js";
+import { createFoodCatalogAdminSchema, foodCatalogIdSchema, updateFoodCatalogSchema } from "../validation/foodCatalogValidation.js";
+import { createFoodCatalog, deleteFoodCatalog, getAllFoodCatalogsByUser, getFoodCatalogById, updateFoodCatalog } from "../controllers/foodCatalogController.js";
+import { categoryIdSchema, createFoodCategorySchema, updateFoodCategorySchema } from "../validation/foodCategoryValidation.js";
+import { createFoodCategory, deleteFoodCategory, getFoodCategoriesByInventory, getFoodCategoryById, updateFoodCategory } from "../controllers/foodCategoryController.js";
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -58,10 +60,10 @@ router.delete("/users/:id/inventory/:inventoryId/users/", validate(deleteAdminSc
 router.get("/users/inventory/:inventoryId/users", validate(getInventoryUsersSchema), authenticateToken, sanitize, authorizeAdminWithOutId, getUsersByInventoryId);
 
 //archivuje inventar
-router.patch("/users/:id/inventory/:inventoryId/archive", validate(archiveInventoryAdminSchema), authenticateToken, authorizeAdmin, archiveFoodInventory);
+router.patch("/users/:id/inventory/:inventoryId/archive", validate(inventoryIdAdminSchema), authenticateToken, authorizeAdmin, archiveFoodInventory);
 
 //zrusi archivaci inventare
-router.patch("/users/:id/inventory/:inventoryId/unarchive", validate(archiveInventoryAdminSchema), authenticateToken, authorizeAdmin, unarchiveFoodInventory);
+router.patch("/users/:id/inventory/:inventoryId/unarchive", validate(inventoryIdAdminSchema), authenticateToken, authorizeAdmin, unarchiveFoodInventory);
 
 //zmena title a label
 router.patch("/users/inventory/:inventoryId", validate(updateFoodInventorySchema), authenticateToken, sanitize, authorizeAdminWithOutId, updateFoodInventory);
@@ -70,12 +72,41 @@ router.patch("/users/inventory/:inventoryId", validate(updateFoodInventorySchema
 router.get("/users/:id/inventory", authenticateToken, authorizeAdmin, getAllFoodInventory);
 
 //ziska detail inventare s opravnenim 
-router.get("/users/:id/inventory/:inventoryId", validate(archiveInventoryAdminSchema), authenticateToken, sanitize, authorizeAdmin, getInventoryDetailsWithUser);
+router.get("/users/:id/inventory/:inventoryId", validate(inventoryIdAdminSchema), authenticateToken, sanitize, authorizeAdmin, getInventoryDetailsWithUser);
 
 
 //                         FOOD CATALOG
 //vytvori food catalog
 router.post("/users/:id/food-catalog", validate(createFoodCatalogAdminSchema), authenticateToken, sanitize, authorizeAdmin, createFoodCatalog);
+
+// vrati katalog podle id
+router.get("/users/food-catalog/:foodCatalogId", validate(foodCatalogIdSchema), authenticateToken, sanitize, authorizeAdminWithOutId, getFoodCatalogById);
+
+// vrati vsechny katalogy usera
+router.get("/users/:id/food-catalog", validate(userIdAdminSchema), authenticateToken, authorizeAdmin, getAllFoodCatalogsByUser);
+
+//smaze katalog podle id
+router.delete("/users/food-catalog/:foodCatalogId", validate(foodCatalogIdSchema), authenticateToken, sanitize, authorizeAdminWithOutId, deleteFoodCatalog);
+
+//updatuje katalog podle id
+router.patch("/users/food-catalog/:foodCatalogId", validate(updateFoodCatalogSchema), authenticateToken, sanitize, authorizeAdminWithOutId, updateFoodCatalog);
+
+//                                 FOOO CATEGORY
+// vytvori novou kategorii
+router.post("/users/food-category", validate(createFoodCategorySchema), authenticateToken, sanitize, authorizeAdminWithOutId, createFoodCategory);
+
+// vrati vsechny kategorie z inventare
+router.get("/food-category/inventory/:inventoryId", validate(inventoryIdSchema), authenticateToken, sanitize, authorizeAdminWithOutId, getFoodCategoriesByInventory);
+
+// vrati kategorii podle id
+router.get("/users/food-category/:categoryId", validate(categoryIdSchema), authenticateToken, sanitize, authorizeAdminWithOutId, getFoodCategoryById);
+
+// updatuje kategorii podle id
+router.patch("/users/food-category/:categoryId", validate(updateFoodCategorySchema), authenticateToken, sanitize, authorizeAdminWithOutId, updateFoodCategory);
+
+// smaze kategorii podle id
+router.delete("/food-category/:categoryId", validate(categoryIdSchema), authenticateToken, sanitize, authorizeAdminWithOutId, deleteFoodCategory);
+
 
 //                                 USER
 //vrati uzivatele podle id
@@ -94,7 +125,7 @@ router.delete("/users/:id/profile-image", authenticateToken, authorizeAdmin, del
 router.patch("/users/:id", validate(updateUserAdminSchema), authenticateToken, sanitize, authorizeAdmin, updateUser);
 
 //smaze uzivatele
-router.delete("/users/:id", authenticateToken, authorizeAdmin, deleteUser);
+router.delete("/users/:id", validate(userIdAdminSchema), authenticateToken, authorizeAdmin, deleteUser);
 
 
 

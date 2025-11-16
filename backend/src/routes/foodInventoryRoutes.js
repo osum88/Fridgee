@@ -3,7 +3,7 @@ import { authenticateToken, authorizeUser } from "../middlewares/authMiddleware.
 import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, deleteOtherFoodInventoryUser, getAllFoodInventory, getInventoryDetailsWithUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
 import { acceptInventoryInvitation, rejectInventoryInvitation, sendInventoryInvitation } from "../controllers/inventoryInvitationController.js";
 import validate from "../middlewares/validator.js";
-import { archiveInventorySchema, changeRoleSchema, changeSettingSchema, createFoodInventorySchema, deleteOtherSchema, deleteSchema, getInventoryUsersSchema, updateFoodInventorySchema } from "../validation/foodInventoryValidation.js";
+import { inventoryIdSchema, changeRoleSchema, changeSettingSchema, createFoodInventorySchema, deleteOtherSchema, deleteSchema, getInventoryUsersSchema, updateFoodInventorySchema } from "../validation/foodInventoryValidation.js";
 import { invitationIdSchema, sendInvitationSchema } from "../validation/inventoryInvitationValidation.js";
 import { sanitize } from "../middlewares/sanitize.js";
 
@@ -38,10 +38,10 @@ router.get("/:inventoryId/users", validate(getInventoryUsersSchema), authenticat
 //http://localhost:3001/api/inventory/3/users?role=OWNER&role=EDITOR
 
 //archivuje inventar
-router.patch("/:inventoryId/archive", validate(archiveInventorySchema), authenticateToken, authorizeUser, archiveFoodInventory);
+router.patch("/:inventoryId/archive", validate(inventoryIdSchema), authenticateToken, authorizeUser, archiveFoodInventory);
 
 //zrusi archivaci inventare
-router.patch("/:inventoryId/unarchive", validate(archiveInventorySchema), authenticateToken, authorizeUser, unarchiveFoodInventory);
+router.patch("/:inventoryId/unarchive", validate(inventoryIdSchema), authenticateToken, authorizeUser, unarchiveFoodInventory);
 
 //zmena title a label
 router.patch("/:inventoryId", validate(updateFoodInventorySchema), authenticateToken, sanitize, authorizeUser, updateFoodInventory);
@@ -50,7 +50,7 @@ router.patch("/:inventoryId", validate(updateFoodInventorySchema), authenticateT
 router.get("/", authenticateToken, authorizeUser, getAllFoodInventory);
 
 //ziska detail inventare s opravnenim 
-router.get("/:inventoryId", validate(archiveInventorySchema), authenticateToken, authorizeUser, getInventoryDetailsWithUser);
+router.get("/:inventoryId", validate(inventoryIdSchema), authenticateToken, authorizeUser, getInventoryDetailsWithUser);
 
 
 

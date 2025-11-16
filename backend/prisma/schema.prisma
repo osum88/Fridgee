@@ -243,12 +243,12 @@ model FoodInstance {
 model FoodVariant {
   id            Int         @id @default(autoincrement())
   foodCatalogId Int         @map("food_catalog_id")
-  title         String
+  title         String      @db.VarChar(50)
   createdAt     DateTime    @default(now()) @map("created_at")
   catalog       FoodCatalog @relation(fields: [foodCatalogId], references: [id])
   foods         Food[]
 
-  // @@index([foodCatalogId])
+  @@index([foodCatalogId])
   @@map("food_variants")
 }
 
@@ -256,7 +256,7 @@ model FoodVariant {
 model FoodCategory {
   id          Int           @id @default(autoincrement())
   inventoryId Int           @map("inventory_id")
-  title       String
+  title       String        @db.VarChar(50)
   createdAt   DateTime      @default(now()) @map("created_at")
   inventory   FoodInventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
   foods       Food[]

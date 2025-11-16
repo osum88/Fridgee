@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+import { ConflictError, NotFoundError } from "../errors/errors.js";
 import prisma from "../utils/prisma.js";
 
 //vytvori novy food catalog
@@ -19,6 +21,12 @@ export const createFoodCatalogRepository = async (userId, barcode, title, descri
         return newFoodCatalog;
     } catch (error) {
         console.error("Error creating food catalog:", error);
+        if (
+            error instanceof Prisma.PrismaClientKnownRequestError &&
+            error.code === "P2002"
+        ) {
+            throw new ConflictError("Food catalog with this barcode already exists.");
+        }
         throw error;
     }
 };
@@ -56,6 +64,9 @@ export const getFoodCatalogByIdRepository = async (id) => {
         const foodCatalog = await prisma.foodCatalog.findUnique({
             where: { id },
         });
+        if (!foodCatalog) {
+            throw new NotFoundError("Food catalog not found.");
+        }
         return foodCatalog;
     } catch (error) {
         console.error("Error fetching food catalog by id:", error);
