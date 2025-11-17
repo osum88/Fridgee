@@ -6,6 +6,7 @@ import validate from "../middlewares/validator.js";
 import { inventoryIdSchema, changeRoleSchema, changeSettingSchema, createFoodInventorySchema, deleteOtherSchema, deleteSchema, getInventoryUsersSchema, updateFoodInventorySchema } from "../validation/foodInventoryValidation.js";
 import { invitationIdSchema, sendInvitationSchema } from "../validation/inventoryInvitationValidation.js";
 import { sanitize } from "../middlewares/sanitize.js";
+import { getFoodCategoriesByInventory } from "../controllers/foodCategoryController.js";
 
 const router = express.Router();
 
@@ -46,11 +47,15 @@ router.patch("/:inventoryId/unarchive", validate(inventoryIdSchema), authenticat
 //zmena title a label
 router.patch("/:inventoryId", validate(updateFoodInventorySchema), authenticateToken, sanitize, authorizeUser, updateFoodInventory);
 
+// vrati vsechny kategorie z inventare
+router.get("/:inventoryId/food-category", validate(inventoryIdSchema), authenticateToken, sanitize, authorizeUser, getFoodCategoriesByInventory);
+
 //vrati vsechny inventare uzivatele
 router.get("/", authenticateToken, authorizeUser, getAllFoodInventory);
 
 //ziska detail inventare s opravnenim 
 router.get("/:inventoryId", validate(inventoryIdSchema), authenticateToken, authorizeUser, getInventoryDetailsWithUser);
+
 
 
 

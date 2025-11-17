@@ -14,6 +14,7 @@ import cron from "node-cron";
 import cookieParser from "cookie-parser";
 import { cleanExpiredRefreshTokens } from "./tasks/cleanExpiredTokens.js";
 import rateLimit from "express-rate-limit";
+import { dailyUpdateExchangeRate } from "./tasks/dailyUpdateExchangeRate.js";
 
 
 dotenv.config();
@@ -75,8 +76,14 @@ app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
    
     cleanExpiredRefreshTokens(); 
+    dailyUpdateExchangeRate();
     cron.schedule("0 3 * * *", () => {                //minuta, hodina, den, mesic, dev v tydnu 
         console.log("Running daily refresh token cleanup task...");
         cleanExpiredRefreshTokens();
     });
+    cron.schedule("0 5 * * *",() => {
+        console.log("Running daily exchange rate update task...");
+        dailyUpdateExchangeRate();
+    });
+
 });

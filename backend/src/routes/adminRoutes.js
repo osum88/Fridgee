@@ -74,6 +74,9 @@ router.get("/users/:id/inventory", authenticateToken, authorizeAdmin, getAllFood
 //ziska detail inventare s opravnenim 
 router.get("/users/:id/inventory/:inventoryId", validate(inventoryIdAdminSchema), authenticateToken, sanitize, authorizeAdmin, getInventoryDetailsWithUser);
 
+// vrati vsechny kategorie z inventare
+router.get("/inventory/:inventoryId/food-category", validate(inventoryIdSchema), authenticateToken, sanitize, authorizeAdminWithOutId, getFoodCategoriesByInventory);
+
 
 //                         FOOD CATALOG
 //vytvori food catalog
@@ -93,16 +96,13 @@ router.patch("/users/food-catalog/:foodCatalogId", validate(updateFoodCatalogSch
 
 //                                 FOOO CATEGORY
 // vytvori novou kategorii
-router.post("/users/food-category", validate(createFoodCategorySchema), authenticateToken, sanitize, authorizeAdminWithOutId, createFoodCategory);
-
-// vrati vsechny kategorie z inventare
-router.get("/food-category/inventory/:inventoryId", validate(inventoryIdSchema), authenticateToken, sanitize, authorizeAdminWithOutId, getFoodCategoriesByInventory);
+router.post("/food-category", validate(createFoodCategorySchema), authenticateToken, sanitize, authorizeAdminWithOutId, createFoodCategory);
 
 // vrati kategorii podle id
-router.get("/users/food-category/:categoryId", validate(categoryIdSchema), authenticateToken, sanitize, authorizeAdminWithOutId, getFoodCategoryById);
+router.get("/food-category/:categoryId", validate(categoryIdSchema), authenticateToken, sanitize, authorizeAdminWithOutId, getFoodCategoryById);
 
 // updatuje kategorii podle id
-router.patch("/users/food-category/:categoryId", validate(updateFoodCategorySchema), authenticateToken, sanitize, authorizeAdminWithOutId, updateFoodCategory);
+router.patch("/food-category/:categoryId", validate(updateFoodCategorySchema), authenticateToken, sanitize, authorizeAdminWithOutId, updateFoodCategory);
 
 // smaze kategorii podle id
 router.delete("/food-category/:categoryId", validate(categoryIdSchema), authenticateToken, sanitize, authorizeAdminWithOutId, deleteFoodCategory);

@@ -14,8 +14,6 @@ router.post("/", validate(createFoodCategorySchema), authenticateToken, sanitize
 // vrati kategorii podle id
 router.get("/:categoryId", validate(categoryIdSchema), authenticateToken, sanitize, authorizeUser, getFoodCategoryById);
 
-// vrati vsechny kategorie z inventare
-router.get("/inventory/:inventoryId", validate(inventoryIdSchema), authenticateToken, sanitize, authorizeUser, getFoodCategoriesByInventory);
 
 // updatuje kategorii podle id
 router.patch("/:categoryId", validate(updateFoodCategorySchema), authenticateToken, sanitize, authorizeUser, updateFoodCategory);

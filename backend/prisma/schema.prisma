@@ -269,10 +269,12 @@ model FoodCategory {
 // castka v ruznych menach
 model Price {
   id               Int            @id @default(autoincrement())
-  amount           Json           @default("{}")
-  base_currency    Currency       @default(CZK)
-  exchangeRate     Float          @default(0) @map("exchange_rate")
-  exchangeRateDate DateTime       @default(now()) @map("exchange_rate_date")
+  price            Float          @default(0)
+  baseCurrency     Currency       @default(CZK) @map("base_currency")
+  exchangeAmount   Json           @default("{}") @map("exchange_amount")
+  exchangeRate     Json           @default("{}") @map("exchange_rate")
+  exchangeRateDate DateTime       @map("exchange_rate_date")
+  createdAt        DateTime       @default(now()) @map("created_at")
   foodInstances    FoodInstance[]
 
   @@map("prices")
@@ -320,9 +322,9 @@ model FoodLabel {
   id                 Int      @id @default(autoincrement())
   userId             Int      @map("user_id")
   catalogId          Int      @map("catalog_id")
-  customTitle        String?  @map("custom_title")
-  customDescription  String?  @map("custom_description")
-  customFoodImageUrl String?  @map("custom_food_image_url")
+  customTitle        String?  @map("custom_title") @db.VarChar(40)
+  customDescription  String?  @map("custom_description") @db.VarChar(100)
+  customFoodImageUrl String?  @map("custom_food_image_url") @db.VarChar(250)
   createdAt          DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @updatedAt @map("updated_at")
 
@@ -331,4 +333,17 @@ model FoodLabel {
 
   @@unique([userId, catalogId])
   @@map("food_labels")
+}
+
+model ExchangeRate {
+  id                    Int      @id @default(autoincrement())
+  amount                Float    @default(0)
+  country               String   @db.VarChar(50)
+  currencyCode          String   @map("currency_code") @db.VarChar(3)
+  convertedCurrencyCode String   @map("converted_currency_code") @db.VarChar(3)
+  rate                  Float    @default(0)
+  exchangeRateDate      DateTime @map("exchange_rate_date")
+
+  @@unique([currencyCode, convertedCurrencyCode])
+  @@map("exchange_rates")
 }

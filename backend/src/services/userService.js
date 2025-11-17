@@ -105,10 +105,10 @@ export const updateUserService = async (id, updateData, isAdmin) => {
 };
 
 // smaze uzivatele
-export const deleteUserService = async (id, admin) => {
+export const deleteUserService = async (id, isAdmin) => {
 
-    if (admin){
-        const user = await getUserByIdRepository(id);
+    if (isAdmin){
+        await getUserByIdRepository(id);
     }
     const deletedUser = await deleteUserRepository(id);
     if (!deletedUser) {
