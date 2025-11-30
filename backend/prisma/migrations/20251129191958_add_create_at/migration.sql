@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "prices" ADD COLUMN     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ALTER COLUMN "exchange_rate_date" DROP DEFAULT;

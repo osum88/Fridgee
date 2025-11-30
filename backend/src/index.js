@@ -81,7 +81,7 @@ app.listen(port, () => {
         console.log("Running daily refresh token cleanup task...");
         cleanExpiredRefreshTokens();
     });
-    cron.schedule("0 5 * * *",() => {
+    cron.schedule("0 15 * * 1-5", () => {
         console.log("Running daily exchange rate update task...");
         dailyUpdateExchangeRate();
     });

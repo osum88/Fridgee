@@ -9,6 +9,8 @@ COPY package*.json ./
 # Nainstalujeme všechny závislosti projektu uvnitř /app
 RUN npm install
 
+# RUN npx prisma generate // TODO: kontrola jestli je to potreba
+
 # Zkopírujeme zbytek kódu aplikace do kontejneru
 COPY . .
 

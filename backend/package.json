@@ -14,7 +14,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@prisma/client": "^6.12.0",
+    "@prisma/adapter-pg": "^7.0.1",
+    "@prisma/client": "^7.0.1",
     "@spayd/core": "^0.0.3",
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
@@ -33,7 +34,7 @@
     "node-cron": "^4.2.1",
     "nodemailer": "^7.0.5",
     "pg": "^8.16.3",
-    "prisma": "^6.12.0",
+    "prisma": "^7.0.1",
     "sanitize-html": "^2.17.0",
     "sharp": "^0.34.3",
     "uuid": "^11.1.0"

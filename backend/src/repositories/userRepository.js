@@ -494,3 +494,21 @@ export const getUserHashPasswordRepository = async (id) => {
         throw error;
     }
 };
+
+//vrati zemi podle id
+export const getUserCountryByIdRepository = async (id) => {
+    try {
+        const country = await prisma.user.findUnique({
+            where: {
+                id: parseInt(id),
+            },
+            select: {
+                country: true,
+            },
+        });
+        return country || null;
+    } catch (error) {
+        console.error("Error fetching user country by ID:", error); 
+        throw error;
+    }
+};

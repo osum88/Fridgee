@@ -12,7 +12,7 @@ export const cleanEmptyStrings = (source) => {
     if (typeof source === "object") {
         const newObj = {};
         Object.keys(source).forEach((key) => {
-        newObj[key] = cleanEmptyStrings(source[key]);
+            newObj[key] = cleanEmptyStrings(source[key]);
         });
         return newObj;
     }

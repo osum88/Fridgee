@@ -26,7 +26,6 @@ const sanitizeDeep = (source) => {
         Object.keys(source).forEach((key) => {
             const cleaned = sanitizeDeep(source[key]);
             source[key] = cleaned;
-            // console.log(cleaned)
         })
         return source
     }
