@@ -46,6 +46,7 @@ model User {
   foodInstancesRemoved         FoodInstance[]        @relation("removeUserFoodInstance")
   foodHistory                  FoodHistory[]
   foodLabel                    FoodLabel[]
+  foodVariantsAdded            FoodVariant[]
 
   @@map("users")
 }
@@ -155,24 +156,18 @@ enum InvitationStatus {
 
 //katalog potravin, slouzi pro predvyplneni
 model FoodCatalog {
-  id           Int           @id @default(autoincrement())
-  barcode      String?       @db.VarChar(150)
-  title        Json          @default("{}")
-  description  Json?         @default("{}")
-  price        Float         @default(0)
-  unit         Unit?
-  amount       Float         @default(0)
-  addedBy      Int?          @map("added_by")
-  isGlobal     Boolean       @default(false) @map("is_global")
-  foodImageUrl String?       @map("food_image_url")
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updateAt     DateTime      @updatedAt @map("update_at")
-  user         User?         @relation(fields: [addedBy], references: [id], onDelete: SetNull)
-  variants     FoodVariant[]
-  foods        Food[]
-  labels       FoodLabel[]
+  id        Int           @id @default(autoincrement())
+  barcode   String?       @db.VarChar(150)
+  addedBy   Int           @map("added_by")
+  isDeleted Boolean       @default(false) @map("is_deleted")
+  createdAt DateTime      @default(now()) @map("created_at")
+  updateAt  DateTime      @updatedAt @map("update_at")
+  user      User          @relation(fields: [addedBy], references: [id])
+  variants  FoodVariant[]
+  foods     Food[]
+  labels    FoodLabel[]
 
-  @@unique([barcode, addedBy])
+  @@index([barcode, addedBy])
   @@map("food_catalogs")
 }
 
@@ -242,11 +237,15 @@ model FoodInstance {
 model FoodVariant {
   id            Int         @id @default(autoincrement())
   foodCatalogId Int         @map("food_catalog_id")
-  title         String      @db.VarChar(50)
+  title         String      @db.VarChar(40)
+  addedBy       Int?        @map("added_by")
+  isDeleted     Boolean     @default(false) @map("is_deleted")
   createdAt     DateTime    @default(now()) @map("created_at")
-  catalog       FoodCatalog @relation(fields: [foodCatalogId], references: [id])
+  catalog       FoodCatalog @relation(fields: [foodCatalogId], references: [id], onDelete: Cascade)
   foods         Food[]
+  user          User?       @relation(fields: [addedBy], references: [id], onDelete: SetNull)
 
+  @@index([title, foodCatalogId, addedBy])
   @@index([foodCatalogId])
   @@map("food_variants")
 }
@@ -318,19 +317,23 @@ enum FoodAction {
 
 // pridava moznost prepsat nazev, popisek, obrazek v katalogu vlastnim
 model FoodLabel {
-  id                 Int      @id @default(autoincrement())
-  userId             Int      @map("user_id")
-  catalogId          Int      @map("catalog_id")
-  customTitle        String?  @map("custom_title") @db.VarChar(40)
-  customDescription  String?  @map("custom_description") @db.VarChar(100)
-  customFoodImageUrl String?  @map("custom_food_image_url") @db.VarChar(250)
-  createdAt          DateTime @default(now()) @map("created_at")
-  updatedAt          DateTime @updatedAt @map("updated_at")
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map("user_id")
+  catalogId    Int      @map("catalog_id")
+  title        String?  @map("title") @db.VarChar(40)
+  description  String?  @map("description") @db.VarChar(100)
+  foodImageUrl String?  @map("food_image_url") @db.VarChar(250)
+  price        Float    @default(0)
+  unit         Unit?
+  amount       Float    @default(0)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
-  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User        @relation(fields: [userId], references: [id])
   catalog FoodCatalog @relation(fields: [catalogId], references: [id], onDelete: Cascade)
 
   @@unique([userId, catalogId])
+  @@index([catalogId])
   @@map("food_labels")
 }
 

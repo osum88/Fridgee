@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "food_labels" ADD COLUMN     "amount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+ADD COLUMN     "price" DOUBLE PRECISION NOT NULL DEFAULT 0,
+ADD COLUMN     "unit" "Unit";

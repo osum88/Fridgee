@@ -2,8 +2,7 @@ import express from "express";
 import { authenticateToken, authorizeUser } from "../middlewares/authMiddleware.js";
 import validate from "../middlewares/validator.js";
 import { sanitize } from "../middlewares/sanitize.js";
-import { createFoodCategory, deleteFoodCategory, getFoodCategoriesByInventory, getFoodCategoryById, updateFoodCategory } from "../controllers/foodCategoryController.js";
-import { inventoryIdSchema } from "../validation/foodInventoryValidation.js";
+import { createFoodCategory, deleteFoodCategory,  getFoodCategoryById, updateFoodCategory } from "../controllers/foodCategoryController.js";
 import { categoryIdSchema, createFoodCategorySchema, updateFoodCategorySchema } from "../validation/foodCategoryValidation.js";
 
 const router = express.Router();
@@ -22,3 +21,4 @@ router.patch("/:categoryId", validate(updateFoodCategorySchema), authenticateTok
 router.delete("/:categoryId", validate(categoryIdSchema), authenticateToken, sanitize, authorizeUser, deleteFoodCategory);
 
 export default router;
+

@@ -117,21 +117,60 @@ export const updateUserRepository = async (id, updateData) => {
 
 //smaze uzivatele
 export const deleteUserRepository = async (id) => {
+    const userId = parseInt(id);
+
     try {
-        const deletedUser = await prisma.user.delete({
-            where: {
-                id: parseInt(id),
-            },
+        const deletedUser = await prisma.$transaction(async (tx) => {
+            
+            // najde id vsech katalogu, ktere uzivatel vytvoril
+            const userOwnedCatalogs = await tx.foodCatalog.findMany({
+                where: { addedBy: userId },
+                select: { id: true }
+            });
+            const ownedCatalogIds = userOwnedCatalogs.map(c => c.id);
+
+            // prevede catalogy uzivatele na systemoveho uzivatele 
+            await tx.foodCatalog.updateMany({
+                where: { addedBy: userId },
+                data: { 
+                    addedBy: 1,
+                    isDeleted: true
+                },
+            });
+
+            //prevede food label majitele, ktere patri jeho catalogum na systemoveho uzivatele
+            await tx.foodLabel.updateMany({
+                where: { 
+                    userId: userId,
+                    catalogId: { in: ownedCatalogIds }
+                },
+                data: { userId: 1 },
+            });
+
+            // smazeme vsechny ostatni labely tohoto uzivatele
+            await tx.foodLabel.deleteMany({
+                where: { 
+                    userId: userId,
+                    catalogId: { notIn: ownedCatalogIds }
+                },
+            });
+
+            // smazeme uživatele
+            return await tx.user.delete({
+                where: { id: userId },
+            });
         });
+
         if (deletedUser) {
             const { passwordHash, bankNumber, ...rest } = deletedUser; 
             return rest; 
         }
-        return null; 
+        return null;
     } catch (error) {
-        console.error("Error deleting user:", error); 
+        if (error.code === 'P2025') return null;
+        console.error("Error deleting user with label transfer:", error); 
         throw error;
-  }
+    }
 };
 
 //vraci bankovni cislo

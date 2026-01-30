@@ -18,8 +18,10 @@ export const createFoodCatalog = async (req, res, next) => {
 export const getFoodCatalogById = async (req, res, next) => {
     try {
         const { foodCatalogId } = req.params;
+        const userId = req.userId;
+        const isAdmin = req.adminRoute;
 
-        const catalog = await getFoodCatalogByIdService(Number(foodCatalogId));
+        const catalog = await getFoodCatalogByIdService(Number(foodCatalogId), userId, isAdmin);
         handleResponse(res, 200, "Food catalog fetched successfully", catalog);
     } catch (err) {
         next(err);

@@ -1,0 +1,139 @@
+import {
+  BadRequestError,
+  ConflictError,
+  ForbiddenError,
+  InternalServerError,
+  NotFoundError,
+} from "../errors/errors.js";
+import {
+  createFoodVariantRepository,
+  getFoodVariantByIdRepository,
+  getAllFoodVariantsRepository,
+  updateFoodVariantRepository,
+  deleteFoodVariantRepository,
+  getRelevantFoodVariantsRepository,
+  getFoodVariantByTitleRepository,
+} from "../repositories/foodVariantRepository.js";
+import { getFoodCatalogByIdRepository } from "../repositories/foodCatalogRepository.js";
+import { getUserByIdRepository } from "../repositories/userRepository.js";
+
+// vytvori food variantu
+export const createFoodVariantService = async (
+  title,
+  foodCatalogId,
+  userId,
+  isAdmin,
+) => {
+  await getFoodCatalogByIdRepository(foodCatalogId);
+  if (isAdmin) {
+    await getUserByIdRepository(userId);
+  }
+
+  const existingVariant = await getFoodVariantByTitleRepository(
+    title,
+    foodCatalogId,
+    userId,
+    null,
+  );
+  if (existingVariant) {
+    if (!existingVariant.isDeleted) {
+      throw new ConflictError(
+        `Variant with title already exists in your catalog.`,
+      );
+    }
+    return await updateFoodVariantRepository(existingVariant.id, {
+      isDeleted: false,
+    });
+  }
+
+  const variant = await createFoodVariantRepository({
+    foodCatalogId,
+    title,
+    addedBy: userId,
+  });
+
+  if (!variant) {
+    throw new InternalServerError("Failed to create food variant.");
+  }
+  return variant;
+};
+
+// vraci food variant podle id
+export const getFoodVariantByIdService = async (variantId) => {
+  const variant = await getFoodVariantByIdRepository(variantId);
+  const { id, title, ...rest } = variant;
+  return { id, title };
+};
+
+// vraci vsechny varianty katalogu podle kontextu (admin vs user)
+export const getFoodVariantsContextService = async (
+  catalogId,
+  userId,
+  isAdmin,
+) => {
+  if (isAdmin) {
+    // vraci vsechny varianty z katalogu (admin)
+    return await getAllFoodVariantsRepository(catalogId);
+  } else {
+    // vraci vsechny moje varianty z katalogu nebo ty co se pouzivaji v inventari(user)
+    return await getRelevantFoodVariantsRepository(catalogId, userId);
+    //@TODO vratit i varianty co se pouzivaji v inventari
+  }
+};
+
+// smaze variantu podle id
+export const deleteFoodVariantService = async (catalogId, userId, isAdmin) => {
+  const variant = await getFoodVariantByIdRepository(catalogId);
+
+  if (!isAdmin && variant?.addedBy !== userId) {
+    throw new ForbiddenError("You are not allowed to delete this catalog.");
+  }
+
+  //@TODO
+  //musi se overit ze varienta neni nikde pouzita pokud ano pak se nesmaze
+
+  //soft delete
+  if (true) {
+    await updateFoodVariantRepository(catalogId, { isDeleted: true });
+  } else {
+    //hard delete
+    await deleteFoodVariantRepository(catalogId);
+  }
+  return true;
+};
+
+// updatuje variantu podle id
+export const updateFoodVariantService = async (
+  catalogId,
+  title,
+  userId,
+  isAdmin,
+) => {
+  const variant = await getFoodVariantByIdRepository(catalogId);
+
+  if (!isAdmin && variant?.addedBy !== userId) {
+    throw new ForbiddenError("You are not allowed to update this catalog.");
+  }
+
+  const existingVariant = await getFoodVariantByTitleRepository(
+    title,
+    variant.foodCatalogId,
+    userId,
+    null,
+  );
+  if (existingVariant) {
+    if (!existingVariant.isDeleted) {
+      throw new ConflictError(
+        `Variant with title already exists in your catalog.`,
+      );
+    }
+    return await updateFoodVariantRepository(existingVariant.id, {
+      isDeleted: false,
+    });
+  }
+
+  const updatedVariant = await updateFoodVariantRepository(catalogId, {
+    title,
+  });
+  return updatedVariant;
+};

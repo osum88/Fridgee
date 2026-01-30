@@ -8,6 +8,7 @@ import friendRoutes from "./routes/friendRoutes.js"
 import foodInventoryRoutes from "./routes/foodInventoryRoutes.js"
 import foodCatalogRoutes from "./routes/foodCatalogRoutes.js"
 import foodCategoryRoutes from "./routes/foodCategoryRoutes.js"
+import foodVariantRoutes from "./routes/foodVariantRoutes.js"
 import adminRoutes from "./routes/adminRoutes.js";
 import helmet from "helmet";
 import cron from "node-cron";
@@ -33,15 +34,15 @@ app.use(cors({
 }));
 
 //rate limit
-const apiLimiter = rateLimit({
-    windowMs: 1 * 60 * 1000,                   //nastavit 15 potom
+const apiLimiter = rateLimit({                  //@TODO
+    windowMs: 1 * 60 * 1000,                    //nastavit 15 potom
     max: 500, 
     message: "Too many requests from this IP address, please try again later.", 
     standardHeaders: true, 
     legacyHeaders: false, 
 });
 
-const authLimiter = rateLimit({
+const authLimiter = rateLimit({                     //@TODO
     windowMs: 1 * 60 * 1000,                        //nastavit 5 potom
     max: 15, 
     message: "Too many requests from this IP address, please try again in 5 minutes.",
@@ -55,6 +56,7 @@ app.use("/api/friends", apiLimiter, friendRoutes);
 app.use("/api/inventory", apiLimiter, foodInventoryRoutes);
 app.use("/api/food-catalog", apiLimiter, foodCatalogRoutes);
 app.use("/api/food-category", apiLimiter, foodCategoryRoutes);
+app.use("/api/food-variant", apiLimiter, foodVariantRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api", apiLimiter, userRoutes);
 

@@ -3,7 +3,7 @@ import { authenticateToken, authorizeAdmin, authorizeAdminWithOutId } from "../m
 import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFriends, getReceivedFriendRequests, getSentFriendRequests } from "../controllers/friendController.js";
 import { deleteUser, deleteUserProfileImage, getAllUsersAdmin, getUserById, updateUser, updateUserProfileImage } from "../controllers/userController.js";
 import validate from "../middlewares/validator.js";
-import { updateUserAdminSchema, updateUserSchema, userIdAdminSchema } from "../validation/userValidation.js";
+import { updateUserAdminSchema, userIdAdminSchema } from "../validation/userValidation.js";
 import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, getAllFoodInventory, getInventoryDetailsWithUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
 import { inventoryIdAdminSchema, changeRoleAdminSchema, changeSettingAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema, inventoryIdSchema } from "../validation/foodInventoryValidation.js";
 import { getFriendsAdminSchema } from "../validation/friendValidation.js";
@@ -13,6 +13,9 @@ import { createFoodCatalogAdminSchema, foodCatalogIdSchema, updateFoodCatalogSch
 import { createFoodCatalog, deleteFoodCatalog, getAllFoodCatalogsByUser, getFoodCatalogById, updateFoodCatalog } from "../controllers/foodCatalogController.js";
 import { categoryIdSchema, createFoodCategorySchema, updateFoodCategorySchema } from "../validation/foodCategoryValidation.js";
 import { createFoodCategory, deleteFoodCategory, getFoodCategoriesByInventory, getFoodCategoryById, updateFoodCategory } from "../controllers/foodCategoryController.js";
+import { deleteFoodVariant, getFoodVariantsContext, updateFoodVariant } from "../controllers/foodVariantController.js";
+import { createFoodVariantSchema, foodVariantIdSchema, updateFoodVariantSchema } from "../validation/foodVariantValidation.js";
+
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -106,6 +109,17 @@ router.patch("/food-category/:categoryId", validate(updateFoodCategorySchema), a
 
 // smaze kategorii podle id
 router.delete("/food-category/:categoryId", validate(categoryIdSchema), authenticateToken, sanitize, authorizeAdminWithOutId, deleteFoodCategory);
+
+
+//                       FOOD VARIANT
+// vrati vsechny varianty usera nebo ty co se pouzivaji v inventari
+router.get("/food-variant/food-catalog/:foodCatalogId", validate(foodCatalogIdSchema), authenticateToken, sanitize, authorizeAdminWithOutId, getFoodVariantsContext);
+
+// updatuje variantu
+router.patch("/food-variant/:variantId", validate(updateFoodVariantSchema), authenticateToken, sanitize, authorizeAdminWithOutId, updateFoodVariant);
+
+// smaze variantu
+router.delete("/food-variant/:variantId", validate(foodVariantIdSchema), authenticateToken, sanitize, authorizeAdminWithOutId, deleteFoodVariant);
 
 
 //                                 USER
