@@ -6,12 +6,12 @@ export const createFoodCatalogSchema = Joi.object({
   title: Joi.string().max(40).required(),
   description: Joi.string().allow("").max(100).optional(),
   price: Joi.number().min(0).default(0).max(999999).optional(),
-  unit: Joi.string()
-    .valid("MG", "G", "DG", "KG", "ML", "CL", "DL", "L")
+  unit: Joi.string().allow("")
+    .valid("MG", "G", "DG", "KG", "ML", "CL", "DL", "L", "")
     .optional(),
   amount: Joi.number().min(0).default(0).optional(),
-  isGlobal: Joi.boolean().default(false).optional(),
   foodImageUrl: Joi.string().uri().optional(),
+  variantTitle: Joi.string().max(40).allow("").optional(),
 });
 
 export const createFoodCatalogAdminSchema = createFoodCatalogSchema.keys({

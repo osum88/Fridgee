@@ -11,7 +11,8 @@ export const createFoodCatalogRepository = async (
     price,
     unit,
     amount,
-    foodImageUrl
+    foodImageUrl,
+    variantTitle
 ) => {
     try {
         const result = await prisma.$transaction(async (tx) => {
@@ -36,6 +37,17 @@ export const createFoodCatalogRepository = async (
                     amount,
                 },
             });
+
+            let createdVariant = null;
+            if (variantTitle && variantTitle.trim() !== "") {
+                createdVariant = await tx.foodVariant.create({
+                    data: {
+                        foodCatalogId: newFoodCatalog.id,
+                        title: variantTitle,
+                        addedBy: userId,
+                    },
+                });
+            }
             const { isDeleted, updateAt, ...rest } = newFoodCatalog;
             return {
                 ...rest,

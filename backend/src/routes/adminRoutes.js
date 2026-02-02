@@ -15,6 +15,8 @@ import { categoryIdSchema, createFoodCategorySchema, updateFoodCategorySchema } 
 import { createFoodCategory, deleteFoodCategory, getFoodCategoriesByInventory, getFoodCategoryById, updateFoodCategory } from "../controllers/foodCategoryController.js";
 import { deleteFoodVariant, getFoodVariantsContext, updateFoodVariant } from "../controllers/foodVariantController.js";
 import { createFoodVariantSchema, foodVariantIdSchema, updateFoodVariantSchema } from "../validation/foodVariantValidation.js";
+import { addFoodToInventory } from "../controllers/foodController.js";
+import { addFoodToInventoryFoodAdminSchema } from "../validation/foodValidation.js";
 
 
 const router = express.Router();
@@ -120,6 +122,11 @@ router.patch("/food-variant/:variantId", validate(updateFoodVariantSchema), auth
 
 // smaze variantu
 router.delete("/food-variant/:variantId", validate(foodVariantIdSchema), authenticateToken, sanitize, authorizeAdminWithOutId, deleteFoodVariant);
+
+
+//                          FOOD
+//
+router.post("/users/:id/food", validate(addFoodToInventoryFoodAdminSchema), authenticateToken, sanitize, authorizeAdmin, addFoodToInventory);
 
 
 //                                 USER

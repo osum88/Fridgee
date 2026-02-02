@@ -18,8 +18,8 @@ const createBaseCurrency = async (userId) => {
     }
 }
 
-// vytvori novy price
-export const createPriceService = async (price, currency, userId) => {
+// vytvori data pro novou price
+export const createPriceDataService = async (price, currency, userId) => {
     if (!price) {
         throw new BadRequestError("Price must be provided");
     }   
@@ -33,15 +33,13 @@ export const createPriceService = async (price, currency, userId) => {
     const exchangeAmount = { "EURCZK": currentRate.amount };
     const exchangeRate = { "EURCZK": currentRate.rate };
 
-    const data = {
+    return {
         price,
         baseCurrency,
         exchangeAmount,
         exchangeRate,
         exchangeRateDate: currentRate.exchangeRateDate,
-    }
-    const newPrice = await createPriceRepository(data);
-    return newPrice;
+    };
 };
 
 // updatuje price
@@ -83,14 +81,16 @@ const convertPrice = (price, rate, amount, baseCurrency, currency) => {
 }
 
 //vrati price
-export const getPriceByIdService = async (id, currency) => {
-    const priceDb = await getPriceByIdRepository(id);
+export const getPriceByIdService = async (priceId, currency, userId) => {
+    const priceDb = await getPriceByIdRepository(priceId);
+
+    const baseCurrency = currency && currency !== "" ? currency : await createBaseCurrency(userId);
 
     let newPrice = priceDb.price;
-    if (currency && currency !== priceDb.baseCurrency){
-        newPrice = convertPrice(priceDb.price, priceDb.exchangeRate, priceDb.exchangeAmount, priceDb.baseCurrency, currency);
+    if (baseCurrency && baseCurrency !== priceDb.baseCurrency){
+        newPrice = convertPrice(priceDb.price, priceDb.exchangeRate, priceDb.exchangeAmount, priceDb.baseCurrency, baseCurrency);
     }
-    return { price: newPrice, currency: priceDb.baseCurrency };
+    return { price: newPrice, currency: baseCurrency };
 };
 
 // smaze price

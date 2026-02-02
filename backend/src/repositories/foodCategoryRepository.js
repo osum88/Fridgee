@@ -22,9 +22,6 @@ export const getFoodCategoryByIdRepository = async (id) => {
     try {
         const category = await prisma.foodCategory.findUnique({
             where: { id },
-            // include: {
-            //     foods: true, 
-            // },
         });
         if (!category) {
             throw new NotFoundError("Category not found.");

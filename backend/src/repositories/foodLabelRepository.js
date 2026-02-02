@@ -1,4 +1,3 @@
-import { NotFoundError } from "../errors/errors.js";
 import prisma from "../utils/prisma.js";
 
 // vytvori novy food label

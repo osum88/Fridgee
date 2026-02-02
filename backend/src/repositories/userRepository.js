@@ -122,39 +122,76 @@ export const deleteUserRepository = async (id) => {
     try {
         const deletedUser = await prisma.$transaction(async (tx) => {
             
-            // najde id vsech katalogu, ktere uzivatel vytvoril
-            const userOwnedCatalogs = await tx.foodCatalog.findMany({
-                where: { addedBy: userId },
+            // najde id vsech katalogu s barcodem, ktere uzivatel vytvoril
+            const userCreatedCatalogs = await tx.foodCatalog.findMany({
+                where: { addedBy: userId, NOT: { barcode: null } },
                 select: { id: true }
             });
-            const ownedCatalogIds = userOwnedCatalogs.map(c => c.id);
+            const catalogIds = userCreatedCatalogs.map(c => c.id);
 
-            // prevede catalogy uzivatele na systemoveho uzivatele 
-            await tx.foodCatalog.updateMany({
-                where: { addedBy: userId },
-                data: { 
-                    addedBy: 1,
-                    isDeleted: true
-                },
-            });
-
-            //prevede food label majitele, ktere patri jeho catalogum na systemoveho uzivatele
+            // prevede labely pro katalogy s barcodem ktere vytvoril na systemoveho uzivatele 
             await tx.foodLabel.updateMany({
                 where: { 
-                    userId: userId,
-                    catalogId: { in: ownedCatalogIds }
+                    userId: userId, 
+                    catalogId: { in: catalogIds } 
                 },
-                data: { userId: 1 },
+                data: { userId: 1 }
             });
 
-            // smazeme vsechny ostatni labely tohoto uzivatele
-            await tx.foodLabel.deleteMany({
+            // prevede katalogy s barcodem ktere vytvoril na systemoveho uzivatele 
+            await tx.foodCatalog.updateMany({
                 where: { 
-                    userId: userId,
-                    catalogId: { notIn: ownedCatalogIds }
+                    id: { in: catalogIds }, 
                 },
+                data: { addedBy: 1 }
             });
 
+            // vsechny ostatni labely, katalogy a varianty udela anonymni
+            await tx.foodLabel.updateMany({
+                where: { userId: userId }, 
+                data: { userId: null, isDeleted: true }
+            });
+
+            await tx.foodVariant.updateMany({
+                where: { addedBy: userId },
+                data: { addedBy: null, isDeleted: true }
+            });
+
+            await tx.foodCatalog.updateMany({
+                where: { addedBy: userId },
+                data: { addedBy: null, isDeleted: true }
+            });
+
+            // smaze labely, katalogy a varianty, které patri anonymovi (null) a nikdo je nepouziva v food
+            await tx.foodLabel.deleteMany({
+                where: {
+                    userId: null,
+                    isDeleted: true,
+                    NOT: { foods: { some: {} } }
+                }
+            });
+
+            await tx.foodVariant.deleteMany({
+                where: {
+                    addedBy: null,
+                    isDeleted: true,
+                    NOT: { foods: { some: {} } } 
+                }
+            });
+
+            await tx.foodCatalog.deleteMany({
+                where: {
+                    addedBy: null,
+                    isDeleted: true,
+                    NOT: { 
+                        OR: [
+                            { foods: { some: {} } },
+                            { foodHistories: { some: {} } } 
+                        ]
+                    }
+                }
+            });
+            
             // smazeme uživatele
             return await tx.user.delete({
                 where: { id: userId },

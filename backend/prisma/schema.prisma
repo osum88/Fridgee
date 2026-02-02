@@ -42,8 +42,7 @@ model User {
   sentInventoryInvitations     InventoryInvitation[] @relation("sentInvitations")
   receivedInventoryInvitations InventoryInvitation[] @relation("receivedInvitations")
   foodCatalog                  FoodCatalog[]
-  foodInstancesAdded           FoodInstance[]        @relation("addedUserFoodInstance")
-  foodInstancesRemoved         FoodInstance[]        @relation("removeUserFoodInstance")
+  foodInstancesAdded           FoodInstance[]
   foodHistory                  FoodHistory[]
   foodLabel                    FoodLabel[]
   foodVariantsAdded            FoodVariant[]
@@ -106,6 +105,7 @@ model FoodInventory {
   sentInvitations InventoryInvitation[] @relation("inventoryInvitations")
   foods           Food[]
   foodCategory    FoodCategory[]
+  foodHistory     FoodHistory[]
 
   @@map("food_inventory")
 }
@@ -156,18 +156,20 @@ enum InvitationStatus {
 
 //katalog potravin, slouzi pro predvyplneni
 model FoodCatalog {
-  id        Int           @id @default(autoincrement())
-  barcode   String?       @db.VarChar(150)
-  addedBy   Int           @map("added_by")
-  isDeleted Boolean       @default(false) @map("is_deleted")
-  createdAt DateTime      @default(now()) @map("created_at")
-  updateAt  DateTime      @updatedAt @map("update_at")
-  user      User          @relation(fields: [addedBy], references: [id])
-  variants  FoodVariant[]
-  foods     Food[]
-  labels    FoodLabel[]
+  id          Int           @id @default(autoincrement())
+  barcode     String?       @db.VarChar(150)
+  addedBy     Int?           @map("added_by")
+  isDeleted   Boolean       @default(false) @map("is_deleted")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updateAt    DateTime      @updatedAt @map("update_at")
+  user        User?          @relation(fields: [addedBy], references: [id])
+  variants    FoodVariant[]
+  foods       Food[]
+  labels      FoodLabel[]
+  foodHistories FoodHistory[]
 
   @@index([barcode, addedBy])
+  @@index([barcode])
   @@map("food_catalogs")
 }
 
@@ -184,26 +186,25 @@ enum Unit {
 
 // reprezentuje konkretni potravinu v inventari
 model Food {
-  id              Int      @id @default(autoincrement())
-  inventoryId     Int      @map("inventory_id")
-  categoryId      Int?     @map("category_id")
-  catalogId       Int      @map("catalog_id")
-  variantId       Int?     @map("variant_id")
-  quantity        Int
-  minimalQuantity Int      @default(0) @map("minimal_quantity")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updateAt        DateTime @updatedAt @map("update_at")
-
-  inventory FoodInventory  @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
-  catalog   FoodCatalog    @relation(fields: [catalogId], references: [id])
-  variant   FoodVariant?   @relation(fields: [variantId], references: [id], onDelete: SetNull)
-  category  FoodCategory?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  instances FoodInstance[]
-  history   FoodHistory[]
+  id              Int            @id @default(autoincrement())
+  inventoryId     Int            @map("inventory_id")
+  categoryId      Int?           @map("category_id")
+  catalogId       Int            @map("catalog_id")
+  variantId       Int?           @map("variant_id")
+  defaultLabelId  Int?           @map("default_label_id")
+  minimalQuantity Int            @default(0) @map("minimal_quantity")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updateAt        DateTime       @updatedAt @map("update_at")
+  inventory       FoodInventory  @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+  catalog         FoodCatalog    @relation(fields: [catalogId], references: [id])
+  variant         FoodVariant?   @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  category        FoodCategory?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  label           FoodLabel?     @relation(fields: [defaultLabelId], references: [id], onDelete: SetNull)
+  instances       FoodInstance[]
+  history         FoodHistory[]
 
   @@unique([inventoryId, catalogId, variantId])
-  @@index([inventoryId])
-  @@index([catalogId])
+  @@index([inventoryId, catalogId])
   @@map("foods")
 }
 
@@ -211,25 +212,20 @@ model Food {
 model FoodInstance {
   id             Int           @id @default(autoincrement())
   foodId         Int           @map("food_id")
-  // shop           String
   priceId        Int?          @map("price_id")
   expirationDate DateTime?     @map("expiration_date")
   addedBy        Int?          @map("added_by")
-  addedAt        DateTime      @default(now()) @map("added_at")
-  removeBy       Int?          @map("remove_by")
-  removeAt       DateTime?     @map("remove_at")
   unit           Unit?
   amount         Float         @default(0)
   createdAt      DateTime      @default(now()) @map("created_at")
   updateAt       DateTime      @updatedAt @map("update_at")
-  addedByUser    User?         @relation("addedUserFoodInstance", fields: [addedBy], references: [id], onDelete: SetNull)
-  removeByUser   User?         @relation("removeUserFoodInstance", fields: [removeBy], references: [id], onDelete: SetNull)
+  addedByUser    User?         @relation(fields: [addedBy], references: [id], onDelete: SetNull)
   food           Food          @relation(fields: [foodId], references: [id], onDelete: Cascade)
   price          Price?        @relation(fields: [priceId], references: [id], onDelete: SetNull)
   history        FoodHistory[]
 
-  // @@index([foodId])
-  // @@index([priceId])
+  @@index([foodId])
+  @@index([foodId, addedBy])
   @@map("food_instances")
 }
 
@@ -259,8 +255,7 @@ model FoodCategory {
   inventory   FoodInventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
   foods       Food[]
 
-  // @@index([inventoryId])
-
+  @@index([inventoryId])
   @@map("food_categories")
 }
 
@@ -274,6 +269,7 @@ model Price {
   exchangeRateDate DateTime       @map("exchange_rate_date")
   createdAt        DateTime       @default(now()) @map("created_at")
   foodInstances    FoodInstance[]
+  foodHistory      FoodHistory[]
 
   @@map("prices")
 }
@@ -286,23 +282,32 @@ enum Currency {
 
 //historie vsech operaci nad jidlem
 model FoodHistory {
-  id             Int           @id @default(autoincrement())
-  inventoryId    Int           @map("inventory_id")
-  foodId         Int?          @map("food_id")
-  foodInstanceId Int?          @map("food_instance_id")
-  action         FoodAction    @default(ADD)
-  changedBy      Int?          @map("changed_by")
-  changedAt      DateTime      @default(now()) @map("changed_at")
-  quantityBefore Int           @default(0) @map("quantity_before")
-  quantityAfter  Int           @map("quantity_after")
-  user           User?         @relation(fields: [changedBy], references: [id], onDelete: SetNull)
-  food           Food?         @relation(fields: [foodId], references: [id], onDelete: SetNull)
-  instance       FoodInstance? @relation(fields: [foodInstanceId], references: [id], onDelete: SetNull)
+  id             Int        @id @default(autoincrement())
+  inventoryId    Int        @map("inventory_id")
+  foodId         Int?       @map("food_id")
+  foodInstanceId Int?       @map("food_instance_id")
+  catalogId      Int        @map("catalog_id")
+  priceId        Int?       @map("price_id")
+  action         FoodAction @default(ADD)
+  snapshotUnit   Unit?      @map("snapshot_unit")
+  snapshotAmount Float?     @map("snapshot_amount")
+  quantityBefore Int        @default(0) @map("quantity_before")
+  quantityAfter  Int        @map("quantity_after")
+  changedBy      Int?       @map("changed_by")
+  changedAt      DateTime   @default(now()) @map("changed_at")
+  metadata       Json       @default("{}") @map("metadata")
 
-  //  @@index([inventoryId])
-  //   @@index([changedBy])
-  //   @@index([foodId])
-  //   @@index([foodInstanceId])
+  user      User?         @relation(fields: [changedBy], references: [id], onDelete: SetNull)
+  catalog   FoodCatalog   @relation(fields: [catalogId], references: [id])
+  price     Price?        @relation(fields: [priceId], references: [id], onDelete: SetNull)
+  food      Food?         @relation(fields: [foodId], references: [id], onDelete: SetNull)
+  instance  FoodInstance? @relation(fields: [foodInstanceId], references: [id], onDelete: SetNull)
+  inventory FoodInventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+
+  @@index([inventoryId])
+  @@index([inventoryId, changedBy])
+  @@index([inventoryId, changedBy, action])
+  @@index([inventoryId, action])
   @@map("food_histories")
 }
 
@@ -318,7 +323,7 @@ enum FoodAction {
 // pridava moznost prepsat nazev, popisek, obrazek v katalogu vlastnim
 model FoodLabel {
   id           Int      @id @default(autoincrement())
-  userId       Int      @map("user_id")
+  userId       Int?      @map("user_id")
   catalogId    Int      @map("catalog_id")
   title        String?  @map("title") @db.VarChar(40)
   description  String?  @map("description") @db.VarChar(100)
@@ -326,13 +331,15 @@ model FoodLabel {
   price        Float    @default(0)
   unit         Unit?
   amount       Float    @default(0)
+  isDeleted    Boolean  @default(false) @map("is_deleted")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  user    User        @relation(fields: [userId], references: [id])
+  user    User?        @relation(fields: [userId], references: [id])
   catalog FoodCatalog @relation(fields: [catalogId], references: [id], onDelete: Cascade)
+  foods    Food[]
 
-  @@unique([userId, catalogId])
+  @@index([userId, catalogId])
   @@index([catalogId])
   @@map("food_labels")
 }

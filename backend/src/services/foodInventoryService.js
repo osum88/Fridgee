@@ -1,4 +1,3 @@
-import { getUsersByInventoryId } from "../controllers/foodInventoryController.js";
 import { BadRequestError, ConflictError, ForbiddenError, InternalServerError, NotFoundError } from "../errors/errors.js";
 import { changeRoleFoodInventoryUserRepository, createFoodInventoryRepository, createInventoryUserRepository, getFoodInventoryRepository, getFoodInventoryUserRepository, getFoodInventoryOwnerCountRepository, getFoodInventoryUserRoleRepository, isUserInFoodInventoryRepository, deleteUserFoodInventoryRepository, deleteFoodInventoryRepository, getUsersByInventoryIdRepository, archiveFoodInventoryRepository, unarchiveFoodInventoryRepository, updateFoodInventoryRepository, getAllFoodInventoryRepository, changeSettingFoodInventoryUserRepository } from "../repositories/foodInventoryRepository.js";
 import { getUserByIdRepository } from "../repositories/userRepository.js";

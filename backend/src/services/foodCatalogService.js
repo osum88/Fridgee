@@ -22,7 +22,7 @@ import {
 
 //vytvari food catalog
 export const createFoodCatalogService = async (data, userId, isAdmin) => {
-  const { barcode, title, description, price, unit, amount, foodImageUrl } =
+  const { barcode, title, description, price, unit, amount, foodImageUrl, variantTitle } =
     data;
 
   if (isAdmin) {
@@ -41,7 +41,7 @@ export const createFoodCatalogService = async (data, userId, isAdmin) => {
       await updateFoodCatalogRepository(existingCatalog.id, {
         isDeleted: false,
       });
-      const { barcode, ...rest } = data;
+      const { variantTitle, barcode, ...rest } = data;
       return updateFoodCatalogService(
         existingCatalog?.id,
         userId,
@@ -63,6 +63,7 @@ export const createFoodCatalogService = async (data, userId, isAdmin) => {
     unit,
     amount,
     foodImageUrl,
+    variantTitle,
   );
   if (!catalog) {
     throw new InternalServerError("Failed to create food catalog.");
@@ -88,7 +89,7 @@ export const getFoodCatalogByIdService = async (
     isAdmin,
   );
 
-  const variants = await getRelevantFoodVariantsRepository(catalog.id, catalog.addedBy);
+  const variants = await getRelevantFoodVariantsRepository(catalog.id, userId);
 
   return { ...catalog, ...label, variants  };
 };
@@ -118,7 +119,7 @@ export const deleteFoodCatalogService = async (
   //smaze label pokud neni nikde pouzivan
 
   //soft delete
-  if (true) {
+  if (false) {
     await updateFoodCatalogRepository(foodCatalogId, { isDeleted: true });
   } else {
     //hard delete
