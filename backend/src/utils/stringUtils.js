@@ -1,3 +1,8 @@
+/**
+ * Změní string na string začínající velkým písmenem, zbytek malým
+ * @param {string} text 
+ * @returns {string}
+ */
 export const formatTitleCase = (text) => {
   if (!text || typeof text !== "string") return text;
 
@@ -5,4 +10,21 @@ export const formatTitleCase = (text) => {
   if (trimmed.length === 0) return trimmed;
 
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+};
+
+/**
+ * Převede Date objekt nebo string na formát ISO YYYY-MM-DD, jinak vrátí null
+ * @param {String|Date} input - Datum, které se má formátovat na ISO
+ * @returns {String|Null} ISO datum nebo null při neúspěchu
+ */
+export const formatToISODate = (input) => {
+    if (!input) return null;
+
+    const date = new Date(input);
+
+    if (isNaN(date.getTime())) {
+        console.error("Attempted to format invalid date:", input);
+        return null;
+    }
+    return date.toISOString().split('T')[0];
 };

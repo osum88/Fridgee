@@ -10,6 +10,7 @@ import foodCatalogRoutes from "./routes/foodCatalogRoutes.js"
 import foodCategoryRoutes from "./routes/foodCategoryRoutes.js"
 import foodVariantRoutes from "./routes/foodVariantRoutes.js"
 import foodRoutes from "./routes/foodRoutes.js"
+import foodInstanceRoutes from "./routes/foodInstance.js"
 import adminRoutes from "./routes/adminRoutes.js";
 import helmet from "helmet";
 import cron from "node-cron";
@@ -59,6 +60,7 @@ app.use("/api/food-catalog", apiLimiter, foodCatalogRoutes);
 app.use("/api/food-category", apiLimiter, foodCategoryRoutes);
 app.use("/api/food-variant", apiLimiter, foodVariantRoutes);
 app.use("/api/food", apiLimiter, foodRoutes);
+app.use("/api/food-instance", apiLimiter, foodInstanceRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api", apiLimiter, userRoutes);
 

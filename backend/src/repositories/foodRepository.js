@@ -1,8 +1,10 @@
 import { BadRequestError } from "../errors/errors.js";
 import prisma from "../utils/prisma.js";
 import { formatTitleCase } from "../utils/stringUtils.js";
+import { getOrCreateFoodVariant } from "./foodVariantRepository.js";
+import { createPriceRepository } from "./priceRepository.js";
 
-// vytvori novy food nebo pokud jiz existuje prida novou instanci do inventare
+// prida jidlo do inventare a vytvori instanci, price i history, pokd neexistuje tak i catalog, label, variant
 export const addFoodToInventoryRepository = async (userId, data) => {
   const { quantity, ...rest } = data;
   const count = parseInt(quantity) || 1;
@@ -14,7 +16,6 @@ export const addFoodToInventoryRepository = async (userId, data) => {
       let userOwnsCatalog = false;
       //pokud barcode je "" a nemame catalogId pak je to potravina bez barcodu,
       // tedy se vytvori novy katalog
-      console.log(data);
       if (!data?.catalogId) {
         if (data?.barcode === "") {
           console.log("1");
@@ -77,10 +78,7 @@ export const addFoodToInventoryRepository = async (userId, data) => {
         userOwnsCatalog = catalog?.addedBy === userId;
       }
 
-      if (
-        (newCatalogCreate || !isCatalogUse || userOwnsCatalog) &&
-        !data?.title
-      ) {
+      if ((newCatalogCreate || !isCatalogUse || userOwnsCatalog) && !data?.title) {
         throw new BadRequestError("Title must exist.");
       }
 
@@ -94,14 +92,7 @@ export const addFoodToInventoryRepository = async (userId, data) => {
 
       //rozhodujeme jestli vytvorit label
       let needsLabelUpdate = newCatalogCreate || !isCatalogUse;
-      const labelFields = [
-        "title",
-        "description",
-        "foodImageUrl",
-        "price",
-        "amount",
-        "unit",
-      ];
+      const labelFields = ["title", "description", "foodImageUrl", "price", "amount", "unit"];
 
       let finalLabelId = userLabel?.id || null;
       //vraci true pokud se label od pouzivaneho nejak lisi
@@ -123,10 +114,7 @@ export const addFoodToInventoryRepository = async (userId, data) => {
 
         needsLabelUpdate =
           !originalLabel ||
-          labelFields.some(
-            (key) =>
-              data[key] !== undefined && data[key] !== originalLabel[key],
-          );
+          labelFields.some((key) => data[key] !== undefined && data[key] !== originalLabel[key]);
 
         if (!needsLabelUpdate) {
           console.log("8");
@@ -172,55 +160,14 @@ export const addFoodToInventoryRepository = async (userId, data) => {
       }
 
       //pokud varintaid existuje pak se pouzije, jinak se hleda podle title, jinak se vytvori
-      let variantId = data?.variantId || null;
-      if (!variantId && data?.variantTitle) {
-        const formattedTitle = formatTitleCase(data.variantTitle);
-
-        // hleda se pouzivana varinta z invenatre
-        const variantInInventory = await tx.food.findFirst({
-          where: {
-            inventoryId: data.inventoryId,
-            catalogId: catalogId,
-            variant: {
-              title: formattedTitle,
-            },
-          },
-          select: { variantId: true },
-        });
-
-        if (variantInInventory?.variantId) {
-          variantId = variantInInventory.variantId;
-        } else {
-          // jinak se hleda u sebe
-          const userVariant = await tx.foodVariant.findFirst({
-            where: {
-              foodCatalogId: catalogId,
-              addedBy: userId,
-              title: formattedTitle,
-            },
-          });
-
-          if (userVariant) {
-            if (userVariant.isDeleted) {
-              await tx.foodVariant.update({
-                where: { id: userVariant.id },
-                data: { isDeleted: false },
-              });
-            }
-            variantId = userVariant.id;
-          } else {
-            // jinak se vytvori
-            const newVariant = await tx.foodVariant.create({
-              data: {
-                title: formattedTitle,
-                foodCatalogId: catalogId,
-                addedBy: userId,
-              },
-            });
-            variantId = newVariant.id;
-          }
-        }
-      }
+      const variantId = await getOrCreateFoodVariant(
+        userId,
+        data.inventoryId,
+        catalogId,
+        data?.variantId,
+        data?.variantTitle,
+        tx,
+      );
 
       //najde food
       let food = await tx.food.findFirst({
@@ -231,19 +178,7 @@ export const addFoodToInventoryRepository = async (userId, data) => {
         },
       });
 
-      if (food) {
-        // pokud existuje aktulizuje
-        console.log("13");
-
-        food = await tx.food.update({
-          where: { id: food.id },
-          data: {
-            categoryId: data?.categoryId,
-            minimalQuantity: data?.minimalQuantity,
-          },
-        });
-      } else {
-        // jinak ho vytvori
+      if (!food) {
         console.log("14");
 
         food = await tx.food.create({
@@ -259,21 +194,8 @@ export const addFoodToInventoryRepository = async (userId, data) => {
       }
 
       // vytvori novou cenu
-      let newPriceId = null;
-      if (data.price && data.price > 0) {
-        console.log("15");
-
-        const newPrice = await tx.price.create({
-          data: {
-            price: data.price,
-            baseCurrency: data?.baseCurrency,
-            exchangeAmount: data?.exchangeAmount,
-            exchangeRate: data?.exchangeRate,
-            exchangeRateDate: data?.exchangeRateDate,
-          },
-        });
-        newPriceId = newPrice.id;
-      }
+      const priceRecord = await createPriceRepository(data, tx);
+      const newPriceId = priceRecord ? priceRecord.id : null;
 
       // zamkne food radek pro ostatni zapisy dokud neskonci transakce
       await tx.$executeRaw`SELECT id FROM foods WHERE id = ${food.id} FOR UPDATE`;

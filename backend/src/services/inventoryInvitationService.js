@@ -1,5 +1,5 @@
 import { BadRequestError, ConflictError, ForbiddenError, InternalServerError, NotFoundError } from "../errors/errors.js";
-import { createInventoryUserRepository, getFoodInventoryRepository, getFoodInventoryUserRoleRepository, isUserInFoodInventoryRepository } from "../repositories/foodInventoryRepository.js";
+import { createInventoryUserRepository, getFoodInventoryRepository, getFoodInventoryUserRepository, getFoodInventoryUserRoleRepository } from "../repositories/foodInventoryRepository.js";
 import { createInventoryInvitationRepository, deleteInventoryInvitationRepository, getInventoryInvitationRepository, getInvitationByIdRepository } from "../repositories/inventoryInvitationRepository.js";
 import { getUserByIdRepository } from "../repositories/userRepository.js";
 
@@ -25,7 +25,7 @@ export const sendInventoryInvitationService = async (senderId, receiverId, inven
     }
 
     // kontrola, zda uživatel již v inventari neni
-    const existingInventoryUser = await isUserInFoodInventoryRepository(receiverId, inventoryId);
+    const existingInventoryUser = await getFoodInventoryUserRepository(receiverId, inventoryId, false);
     if (existingInventoryUser) {
         throw new ConflictError("User is already in this inventory.");
     }
@@ -61,7 +61,7 @@ export const acceptInventoryInvitationService = async (receiverId, invitationId)
     await getFoodInventoryRepository(invitation.inventoryId);
 
     // kontrola, zda uživatel již v inventari neni
-    const existingInventoryUser = await isUserInFoodInventoryRepository(receiverId, invitation.inventoryId);
+    const existingInventoryUser = await getFoodInventoryUserRepository(receiverId, invitation.inventoryId, false);
     if (existingInventoryUser) {
         await deleteInventoryInvitationRepository(invitationId);
         throw new ConflictError("User is already in this inventory.");

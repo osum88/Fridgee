@@ -1,5 +1,5 @@
 import { getExchangeRateRepository } from "../repositories/exchangeRateRepository.js";
-import { createExchangeRateService, deleteExchangeRateService, getEuroRate, updateExchangeRateService } from "../services/exchangeRateService.js";
+import { createExchangeRateService, getEuroRate, updateExchangeRateService } from "../services/exchangeRateService.js";
 
 // denni akulizace kurzku eura czk
 export const dailyUpdateExchangeRate = async () => {

@@ -1,5 +1,5 @@
 import { BadRequestError, ConflictError, ForbiddenError, InternalServerError, NotFoundError } from "../errors/errors.js";
-import { changeRoleFoodInventoryUserRepository, createFoodInventoryRepository, createInventoryUserRepository, getFoodInventoryRepository, getFoodInventoryUserRepository, getFoodInventoryOwnerCountRepository, getFoodInventoryUserRoleRepository, isUserInFoodInventoryRepository, deleteUserFoodInventoryRepository, deleteFoodInventoryRepository, getUsersByInventoryIdRepository, archiveFoodInventoryRepository, unarchiveFoodInventoryRepository, updateFoodInventoryRepository, getAllFoodInventoryRepository, changeSettingFoodInventoryUserRepository } from "../repositories/foodInventoryRepository.js";
+import { changeRoleFoodInventoryUserRepository, createFoodInventoryRepository, createInventoryUserRepository, getFoodInventoryRepository, getFoodInventoryUserRepository, getFoodInventoryOwnerCountRepository, getFoodInventoryUserRoleRepository, deleteUserFoodInventoryRepository, deleteFoodInventoryRepository, getUsersByInventoryIdRepository, archiveFoodInventoryRepository, unarchiveFoodInventoryRepository, updateFoodInventoryRepository, getAllFoodInventoryRepository, changeSettingFoodInventoryUserRepository } from "../repositories/foodInventoryRepository.js";
 import { getUserByIdRepository } from "../repositories/userRepository.js";
 
 // vytvari inventar s jidlem
@@ -32,7 +32,7 @@ export const createInventoryUserService = async (userId, inventoryId, role, isAd
     await getFoodInventoryRepository(inventoryId);
 
     // kontrola, zda uživatel již v inventari neni
-    const existingInventoryUser = await isUserInFoodInventoryRepository(userId, inventoryId);
+    const existingInventoryUser = await getFoodInventoryUserRepository(userId, inventoryId, false);
     if (existingInventoryUser) {
         throw new ConflictError("User is already in this inventory.");
     }
