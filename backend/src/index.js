@@ -10,7 +10,7 @@ import foodCatalogRoutes from "./routes/foodCatalogRoutes.js"
 import foodCategoryRoutes from "./routes/foodCategoryRoutes.js"
 import foodVariantRoutes from "./routes/foodVariantRoutes.js"
 import foodRoutes from "./routes/foodRoutes.js"
-import foodInstanceRoutes from "./routes/foodInstance.js"
+import foodInstanceRoutes from "./routes/foodInstanceRoute.js"
 import adminRoutes from "./routes/adminRoutes.js";
 import helmet from "helmet";
 import cron from "node-cron";

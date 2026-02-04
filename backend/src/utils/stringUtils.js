@@ -28,3 +28,19 @@ export const formatToISODate = (input) => {
     }
     return date.toISOString().split('T')[0];
 };
+
+//Normalizuje datum na format začátku dne v UTC (00:00:00.000)
+export const normalizeDate = (dateInput) => {
+  if (dateInput === undefined) return undefined;
+  if (dateInput === null || dateInput === "") return null;
+
+  const date = new Date(dateInput);
+
+  if (isNaN(date.getTime())) {
+    console.error("Error parsing date:", dateInput);
+    return null; 
+  }
+
+  date.setUTCHours(0, 0, 0, 0);
+  return date;
+};

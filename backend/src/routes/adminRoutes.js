@@ -17,8 +17,8 @@ import { deleteFoodVariant, getFoodVariantsContext, updateFoodVariant } from "..
 import {  foodVariantIdSchema, updateFoodVariantSchema } from "../validation/foodVariantValidation.js";
 import { addFoodToInventory } from "../controllers/foodController.js";
 import {  addFoodToInventoryFoodSchema } from "../validation/foodValidation.js";
-import { consumeFoodInstance } from "../controllers/foodInstanceController.js";
-import { consumeFoodInstanceSchema } from "../validation/foodInstanceValidation.js";
+import {  consumeMultipleFoodInstances, updateFoodInstance } from "../controllers/foodInstanceController.js";
+import { consumeFoodInstanceSchema, updateFoodInstanceSchema } from "../validation/foodInstanceValidation.js";
 
 
 const router = express.Router();
@@ -134,7 +134,10 @@ router.post("/food", validate(addFoodToInventoryFoodSchema), authenticateToken, 
 //                          FOOD INSTANCE
 
 // smaze foodinstance pokud je spotrebovana nebo upravi amount pokud je jen castecna konzumace
-router.patch("/food-instance/consume", validate(consumeFoodInstanceSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, consumeFoodInstance);
+router.patch("/food-instance/consume", validate(consumeFoodInstanceSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, consumeMultipleFoodInstances);
+
+//updatuje jednu nebo vice stejnych instanci
+router.patch("/food-instance", validate(updateFoodInstanceSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId , updateFoodInstance);
 
 
 //                                 USER

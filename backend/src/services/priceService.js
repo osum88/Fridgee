@@ -6,10 +6,14 @@ import {
   updatePriceRepository,
 } from "../repositories/priceRepository.js";
 import { getUserCountryByIdRepository } from "../repositories/userRepository.js";
+import { formatToISODate } from "../utils/stringUtils.js";
 import { getEuroRate } from "./exchangeRateService.js";
 
 // rozhodne o zakladni mene podle uzivatele
-const createBaseCurrency = async (userId) => {
+const createBaseCurrency = async (userId, currency) => {
+  if (currency === "CZK" || currency === "EUR") {
+    return currency;
+  }
   const country = await getUserCountryByIdRepository(userId);
   switch (country) {
     case "CZ":
@@ -24,12 +28,12 @@ const createBaseCurrency = async (userId) => {
 };
 
 // vytvori data pro novou price
-export const createPriceDataService = async (price, currency, userId, date = null) => {
+export const resolvePriceExchangeData = async (price, currency, userId, date = null) => {
   if (!price) {
     throw new BadRequestError("Price must be provided");
   }
   //vrati zakladni menu
-  const baseCurrency = currency && currency !== "" ? currency : await createBaseCurrency(userId);
+  const baseCurrency = await createBaseCurrency(userId, currency);
 
   let currentRate = null;
 
@@ -56,24 +60,6 @@ export const createPriceDataService = async (price, currency, userId, date = nul
     exchangeRate: { [`EURCZK`]: currentRate.rate },
     exchangeRateDate: currentRate.exchangeRateDate,
   };
-};
-
-// updatuje price
-export const updatePriceService = async (id, price, baseCurrency) => {
-  const data = {};
-
-  if (price && price !== "") {
-    data.price = price;
-  }
-  if (baseCurrency && baseCurrency !== "") {
-    data.baseCurrency = baseCurrency;
-  }
-
-  if (Object.keys(data).length === 0) {
-    throw new BadRequestError("No valid fields provided for update");
-  }
-  const updatedPrice = await updatePriceRepository(id, data);
-  return updatedPrice;
 };
 
 const convertPrice = (price, rate, amount, baseCurrency, currency) => {

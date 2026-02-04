@@ -8,7 +8,8 @@ import {
 import { addFoodToInventoryRepository } from "../repositories/foodRepository.js";
 import { getFoodVariantByIdRepository } from "../repositories/foodVariantRepository.js";
 import { cleanEmptyStrings } from "../utils/cleanEmptyStrings.js";
-import { createPriceDataService } from "./priceService.js";
+import { normalizeDate } from "../utils/stringUtils.js";
+import { resolvePriceExchangeData } from "./priceService.js";
 
 // prida jidlo do inventare a vytvori instanci, price i history, pokd neexistuje tak i catalog, label, variant
 export const addFoodToInventoryService = async (userId, foodData, isAdmin) => {
@@ -41,20 +42,8 @@ export const addFoodToInventoryService = async (userId, foodData, isAdmin) => {
   //pripravi data pro price
   let priceFields = {};
   if (parsedPrice > 0) {
-    const priceData = await createPriceDataService(parsedPrice, finalData.currency, userId);
+    const priceData = await resolvePriceExchangeData(parsedPrice, finalData.currency, userId);
     priceFields = { ...priceData };
-  }
-
-  //pripravi datum
-  let expiration = null;
-  if (expirationDate) {
-    const data = new Date(expirationDate);
-    if (!isNaN(data.getTime())) {
-      data.setUTCHours(0, 0, 0, 0);
-      expiration = data;
-    } else {
-      console.error("Error parsing date:", expirationDate);
-    }
   }
 
   const preparedData = {
@@ -65,7 +54,7 @@ export const addFoodToInventoryService = async (userId, foodData, isAdmin) => {
     foodImageUrl,
     barcode,
     quantity: parseInt(finalData?.quantity) || 1,
-    expirationDate: expiration,
+    expirationDate: normalizeDate(expirationDate),
     amount: finalData.amount ? parseFloat(finalData.amount) : null,
   };
 

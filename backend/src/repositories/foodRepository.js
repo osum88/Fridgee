@@ -205,6 +205,9 @@ export const addFoodToInventoryRepository = async (userId, data) => {
         where: { foodId: food.id },
       });
 
+      //pokud je vice instanci
+      const batchItem = count > 1 ? {} : { batchItem: true };
+
       // vytvori konkretni instanci/e v lednici
       const instances = [];
       for (let i = 0; i < count; i++) {
@@ -234,6 +237,7 @@ export const addFoodToInventoryRepository = async (userId, data) => {
             snapshotUnit: data?.unit,
             quantityBefore: currentCountInstances + i,
             quantityAfter: currentCountInstances + i + 1,
+            metadata: batchItem
           },
         });
       }
@@ -245,3 +249,4 @@ export const addFoodToInventoryRepository = async (userId, data) => {
     throw error;
   }
 };
+
