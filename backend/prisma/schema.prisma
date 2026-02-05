@@ -156,16 +156,16 @@ enum InvitationStatus {
 
 //katalog potravin, slouzi pro predvyplneni
 model FoodCatalog {
-  id          Int           @id @default(autoincrement())
-  barcode     String?       @db.VarChar(150)
-  addedBy     Int?           @map("added_by")
-  isDeleted   Boolean       @default(false) @map("is_deleted")
-  createdAt   DateTime      @default(now()) @map("created_at")
-  updateAt    DateTime      @updatedAt @map("update_at")
-  user        User?          @relation(fields: [addedBy], references: [id])
-  variants    FoodVariant[]
-  foods       Food[]
-  labels      FoodLabel[]
+  id            Int           @id @default(autoincrement())
+  barcode       String?       @db.VarChar(150)
+  addedBy       Int?          @map("added_by")
+  isDeleted     Boolean       @default(false) @map("is_deleted")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updateAt      DateTime      @updatedAt @map("update_at")
+  user          User?         @relation(fields: [addedBy], references: [id])
+  variants      FoodVariant[]
+  foods         Food[]
+  labels        FoodLabel[]
   foodHistories FoodHistory[]
 
   @@index([barcode, addedBy])
@@ -318,12 +318,14 @@ enum FoodAction {
   UPDATE
   EXPIRE
   REMOVE
+  MERGE
+  UPDATE_MERGE
 }
 
 // pridava moznost prepsat nazev, popisek, obrazek v katalogu vlastnim
 model FoodLabel {
   id           Int      @id @default(autoincrement())
-  userId       Int?      @map("user_id")
+  userId       Int?     @map("user_id")
   catalogId    Int      @map("catalog_id")
   title        String?  @map("title") @db.VarChar(40)
   description  String?  @map("description") @db.VarChar(100)
@@ -335,9 +337,9 @@ model FoodLabel {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  user    User?        @relation(fields: [userId], references: [id])
+  user    User?       @relation(fields: [userId], references: [id])
   catalog FoodCatalog @relation(fields: [catalogId], references: [id], onDelete: Cascade)
-  foods    Food[]
+  foods   Food[]
 
   @@index([userId, catalogId])
   @@index([catalogId])

@@ -22,4 +22,6 @@ export const updateFoodInstanceSchema = Joi.object({
   expirationDate: Joi.date().iso().allow("").optional(),
   price: Joi.number().min(0).precision(2).max(999999).default(0),
   currency: Joi.string().length(3).uppercase().valid("CZK", "EUR", "").optional(),
+  variantId: Joi.number().integer().allow(null).optional(),
+  variantTitle: Joi.string().trim().max(40).allow("").optional(),
 });

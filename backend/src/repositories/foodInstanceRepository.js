@@ -1,5 +1,10 @@
 import { NotFoundError } from "../errors/errors.js";
 import prisma from "../utils/prisma.js";
+import { formatTitleCase } from "../utils/stringUtils.js";
+import {
+  resolveTargetFoodEntityRepository,
+  softDeleteOrphanedVariantRepository,
+} from "./foodVariantRepository.js";
 
 // smaze vice foodinstance pokud je spotrebovana nebo upravi amount pokud je jen castecna konzumace
 export const consumeMultipleFoodInstancesRepository = async (
@@ -43,8 +48,22 @@ export const consumeMultipleFoodInstancesRepository = async (
 
         //vrati pocet instanci foodu v inventari
         const currentCount = await tx.foodInstance.count({ where: { foodId: instance.foodId } });
+        //pokud pocet instanci je 0 variant se pripravi na nejblizsi smazani
+        if (currentCount === 0) {
+          const food = await tx.food.findUnique({
+            where: { id: instance.foodId },
+            select: { variantId: true },
+          });
 
-        // zapis do hisotrie
+          if (food?.variantId) {
+            await tx.foodVariant.update({
+              where: { id: food.variantId },
+              data: { isDeleted: true },
+            });
+          }
+        }
+
+        // zapis do historie
         const history = await tx.foodHistory.create({
           data: {
             inventoryId: instance.food.inventoryId,
@@ -66,7 +85,6 @@ export const consumeMultipleFoodInstancesRepository = async (
         });
         results.push(history);
       }
-
       return results;
     });
   } catch (error) {
@@ -119,7 +137,6 @@ export const getInventoryIdByInstanceIdRepository = async (foodInstanceId, throw
     if (!instance && throwError) {
       throw new NotFoundError("Food instance not found.");
     }
-
     return instance?.food?.inventoryId || null;
   } catch (error) {
     console.error("Error fetching inventory id by food instance id:", error);
@@ -175,30 +192,71 @@ export const getFoodInstancesWithPriceRepository = async (ids) => {
 };
 
 //updatuje jednu nebo vice stejnych instanci
-export const updateFoodInstancesRepository = async (userId,updatePayload) => {
+export const updateFoodInstancesRepository = async (userId, updatePayload, foodId, variantData) => {
   try {
     return await prisma.$transaction(async (tx) => {
       const results = [];
 
+      const food = await tx.food.findUnique({
+        where: { id: foodId },
+        select: {
+          inventoryId: true,
+          catalogId: true,
+          categoryId: true,
+          defaultLabelId: true,
+        },
+      });
+
+      let action = "UPDATE";
+      let newFoodId = foodId;
+      let newVariant = null;
+      if (variantData) {
+        console.log("1");
+        newVariant = await resolveTargetFoodEntityRepository(
+          {
+            foodId,
+            inventoryId: food.inventoryId,
+            catalogId: food.catalogId,
+            userId,
+            variantData,
+            defaultLabelId: food?.defaultLabelId,
+            categoryId: food?.categoryId
+          },
+          tx,
+        );
+
+        newFoodId = newVariant.foodId;
+        action = newVariant.action;
+      }
+
       for (const item of updatePayload) {
+        console.log("2");
+
         //konotrla jestli je potreba neco menit
         const hasInstanceChanges = Object.values(item.instanceData).some(
           (val) => val !== undefined,
         );
         const hasPriceChanges = item.priceData !== undefined;
-        if (!hasInstanceChanges && !hasPriceChanges) {
+        const nothingChange = !hasInstanceChanges && !hasPriceChanges && !newVariant;
+
+        if (nothingChange) {
+          console.log("3");
           continue;
         }
 
         // zamkne food radek pro ostatni zapisy dokud neskonci transakce
-        await tx.$executeRaw`SELECT id FROM foods WHERE id = ${updatePayload.foodId} FOR UPDATE`;
+        await tx.$executeRaw`SELECT id FROM foods WHERE id = ${newFoodId} FOR UPDATE`;
 
         let finalPriceId = item.oldData.priceId;
 
         // logika price
         if (item.priceData === null) {
+          console.log("4");
+
           finalPriceId = null;
         } else if (item.priceData !== undefined) {
+          console.log("5");
+
           const newPrice = await tx.price.create({ data: item.priceData });
           finalPriceId = newPrice.id;
         }
@@ -208,6 +266,7 @@ export const updateFoodInstancesRepository = async (userId,updatePayload) => {
           where: { id: item.instanceId },
           data: {
             ...item.instanceData,
+            foodId: newFoodId,
             priceId: finalPriceId,
             updateAt: new Date(),
           },
@@ -219,6 +278,8 @@ export const updateFoodInstancesRepository = async (userId,updatePayload) => {
         // metadata pro amount, unit, expirationDate pokud se zmeni
         for (const [key, newValue] of Object.entries(item.instanceData)) {
           if (newValue !== undefined) {
+            console.log("6");
+
             metadata[key] = {
               before: item.oldData[key],
               after: newValue,
@@ -228,29 +289,50 @@ export const updateFoodInstancesRepository = async (userId,updatePayload) => {
 
         // metadata pro cenu pokud se zmeni
         if (finalPriceId !== item.oldData.priceId) {
+          console.log("7");
+
           metadata.price = {
             before: item.oldData.priceId,
             after: finalPriceId,
           };
         }
 
+        //metadata pokud se zmeni varianta
+        if (newVariant && variantData?.old?.variantTitle !== newVariant.variantTitle) {
+          console.log("8");
+
+          metadata.variant = {
+            before: variantData?.old?.variantTitle || null,
+            after: newVariant.variantTitle || null,
+          };
+          if (action === "MERGE" && (hasInstanceChanges || hasPriceChanges)) {
+            console.log("9");
+
+            action = "UPDATE_MERGE";
+          }
+        }
+
         //vrati pocet instanci foodu v inventari
         const currentCount = await tx.foodInstance.count({
-          where: { foodId: updatedInstance.foodId },
+          where: { foodId: newFoodId },
         });
+
+        //quantita v pripade presouvani instanci
+        const quantityBefore =
+          action === "MERGE" || action === "UPDATE_MERGE" ? currentCount - 1 : currentCount;
 
         // zaznam historie
         const history = await tx.foodHistory.create({
           data: {
             inventoryId: updatedInstance.food.inventoryId,
-            foodId: updatedInstance.foodId,
+            foodId: newFoodId,
             foodInstanceId: updatedInstance.id,
             catalogId: updatedInstance.food.catalogId,
             priceId: finalPriceId,
-            action: "UPDATE",
+            action: action,
             snapshotUnit: updatedInstance?.unit,
             snapshotAmount: updatedInstance?.amount,
-            quantityBefore: currentCount,
+            quantityBefore: quantityBefore,
             quantityAfter: currentCount,
             changedBy: userId,
             metadata: metadata,
@@ -258,6 +340,12 @@ export const updateFoodInstancesRepository = async (userId,updatePayload) => {
         });
         results.push(history);
       }
+      if (newVariant) {
+        console.log("10");
+
+        await softDeleteOrphanedVariantRepository(variantData?.old?.variantId, tx);
+      }
+
       return results;
     });
   } catch (error) {

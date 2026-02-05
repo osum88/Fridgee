@@ -1,4 +1,4 @@
-import { BadRequestError } from "../errors/errors.js";
+import { BadRequestError, NotFoundError } from "../errors/errors.js";
 import {
   consumeMultipleFoodInstancesRepository,
   getFoodInstancesWithPriceRepository,
@@ -6,12 +6,21 @@ import {
   updateFoodInstancesRepository,
 } from "../repositories/foodInstanceRepository.js";
 import { getFoodInventoryUserRepository } from "../repositories/foodInventoryRepository.js";
-import { formatToISODate, normalizeDate } from "../utils/stringUtils.js";
+import { getVariantByFoodIdRepository } from "../repositories/foodRepository.js";
+import {
+  determineUpdateValue,
+  formatTitleCase,
+  formatToISODate,
+  normalizeDate,
+} from "../utils/stringUtils.js";
+import { resolveVariantUpdateData } from "./foodVariantService.js";
 import { resolvePriceExchangeData } from "./priceService.js";
 
 // smaze vice foodinstance pokud je spotrebovana nebo upravi amount pokud je jen castecna konzumace
 export const consumeMultipleFoodInstancesService = async (userId, data, isAdmin) => {
-  const foodInstancesIds = Array.isArray(data.foodInstanceId) ? data.foodInstanceId : [data.foodInstanceId];
+  const foodInstancesIds = Array.isArray(data.foodInstanceId)
+    ? data.foodInstanceId
+    : [data.foodInstanceId];
 
   const MAX_BULK_CONSUME = 50;
   if (foodInstancesIds.length > MAX_BULK_CONSUME) {
@@ -22,14 +31,19 @@ export const consumeMultipleFoodInstancesService = async (userId, data, isAdmin)
 
   //kontrola existence instanci v invenatri
   const inventoryIds = await getInventoryIdsByInstanceIdsRepository(foodInstancesIds);
+  if (inventoryIds.length > 1) {
+    throw new BadRequestError("Bulk consume is only allowed for the same inventory.");
+  }
   //kontrola opravneni pro kazdou instanci jestli patri do userova inventare
   if (!isAdmin) {
-    for (const invId of inventoryIds) {
-      await getFoodInventoryUserRepository(userId, invId);
-    }
+    await getFoodInventoryUserRepository(userId, inventoryIds[0]);
   }
   const amountToConsume = data?.amountToConsume || 0;
-  const result = await consumeMultipleFoodInstancesRepository(userId, foodInstancesIds, amountToConsume);
+  const result = await consumeMultipleFoodInstancesRepository(
+    userId,
+    foodInstancesIds,
+    amountToConsume,
+  );
   return result;
 };
 
@@ -48,11 +62,15 @@ export const updateFoodInstanceService = async (userId, data, isAdmin) => {
 
   //kontrola existence instanci v invenatri
   const inventoryIds = await getInventoryIdsByInstanceIdsRepository(foodInstancesIds);
+  if (inventoryIds.length > 1) {
+    throw new BadRequestError("Bulk update is only allowed for the same inventory.");
+  }
+  const inventoryId = inventoryIds[0];
+
   //kontrola opravneni pro kazdou instanci jestli patri do userova inventare
-  if (!isAdmin) {
-    for (const invId of inventoryIds) {
-      await getFoodInventoryUserRepository(userId, invId);
-    }
+  const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId, false);
+  if (!isAdmin && !inventoryUser) {
+    throw new NotFoundError("User not found in inventory");
   }
 
   //ziskame vsechny inventare s cenami
@@ -61,20 +79,20 @@ export const updateFoodInstanceService = async (userId, data, isAdmin) => {
   if (uniqueFoodIds.length > 1) {
     throw new BadRequestError("Bulk update is only allowed for the same type of food.");
   }
+  const foodId = uniqueFoodIds[0];
 
   const parsedPrice = data?.price !== undefined ? parseFloat(data?.price) : undefined;
 
-  // pomocna funkce pro rozhodnuti, zda hodnotu menit, smazat nebo nechat
-  const getNewValue = (current, provided) => {
-    // pokud jsou hodnoty Date pak se prevedou na ISO string
-    const currentStr = current instanceof Date ? current.toISOString() : current;
-    const providedStr = provided instanceof Date ? provided.toISOString() : provided;
-    // pokud hodnota chyby nebo je stejna
-    if (provided === undefined || providedStr === currentStr) return undefined;
-    // pokud null nebo "" chcem smazat
-    if (provided === null || provided === "") return null;
-    return provided;
-  };
+
+  //zpracuje a zvaliduje zmeny varianty potraviny a vrati data pro update nebo null
+  const variantData = await resolveVariantUpdateData(
+    data.variantId,
+    data.variantTitle,
+    foodId,
+    userId,
+    isAdmin,
+    inventoryUser,
+  );
 
   const updatePayload = [];
   const dateCache = new Map();
@@ -104,13 +122,13 @@ export const updateFoodInstanceService = async (userId, data, isAdmin) => {
     const amount = data?.amount !== undefined ? parseInt(data.amount) : undefined;
 
     updatePayload.push({
-      foodId: uniqueFoodIds,
+     
       instanceId: instance.id,
       // data pro update instance
       instanceData: {
-        amount: getNewValue(instance?.amount, amount),
-        unit: getNewValue(instance?.unit, data?.unit),
-        expirationDate: getNewValue(instance?.expirationDate, expiration),
+        amount: determineUpdateValue(instance?.amount, amount),
+        unit: determineUpdateValue(instance?.unit, data?.unit),
+        expirationDate: determineUpdateValue(instance?.expirationDate, expiration),
       },
       // data pro cenu
       priceData,
@@ -123,5 +141,5 @@ export const updateFoodInstanceService = async (userId, data, isAdmin) => {
       },
     });
   }
-  return await updateFoodInstancesRepository(userId, updatePayload);
+  return await updateFoodInstancesRepository(userId, updatePayload, foodId, variantData);
 };

@@ -237,7 +237,7 @@ export const addFoodToInventoryRepository = async (userId, data) => {
             snapshotUnit: data?.unit,
             quantityBefore: currentCountInstances + i,
             quantityAfter: currentCountInstances + i + 1,
-            metadata: batchItem
+            metadata: batchItem,
           },
         });
       }
@@ -246,6 +246,28 @@ export const addFoodToInventoryRepository = async (userId, data) => {
     });
   } catch (error) {
     console.error("Error adding food to inventory:", error);
+    throw error;
+  }
+};
+
+// vraci variantu podle id food
+export const getVariantByFoodIdRepository = async (foodId, throwError = true) => {
+  try {
+    const foodWithVariant = await prisma.food.findUnique({
+      where: { id: foodId },
+      select: {
+        variant: true,
+      },
+    });
+    if (!foodWithVariant) {
+      if (throwError) {
+        throw new NotFoundError(`Food with ID ${foodId} was not found.`);
+      }
+      return null;
+    }
+    return foodWithVariant.variant;
+  } catch (error) {
+    console.error(`Error fetching variant for foodId ${foodId}:`, error);
     throw error;
   }
 };

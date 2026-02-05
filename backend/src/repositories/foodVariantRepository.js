@@ -186,6 +186,148 @@ export const getOrCreateFoodVariant = async (
     });
     return newVariant.id;
   }
-
   return null;
+};
+
+//Provede soft-delete varianty, pokud neni vazana na zadne jidlo s existujicimi instancemi
+export const softDeleteOrphanedVariantRepository = async (variantId, tx = prisma) => {
+  if (!variantId) return null;
+
+  try {
+    const result = await tx.foodVariant.updateMany({
+      where: {
+        id: variantId,
+        isDeleted: false,
+        NOT: {
+          foods: {
+            some: {
+              instances: {
+                some: {},
+              },
+            },
+          },
+        },
+      },
+      data: {
+        isDeleted: true,
+      },
+    });
+    return result;
+  } catch (error) {
+    console.error(`Error failed cleanup variant ${variantId}:`, error);
+    throw error;
+  }
+};
+
+//vyhleda existujici entitu Food pro MERGE, nebo zajisti/vytvori Variant a nove Food
+export const resolveTargetFoodEntityRepository = async (params, tx = prisma) => {
+  const { foodId, inventoryId, catalogId, userId, variantData, defaultLabelId, categoryId } = params;
+
+  let targetFood = null;
+  let targetVariant = null;
+
+  const targetId = variantData?.new?.variantId;
+  const targetTitle = formatTitleCase(variantData.new.variantTitle);
+
+  // hledame, zda cilove Food už v inventari existuje (MERGE)
+  targetFood = await tx.food.findFirst({
+    where: {
+      NOT: { id: foodId },
+      inventoryId: inventoryId,
+      catalogId: catalogId,
+      OR: [
+        ...(targetId !== undefined ? [{ variantId: targetId }] : []),
+        ...(targetId === undefined && targetTitle ? [{ variant: { title: targetTitle } }] : []),
+      ],
+    },
+    include: { variant: true },
+  });
+
+  if (targetFood) {
+    console.log("1.2");
+    if (targetFood?.variant?.isDeleted) {
+      await recoverFoodVariantRepository(targetFood?.variant?.id, tx);
+    }
+    console.log(targetFood);
+    return {
+      foodId: targetFood.id,
+      variantId: targetFood.variantId,
+      variantTitle: targetFood?.variant?.title,
+      action: "MERGE",
+    };
+  }
+
+  // pokud MERGE neprosel, musime zajistit/vytvorit variantu
+  if (targetId) {
+    console.log("1.3");
+
+    // pokud mame id pak uz nehledame
+    targetVariant = await tx.foodVariant.findUnique({
+      where: { id: targetId },
+    });
+  } else if (targetTitle) {
+    console.log("1.4");
+
+    // jinak hledani varinty daneho uzivatele
+    targetVariant = await tx.foodVariant.findFirst({
+      where: {
+        foodCatalogId: catalogId,
+        addedBy: userId,
+        title: targetTitle,
+      },
+    });
+
+    if (!targetVariant) {
+      console.log("1.5");
+
+      //pokud neexistuje vytvorime
+      targetVariant = await tx.foodVariant.create({
+        data: {
+          title: targetTitle,
+          foodCatalogId: catalogId,
+          addedBy: userId,
+        },
+      });
+    }
+  }
+  console.log("1.7");
+
+  //ozivime variantu pokud byla uz smazana
+  if (targetVariant?.isDeleted) {
+    console.log("1.6");
+    await recoverFoodVariantRepository(targetVariant.id, tx);
+  }
+
+  // vytvoreni noveho zaznamu food (protoze MERGE nebyl mozny)
+  const newFood = await tx.food.create({
+    data: {
+      inventoryId: inventoryId,
+      categoryId: categoryId,
+      catalogId: catalogId,
+      variantId: targetVariant?.id ?? null,
+      defaultLabelId: defaultLabelId,
+      minimalQuantity: 0,
+    },
+  });
+
+  return {
+    foodId: newFood.id,
+    variantId: newFood?.variantId,
+    variantTitle: targetVariant?.title,
+    action: "UPDATE",
+  };
+};
+
+// Obnovi smazanou variantu (recovery)
+export const recoverFoodVariantRepository = async (variantId, tx = prisma) => {
+  if (!variantId) return null;
+  try {
+    return await tx.foodVariant.update({
+      where: { id: variantId },
+      data: { isDeleted: false },
+    });
+  } catch (error) {
+    console.error(`Failed to recover variant ${variantId}:`, error);
+    throw error;
+  }
 };
