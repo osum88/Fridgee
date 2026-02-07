@@ -8,7 +8,7 @@ export const addFoodToInventoryFoodSchema = Joi.object({
   title: Joi.string().max(40).optional(),
   description: Joi.string().allow("").max(100).optional(),
   foodImageUrl: Joi.string().uri().allow("").optional(),
-  minimalQuantity: Joi.number().min(0).default(0),
+  minimalQuantity: Joi.number().min(0).max(9999).default(0),
   amount: Joi.number().min(0).max(9999).precision(3).default(0).optional(),
   unit: Joi.string().allow("").valid("MG", "G", "DG", "KG", "ML", "CL", "DL", "L", "").optional(),
   quantity: Joi.number().integer().min(1).max(99).default(1),
@@ -18,3 +18,15 @@ export const addFoodToInventoryFoodSchema = Joi.object({
   categoryId: Joi.number().integer().positive().allow(null).optional(),
   expirationDate: Joi.date().iso().allow("").optional(),
 }).or("catalogId", "barcode");
+
+export const updateFoodFoodSchema = Joi.object({
+  foodId: Joi.number().integer().required(),
+  categoryId: Joi.number().integer().positive().allow(null).optional(),
+  categoryTitle: Joi.string().max(50).allow("").optional(),
+  variantId: Joi.number().integer().positive().allow(null).optional(),
+  variantTitle: Joi.string().max(40).allow("").optional(),
+  labelTitle: Joi.string().max(40).optional(),
+  description: Joi.string().allow("").max(100).optional(),
+  foodImageUrl: Joi.string().uri().allow("").optional(),
+  minimalQuantity: Joi.number().min(0).max(9999).default(0),
+});

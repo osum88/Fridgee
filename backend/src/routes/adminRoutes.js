@@ -15,10 +15,11 @@ import { categoryIdSchema, createFoodCategorySchema, updateFoodCategorySchema } 
 import { createFoodCategory, deleteFoodCategory, getFoodCategoriesByInventory, getFoodCategoryById, updateFoodCategory } from "../controllers/foodCategoryController.js";
 import { deleteFoodVariant, getFoodVariantsContext, updateFoodVariant } from "../controllers/foodVariantController.js";
 import {  foodVariantIdSchema, updateFoodVariantSchema } from "../validation/foodVariantValidation.js";
-import { addFoodToInventory } from "../controllers/foodController.js";
-import {  addFoodToInventoryFoodSchema } from "../validation/foodValidation.js";
+import { addFoodToInventory, updateFood } from "../controllers/foodController.js";
+import {  addFoodToInventoryFoodSchema, updateFoodFoodSchema } from "../validation/foodValidation.js";
 import {  consumeMultipleFoodInstances, updateFoodInstance } from "../controllers/foodInstanceController.js";
 import { consumeFoodInstanceSchema, updateFoodInstanceSchema } from "../validation/foodInstanceValidation.js";
+import { updateFoodLabel } from "../controllers/foodLabelController.js";
 
 
 const router = express.Router();
@@ -131,6 +132,9 @@ router.delete("/food-variant/:variantId", validate(foodVariantIdSchema), authent
 // prida jidlo do inventare a vytvori instanci, price i history, pripadne catalog, label, variant
 router.post("/food", validate(addFoodToInventoryFoodSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, addFoodToInventory);
 
+// updatuje food, categorii a label food
+router.patch("/", validate(updateFoodFoodSchema),  authenticateToken, sanitize, authorizeAdminWithoutUserId, updateFood);
+
 //                          FOOD INSTANCE
 
 // smaze foodinstance pokud je spotrebovana nebo upravi amount pokud je jen castecna konzumace
@@ -138,6 +142,11 @@ router.patch("/food-instance/consume", validate(consumeFoodInstanceSchema), auth
 
 //updatuje jednu nebo vice stejnych instanci
 router.patch("/food-instance", validate(updateFoodInstanceSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId , updateFoodInstance);
+
+//                          FOOD LABEL
+
+// updatuje uzivateluv food label
+router.patch("/", authenticateToken, sanitize, authorizeAdminWithoutUserId, updateFoodLabel);
 
 
 //                                 USER

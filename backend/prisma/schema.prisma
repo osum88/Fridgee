@@ -101,7 +101,7 @@ model FoodInventory {
   lastActivityAt  DateTime              @default(now()) @map("last_activity_at")
   createdAt       DateTime              @default(now()) @map("created_at")
   updatedAt       DateTime              @updatedAt @map("updated_at")
-  inventory       InventoryUser[]       @relation("inventory")
+  users           InventoryUser[]       @relation("inventory")
   sentInvitations InventoryInvitation[] @relation("inventoryInvitations")
   foods           Food[]
   foodCategory    FoodCategory[]
@@ -320,6 +320,9 @@ enum FoodAction {
   REMOVE
   MERGE
   UPDATE_MERGE
+  CATEGORY_MOVE
+  LABEL_UPDATE
+  MIN_QUANTITY_UPDATE
 }
 
 // pridava moznost prepsat nazev, popisek, obrazek v katalogu vlastnim

@@ -14,6 +14,7 @@ export const consumeMultipleFoodInstances = async (req, res, next) => {
   }
 };
 
+// updatuje instanci s variantou
 export const updateFoodInstance = async (req, res, next) => {
   try {
     const userId = req.userId;

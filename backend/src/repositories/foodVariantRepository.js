@@ -221,7 +221,16 @@ export const softDeleteOrphanedVariantRepository = async (variantId, tx = prisma
 
 //vyhleda existujici entitu Food pro MERGE, nebo zajisti/vytvori Variant a nove Food
 export const resolveTargetFoodEntityRepository = async (params, tx = prisma) => {
-  const { foodId, inventoryId, catalogId, userId, variantData, defaultLabelId, categoryId } = params;
+  const {
+    foodId,
+    inventoryId,
+    catalogId,
+    userId,
+    variantData,
+    defaultLabelId,
+    categoryId,
+    minimalQuantity,
+  } = params;
 
   let targetFood = null;
   let targetVariant = null;
@@ -248,7 +257,6 @@ export const resolveTargetFoodEntityRepository = async (params, tx = prisma) => 
     if (targetFood?.variant?.isDeleted) {
       await recoverFoodVariantRepository(targetFood?.variant?.id, tx);
     }
-    console.log(targetFood);
     return {
       foodId: targetFood.id,
       variantId: targetFood.variantId,
@@ -306,7 +314,7 @@ export const resolveTargetFoodEntityRepository = async (params, tx = prisma) => 
       catalogId: catalogId,
       variantId: targetVariant?.id ?? null,
       defaultLabelId: defaultLabelId,
-      minimalQuantity: 0,
+      minimalQuantity: minimalQuantity?? 0,
     },
   });
 

@@ -1,6 +1,7 @@
-import { NotFoundError } from "../errors/errors.js";
+import { BadRequestError, ConflictError, ForbiddenError, InternalServerError, NotFoundError, UnauthorizedError } from "../errors/errors.js";
 import prisma from "../utils/prisma.js";
 import { formatTitleCase } from "../utils/stringUtils.js";
+import { getFoodInstancesCountRepository } from "./foodRepository.js";
 import {
   resolveTargetFoodEntityRepository,
   softDeleteOrphanedVariantRepository,
@@ -26,7 +27,7 @@ export const consumeMultipleFoodInstancesRepository = async (
 
       const results = [];
       //pokud je vice instanci
-      const batchItem = existingInstances.length > 1 ? {} : { batchItem: true };
+      const batchItem = existingInstances.length > 1 ? { batchItem: true } : {};
 
       //zpracujeme ty co jsme nasli
       for (const instance of existingInstances) {
@@ -47,7 +48,8 @@ export const consumeMultipleFoodInstancesRepository = async (
         }
 
         //vrati pocet instanci foodu v inventari
-        const currentCount = await tx.foodInstance.count({ where: { foodId: instance.foodId } });
+        const currentCount = await getFoodInstancesCountRepository(instance.foodId, tx);
+
         //pokud pocet instanci je 0 variant se pripravi na nejblizsi smazani
         if (currentCount === 0) {
           const food = await tx.food.findUnique({
@@ -220,7 +222,7 @@ export const updateFoodInstancesRepository = async (userId, updatePayload, foodI
             userId,
             variantData,
             defaultLabelId: food?.defaultLabelId,
-            categoryId: food?.categoryId
+            categoryId: food?.categoryId,
           },
           tx,
         );
@@ -313,9 +315,7 @@ export const updateFoodInstancesRepository = async (userId, updatePayload, foodI
         }
 
         //vrati pocet instanci foodu v inventari
-        const currentCount = await tx.foodInstance.count({
-          where: { foodId: newFoodId },
-        });
+        const currentCount = await getFoodInstancesCountRepository(newFoodId, tx);
 
         //quantita v pripade presouvani instanci
         const quantityBefore =
@@ -350,6 +350,23 @@ export const updateFoodInstancesRepository = async (userId, updatePayload, foodI
     });
   } catch (error) {
     console.error("Error updating instances:", error);
+    throw error;
+  }
+};
+
+// overi zda uzivatel je jedinym, kdo ma v inventari aktivni instance daneho jidla
+export const isExclusiveContributorRepository = async (foodId, userId) => {
+  try {
+    const otherInstance = await prisma.foodInstance.findFirst({
+      where: {
+        foodId: foodId,
+        addedBy: { not: userId },
+      },
+      select: { id: true },
+    });
+    return otherInstance === null;
+  } catch (error) {
+    console.error(`Error checking exclusive contributor for foodId ${foodId}:`, error);
     throw error;
   }
 };

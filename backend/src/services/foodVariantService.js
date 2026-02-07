@@ -4,6 +4,7 @@ import {
   ForbiddenError,
   InternalServerError,
   NotFoundError,
+  UnauthorizedError,
 } from "../errors/errors.js";
 import {
   createFoodVariantRepository,

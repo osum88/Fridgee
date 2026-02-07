@@ -1,4 +1,4 @@
-import { BadRequestError, NotFoundError } from "../errors/errors.js";
+import { BadRequestError, ConflictError, ForbiddenError, InternalServerError, NotFoundError, UnauthorizedError } from "../errors/errors.js";
 import {
   consumeMultipleFoodInstancesRepository,
   getFoodInstancesWithPriceRepository,
@@ -6,10 +6,8 @@ import {
   updateFoodInstancesRepository,
 } from "../repositories/foodInstanceRepository.js";
 import { getFoodInventoryUserRepository } from "../repositories/foodInventoryRepository.js";
-import { getVariantByFoodIdRepository } from "../repositories/foodRepository.js";
 import {
   determineUpdateValue,
-  formatTitleCase,
   formatToISODate,
   normalizeDate,
 } from "../utils/stringUtils.js";

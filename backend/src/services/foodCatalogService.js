@@ -3,7 +3,10 @@ import {
   ConflictError,
   ForbiddenError,
   InternalServerError,
+  NotFoundError,
+  UnauthorizedError,
 } from "../errors/errors.js";
+
 import {
   createFoodCatalogRepository,
   deleteFoodCatalogRepository,
@@ -15,15 +18,11 @@ import {
 import { getRelevantFoodVariantsRepository } from "../repositories/foodVariantRepository.js";
 import { getUserByIdRepository } from "../repositories/userRepository.js";
 import { cleanEmptyStrings } from "../utils/cleanEmptyStrings.js";
-import {
-  getFoodLabelByIdService,
-  updateOrCreateFoodLabelService,
-} from "./foodLabelService.js";
+import { getFoodLabelByIdService, updateOrCreateFoodLabelService } from "./foodLabelService.js";
 
 //vytvari food catalog
 export const createFoodCatalogService = async (data, userId, isAdmin) => {
-  const { barcode, title, description, price, unit, amount, foodImageUrl, variantTitle } =
-    data;
+  const { barcode, title, description, price, unit, amount, foodImageUrl, variantTitle } = data;
 
   if (isAdmin) {
     await getUserByIdRepository(userId);
@@ -31,24 +30,14 @@ export const createFoodCatalogService = async (data, userId, isAdmin) => {
 
   //kontrola jestli uz uzivatel nema katalog s danym barcode, pokud je smazany, obnovi ho
   if (barcode) {
-    const existingCatalog = await getFoodCatalogByBarcodeRepository(
-      barcode,
-      userId,
-      null,
-    );
+    const existingCatalog = await getFoodCatalogByBarcodeRepository(barcode, userId, null);
 
     if (existingCatalog?.isDeleted) {
       await updateFoodCatalogRepository(existingCatalog.id, {
         isDeleted: false,
       });
       const { variantTitle, barcode, ...rest } = data;
-      return updateFoodCatalogService(
-        existingCatalog?.id,
-        userId,
-        isAdmin,
-        rest,
-        null,
-      );
+      return updateFoodCatalogService(existingCatalog?.id, userId, isAdmin, rest, null);
     } else if (existingCatalog) {
       throw new ConflictError("Food catalog with this barcode already exists.");
     }
@@ -75,23 +64,14 @@ export const createFoodCatalogService = async (data, userId, isAdmin) => {
 };
 
 //vraci food catalog podle id
-export const getFoodCatalogByIdService = async (
-  foodCatalogId,
-  userId,
-  isAdmin,
-) => {
+export const getFoodCatalogByIdService = async (foodCatalogId, userId, isAdmin) => {
   const catalog = await getFoodCatalogByIdRepository(foodCatalogId);
 
-  const label = await getFoodLabelByIdService(
-    foodCatalogId,
-    catalog.addedBy,
-    userId,
-    isAdmin,
-  );
+  const label = await getFoodLabelByIdService(foodCatalogId, catalog.addedBy, userId, isAdmin);
 
   const variants = await getRelevantFoodVariantsRepository(catalog.id, userId);
 
-  return { ...catalog, ...label, variants  };
+  return { ...catalog, ...label, variants };
 };
 
 //vraci vsechny catalogy usera
@@ -104,11 +84,7 @@ export const getAllFoodCatalogsByUserService = async (userId, isAdmin) => {
 };
 
 //smaze katalog podle id
-export const deleteFoodCatalogService = async (
-  foodCatalogId,
-  userId,
-  isAdmin,
-) => {
+export const deleteFoodCatalogService = async (foodCatalogId, userId, isAdmin) => {
   const catalog = await getFoodCatalogByIdRepository(foodCatalogId, false, null);
 
   if (!isAdmin && catalog?.addedBy !== userId) {
@@ -149,10 +125,9 @@ export const updateFoodCatalogService = async (
   }
 
   // vyfiltruje null/undefined
-  const { title, description, barcode, ...filteredUpdateData } =
-    Object.fromEntries(
-      Object.entries(updateData).filter(([_, value]) => value != null),
-    );
+  const { title, description, barcode, ...filteredUpdateData } = Object.fromEntries(
+    Object.entries(updateData).filter(([_, value]) => value != null),
+  );
 
   //nahradi prazdne stringy null
   const finalData = cleanEmptyStrings(filteredUpdateData);
@@ -172,10 +147,7 @@ export const updateFoodCatalogService = async (
 
   if (barcode || barcode === "") {
     //kontrola jestli uz uzivatel nema katalog s danym barcode
-    const existingCatalog = await getFoodCatalogByBarcodeRepository(
-      barcode,
-      catalog.addedBy,
-    );
+    const existingCatalog = await getFoodCatalogByBarcodeRepository(barcode, catalog.addedBy);
 
     if (existingCatalog && existingCatalog.id !== foodCatalogId) {
       throw new ConflictError("Food catalog with this barcode already exists.");

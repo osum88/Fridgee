@@ -1,15 +1,25 @@
-import { ConflictError } from "../errors/errors.js";
+import { BadRequestError, ConflictError, ForbiddenError, InternalServerError, NotFoundError, UnauthorizedError } from "../errors/errors.js";
 import { getFoodCatalogByIdRepository } from "../repositories/foodCatalogRepository.js";
-import { getFoodCategoryByIdRepository } from "../repositories/foodCategoryRepository.js";
+import {
+  getFoodCategoryByIdRepository,
+} from "../repositories/foodCategoryRepository.js";
 import {
   getFoodInventoryRepository,
   getFoodInventoryUserRepository,
 } from "../repositories/foodInventoryRepository.js";
-import { addFoodToInventoryRepository } from "../repositories/foodRepository.js";
+import {
+  addFoodToInventoryRepository,
+  getFoodByIdRepository,
+  updateFoodRepository,
+} from "../repositories/foodRepository.js";
 import { getFoodVariantByIdRepository } from "../repositories/foodVariantRepository.js";
 import { cleanEmptyStrings } from "../utils/cleanEmptyStrings.js";
-import { normalizeDate } from "../utils/stringUtils.js";
+import { determineUpdateValue, normalizeDate } from "../utils/stringUtils.js";
+import { resolveCategoryUpdateData } from "./foodCategoryService.js";
+import { resolveFoodLabelUpdateData } from "./foodLabelService.js";
+import { resolveVariantUpdateData } from "./foodVariantService.js";
 import { resolvePriceExchangeData } from "./priceService.js";
+
 
 // prida jidlo do inventare a vytvori instanci, price i history, pokd neexistuje tak i catalog, label, variant
 export const addFoodToInventoryService = async (userId, foodData, isAdmin) => {
@@ -61,3 +71,67 @@ export const addFoodToInventoryService = async (userId, foodData, isAdmin) => {
   const result = await addFoodToInventoryRepository(userId, preparedData);
   return result;
 };
+
+export const updateFoodService = async (userId, data, isAdmin) => {
+  const { foodId, ...restData } = data;
+
+  const food = await getFoodByIdRepository(foodId);
+
+  //kontrola opravneni pro kazdou instanci jestli patri do userova inventare
+  const inventoryUser = await getFoodInventoryUserRepository(userId, food.inventoryId, false);
+  if (!isAdmin && !inventoryUser) {
+    throw new NotFoundError("User not found in inventory");
+  }
+  //zpracuje a zvaliduje zmeny varianty potraviny a vrati data pro update nebo null
+  const variantData = await resolveVariantUpdateData(
+    data.variantId,
+    data.variantTitle,
+    foodId,
+    userId,
+    isAdmin,
+    inventoryUser,
+    true,
+  );
+
+  //zpracuje a zvaliduje zmeny kategorii a vrati data pro update nebo null
+  const categoryData = await resolveCategoryUpdateData(
+    data.categoryId,
+    data.categoryTitle,
+    foodId,
+    userId,
+    isAdmin,
+    inventoryUser,
+    food.inventoryId,
+  );
+
+  const labelData = await resolveFoodLabelUpdateData(userId, food?.catalogId, data, isAdmin);
+
+  let minimalQuantityData = null;
+  if (data?.minimalQuantity !== undefined) {
+    const inputMinQty = data.minimalQuantity !== null ? parseInt(data.minimalQuantity) : 0;
+
+    const newMinimalQuantity = determineUpdateValue(food?.minimalQuantity ?? 0, inputMinQty);
+
+    // pokud se hodnota lisy
+    if (newMinimalQuantity !== undefined) {
+      if (!isAdmin && !["OWNER", "EDITOR"].includes(inventoryUser?.role)) {
+        throw new ForbiddenError("Only OWNER or EDITOR can change minimal quantity.");
+      }
+      minimalQuantityData = {
+        new: { minimalQuantity: newMinimalQuantity },
+        old: { minimalQuantity: food?.minimalQuantity ?? 0 },
+      };
+    }
+  }
+  const result = updateFoodRepository(
+    foodId,
+    userId,
+    variantData,
+    categoryData,
+    labelData,
+    minimalQuantityData,
+  );
+  return result;
+};
+
+
