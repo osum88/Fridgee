@@ -1,4 +1,11 @@
-import { BadRequestError, ConflictError, ForbiddenError, InternalServerError, NotFoundError, UnauthorizedError } from "../errors/errors.js";
+import {
+  BadRequestError,
+  ConflictError,
+  ForbiddenError,
+  InternalServerError,
+  NotFoundError,
+  UnauthorizedError,
+} from "../errors/errors.js";
 import prisma from "../utils/prisma.js";
 import { formatTitleCase } from "../utils/stringUtils.js";
 import { getFoodInstancesCountRepository } from "./foodRepository.js";
@@ -26,6 +33,7 @@ export const consumeMultipleFoodInstancesRepository = async (
       }
 
       const results = [];
+
       //pokud je vice instanci
       const batchItem = existingInstances.length > 1 ? { batchItem: true } : {};
 
@@ -176,6 +184,13 @@ export const getInventoryIdsByInstanceIdsRepository = async (ids, throwError = t
   }
 };
 
+export const getInstancesByIdsRepository = async (ids) => {
+  return await prisma.foodInstance.findMany({
+    where: { id: { in: ids } },
+    include: { food: true },
+  });
+};
+
 // Vyhleda a vrati všechny instance ze seznamu ID, s jejich cenou
 export const getFoodInstancesWithPriceRepository = async (ids) => {
   try {
@@ -196,158 +211,163 @@ export const getFoodInstancesWithPriceRepository = async (ids) => {
 //updatuje jednu nebo vice stejnych instanci
 export const updateFoodInstancesRepository = async (userId, updatePayload, foodId, variantData) => {
   try {
-    return await prisma.$transaction(async (tx) => {
-      const results = [];
+    return await prisma.$transaction(
+      async (tx) => {
+        const results = [];
 
-      const food = await tx.food.findUnique({
-        where: { id: foodId },
-        select: {
-          inventoryId: true,
-          catalogId: true,
-          categoryId: true,
-          defaultLabelId: true,
-        },
-      });
-
-      let action = "UPDATE";
-      let newFoodId = foodId;
-      let newVariant = null;
-      if (variantData) {
-        console.log("1");
-        newVariant = await resolveTargetFoodEntityRepository(
-          {
-            foodId,
-            inventoryId: food.inventoryId,
-            catalogId: food.catalogId,
-            userId,
-            variantData,
-            defaultLabelId: food?.defaultLabelId,
-            categoryId: food?.categoryId,
+        const food = await tx.food.findUnique({
+          where: { id: foodId },
+          select: {
+            inventoryId: true,
+            catalogId: true,
+            categoryId: true,
+            defaultLabelId: true,
           },
-          tx,
-        );
-
-        newFoodId = newVariant.foodId;
-        action = newVariant.action;
-      }
-
-      for (const item of updatePayload) {
-        console.log("2");
-
-        //konotrla jestli je potreba neco menit
-        const hasInstanceChanges = Object.values(item.instanceData).some(
-          (val) => val !== undefined,
-        );
-        const hasPriceChanges = item.priceData !== undefined;
-        const nothingChange = !hasInstanceChanges && !hasPriceChanges && !newVariant;
-
-        if (nothingChange) {
-          console.log("3");
-          continue;
-        }
-
-        // zamkne food radek pro ostatni zapisy dokud neskonci transakce
-        await tx.$executeRaw`SELECT id FROM foods WHERE id = ${newFoodId} FOR UPDATE`;
-
-        let finalPriceId = item.oldData.priceId;
-
-        // logika price
-        if (item.priceData === null) {
-          console.log("4");
-
-          finalPriceId = null;
-        } else if (item.priceData !== undefined) {
-          console.log("5");
-
-          const newPrice = await tx.price.create({ data: item.priceData });
-          finalPriceId = newPrice.id;
-        }
-
-        // update instance
-        const updatedInstance = await tx.foodInstance.update({
-          where: { id: item.instanceId },
-          data: {
-            ...item.instanceData,
-            foodId: newFoodId,
-            priceId: finalPriceId,
-            updateAt: new Date(),
-          },
-          include: { food: true },
         });
 
-        const metadata = {};
+        let action = "UPDATE";
+        let newFoodId = foodId;
+        let newVariant = null;
+        if (variantData) {
+          console.log("1");
+          newVariant = await resolveTargetFoodEntityRepository(
+            {
+              foodId,
+              inventoryId: food.inventoryId,
+              catalogId: food.catalogId,
+              userId,
+              variantData,
+              defaultLabelId: food?.defaultLabelId,
+              categoryId: food?.categoryId,
+            },
+            tx,
+          );
 
-        // metadata pro amount, unit, expirationDate pokud se zmeni
-        for (const [key, newValue] of Object.entries(item.instanceData)) {
-          if (newValue !== undefined) {
-            console.log("6");
+          newFoodId = newVariant.foodId;
+          action = newVariant.action;
+        }
 
-            metadata[key] = {
-              before: item.oldData[key],
-              after: newValue,
+        for (const item of updatePayload) {
+          console.log("2");
+
+          //konotrla jestli je potreba neco menit
+          const hasInstanceChanges = Object.values(item.instanceData).some(
+            (val) => val !== undefined,
+          );
+          const hasPriceChanges = item.priceData !== undefined;
+          const nothingChange = !hasInstanceChanges && !hasPriceChanges && !newVariant;
+
+          if (nothingChange) {
+            console.log("3");
+            continue;
+          }
+
+          // zamkne food radek pro ostatni zapisy dokud neskonci transakce
+          await tx.$executeRaw`SELECT id FROM foods WHERE id = ${newFoodId} FOR UPDATE`;
+
+          let finalPriceId = item.oldData.priceId;
+
+          // logika price
+          if (item.priceData === null) {
+            console.log("4");
+
+            finalPriceId = null;
+          } else if (item.priceData !== undefined) {
+            console.log("5");
+
+            const newPrice = await tx.price.create({ data: item.priceData });
+            finalPriceId = newPrice.id;
+          }
+
+          // update instance
+          const updatedInstance = await tx.foodInstance.update({
+            where: { id: item.instanceId },
+            data: {
+              ...item.instanceData,
+              foodId: newFoodId,
+              priceId: finalPriceId,
+              updateAt: new Date(),
+            },
+            include: { food: true },
+          });
+
+          const metadata = {};
+
+          // metadata pro amount, unit, expirationDate pokud se zmeni
+          for (const [key, newValue] of Object.entries(item.instanceData)) {
+            if (newValue !== undefined) {
+              console.log("6");
+
+              metadata[key] = {
+                before: item.oldData[key],
+                after: newValue,
+              };
+            }
+          }
+
+          // metadata pro cenu pokud se zmeni
+          if (finalPriceId !== item.oldData.priceId) {
+            console.log("7");
+
+            metadata.price = {
+              before: item.oldData.priceId,
+              after: finalPriceId,
             };
           }
-        }
 
-        // metadata pro cenu pokud se zmeni
-        if (finalPriceId !== item.oldData.priceId) {
-          console.log("7");
+          //metadata pokud se zmeni varianta
+          if (newVariant && variantData?.old?.variantTitle !== newVariant.variantTitle) {
+            console.log("8");
 
-          metadata.price = {
-            before: item.oldData.priceId,
-            after: finalPriceId,
-          };
-        }
+            metadata.variant = {
+              before: variantData?.old?.variantTitle || null,
+              after: newVariant.variantTitle || null,
+            };
+            if (action === "MERGE" && (hasInstanceChanges || hasPriceChanges)) {
+              console.log("9");
 
-        //metadata pokud se zmeni varianta
-        if (newVariant && variantData?.old?.variantTitle !== newVariant.variantTitle) {
-          console.log("8");
-
-          metadata.variant = {
-            before: variantData?.old?.variantTitle || null,
-            after: newVariant.variantTitle || null,
-          };
-          if (action === "MERGE" && (hasInstanceChanges || hasPriceChanges)) {
-            console.log("9");
-
-            action = "UPDATE_MERGE";
+              action = "UPDATE_MERGE";
+            }
           }
+
+          //vrati pocet instanci foodu v inventari
+          const currentCount = await getFoodInstancesCountRepository(newFoodId, tx);
+
+          //quantita v pripade presouvani instanci
+          const quantityBefore =
+            action === "MERGE" || action === "UPDATE_MERGE" ? currentCount - 1 : currentCount;
+
+          // zaznam historie
+          const history = await tx.foodHistory.create({
+            data: {
+              inventoryId: updatedInstance.food.inventoryId,
+              foodId: newFoodId,
+              foodInstanceId: updatedInstance.id,
+              catalogId: updatedInstance.food.catalogId,
+              priceId: finalPriceId,
+              action: action,
+              snapshotUnit: updatedInstance?.unit,
+              snapshotAmount: updatedInstance?.amount,
+              quantityBefore: quantityBefore,
+              quantityAfter: currentCount,
+              changedBy: userId,
+              metadata: metadata,
+            },
+          });
+          results.push(history);
+        }
+        if (newVariant) {
+          console.log("10");
+
+          await softDeleteOrphanedVariantRepository(variantData?.old?.variantId, tx);
         }
 
-        //vrati pocet instanci foodu v inventari
-        const currentCount = await getFoodInstancesCountRepository(newFoodId, tx);
-
-        //quantita v pripade presouvani instanci
-        const quantityBefore =
-          action === "MERGE" || action === "UPDATE_MERGE" ? currentCount - 1 : currentCount;
-
-        // zaznam historie
-        const history = await tx.foodHistory.create({
-          data: {
-            inventoryId: updatedInstance.food.inventoryId,
-            foodId: newFoodId,
-            foodInstanceId: updatedInstance.id,
-            catalogId: updatedInstance.food.catalogId,
-            priceId: finalPriceId,
-            action: action,
-            snapshotUnit: updatedInstance?.unit,
-            snapshotAmount: updatedInstance?.amount,
-            quantityBefore: quantityBefore,
-            quantityAfter: currentCount,
-            changedBy: userId,
-            metadata: metadata,
-          },
-        });
-        results.push(history);
-      }
-      if (newVariant) {
-        console.log("10");
-
-        await softDeleteOrphanedVariantRepository(variantData?.old?.variantId, tx);
-      }
-
-      return results;
-    });
+        return results;
+      },
+      {
+        timeout: 10000,
+      },
+    );
   } catch (error) {
     console.error("Error updating instances:", error);
     throw error;
@@ -367,6 +387,71 @@ export const isExclusiveContributorRepository = async (foodId, userId) => {
     return otherInstance === null;
   } catch (error) {
     console.error(`Error checking exclusive contributor for foodId ${foodId}:`, error);
+    throw error;
+  }
+};
+
+// duplikuje zadane instance
+export const duplicateFoodInstancesRepository = async (
+  instances,
+  catalogId,
+  foodId,
+  inventoryId,
+  userId,
+  foodInstancesIds,
+  countPerSource,
+) => {
+  try {
+    return await prisma.$transaction(
+      async (tx) => {
+        await tx.$executeRaw`SELECT id FROM foods WHERE id = ${foodId} FOR UPDATE`;
+
+        let rollingQuantity = await getFoodInstancesCountRepository(foodId, tx);
+        
+        const created = await tx.foodInstance.createMany({
+          data: instances,
+        });
+
+        const batchItem = countPerSource > 1 ? { batchItem: true } : {};
+
+        // vytvoreni historie
+        const historyEntries = [];
+        for (const sourceId of foodInstancesIds) {
+          historyEntries.push({
+            inventoryId: inventoryId,
+            foodId: foodId,
+            catalogId: catalogId,
+            action: "ADD",
+            changedBy: userId,
+            quantityBefore: rollingQuantity,
+            quantityAfter: rollingQuantity + countPerSource,
+            metadata: {
+              duplicatedFrom: sourceId,
+              copyCount: countPerSource,
+              ...batchItem,
+            },
+            foodInstanceId: null,
+            priceId: null,
+            snapshotUnit: null,
+            snapshotAmount: null,
+          });
+          rollingQuantity += countPerSource;
+        }
+
+        await tx.foodHistory.createMany({
+          data: historyEntries,
+        });
+        return {
+          totalCreated: created.count,
+          finalQuantity: rollingQuantity,
+        };
+      },
+      {
+        timeout: 10000,
+      },
+    );
+  } catch (error) {
+    console.error(`Error in duplicateFoodInstancesRepository:`, error);
     throw error;
   }
 };

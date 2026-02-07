@@ -25,3 +25,13 @@ export const updateFoodInstanceSchema = Joi.object({
   variantId: Joi.number().integer().allow(null).optional(),
   variantTitle: Joi.string().trim().max(40).allow("").optional(),
 });
+
+export const duplicateInstancesSchema = Joi.object({
+  count: Joi.number().integer().min(1).max(99).default(1),
+  foodInstanceId: Joi.alternatives()
+    .try(
+      Joi.number().integer().positive(),
+      Joi.array().items(Joi.number().integer().positive()).min(1),
+    )
+    .required(),
+});

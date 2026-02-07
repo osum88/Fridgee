@@ -17,8 +17,8 @@ import { deleteFoodVariant, getFoodVariantsContext } from "../controllers/foodVa
 import {  foodVariantIdSchema } from "../validation/foodVariantValidation.js";
 import { addFoodToInventory, updateFood } from "../controllers/foodController.js";
 import {  addFoodToInventoryFoodSchema, updateFoodSchema } from "../validation/foodValidation.js";
-import {  consumeMultipleFoodInstances, updateFoodInstance } from "../controllers/foodInstanceController.js";
-import { consumeFoodInstanceSchema, updateFoodInstanceSchema } from "../validation/foodInstanceValidation.js";
+import {  consumeMultipleFoodInstances, duplicateFoodInstances, updateFoodInstance } from "../controllers/foodInstanceController.js";
+import { consumeFoodInstanceSchema, duplicateInstancesSchema, updateFoodInstanceSchema } from "../validation/foodInstanceValidation.js";
 import { updateFoodLabel } from "../controllers/foodLabelController.js";
 import { updateFoodLabelSchema } from "../validation/foodLabelValidation.js";
 
@@ -135,6 +135,10 @@ router.patch("/food-instance/consume", validate(consumeFoodInstanceSchema), auth
 
 //updatuje jednu nebo vice stejnych instanci
 router.patch("/food-instance", validate(updateFoodInstanceSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId , updateFoodInstance);
+
+//duplikuje instance food
+router.post("/food-instance/duplicate", validate(duplicateInstancesSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, duplicateFoodInstances);
+
 
 //                          FOOD LABEL
 
