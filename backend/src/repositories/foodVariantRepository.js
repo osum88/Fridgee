@@ -2,18 +2,6 @@ import { NotFoundError } from "../errors/errors.js";
 import prisma from "../utils/prisma.js";
 import { formatTitleCase } from "../utils/stringUtils.js";
 
-// vytvori novou variantu
-export const createFoodVariantRepository = async (data) => {
-  try {
-    const newVariant = await prisma.foodVariant.create({
-      data,
-    });
-    return newVariant;
-  } catch (error) {
-    console.error("Error creating food variant:", error);
-    throw error;
-  }
-};
 
 // vrati variantu podle id
 export const getFoodVariantByIdRepository = async (id, throwError = true) => {

@@ -7,6 +7,7 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from "../errors/errors.js";
+import { logLabelUpdateHistoryRepository } from "./foodHistoryRepository.js";
 
 // vytvori novy food label
 export const createFoodLabelRepository = async (data, tx = prisma) => {
@@ -54,7 +55,7 @@ export const getFoodLabelByIdRepository = async (labelId, throwError = true, tx 
         id: labelId,
       },
     });
-      if (!label && throwError) {
+    if (!label && throwError) {
       throw new NotFoundError("Food label not found.");
     }
     return label;
@@ -65,15 +66,38 @@ export const getFoodLabelByIdRepository = async (labelId, throwError = true, tx 
 };
 
 // updatuje food label podle id
-export const updateFoodLabelRepository = async (id, data, tx = prisma) => {
+export const updateFoodLabelRepository = async (labelId, data, tx = prisma) => {
   try {
     const updatedLabel = await tx.foodLabel.update({
-      where: { id },
+      where: { id: labelId },
       data,
     });
     return updatedLabel;
   } catch (error) {
     console.error("Error updating food label:", error);
+    throw error;
+  }
+};
+
+// updatuje label a v pripade zmeny nazvu defaultu zaloguje historii v dotcenych inventarich
+export const updateFoodLabelWithHistoryRepository = async (labelId, updateLabelData, userId) => {
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const updatedLabel = await tx.foodLabel.update({
+        where: { id: labelId },
+        data: updateLabelData.new,
+      });
+      await logLabelUpdateHistoryRepository(
+        labelId,
+        updateLabelData?.old?.title,
+        updatedLabel?.title,
+        userId,
+        tx,
+      );
+      return updatedLabel;
+    });
+  } catch (error) {
+    console.error(`Error in updateFoodLabelRepository for labelId ${labelId}:`, error);
     throw error;
   }
 };
@@ -134,7 +158,7 @@ export const getDefaultFoodLabelByUserLabelIdRepository = async (labelId, userId
 
     const inventoryDefaultLabel = userLabel?.catalog?.foods?.[0]?.label ?? null;
 
-    return inventoryDefaultLabel
+    return inventoryDefaultLabel;
   } catch (error) {
     console.error(`Error in getFoodLabelWithFallbackRepository for labelId ${labelId}:`, error);
     throw error;

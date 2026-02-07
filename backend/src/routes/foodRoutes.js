@@ -3,7 +3,7 @@ import { authenticateToken, authorizeUser } from "../middlewares/authMiddleware.
 import validate from "../middlewares/validator.js";
 import { sanitize } from "../middlewares/sanitize.js";
 import { addFoodToInventory, updateFood } from "../controllers/foodController.js";
-import { addFoodToInventoryFoodSchema, updateFoodFoodSchema } from "../validation/foodValidation.js";
+import { addFoodToInventoryFoodSchema, updateFoodSchema } from "../validation/foodValidation.js";
 
 const router = express.Router();
 
@@ -11,7 +11,7 @@ const router = express.Router();
 router.post("/", validate(addFoodToInventoryFoodSchema), authenticateToken, sanitize, authorizeUser, addFoodToInventory);
 
 // updatuje food, categorii a label food
-router.patch("/", validate(updateFoodFoodSchema), authenticateToken, sanitize, authorizeUser, updateFood);
+router.patch("/", validate(updateFoodSchema), authenticateToken, sanitize, authorizeUser, updateFood);
 
 
 

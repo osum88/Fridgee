@@ -12,6 +12,7 @@ import {
   getFoodLabelByIdRepository,
   getFoodLabelByUserIdCatalogIdRepository,
   updateFoodLabelRepository,
+  updateFoodLabelWithHistoryRepository,
 } from "../repositories/foodLabelRepository.js";
 import { determineUpdateValue, isAnyValueDefined } from "../utils/stringUtils.js";
 
@@ -127,6 +128,7 @@ export const resolveFoodLabelUpdateData = async (userId, catalogId, data) => {
   };
 };
 
+// updatuje uzivateluv label
 export const updateFoodLabelService = async (userId, data, isAdmin) => {
   const { foodLabelId, ...updateData } = data;
 
@@ -135,33 +137,56 @@ export const updateFoodLabelService = async (userId, data, isAdmin) => {
     return false;
   }
 
-  const foodLabel = await getFoodLabelByIdRepository(foodLabelId);
+  const getCopyValue = (provided, original) => {
+    if (provided === undefined) return original;
+    if (provided === "") return null;
+    return provided;
+  };
+
+  let foodLabel = await getFoodLabelByIdRepository(foodLabelId);
+  console.log(foodLabel);
+
+  //pokud se nejedna o useruv label pak chce vytvorit svoji upravenou kopii
   if (!isAdmin && foodLabel.userId !== userId) {
-    throw new ForbiddenError("You do not have permission to edit someone else's label.");
+    const userFoodLabel = await getFoodLabelByUserIdCatalogIdRepository(
+      userId,
+      foodLabel.catalogId,
+    );
+
+    if (userFoodLabel) {
+      foodLabel = userFoodLabel;
+    } else {
+      const payload = {
+        userId: userId,
+        catalogId: foodLabel.catalogId,
+        title: getCopyValue(data?.title, foodLabel.title),
+        description: getCopyValue(data?.description, foodLabel.description),
+        foodImageUrl: getCopyValue(data?.foodImageUrl, foodLabel.foodImageUrl),
+        price: getCopyValue(data?.price, foodLabel.price) ?? 0,
+        unit: getCopyValue(data?.unit, foodLabel.unit),
+        amount: getCopyValue(data?.amount, foodLabel.amount) ?? 0,
+      };
+      return await createFoodLabelRepository(payload);
+    }
   }
 
-  const newPrice = determineUpdateValue(foodLabel?.price, data?.price);
-  const newAmount = determineUpdateValue(foodLabel?.amount, data?.amount);
-
-  const newLabelData = {
+  const updateLabelData = {
     new: {
       title: determineUpdateValue(foodLabel?.title, data?.title),
       description: determineUpdateValue(foodLabel?.description, data?.description),
       foodImageUrl: determineUpdateValue(foodLabel?.foodImageUrl, data?.foodImageUrl),
-      price: newPrice === null ? 0 : newPrice,
+      price: determineUpdateValue(foodLabel?.price, data?.price, true),
       unit: determineUpdateValue(foodLabel?.unit, data?.unit),
-      amount: newAmount === null ? 0 : newAmount,
+      amount: determineUpdateValue(foodLabel?.amount, data?.amount, true),
     },
     old: {
       title: foodLabel.title,
-      foodLabelId: foodLabel.id,
     },
   };
 
-  if (!isAnyValueDefined(newLabelData.new)) {
+  if (!isAnyValueDefined(updateLabelData.new)) {
     console.log("Data provided are identical to current database state.");
     return false;
   }
-
-  return newLabelData;
+  return await updateFoodLabelWithHistoryRepository(foodLabel.id, updateLabelData, userId);
 };

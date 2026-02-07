@@ -1,10 +1,7 @@
 import { updateFoodLabelService } from "../services/foodLabelService.js";
-import { addFoodToInventoryService, updateFoodService } from "../services/foodService.js";
 import handleResponse from "../utils/responseHandler.js";
 
-
-
-// updatuje userum label 
+// updatuje uzivateluv label
 export const updateFoodLabel = async (req, res, next) => {
   try {
     const userId = req.userId;

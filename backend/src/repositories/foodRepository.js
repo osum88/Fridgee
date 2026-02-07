@@ -8,7 +8,9 @@ import {
 } from "../errors/errors.js";
 import prisma from "../utils/prisma.js";
 import { formatTitleCase } from "../utils/stringUtils.js";
+import { createFoodCatalogRepository } from "./foodCatalogRepository.js";
 import { moveFoodsToCategoryRepository } from "./foodCategoryRepository.js";
+import { logLabelUpdateHistoryRepository } from "./foodHistoryRepository.js";
 import {
   createFoodLabelRepository,
   getFoodLabelByIdRepository,
@@ -36,12 +38,7 @@ export const addFoodToInventoryRepository = async (userId, data) => {
       if (!data?.catalogId) {
         if (data?.barcode === "") {
           console.log("1");
-          const createdCatalog = await tx.foodCatalog.create({
-            data: {
-              barcode: null,
-              addedBy: userId,
-            },
-          });
+          const createdCatalog = await createFoodCatalogRepository(userId, null, tx);
           catalogId = createdCatalog.id;
           newCatalogCreate = true;
         }
@@ -58,9 +55,7 @@ export const addFoodToInventoryRepository = async (userId, data) => {
             console.log("3");
             catalogId = existingCatalog.id;
           } else {
-            const created = await tx.foodCatalog.create({
-              data: { barcode: data?.barcode, addedBy: userId },
-            });
+            const created = await createFoodCatalogRepository(userId, data?.barcode, tx);
             catalogId = created.id;
             newCatalogCreate = true;
           }
@@ -467,28 +462,15 @@ export const updateFoodRepository = async (
 
         if (labelData?.id) {
           console.log("6");
-          const defaultLabel = await getFoodLabelByIdRepository(food?.defaultLabelId, false, tx);
           const updatedLabel = await updateFoodLabelRepository(labelData.id, labelData.new, tx);
-          if (
-            updatedLabel.id === food?.defaultLabelId &&
-            labelData?.new?.title &&
-            labelData?.new?.title !== defaultLabel.title
-          ) {
 
-            console.log("8");
-
-            historiesData.push({
-              inventoryId: food.inventoryId,
-              foodId: currentFoodId,
-              catalogId: food.catalogId,
-              action: "LABEL_UPDATE",
-              changedBy: userId,
-              metadata: {
-                before: labelData?.old?.title || null,
-                after: updatedLabel?.title || null,
-              },
-            });
-          }
+          await logLabelUpdateHistoryRepository(
+            updatedLabel.id,
+            labelData?.old?.title,
+            updatedLabel?.title,
+            userId,
+            tx,
+          );
         } else {
           console.log("9");
 
@@ -533,7 +515,7 @@ export const updateFoodRepository = async (
 
         newCount = await getFoodInstancesCountRepository(currentFoodId, tx);
       }
-      
+
       if (historiesData.length > 0) {
         console.log("13");
 
@@ -564,6 +546,7 @@ export const updateFoodRepository = async (
   }
 };
 
+// vrati pocet instanci pro food id
 export const getFoodInstancesCountRepository = async (foodId, tx = prisma) => {
   try {
     return await tx.foodInstance.count({
@@ -576,3 +559,4 @@ export const getFoodInstancesCountRepository = async (foodId, tx = prisma) => {
     throw error;
   }
 };
+

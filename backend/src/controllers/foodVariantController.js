@@ -1,19 +1,7 @@
-import { createFoodVariantService, deleteFoodVariantService, getFoodVariantByIdService, getFoodVariantsContextService, updateFoodVariantService } from "../services/foodVariantService.js";
+import {  deleteFoodVariantService, getFoodVariantByIdService, getFoodVariantsContextService,  } from "../services/foodVariantService.js";
 import handleResponse from "../utils/responseHandler.js";
 
-// vytvori novou variantu k jidlu
-export const createFoodVariant = async (req, res, next) => {
-    try {
-        const { title, foodCatalogId } = req.body;
-        const userId = req.userId;
-        const isAdmin = req.adminRoute;
 
-        const variant = await createFoodVariantService(title, Number(foodCatalogId), userId, isAdmin);
-        handleResponse(res, 201, "Food variant created successfully", variant);
-    } catch (err) {
-        next(err);
-    }
-};
 
 // vrati variantu podle jejiho ID
 export const getFoodVariantById = async (req, res, next) => {
@@ -41,20 +29,7 @@ export const getFoodVariantsContext = async (req, res, next) => {
     }
 };
 
-// aktualizuje název varianty
-export const updateFoodVariant = async (req, res, next) => {
-    try {
-        const { variantId } = req.params; 
-        const { title } = req.body;
-        const userId = req.userId;
-        const isAdmin = req.adminRoute;
 
-        const updatedVariant = await updateFoodVariantService(Number(variantId), title, userId, isAdmin);
-        handleResponse(res, 200, "Food variant updated successfully", updatedVariant);
-    } catch (err) {
-        next(err);
-    }
-};
 
 // smaze variantu 
 export const deleteFoodVariant = async (req, res, next) => {

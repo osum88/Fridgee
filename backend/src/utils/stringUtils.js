@@ -46,14 +46,19 @@ export const normalizeDate = (dateInput) => {
 };
 
 // pomocna funkce pro rozhodnuti, zda hodnotu menit, smazat nebo nechat
-export const determineUpdateValue = (current, provided) => {
+export const determineUpdateValue = (current, provided, isNumber = false) => {
   // pokud jsou hodnoty Date pak se prevedou na ISO string
   const currentStr = current instanceof Date ? current.toISOString() : current;
   const providedStr = provided instanceof Date ? provided.toISOString() : provided;
   // pokud hodnota chyby nebo je stejna
-  if (provided === undefined || providedStr === currentStr) return undefined;
+  if (
+    provided === undefined ||
+    providedStr === currentStr ||
+    ([null, ""].includes(providedStr) && [null, ""].includes(currentStr))
+  )
+    return undefined;
   // pokud null nebo "" chcem smazat
-  if (provided === null || provided === "") return null;
+  if (provided === null || provided === "") return isNumber ? 0 : null;
   return provided;
 };
 

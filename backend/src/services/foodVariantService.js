@@ -7,7 +7,7 @@ import {
   UnauthorizedError,
 } from "../errors/errors.js";
 import {
-  createFoodVariantRepository,
+  
   getFoodVariantByIdRepository,
   getAllFoodVariantsRepository,
   updateFoodVariantRepository,
@@ -20,34 +20,6 @@ import { getUserByIdRepository } from "../repositories/userRepository.js";
 import { getVariantByFoodIdRepository } from "../repositories/foodRepository.js";
 import { determineUpdateValue, formatTitleCase } from "../utils/stringUtils.js";
 
-// vytvori food variantu
-export const createFoodVariantService = async (title, foodCatalogId, userId, isAdmin) => {
-  await getFoodCatalogByIdRepository(foodCatalogId);
-  if (isAdmin) {
-    await getUserByIdRepository(userId);
-  }
-
-  const existingVariant = await getFoodVariantByTitleRepository(title, foodCatalogId, userId, null);
-  if (existingVariant) {
-    if (!existingVariant.isDeleted) {
-      throw new ConflictError(`Variant with title already exists in your catalog.`);
-    }
-    return await updateFoodVariantRepository(existingVariant.id, {
-      isDeleted: false,
-    });
-  }
-
-  const variant = await createFoodVariantRepository({
-    foodCatalogId,
-    title,
-    addedBy: userId,
-  });
-
-  if (!variant) {
-    throw new InternalServerError("Failed to create food variant.");
-  }
-  return variant;
-};
 
 // vraci food variant podle id
 export const getFoodVariantByIdService = async (variantId) => {
@@ -89,34 +61,6 @@ export const deleteFoodVariantService = async (catalogId, userId, isAdmin) => {
   return true;
 };
 
-// updatuje variantu podle id
-export const updateFoodVariantService = async (catalogId, title, userId, isAdmin) => {
-  const variant = await getFoodVariantByIdRepository(catalogId);
-
-  if (!isAdmin && variant?.addedBy !== userId) {
-    throw new ForbiddenError("You are not allowed to update this catalog.");
-  }
-
-  const existingVariant = await getFoodVariantByTitleRepository(
-    title,
-    variant.foodCatalogId,
-    userId,
-    null,
-  );
-  if (existingVariant) {
-    if (!existingVariant.isDeleted) {
-      throw new ConflictError(`Variant with title already exists in your catalog.`);
-    }
-    return await updateFoodVariantRepository(existingVariant.id, {
-      isDeleted: false,
-    });
-  }
-
-  const updatedVariant = await updateFoodVariantRepository(catalogId, {
-    title,
-  });
-  return updatedVariant;
-};
 
 //zpracuje a zvaliduje zmeny varianty potraviny.
 export const resolveVariantUpdateData = async (

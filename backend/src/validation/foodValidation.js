@@ -19,7 +19,7 @@ export const addFoodToInventoryFoodSchema = Joi.object({
   expirationDate: Joi.date().iso().allow("").optional(),
 }).or("catalogId", "barcode");
 
-export const updateFoodFoodSchema = Joi.object({
+export const updateFoodSchema = Joi.object({
   foodId: Joi.number().integer().required(),
   categoryId: Joi.number().integer().positive().allow(null).optional(),
   categoryTitle: Joi.string().max(50).allow("").optional(),
