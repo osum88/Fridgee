@@ -8,6 +8,7 @@ import {
 } from "../errors/errors.js";
 import {
   consumeMultipleFoodInstancesRepository,
+  deleteFoodInstancesRepository,
   duplicateFoodInstancesRepository,
   getFoodInstancesWithPriceRepository,
   getInstancesByIdsRepository,
@@ -71,7 +72,7 @@ export const updateFoodInstanceService = async (userId, data, isAdmin) => {
   //kontrola opravneni pro kazdou instanci jestli patri do userova inventare
   const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId, false);
   if (!isAdmin && !inventoryUser) {
-    throw new NotFoundError("User not found in inventory");
+    throw new ForbiddenError("You do not have permission to modify this inventory.");
   }
 
   //ziskame vsechny inventare s cenami
@@ -167,7 +168,7 @@ export const duplicateFoodInstancesService = async (userId, instanceIds, count =
   //kontrola opravneni pro kazdou instanci jestli patri do userova inventare
   const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId, false);
   if (!isAdmin && !inventoryUser) {
-    throw new NotFoundError("User not found in inventory");
+    throw new ForbiddenError("You do not have permission to modify this inventory.");
   }
 
   const foodInstances = await getInstancesByIdsRepository(foodInstancesIds);
@@ -208,4 +209,35 @@ export const duplicateFoodInstancesService = async (userId, instanceIds, count =
     foodInstancesIds,
     count,
   );
+};
+
+//smaze jednu nebo vice instanci
+export const deleteFoodInstancesService = async (instanceIds, userId, isAdmin) => {
+  const foodInstanceIds = Array.isArray(instanceIds) ? instanceIds : [instanceIds];
+
+  const MAX_BULK_DELETE = 50;
+  if (foodInstanceIds.length > MAX_BULK_DELETE) {
+    throw new BadRequestError("Bulk delete limit exceeded.");
+  }
+
+  //kontrola existence instanci v invenatri
+  const inventoryIds = await getInventoryIdsByInstanceIdsRepository(foodInstanceIds);
+  if (inventoryIds.length > 1) {
+    throw new BadRequestError("Bulk delete is only allowed for the same inventory.");
+  }
+  const inventoryId = inventoryIds[0];
+
+  //kontrola opravneni pro kazdou instanci jestli patri do userova inventare
+  const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId, false);
+  if (!isAdmin && !inventoryUser) {
+    throw new ForbiddenError("You do not have permission to modify this inventory.");
+  }
+
+  //kontrola ze vsechny instance jsou z jednoho jidla
+  const instances = await getFoodInstancesWithPriceRepository(foodInstanceIds);
+  const uniqueFoodIds = [...new Set(instances.map((inst) => inst.foodId))];
+  if (uniqueFoodIds.length > 1) {
+    throw new BadRequestError("Bulk update is only allowed for the same type of food.");
+  }
+  return await deleteFoodInstancesRepository(foodInstanceIds, userId);
 };

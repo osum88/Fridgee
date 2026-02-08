@@ -35,3 +35,12 @@ export const duplicateInstancesSchema = Joi.object({
     )
     .required(),
 });
+
+export const deleteFoodInstancesSchema = Joi.object({
+  foodInstanceId: Joi.alternatives()
+    .try(
+      Joi.number().integer().positive(),
+      Joi.array().items(Joi.number().integer().positive()).min(1),
+    )
+    .required(),
+});

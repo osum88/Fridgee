@@ -2,8 +2,8 @@ import express from "express";
 import { authenticateToken, authorizeUser } from "../middlewares/authMiddleware.js";
 import validate from "../middlewares/validator.js";
 import { sanitize } from "../middlewares/sanitize.js";
-import { consumeFoodInstanceSchema, duplicateInstancesSchema, updateFoodInstanceSchema } from "../validation/foodInstanceValidation.js";
-import { consumeMultipleFoodInstances, duplicateFoodInstances, updateFoodInstance } from "../controllers/foodInstanceController.js";
+import { consumeFoodInstanceSchema, deleteFoodInstancesSchema, duplicateInstancesSchema, updateFoodInstanceSchema } from "../validation/foodInstanceValidation.js";
+import { consumeMultipleFoodInstances, deleteFoodInstances, duplicateFoodInstances, updateFoodInstance } from "../controllers/foodInstanceController.js";
 
 const router = express.Router();
 
@@ -15,6 +15,11 @@ router.patch("/", validate(updateFoodInstanceSchema), authenticateToken, sanitiz
 
 //duplikuje instance food
 router.post("/duplicate", validate(duplicateInstancesSchema), authenticateToken, sanitize, authorizeUser, duplicateFoodInstances);
+
+//smaze jednu nebo vice instanci
+router.delete("/", validate(deleteFoodInstancesSchema), authenticateToken, sanitize, authorizeUser, deleteFoodInstances);
+
+
 
 export default router;
 

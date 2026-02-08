@@ -17,10 +17,10 @@ import { deleteFoodVariant, getFoodVariantsContext } from "../controllers/foodVa
 import {  foodVariantIdSchema } from "../validation/foodVariantValidation.js";
 import { addFoodToInventory, updateFood } from "../controllers/foodController.js";
 import {  addFoodToInventoryFoodSchema, updateFoodSchema } from "../validation/foodValidation.js";
-import {  consumeMultipleFoodInstances, duplicateFoodInstances, updateFoodInstance } from "../controllers/foodInstanceController.js";
-import { consumeFoodInstanceSchema, duplicateInstancesSchema, updateFoodInstanceSchema } from "../validation/foodInstanceValidation.js";
-import { updateFoodLabel } from "../controllers/foodLabelController.js";
-import { updateFoodLabelSchema } from "../validation/foodLabelValidation.js";
+import {  consumeMultipleFoodInstances, deleteFoodInstances, duplicateFoodInstances, updateFoodInstance } from "../controllers/foodInstanceController.js";
+import { consumeFoodInstanceSchema, deleteFoodInstancesSchema, duplicateInstancesSchema, updateFoodInstanceSchema } from "../validation/foodInstanceValidation.js";
+import { deleteFoodLabel, updateFoodLabel } from "../controllers/foodLabelController.js";
+import { foodLabelIdSchema, updateFoodLabelSchema } from "../validation/foodLabelValidation.js";
 
 
 const router = express.Router();
@@ -139,12 +139,17 @@ router.patch("/food-instance", validate(updateFoodInstanceSchema), authenticateT
 //duplikuje instance food
 router.post("/food-instance/duplicate", validate(duplicateInstancesSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, duplicateFoodInstances);
 
+//smaze jednu nebo vice instanci
+router.delete("/", validate(deleteFoodInstancesSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, deleteFoodInstances);
+
 
 //                          FOOD LABEL
 
 // updatuje uzivateluv food label
 router.patch("/food-label", validate(updateFoodLabelSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, updateFoodLabel);
 
+// smaze label (SOFT/HARD delete) a pokud je catalog bez barkodu tak ten taky (SOFT/HARD delete)
+router.delete("/food-label/:foodLabelId", validate(foodLabelIdSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, deleteFoodLabel);
 
 //                                 USER
 //vrati uzivatele podle id

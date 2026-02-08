@@ -1,8 +1,13 @@
-import { BadRequestError, ConflictError, ForbiddenError, InternalServerError, NotFoundError, UnauthorizedError } from "../errors/errors.js";
-import { getFoodCatalogByIdRepository } from "../repositories/foodCatalogRepository.js";
 import {
-  getFoodCategoryByIdRepository,
-} from "../repositories/foodCategoryRepository.js";
+  BadRequestError,
+  ConflictError,
+  ForbiddenError,
+  InternalServerError,
+  NotFoundError,
+  UnauthorizedError,
+} from "../errors/errors.js";
+import { getFoodCatalogByIdRepository } from "../repositories/foodCatalogRepository.js";
+import { getFoodCategoryByIdRepository } from "../repositories/foodCategoryRepository.js";
 import {
   getFoodInventoryRepository,
   getFoodInventoryUserRepository,
@@ -20,7 +25,6 @@ import { resolveFoodLabelUpdateData } from "./foodLabelService.js";
 import { resolveVariantUpdateData } from "./foodVariantService.js";
 import { resolvePriceExchangeData } from "./priceService.js";
 
-
 // prida jidlo do inventare a vytvori instanci, price i history, pokd neexistuje tak i catalog, label, variant
 export const addFoodToInventoryService = async (userId, foodData, isAdmin) => {
   //kontrola existence ids
@@ -30,9 +34,6 @@ export const addFoodToInventoryService = async (userId, foodData, isAdmin) => {
   }
   if (foodData?.catalogId) {
     await getFoodCatalogByIdRepository(foodData?.catalogId);
-  }
-  if (foodData?.variantId) {
-    await getFoodVariantByIdRepository(foodData?.variantId);
   }
 
   // kontrola jestli je uzivatel v inventari
@@ -133,5 +134,3 @@ export const updateFoodService = async (userId, data, isAdmin) => {
   );
   return result;
 };
-
-

@@ -9,3 +9,7 @@ export const updateFoodLabelSchema = Joi.object({
   unit: Joi.string().allow("").valid("MG", "G", "DG", "KG", "ML", "CL", "DL", "L", "").optional(),
   price: Joi.number().min(0).precision(2).max(999999).default(0),
 });
+
+export const foodLabelIdSchema = Joi.object({
+  foodLabelId: Joi.number().integer().required(),
+});

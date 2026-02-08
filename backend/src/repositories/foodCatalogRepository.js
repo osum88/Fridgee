@@ -34,22 +34,41 @@ export const updateFoodCatalogRepository = async (id, updates) => {
 };
 
 //smaze food catalog podle id
-export const deleteFoodCatalogRepository = async (id) => {
+export const deleteFoodCatalogRepository = async (catalogId, userId, isAdmin, tx = prisma) => {
   try {
-    const result = await prisma.$transaction(async (tx) => {
-      // smaze labely
-      await tx.foodLabel.deleteMany({
-        where: { catalogId: id },
-      });
-
-      // pak katalog
-      const deletedCatalog = await tx.foodCatalog.delete({
-        where: { id },
-      });
-
-      return deletedCatalog;
+    const foodCatalog = await tx.foodCatalog.findUnique({
+      where: { id: catalogId },
     });
-    return result;
+
+    //kontrola valstnictvi a jestli neexistuje barcode (catalog s barcodem se nemaze)
+    if (
+      !foodCatalog ||
+      (!isAdmin && foodCatalog.addedBy !== userId) ||
+      foodCatalog?.barcode !== null
+    ) {
+      return null;
+    }
+
+    //kontrola jestli se pouziva
+    const affectedFoodCatalog = await tx.foodCatalog.findFirst({
+      where: {
+        id: catalogId,
+        OR: [{ foods: { some: {} } }, { foodHistories: { some: {} } }],
+      },
+    });
+
+    //pokud se nekde pouziva tak jen soft delete
+    if (affectedFoodCatalog) {
+      const catalog = await tx.foodCatalog.update({
+        where: { id: catalogId },
+        data: { isDeleted: true },
+      });
+      return { ...catalog, deleteCatalogFlag: "SOFT-DELETE" };
+    }
+    const catalog = await tx.foodCatalog.delete({
+      where: { id: catalogId },
+    });
+    return { ...catalog, deleteCatalogFlag: "HARD-DELETE" };
   } catch (error) {
     console.error("Error deleting food catalog:", error);
     throw error;

@@ -1,4 +1,4 @@
-import {  deleteFoodCatalogService, getAllFoodCatalogsByUserService, getFoodCatalogByIdService} from "../services/foodCatalogService.js";
+import {  getAllFoodCatalogsByUserService, getFoodCatalogByIdService} from "../services/foodCatalogService.js";
 import handleResponse from "../utils/responseHandler.js";
 
 

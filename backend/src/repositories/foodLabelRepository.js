@@ -8,6 +8,7 @@ import {
   UnauthorizedError,
 } from "../errors/errors.js";
 import { logLabelUpdateHistoryRepository } from "./foodHistoryRepository.js";
+import { deleteFoodCatalogRepository } from "./foodCatalogRepository.js";
 
 // vytvori novy food label
 export const createFoodLabelRepository = async (data, tx = prisma) => {
@@ -85,7 +86,7 @@ export const updateFoodLabelWithHistoryRepository = async (labelId, updateLabelD
     return await prisma.$transaction(async (tx) => {
       const updatedLabel = await tx.foodLabel.update({
         where: { id: labelId },
-        data: updateLabelData.new,
+        data: { ...updateLabelData.new, isDeleted: false },
       });
       await logLabelUpdateHistoryRepository(
         labelId,
@@ -102,13 +103,38 @@ export const updateFoodLabelWithHistoryRepository = async (labelId, updateLabelD
   }
 };
 
-// smaze food label podle id
-export const deleteFoodLabelRepository = async (id) => {
+// smaze label (SOFT/HARD delete) a pokud je catalog bez barkodu tak ten taky (SOFT/HARD delete)
+export const deleteFoodLabelRepository = async (labelId, userId, isAdmin) => {
   try {
-    const deletedLabel = await prisma.foodLabel.delete({
-      where: { id },
+    return await prisma.$transaction(async (tx) => {
+      const foodLabel = await tx.foodLabel.findUnique({
+        where: { id: labelId },
+      });
+
+      if (!foodLabel) return null;
+
+      const affectedFoods = await tx.food.findFirst({
+        where: { defaultLabelId: labelId },
+      });
+
+      //pokud se label pouziva pouzije se soft delete
+      let label = undefined;
+      let deleteLabelFlag = undefined;
+      if (affectedFoods) {
+        label = await tx.foodLabel.update({
+          where: { id: labelId },
+          data: { isDeleted: true },
+        });
+        deleteLabelFlag = "SOFT-DELETE";
+      } else {
+        label = await tx.foodLabel.delete({
+          where: { id: foodLabel.id },
+        });
+        deleteLabelFlag = "HARD-DELETE";
+      }
+      const catalog = await deleteFoodCatalogRepository(foodLabel.catalogId, userId, isAdmin, tx);
+      return { foodLabel: { ...label, deleteLabelFlag }, foodCatalog: catalog };
     });
-    return deletedLabel;
   } catch (error) {
     console.error("Error deleting food label:", error);
     throw error;

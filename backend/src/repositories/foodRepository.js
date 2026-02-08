@@ -474,7 +474,11 @@ export const updateFoodRepository = async (
 
           if (labelData?.id) {
             console.log("6");
-            const updatedLabel = await updateFoodLabelRepository(labelData.id, labelData.new, tx);
+            const updatedLabel = await updateFoodLabelRepository(
+              labelData.id,
+              { ...labelData.new, isDeleted: false },
+              tx,
+            );
 
             await logLabelUpdateHistoryRepository(
               updatedLabel.id,
@@ -579,3 +583,4 @@ export const getFoodInstancesCountRepository = async (foodId, tx = prisma) => {
     throw error;
   }
 };
+

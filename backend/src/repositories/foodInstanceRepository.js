@@ -407,7 +407,7 @@ export const duplicateFoodInstancesRepository = async (
         await tx.$executeRaw`SELECT id FROM foods WHERE id = ${foodId} FOR UPDATE`;
 
         let rollingQuantity = await getFoodInstancesCountRepository(foodId, tx);
-        
+
         const created = await tx.foodInstance.createMany({
           data: instances,
         });
@@ -452,6 +452,69 @@ export const duplicateFoodInstancesRepository = async (
     );
   } catch (error) {
     console.error(`Error in duplicateFoodInstancesRepository:`, error);
+    throw error;
+  }
+};
+
+//smaze jednu nebo vice instanci
+export const deleteFoodInstancesRepository = async (instanceIds, userId) => {
+  try {
+    return await prisma.$transaction(
+      async (tx) => {
+        const instancesToDelete = await tx.foodInstance.findMany({
+          where: { id: { in: instanceIds } },
+          include: {
+            food: {},
+          },
+        });
+
+        if (instancesToDelete.length === 0) return 0;
+
+        const { foodId } = instancesToDelete[0];
+
+        // zamkne food radek pro ostatni zapisy dokud neskonci transakce
+        await tx.$executeRaw`SELECT id FROM foods WHERE id = ${foodId} FOR UPDATE`;
+
+        let currentQuantity = await getFoodInstancesCountRepository(foodId, tx);
+
+        const deleteResult = await tx.foodInstance.deleteMany({
+          where: { id: { in: instanceIds } },
+        });
+
+        //pokud je vice instanci
+        const batchItem = instancesToDelete.length > 1 ? { batchItem: true } : {};
+
+        const historyEntries = instancesToDelete.map((instance) => {
+          const entry = {
+            inventoryId: instance.food.inventoryId,
+            foodId: foodId,
+            catalogId: instance.food.catalogId,
+            priceId: instance?.priceId,
+            snapshotAmount: instance?.amount,
+            snapshotUnit: instance?.unit,
+            quantityBefore: currentQuantity,
+            quantityAfter: currentQuantity - 1,
+            action: "REMOVE",
+            changedBy: userId,
+            metadata: batchItem,
+          };
+          currentQuantity -= 1;
+          return entry;
+        });
+
+        if (historyEntries.length > 0) {
+          await tx.foodHistory.createMany({
+            data: historyEntries,
+          });
+        }
+        return deleteResult.count;
+      },
+      {
+        timeout: 10000,
+      },
+    );
+  } catch (error) {
+    console.error("Error in deleteFoodInstancesRepository:", error);
     throw error;
   }
 };

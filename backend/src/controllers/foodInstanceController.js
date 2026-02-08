@@ -1,5 +1,6 @@
 import {
   consumeMultipleFoodInstancesService,
+  deleteFoodInstancesService,
   duplicateFoodInstancesService,
   updateFoodInstanceService,
 } from "../services/foodInstanceService.js";
@@ -43,5 +44,19 @@ export const duplicateFoodInstances = async (req, res, next) => {
     handleResponse(res, 201, "Instances duplicated successfully", result);
   } catch (err) {
     next(err);
+  }
+};
+
+//smaze jednu nebo vice instanci
+export const deleteFoodInstances = async (req, res, next) => {
+  try {
+    const { foodInstanceId } = req.body;
+    const userId = req.userId;
+    const isAdmin = req.adminRoute;
+
+    const result = await deleteFoodInstancesService(foodInstanceId, userId, isAdmin);
+    handleResponse(res, 200, "Food deleted successfully", result);
+  } catch (error) {
+    next(error);
   }
 };

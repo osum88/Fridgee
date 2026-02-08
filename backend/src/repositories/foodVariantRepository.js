@@ -2,7 +2,6 @@ import { NotFoundError } from "../errors/errors.js";
 import prisma from "../utils/prisma.js";
 import { formatTitleCase } from "../utils/stringUtils.js";
 
-
 // vrati variantu podle id
 export const getFoodVariantByIdRepository = async (id, throwError = true) => {
   try {
@@ -115,7 +114,20 @@ export const getOrCreateFoodVariant = async (
   tx = prisma,
 ) => {
   // pokud mame id vracime
-  if (variantId) return variantId;
+  if (variantId) {
+    const variant = await tx.foodVariant.findUnique({
+      where: { id: variantId },
+    });
+    if (variant) {
+      if (variant?.isDeleted) {
+        await tx.foodVariant.update({
+          where: { id: variant.id },
+          data: { isDeleted: false },
+        });
+      }
+      return variant.id;
+    }
+  }
   console.log("21");
   // pokud nema id ale mame nezev, zkusi ho najit najit nebo vytvorit
   if (variantTitle) {
@@ -131,12 +143,14 @@ export const getOrCreateFoodVariant = async (
           title: formattedTitle,
         },
       },
-      select: { variantId: true },
     });
 
     if (variantInInventory?.variantId) {
       console.log("23");
-
+      await tx.foodVariant.update({
+        where: { id: variantInInventory?.variantId },
+        data: { isDeleted: false },
+      });
       return variantInInventory.variantId;
     }
 
@@ -302,7 +316,7 @@ export const resolveTargetFoodEntityRepository = async (params, tx = prisma) => 
       catalogId: catalogId,
       variantId: targetVariant?.id ?? null,
       defaultLabelId: defaultLabelId,
-      minimalQuantity: minimalQuantity?? 0,
+      minimalQuantity: minimalQuantity ?? 0,
     },
   });
 

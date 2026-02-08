@@ -8,61 +8,12 @@ import {
 } from "../errors/errors.js";
 import {
   createFoodLabelRepository,
-  getDefaultFoodLabelByUserLabelIdRepository,
+  deleteFoodLabelRepository,
   getFoodLabelByIdRepository,
   getFoodLabelByUserIdCatalogIdRepository,
-  updateFoodLabelRepository,
   updateFoodLabelWithHistoryRepository,
 } from "../repositories/foodLabelRepository.js";
 import { determineUpdateValue, isAnyValueDefined } from "../utils/stringUtils.js";
-
-//updatuje label pokud existuje jinak ho  vytvori
-export const updateOrCreateFoodLabelService = async (
-  foodCatalogId,
-  userId,
-  isOwnerOrAdmin,
-  updateData,
-  catalog,
-) => {
-  // najde label
-  const targetUserId = isOwnerOrAdmin ? catalog.addedBy : userId;
-  const label = await getFoodLabelByUserIdCatalogIdRepository(targetUserId, foodCatalogId);
-
-  // payload (description ma explicitni "" kvuli moznosti uplneho smazani description)
-  const payload = {
-    title: updateData?.title ?? label?.title,
-    description:
-      isOwnerOrAdmin && updateData?.description === ""
-        ? null
-        : (updateData?.description ?? label?.description),
-    foodImageUrl: updateData?.foodImageUrl,
-    price: updateData?.price,
-    unit: updateData?.unit,
-    amount: updateData?.amount,
-  };
-
-  // update nebo create
-  let newLabel;
-  if (label) {
-    newLabel = await updateFoodLabelRepository(label.id, payload);
-  } else {
-    newLabel = await createFoodLabelRepository({
-      ...payload,
-      userId: targetUserId,
-      catalogId: foodCatalogId,
-    });
-  }
-
-  const originalLabel = await getFoodLabelByUserIdCatalogIdRepository(
-    catalog.addedBy,
-    foodCatalogId,
-  );
-
-  return {
-    ...catalog,
-    ...mergeLabels(newLabel, originalLabel),
-  };
-};
 
 //vraci food label podle id
 export const getFoodLabelByIdService = async (foodCatalogId, ownerId, userId, isAdmin) => {
@@ -189,4 +140,13 @@ export const updateFoodLabelService = async (userId, data, isAdmin) => {
     return false;
   }
   return await updateFoodLabelWithHistoryRepository(foodLabel.id, updateLabelData, userId);
+};
+
+// smaze label (SOFT/HARD delete) a pokud je catalog bez barkodu tak ten taky (SOFT/HARD delete)
+export const deleteFoodLabelService = async (labelId, userId, isAdmin) => {
+  const foodLabel = await getFoodLabelByIdRepository(labelId, true);
+  if (!isAdmin && foodLabel.userId !== userId) {
+    throw new ForbiddenError("You do not have permission to delete this label.");
+  }
+  return await deleteFoodLabelRepository(labelId, userId, isAdmin);
 };
