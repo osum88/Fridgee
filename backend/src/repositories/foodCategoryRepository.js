@@ -24,6 +24,37 @@ export const createFoodCategoryRepository = async (inventoryId, title, tx = pris
   }
 };
 
+//vytvori categorii a zapise se to do historie
+export const createFoodCategoryWithHistoryRepository = async (inventoryId, title, userId) => {
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const newCategory = await tx.foodCategory.create({
+        data: {
+          inventoryId,
+          title,
+        },
+      });
+
+      await tx.foodHistory.create({
+        data: {
+          inventoryId: newCategory.inventoryId,
+          action: "CATEGORY_CREATE",
+          changedBy: userId,
+          metadata: {
+            foodCategory: {
+              after: title,
+            },
+          },
+        },
+      });
+      return newCategory;
+    });
+  } catch (error) {
+    console.error("Error creating food category with inventory history:", error);
+    throw error;
+  }
+};
+
 // vrati kategorii podle id
 export const getFoodCategoryByIdRepository = async (id, throwError = true) => {
   try {
@@ -55,29 +86,94 @@ export const getFoodCategoriesByInventoryRepository = async (inventoryId) => {
   }
 };
 
-// updatuje kategorii podle id
-export const updateFoodCategoryRepository = async (id, title) => {
+//updatuje categorii a pokud se pouziva zapise se to do historie
+export const updateFoodCategoryWithHistoryRepository = async (categoryId, title, userId) => {
   try {
-    const updatedCategory = await prisma.foodCategory.update({
-      where: { id },
-      data: { title },
+    return await prisma.$transaction(async (tx) => {
+      const oldCategory = await tx.foodCategory.findUnique({
+        where: { id: categoryId },
+        select: { title: true },
+      });
+
+      const updatedCategory = await tx.foodCategory.update({
+        where: { id: categoryId },
+        data: { title },
+      });
+
+      // najde prvni instanci, která patří do teto kategorie
+      const affectedFood = await tx.food.findFirst({
+        where: {
+          categoryId: categoryId,
+          instances: { some: {} },
+        },
+        select: {
+          inventoryId: true,
+        },
+      });
+
+      // pokud v inventari existuje alespoň jedno jidlo s instanci, zapise historii
+      if (affectedFood) {
+        await tx.foodHistory.create({
+          data: {
+            inventoryId: affectedFood.inventoryId,
+            action: "CATEGORY_RENAME",
+            changedBy: userId,
+            metadata: {
+              foodCategory: {
+                before: oldCategory.title || null,
+                after: title || null,
+              },
+            },
+          },
+        });
+      }
+      return updatedCategory;
     });
-    return updatedCategory;
   } catch (error) {
-    console.error("Error updating food category:", error);
+    console.error("Error updating food category with inventory history:", error);
     throw error;
   }
 };
 
-// smaze kategorii podle id
-export const deleteFoodCategoryRepository = async (id) => {
+//smaze kategorii a pokud jidlo s touto kategorii ma instance pak se zapise do historie
+export const deleteFoodCategoryWithHistoryRepository = async (categoryId, userId) => {
   try {
-    const deletedCategory = await prisma.foodCategory.delete({
-      where: { id },
+    return await prisma.$transaction(async (tx) => {
+      const categoryToDelete = await tx.foodCategory.findUnique({
+        where: { id: categoryId },
+      });
+
+      const affectedFood = await tx.food.findFirst({
+        where: {
+          categoryId: categoryId,
+          instances: { some: {} },
+        },
+        select: { inventoryId: true },
+      });
+
+      const deletedCategory = await tx.foodCategory.delete({
+        where: { id: categoryId },
+      });
+
+      if (affectedFood?.inventoryId) {
+        await tx.foodHistory.create({
+          data: {
+            inventoryId: affectedFood.inventoryId,
+            action: "CATEGORY_REMOVE",
+            changedBy: userId,
+            metadata: {
+              foodCategory: {
+                before: categoryToDelete.title,
+                after: null,
+              },
+            },
+          },
+        });
+      }
+      return deletedCategory;
     });
-    return deletedCategory;
   } catch (error) {
-    console.error("Error deleting food category:", error);
+    console.error("Error deleting food category with history:", error);
     throw error;
   }
 };

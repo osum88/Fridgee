@@ -240,8 +240,10 @@ export const addFoodToInventoryRepository = async (userId, data) => {
               quantityBefore: currentCountInstances,
               quantityAfter: currentCountInstances,
               metadata: {
-                before: isOriginalOwnerLabelChangeTitle?.old || null,
-                after: isOriginalOwnerLabelChangeTitle?.new || null,
+                foodLabel: {
+                  before: isOriginalOwnerLabelChangeTitle?.old || null,
+                  after: isOriginalOwnerLabelChangeTitle?.new || null,
+                },
               },
             },
           });
@@ -428,8 +430,10 @@ export const updateFoodRepository = async (
             action: newVariant?.action,
             changedBy: userId,
             metadata: {
-              before: variantData?.old?.variantTitle || null,
-              after: newVariant?.variantTitle || null,
+              variant: {
+                before: variantData?.old?.variantTitle || null,
+                after: newVariant?.variantTitle || null,
+              },
             },
           });
         }
@@ -456,8 +460,10 @@ export const updateFoodRepository = async (
               action: categoryResult?.action,
               changedBy: userId,
               metadata: {
-                before: categoryData?.old?.categoryTitle || null,
-                after: categoryResult?.categoryTitle || null,
+                foodCategory: {
+                  before: categoryData?.old?.categoryTitle || null,
+                  after: categoryResult?.categoryTitle || null,
+                },
               },
             });
           }
@@ -509,8 +515,10 @@ export const updateFoodRepository = async (
               action: "MIN_QUANTITY_UPDATE",
               changedBy: userId,
               metadata: {
-                before: minimalQuantityData?.old?.minimalQuantity,
-                after: updatedMinimalQuantity?.minimalQuantity,
+                minimalQuantity: {
+                  before: minimalQuantityData?.old?.minimalQuantity,
+                  after: updatedMinimalQuantity?.minimalQuantity,
+                },
               },
             });
           }

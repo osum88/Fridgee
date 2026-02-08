@@ -1,5 +1,10 @@
 const validate = (schema) => (req, res, next) => {
-  const validationObject = { ...req.body, ...req.params, ...req.query };
+  const body = req.body || {};
+  const params = req.params || {};
+  const query = req.query || {};
+
+  const validationObject = { ...body, ...params, ...query };
+
   const { error, value } = schema.validate(validationObject, {
     abortEarly: false,
     convert: true,
@@ -15,15 +20,11 @@ const validate = (schema) => (req, res, next) => {
     });
   }
 
-  //do body se vraci jen hodnoty ktere prisli z body
-  const bodyKeys = Object.keys(req.body);
-  const newBody = {};
+  const newBody = { ...value };
 
-  bodyKeys.forEach((key) => {
-    if (value.hasOwnProperty(key)) {
-      newBody[key] = value[key];
-    }
-  });
+  // odstrani klice ltere nepatri do aprams nebo quary
+  Object.keys(params).forEach((key) => delete newBody[key]);
+  Object.keys(query).forEach((key) => delete newBody[key]);
 
   req.body = newBody;
   next();

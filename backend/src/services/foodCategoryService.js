@@ -1,11 +1,18 @@
-import { BadRequestError, ConflictError, ForbiddenError, InternalServerError, NotFoundError, UnauthorizedError } from "../errors/errors.js";
 import {
-  createFoodCategoryRepository,
-  deleteFoodCategoryRepository,
+  BadRequestError,
+  ConflictError,
+  ForbiddenError,
+  InternalServerError,
+  NotFoundError,
+  UnauthorizedError,
+} from "../errors/errors.js";
+import {
+  createFoodCategoryWithHistoryRepository,
+  deleteFoodCategoryWithHistoryRepository,
   getFoodCategoriesByInventoryRepository,
   getFoodCategoryByIdRepository,
   getFoodCategoryByTitleRepository,
-  updateFoodCategoryRepository,
+  updateFoodCategoryWithHistoryRepository,
 } from "../repositories/foodCategoryRepository.js";
 import { isExclusiveContributorRepository } from "../repositories/foodInstanceRepository.js";
 import {
@@ -16,14 +23,23 @@ import { getCategoryAndFoodByIdRepository } from "../repositories/foodRepository
 import { determineUpdateValue, formatTitleCase } from "../utils/stringUtils.js";
 
 // vytvorti novou kategorii food
-export const createFoodCategoryService = async (inventoryId, title) => {
+export const createFoodCategoryService = async (userId, inventoryId, title, isAdmin) => {
+  await getFoodInventoryRepository(inventoryId);
   const titleIsExisting = await getFoodCategoryByTitleRepository(inventoryId, title);
   if (titleIsExisting) {
     throw new BadRequestError("Category title already exists in this inventory.");
   }
-  await getFoodInventoryRepository(inventoryId);
-
-  const newCategory = await createFoodCategoryRepository(inventoryId, title);
+  if (!isAdmin) {
+    const user = await getFoodInventoryUserRepository(userId, inventoryId);
+    if (user.role !== "OWNER" && user.role !== "EDITOR") {
+      throw new BadRequestError("Only OWNER or EDITOR can create category.");
+    }
+  }
+  const newCategory = await createFoodCategoryWithHistoryRepository(
+    inventoryId,
+    formatTitleCase(title),
+    userId,
+  );
   return newCategory;
 };
 
@@ -50,16 +66,26 @@ export const getFoodCategoriesByInventoryService = async (inventoryId, userId, i
 export const updateFoodCategoryService = async (userId, categoryId, title, isAdmin) => {
   const category = await getFoodCategoryByIdRepository(categoryId);
   if (!isAdmin) {
-    await getFoodInventoryUserRepository(userId, category.inventoryId);
+    const user = await getFoodInventoryUserRepository(userId, category.inventoryId);
+    if (user.role !== "OWNER" && user.role !== "EDITOR") {
+      throw new BadRequestError("Only OWNER or EDITOR can change category.");
+    }
+  }
+
+  if (category?.title.toLowerCase() === title.toLowerCase()) {
+    return null;
   }
 
   const titleIsExisting = await getFoodCategoryByTitleRepository(category.inventoryId, title);
   if (titleIsExisting && titleIsExisting.id !== categoryId) {
     throw new BadRequestError("Category title already exists in this inventory.");
   }
-  await getFoodCategoryByIdRepository(categoryId);
 
-  const updatedCategory = await updateFoodCategoryRepository(categoryId, title);
+  const updatedCategory = await updateFoodCategoryWithHistoryRepository(
+    categoryId,
+    formatTitleCase(title),
+    userId,
+  );
   return updatedCategory;
 };
 
@@ -68,17 +94,11 @@ export const deleteFoodCategoryService = async (userId, categoryId, isAdmin) => 
   const category = await getFoodCategoryByIdRepository(categoryId);
   if (!isAdmin) {
     const user = await getFoodInventoryUserRepository(userId, category.inventoryId);
-    if (user.role !== "OWNER" && user.role !== "EDITOR") {
-      throw new BadRequestError("Only OWNER or EDITOR can delete category.");
+    if (user.role !== "OWNER") {
+      throw new BadRequestError("Only OWNER can delete category.");
     }
   }
-
-  //dodelat kontrolu jestli v kategorii neni zadne jidlo
-
-  const deletedCategory = await deleteFoodCategoryRepository(categoryId);
-  if (!deletedCategory) {
-    throw new NotFoundError(`Food category not found.`);
-  }
+  const deletedCategory = await deleteFoodCategoryWithHistoryRepository(categoryId, userId);
   return deletedCategory;
 };
 

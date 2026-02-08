@@ -29,7 +29,6 @@ export const logLabelUpdateHistoryRepository = async (
         },
       },
     });
-    console.log("affectedFoods", affectedFoods);
 
     // chceme jen jeden zaznam na jeden inventar
     const uniqueInventoryHistory = new Map();
@@ -59,7 +58,7 @@ export const logLabelUpdateHistoryRepository = async (
     }
 
     const finalHistories = Array.from(uniqueInventoryHistory.values());
-    console.log(uniqueInventoryHistory);
+    
     if (finalHistories.length > 0) {
       await tx.foodHistory.createMany({
         data: finalHistories,
