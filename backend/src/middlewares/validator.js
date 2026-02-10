@@ -37,15 +37,16 @@ const validate = (schema) => (req, res, next) => {
 
   // Aktualizace PARAMS
   const finalParams = { ...params, ...validatedParams };
-  Object.keys(req.params).forEach((key) => delete req.params[key]);
-  Object.assign(req.params, finalParams);
+  Object.keys(req.params || {}).forEach((key) => delete req.params[key]);
+  Object.assign(req.params || {}, finalParams);
 
   // Aktualizace QUERY
   const finalQuery = { ...query, ...validatedQuery };
-  Object.keys(req.query).forEach((key) => delete req.query[key]);
-  Object.assign(req.query, finalQuery);
+  Object.keys(req.query || {}).forEach((key) => delete req.query[key]);
+  Object.assign(req.query || {}, finalQuery);
 
   // Aktualizace BODY
+  if (!req.body) req.body = {};
   Object.keys(req.body).forEach((key) => delete req.body[key]);
   Object.assign(req.body, validatedBody);
 

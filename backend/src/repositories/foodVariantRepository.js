@@ -120,10 +120,7 @@ export const getOrCreateFoodVariant = async (
     });
     if (variant) {
       if (variant?.isDeleted) {
-        await tx.foodVariant.update({
-          where: { id: variant.id },
-          data: { isDeleted: false },
-        });
+        await recoverFoodVariantRepository(variant.id, tx);
       }
       return variant.id;
     }
@@ -147,10 +144,7 @@ export const getOrCreateFoodVariant = async (
 
     if (variantInInventory?.variantId) {
       console.log("23");
-      await tx.foodVariant.update({
-        where: { id: variantInInventory?.variantId },
-        data: { isDeleted: false },
-      });
+      await recoverFoodVariantRepository(variantInInventory?.variantId, tx);
       return variantInInventory.variantId;
     }
 
@@ -168,11 +162,7 @@ export const getOrCreateFoodVariant = async (
 
       if (userVariant.isDeleted) {
         console.log("25");
-
-        await tx.foodVariant.update({
-          where: { id: userVariant.id },
-          data: { isDeleted: false },
-        });
+        await recoverFoodVariantRepository(userVariant.id, tx);
       }
       return userVariant.id;
     }

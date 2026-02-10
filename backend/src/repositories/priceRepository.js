@@ -39,29 +39,55 @@ export const getPriceByIdRepository = async (id) => {
   }
 };
 
-// aktualizuje cenu podle id
-export const updatePriceRepository = async (id, data) => {
+//smaze vsechny nepouzivane ceny
+export const deleteUnusedPricesRepository = async (tx = prisma) => {
   try {
-    const updatedPrice = await prisma.price.update({
-      where: { id },
-      data,
+    // najde id vsech cen ktere se aktualne pouzivaji v instancich
+    const usedInInstances = await tx.foodInstance.findMany({
+      where: { priceId: { not: null } },
+      select: { priceId: true },
     });
-    return updatedPrice;
-  } catch (error) {
-    console.error("Error updating price:", error);
-    throw error;
-  }
-};
 
-// smaze cenu podle id
-export const deletePriceRepository = async (id) => {
-  try {
-    const deletedPrice = await prisma.price.delete({
-      where: { id },
+    // najde id vsech cen ktere se aktualne pouzivaji v historii
+    const usedInHistoryDirect = await tx.foodHistory.findMany({
+      where: { priceId: { not: null } },
+      select: { priceId: true },
     });
-    return deletedPrice;
+
+    // najde id vsech cen ktere se aktualne pouzivaji v metadatech historie
+    const usedInMetadataRaw =
+      (await tx.$queryRaw`
+        SELECT DISTINCT (metadata->'price'->>'after')::int as id FROM food_histories WHERE metadata->'price'->>'after' IS NOT NULL
+        UNION
+        SELECT DISTINCT (metadata->'price'->>'before')::int as id FROM food_histories WHERE metadata->'price'->>'before' IS NOT NULL
+      `) || [];
+
+    // sjednoti vsechny id
+    const allUsedIdsList = [
+      ...usedInInstances.map((i) => i.priceId),
+      ...usedInHistoryDirect.map((h) => h.priceId),
+      ...usedInMetadataRaw.map((m) => Number(m.id)).filter((id) => id !== null && !isNaN(id)),
+    ];
+
+    const allUsedIds = new Set(allUsedIdsList);
+
+    //pokud zadna cena neni pouzita smaze vse
+    if (allUsedIds.size === 0) {
+      const result = await tx.price.deleteMany({});
+      return result.count;
+    }
+
+    // smaze vsechny nepouzivane price
+    const result = await tx.price.deleteMany({
+      where: {
+        id: {
+          notIn: Array.from(allUsedIds),
+        },
+      },
+    });
+    return result;
   } catch (error) {
-    console.error("Error deleting price:", error);
+    console.error("Error in deleteUnusedPricesRepository:", error);
     throw error;
   }
 };

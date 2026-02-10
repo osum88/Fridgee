@@ -1,12 +1,7 @@
 import { BadRequestError, NotFoundError } from "../errors/errors.js";
 import { getExchangeRateRepository } from "../repositories/exchangeRateRepository.js";
-import {
-  deletePriceRepository,
-  getPriceByIdRepository,
-  updatePriceRepository,
-} from "../repositories/priceRepository.js";
+import { getPriceByIdRepository } from "../repositories/priceRepository.js";
 import { getUserCountryByIdRepository } from "../repositories/userRepository.js";
-import { formatToISODate } from "../utils/stringUtils.js";
 import { getEuroRate } from "./exchangeRateService.js";
 
 // rozhodne o zakladni mene podle uzivatele
@@ -99,10 +94,4 @@ export const getPriceByIdService = async (priceId, currency, userId) => {
     );
   }
   return { price: newPrice, currency: baseCurrency };
-};
-
-// smaze price
-export const deletePriceService = async (id) => {
-  const deletedPrice = await deletePriceRepository(id);
-  return deletedPrice;
 };

@@ -140,7 +140,7 @@ router.patch("/food-instance", validate(updateFoodInstanceSchema), authenticateT
 router.post("/food-instance/duplicate", validate(duplicateInstancesSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, duplicateFoodInstances);
 
 //smaze jednu nebo vice instanci
-router.delete("/", validate(deleteFoodInstancesSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, deleteFoodInstances);
+router.delete("/food-instance", validate(deleteFoodInstancesSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, deleteFoodInstances);
 
 
 //                          FOOD LABEL
