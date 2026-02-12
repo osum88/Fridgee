@@ -5,7 +5,7 @@ import { getUserCountryByIdRepository } from "../repositories/userRepository.js"
 import { getEuroRate } from "./exchangeRateService.js";
 
 // rozhodne o zakladni mene podle uzivatele
-const createBaseCurrency = async (userId, currency) => {
+export const createBaseCurrency = async (userId, currency) => {
   if (currency === "CZK" || currency === "EUR") {
     return currency;
   }
@@ -57,9 +57,12 @@ export const resolvePriceExchangeData = async (price, currency, userId, date = n
   };
 };
 
-const convertPrice = (price, rate, amount, baseCurrency, currency) => {
+export const convertPrice = (price, rate, amount, baseCurrency, currency) => {
   if (!price || !rate || !amount || !baseCurrency || !currency) {
     return null;
+  }
+  if (baseCurrency === currency) {
+    return price
   }
   // oba klice
   const forwardKey = `${baseCurrency}${currency}`;

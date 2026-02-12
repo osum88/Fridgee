@@ -1,4 +1,5 @@
 import { ConflictError, NotFoundError } from "../errors/errors.js";
+import { convertPrice } from "../services/priceService.js";
 import prisma from "../utils/prisma.js";
 
 //vytvari inventar jidla s prvnim jeho uzivatelem (owner)
@@ -75,7 +76,11 @@ export const getFoodInventoryRepository = async (foodInventoryId) => {
 };
 
 // hleda user jestli je user v danem inventari podle id
-export const getFoodInventoryUserRepository = async (userId, foodInventoryId, throwError = true) => {
+export const getFoodInventoryUserRepository = async (
+  userId,
+  foodInventoryId,
+  throwError = true,
+) => {
   try {
     const user = await prisma.inventoryUser.findUnique({
       where: {
@@ -213,7 +218,11 @@ export const getUsersByInventoryIdRepository = async (inventoryId, rolesToFilter
           },
         }),
       },
-      orderBy: [{ user: { name: "asc" } }, { user: { surname: "asc" } }, { user: { username: "asc" } }],
+      orderBy: [
+        { user: { name: "asc" } },
+        { user: { surname: "asc" } },
+        { user: { username: "asc" } },
+      ],
       select: {
         id: true,
         userId: true,
@@ -359,7 +368,11 @@ export const getAllFoodInventoryRepository = async (userId) => {
 };
 
 // zmena settingu user v inventari
-export const changeSettingFoodInventoryUserRepository = async (userId, foodInventoryId, newSettings) => {
+export const changeSettingFoodInventoryUserRepository = async (
+  userId,
+  foodInventoryId,
+  newSettings,
+) => {
   try {
     const existingSettings = await prisma.inventoryUser.findUnique({
       where: {
@@ -399,6 +412,38 @@ export const changeSettingFoodInventoryUserRepository = async (userId, foodInven
     return updatedUser;
   } catch (error) {
     console.error("Error updating user settings:", error);
+    throw error;
+  }
+};
+
+// vrati vsechny jidla s kategoriemi, instancemi a labely
+export const getInventoryContentRepository = async (inventoryId, userId) => {
+  try {
+    const foods = await prisma.food.findMany({
+      where: {
+        inventoryId: inventoryId,
+        instances: { some: {} },
+      },
+      include: {
+        category: true,
+        catalog: {
+          include: {
+            labels: {
+              where: { userId: userId, isDeleted: false },
+            },
+          },
+        },
+        variant: true,
+        label: true,
+        instances: {
+          include: { price: true },
+          orderBy: { expirationDate: "asc" },
+        },
+      },
+    });
+    return foods;
+  } catch (error) {
+    console.error(`Error fetching inventory content for inventoryId ${inventoryId}:`, error);
     throw error;
   }
 };

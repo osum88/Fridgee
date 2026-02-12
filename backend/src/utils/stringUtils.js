@@ -1,15 +1,17 @@
 /**
- * Změní string na string začínající velkým písmenem, zbytek malým
+ * Změní string na string začínající velkým písmenem, zbytek malým (isLowerCase = true)
  * @param {string} text
  * @returns {string}
  */
-export const formatTitleCase = (text) => {
+export const formatTitleCase = (text, isLowerCase = true) => {
   if (!text || typeof text !== "string") return text;
 
   const trimmed = text.trim();
   if (trimmed.length === 0) return trimmed;
-
-  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+  if (isLowerCase) {
+    return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+  }
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
 };
 
 /**
@@ -65,4 +67,15 @@ export const determineUpdateValue = (current, provided, isNumber = false) => {
 //vraci true pokud neco neni undefined
 export const isAnyValueDefined = (obj) => {
   return Object.values(obj).some((value) => value !== undefined);
+};
+
+// převede řetězec na mala pismena a odstraní diakritiku
+export const normalizeText = (str) => {
+  if (!str || typeof str !== "string") return str;
+
+  return str
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
 };

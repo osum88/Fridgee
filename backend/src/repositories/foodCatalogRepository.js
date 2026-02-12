@@ -1,4 +1,3 @@
-import { Prisma } from "@prisma/client";
 import { ConflictError, NotFoundError } from "../errors/errors.js";
 import prisma from "../utils/prisma.js";
 
@@ -103,55 +102,39 @@ export const getFoodCatalogByIdRepository = async (id, throwError = true, isDele
 };
 
 //vrati food catalog podle barcode a uzivatele
-export const getFoodCatalogByBarcodeRepository = async (barcode, addedBy, isDeleted = false) => {
+export const getFoodCatalogWithLabelByBarcodeRepository = async (
+  barcode,
+  inventoryId = null,
+  userId,
+) => {
   try {
     const foodCatalog = await prisma.foodCatalog.findFirst({
       where: {
         barcode: barcode,
-        addedBy: addedBy,
-        isDeleted: isDeleted !== null ? isDeleted : undefined,
       },
-    });
-    //neexistuje zaznam
-    if (!foodCatalog) return null;
-    return foodCatalog;
-  } catch (error) {
-    console.error("Error fetching food catalog by barcode and user:", error);
-    throw error;
-  }
-};
-
-//@TODO mozna pridat catalogy kde neni owner ale ma vytvoreny label
-//vrati vsechny food katalogy pridane uzivatelem
-export const getAllFoodCatalogsByUserRepository = async (userId) => {
-  try {
-    const catalogs = await prisma.foodCatalog.findMany({
-      where: {
-        addedBy: userId,
-        isDeleted: false,
-      },
-      orderBy: { createdAt: "desc" },
       include: {
         labels: {
-          where: { userId },
+          where: {
+            userId: userId,
+            isDeleted: false,
+          },
         },
+        ...(inventoryId && {
+          foods: {
+            where: {
+              inventoryId: inventoryId,
+            },
+            select: {
+              id: true,
+              label: true,
+            },
+          },
+        }),
       },
     });
-
-    return catalogs.map((catalog) => {
-      const { labels, isDeleted, updateAt, ...rest } = catalog;
-      return {
-        ...rest,
-        title: labels[0]?.title ?? null,
-        description: labels[0]?.description ?? null,
-        foodImageUrl: labels[0]?.foodImageUrl ?? null,
-        price: labels[0]?.price ?? null,
-        unit: labels[0]?.unit ?? null,
-        amount: labels[0]?.amount ?? null,
-      };
-    });
+    return foodCatalog || null;
   } catch (error) {
-    console.error("Error fetching user food catalogs:", error);
+    console.error("Error fetching food catalog by barcode and user:", error);
     throw error;
   }
 };
@@ -169,8 +152,3 @@ export const validateCatalogOwnershipRepository = async (id, userId) => {
     throw error;
   }
 };
-
-// getFoodCatalogWithVariantsRepository
-
-//searchFoodCatalogsRepository
-//vyhleda food katalogy podle title a uzivatele, a path(jazyk)

@@ -1,25 +1,24 @@
 import express from "express";
+import validate from "../middlewares/validator.js";
+import multer from "multer";
 import { authenticateToken, authorizeAdmin, authorizeAdminWithoutUserId } from "../middlewares/authMiddleware.js";
 import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFriends, getReceivedFriendRequests, getSentFriendRequests } from "../controllers/friendController.js";
 import { deleteUser, deleteUserProfileImage, getAllUsersAdmin, getUserById, updateUser, updateUserProfileImage } from "../controllers/userController.js";
-import validate from "../middlewares/validator.js";
 import { updateUserAdminSchema, userIdAdminSchema } from "../validation/userValidation.js";
-import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, getAllFoodInventory, getInventoryDetailsWithUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
-import { inventoryIdAdminSchema, changeRoleAdminSchema, changeSettingAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema, inventoryIdSchema } from "../validation/foodInventoryValidation.js";
+import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, getAllFoodInventory, getInventoryContent, getInventoryDetailsWithUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
+import { inventoryIdAdminSchema, changeRoleAdminSchema, changeSettingAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema, inventoryIdSchema, searchInventoryLabelAdminSchema } from "../validation/foodInventoryValidation.js";
 import { getFriendsAdminSchema } from "../validation/friendValidation.js";
-import multer from "multer";
 import { sanitize } from "../middlewares/sanitize.js";
-import {  foodCatalogIdSchema,  } from "../validation/foodCatalogValidation.js";
-import {   getAllFoodCatalogsByUser, getFoodCatalogById } from "../controllers/foodCatalogController.js";
+import { foodCatalogIdSchema, foodCatalogWithLabelByBarcodeSchema,  } from "../validation/foodCatalogValidation.js";
+import { getFoodCatalogWithLabelByBarcode } from "../controllers/foodCatalogController.js";
 import { categoryIdSchema, createFoodCategorySchema, updateFoodCategorySchema } from "../validation/foodCategoryValidation.js";
 import { createFoodCategory, deleteFoodCategory, getFoodCategoriesByInventory, getFoodCategoryById, updateFoodCategory } from "../controllers/foodCategoryController.js";
-import { deleteFoodVariant, getFoodVariantsContext } from "../controllers/foodVariantController.js";
-import {  foodVariantIdSchema } from "../validation/foodVariantValidation.js";
-import { addFoodToInventory, updateFood } from "../controllers/foodController.js";
-import {  addFoodToInventoryFoodSchema, updateFoodSchema } from "../validation/foodValidation.js";
-import {  consumeMultipleFoodInstances, deleteFoodInstances, duplicateFoodInstances, updateFoodInstance } from "../controllers/foodInstanceController.js";
+import { getAllFoodVariantsCatalog } from "../controllers/foodVariantController.js";
+import { addFoodToInventory,  updateFood } from "../controllers/foodController.js";
+import { addFoodToInventoryFoodSchema, updateFoodSchema } from "../validation/foodValidation.js";
+import { consumeMultipleFoodInstances, deleteFoodInstances, duplicateFoodInstances, updateFoodInstance } from "../controllers/foodInstanceController.js";
 import { consumeFoodInstanceSchema, deleteFoodInstancesSchema, duplicateInstancesSchema, updateFoodInstanceSchema } from "../validation/foodInstanceValidation.js";
-import { deleteFoodLabel, updateFoodLabel } from "../controllers/foodLabelController.js";
+import { deleteFoodLabel, getLabelSuggestions, updateFoodLabel } from "../controllers/foodLabelController.js";
 import { foodLabelIdSchema, updateFoodLabelSchema } from "../validation/foodLabelValidation.js";
 
 
@@ -77,23 +76,27 @@ router.patch("/users/:id/inventory/:inventoryId/unarchive", validate(inventoryId
 //zmena title a label
 router.patch("/users/inventory/:inventoryId", validate(updateFoodInventorySchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, updateFoodInventory);
 
-//vrati vsechny inventare uzivatele
-router.get("/users/:id/inventory", authenticateToken, authorizeAdmin, getAllFoodInventory);
+// vrati vsechny kategorie z inventare
+router.get("/inventory/:inventoryId/food-category", validate(inventoryIdSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getFoodCategoriesByInventory);
+
+// vrati vsechny jidla s kategoriemi, instancemi a labely
+router.get("/inventory/:inventoryId/content", validate(inventoryIdSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getInventoryContent);
 
 //ziska detail inventare s opravnenim 
 router.get("/users/:id/inventory/:inventoryId", validate(inventoryIdAdminSchema), authenticateToken, sanitize, authorizeAdmin, getInventoryDetailsWithUser);
 
-// vrati vsechny kategorie z inventare
-router.get("/inventory/:inventoryId/food-category", validate(inventoryIdSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getFoodCategoriesByInventory);
+//vrati vsechny inventare uzivatele
+router.get("/users/:id/inventory", authenticateToken, authorizeAdmin, getAllFoodInventory);
 
+//hleda jidlo podle stringu
+router.get("/users/:id/inventory/:inventoryId/suggestions", validate(searchInventoryLabelAdminSchema), authenticateToken, sanitize, authorizeAdmin, getLabelSuggestions);
+// /api/admin/users/78/inventory/19/suggestions?title=apple&limit=5
 
 //                         FOOD CATALOG
 
-// vrati katalog podle id
-router.get("/users/food-catalog/:foodCatalogId", validate(foodCatalogIdSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getFoodCatalogById);
-
-// vrati vsechny katalogy usera
-router.get("/users/:id/food-catalog", validate(userIdAdminSchema), authenticateToken, authorizeAdmin, getAllFoodCatalogsByUser);
+// vrati katalog, label a variant podle barcodu
+router.get("/food-catalog/barcode/:barcode", validate(foodCatalogWithLabelByBarcodeSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getFoodCatalogWithLabelByBarcode);
+// /api/admin/food-catalog/barcode/:barcode?inventoryId=123
 
 
 
@@ -113,11 +116,7 @@ router.delete("/food-category/:categoryId", validate(categoryIdSchema), authenti
 
 //                       FOOD VARIANT
 // vrati vsechny varianty usera nebo ty co se pouzivaji v inventari
-router.get("/food-variant/food-catalog/:foodCatalogId", validate(foodCatalogIdSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getFoodVariantsContext);
-
-
-// smaze variantu
-router.delete("/food-variant/:variantId", validate(foodVariantIdSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, deleteFoodVariant);
+router.get("/food-variant/food-catalog/:foodCatalogId", validate(foodCatalogIdSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getAllFoodVariantsCatalog);
 
 
 //                          FOOD

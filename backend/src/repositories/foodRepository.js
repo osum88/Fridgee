@@ -13,7 +13,6 @@ import { moveFoodsToCategoryRepository } from "./foodCategoryRepository.js";
 import { logLabelUpdateHistoryRepository } from "./foodHistoryRepository.js";
 import {
   createFoodLabelRepository,
-  getFoodLabelByIdRepository,
   updateFoodLabelRepository,
 } from "./foodLabelRepository.js";
 import {
@@ -97,10 +96,7 @@ export const addFoodToInventoryRepository = async (userId, data) => {
 
         //najdem uzivateluv label pokud jiz existuje
         const userLabel = await tx.foodLabel.findFirst({
-          where: {
-            userId,
-            catalogId,
-          },
+          where: { userId, catalogId },
         });
 
         //rozhodujeme jestli vytvorit label
@@ -130,7 +126,6 @@ export const addFoodToInventoryRepository = async (userId, data) => {
 
           if (!needsLabelUpdate) {
             console.log("8");
-
             finalLabelId = originalLabel.id;
           }
         }
@@ -143,7 +138,7 @@ export const addFoodToInventoryRepository = async (userId, data) => {
           console.log("9");
 
           const labelPayload = {
-            title: formatTitleCase(data?.title),
+            title: data?.title,
             description: data?.description ?? undefined,
             foodImageUrl: data?.foodImageUrl ?? undefined,
             price: data?.price ?? undefined,
@@ -165,21 +160,19 @@ export const addFoodToInventoryRepository = async (userId, data) => {
             }
 
             // updatujeme label
-            const updated = await tx.foodLabel.update({
-              where: { id: userLabel.id },
-              data: labelPayload,
-            });
+            const updated = await updateFoodLabelRepository(userLabel.id, labelPayload, tx);
             finalLabelId = updated.id;
           } else {
             console.log("11");
 
-            const created = await tx.foodLabel.create({
-              data: {
+            const created = await createFoodLabelRepository(
+              {
                 userId: userId,
                 catalogId: catalogId,
                 ...labelPayload,
               },
-            });
+              tx,
+            );
             finalLabelId = created.id;
           }
         }

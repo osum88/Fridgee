@@ -17,7 +17,6 @@ import {
   getFoodByIdRepository,
   updateFoodRepository,
 } from "../repositories/foodRepository.js";
-import { getFoodVariantByIdRepository } from "../repositories/foodVariantRepository.js";
 import { cleanEmptyStrings } from "../utils/cleanEmptyStrings.js";
 import { determineUpdateValue, normalizeDate } from "../utils/stringUtils.js";
 import { resolveCategoryUpdateData } from "./foodCategoryService.js";
@@ -66,7 +65,7 @@ export const addFoodToInventoryService = async (userId, foodData, isAdmin) => {
     barcode,
     quantity: parseInt(finalData?.quantity) || 1,
     expirationDate: normalizeDate(expirationDate),
-    amount: finalData.amount ? parseFloat(finalData.amount) : null,
+    amount: finalData.amount ? parseFloat(finalData.amount) : 0,
   };
 
   const result = await addFoodToInventoryRepository(userId, preparedData);

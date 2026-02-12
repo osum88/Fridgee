@@ -9,12 +9,19 @@ import {
 } from "../errors/errors.js";
 import { logLabelUpdateHistoryRepository } from "./foodHistoryRepository.js";
 import { deleteFoodCatalogRepository } from "./foodCatalogRepository.js";
+import { formatTitleCase, normalizeText } from "../utils/stringUtils.js";
 
 // vytvori novy food label
 export const createFoodLabelRepository = async (data, tx = prisma) => {
   try {
+    const createData = { ...data };
+    if (data.title) {
+      createData.normalizedTitle = normalizeText(data.title);
+      createData.title = formatTitleCase(data.title, false);
+    }
+
     const newLabel = await tx.foodLabel.create({
-      data,
+      data: createData,
     });
     return newLabel;
   } catch (error) {
@@ -69,9 +76,16 @@ export const getFoodLabelByIdRepository = async (labelId, throwError = true, tx 
 // updatuje food label podle id
 export const updateFoodLabelRepository = async (labelId, data, tx = prisma) => {
   try {
+    const updateData = { ...data };
+
+    if (data.title) {
+      updateData.normalizedTitle = normalizeText(data.title);
+      updateData.title = formatTitleCase(data.title, false);
+    }
+
     const updatedLabel = await tx.foodLabel.update({
       where: { id: labelId },
-      data,
+      data: updateData,
     });
     return updatedLabel;
   } catch (error) {
@@ -84,10 +98,12 @@ export const updateFoodLabelRepository = async (labelId, data, tx = prisma) => {
 export const updateFoodLabelWithHistoryRepository = async (labelId, updateLabelData, userId) => {
   try {
     return await prisma.$transaction(async (tx) => {
-      const updatedLabel = await tx.foodLabel.update({
-        where: { id: labelId },
-        data: { ...updateLabelData.new, isDeleted: false },
-      });
+      const updatedLabel = await updateFoodLabelRepository(
+        labelId,
+        { ...updateLabelData.new, isDeleted: false },
+        tx,
+      );
+
       await logLabelUpdateHistoryRepository(
         labelId,
         updateLabelData?.old?.title,
@@ -98,7 +114,7 @@ export const updateFoodLabelWithHistoryRepository = async (labelId, updateLabelD
       return updatedLabel;
     });
   } catch (error) {
-    console.error(`Error in updateFoodLabelRepository for labelId ${labelId}:`, error);
+    console.error(`Error in updateFoodLabelWithHistoryRepository for labelId ${labelId}:`, error);
     throw error;
   }
 };
@@ -121,10 +137,7 @@ export const deleteFoodLabelRepository = async (labelId, userId, isAdmin) => {
       let label = undefined;
       let deleteLabelFlag = undefined;
       if (affectedFoods) {
-        label = await tx.foodLabel.update({
-          where: { id: labelId },
-          data: { isDeleted: true },
-        });
+        label = updateFoodLabelRepository(labelId, { isDeleted: true }, tx);
         deleteLabelFlag = "SOFT-DELETE";
       } else {
         label = await tx.foodLabel.delete({
@@ -170,9 +183,7 @@ export const getDefaultFoodLabelByUserLabelIdRepository = async (labelId, userId
                   },
                 },
               },
-              include: {
-                label: true,
-              },
+              include: { label: true },
               take: 1,
             },
           },
@@ -187,6 +198,99 @@ export const getDefaultFoodLabelByUserLabelIdRepository = async (labelId, userId
     return inventoryDefaultLabel;
   } catch (error) {
     console.error(`Error in getFoodLabelWithFallbackRepository for labelId ${labelId}:`, error);
+    throw error;
+  }
+};
+
+//hleda jidlo podle stringu
+export const getLabelSuggestionsRepository = async (userId, inventoryId, searchString, limit) => {
+  try {
+    return await prisma.foodLabel.findMany({
+      where: {
+        AND: [
+          {
+            normalizedTitle: { contains: normalizeText(searchString), mode: "insensitive" },
+          },
+          {
+            OR: [
+              // userovi labely pouzite v invenatari
+              {
+                userId: userId,
+                foods: { some: { inventoryId: inventoryId } },
+                isDeleted: false,
+              },
+              // Aktivni labely v lednici (maji instance)
+              {
+                foods: { some: { inventoryId: inventoryId, instances: { some: {} } } },
+              },
+              // Neaktivni, ale maji carovy kod (bez instanci)
+              {
+                foods: { some: { inventoryId: inventoryId, catalog: { barcode: { not: null } } } },
+              },
+              // Userovi vlastni labely, ktere ale nejsou v invenatri pouzity
+              { userId: userId, isDeleted: false },
+            ],
+          },
+        ],
+      },
+      include: {
+        catalog: true,
+        foods: {
+          where: { inventoryId: inventoryId, instances: { some: {} } },
+          select: {
+            id: true,
+            variant: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
+            _count: {
+              select: { instances: true },
+            },
+          },
+        },
+      },
+      take: limit * 3,
+    });
+  } catch (error) {
+    console.error("Error in getSmartFoodSuggestionsRepository:", error);
+    throw error;
+  }
+};
+
+//vyhleda useruv label podle stringu
+export const getUserFoodLabelsRepository = async (userId, searchString, limit) => {
+  try {
+    const foodLabel = await prisma.foodLabel.findMany({
+      where: {
+        userId: userId,
+        isDeleted: false,
+        title: { contains: searchString, mode: "insensitive" },
+      },
+      select: {
+        id: true,
+        catalogId: true,
+        title: true,
+        description: true,
+        foodImageUrl: true,
+        price: true,
+        unit: true,
+        amount: true,
+        catalog: { select: { barcode: true } },
+      },
+      orderBy: { title: "asc" },
+      take: limit || 10,
+    });
+    return foodLabel.map((label) => {
+      const { catalog, ...rest } = label;
+      return {
+        ...rest,
+        barcode: catalog?.barcode || null,
+      };
+    });
+  } catch (error) {
+    console.error("Error in getUserFoodLabelsRepository:", error);
     throw error;
   }
 };

@@ -1,4 +1,7 @@
-import { addFoodToInventoryService, updateFoodService } from "../services/foodService.js";
+import {
+  addFoodToInventoryService,
+  updateFoodService,
+} from "../services/foodService.js";
 import handleResponse from "../utils/responseHandler.js";
 
 // prida jidlo do inventare a vytvori instanci, price i history
@@ -26,3 +29,4 @@ export const updateFood = async (req, res, next) => {
     next(err);
   }
 };
+

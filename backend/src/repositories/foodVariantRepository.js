@@ -19,7 +19,7 @@ export const getFoodVariantByIdRepository = async (id, throwError = true) => {
 };
 
 // nacte vsechny varianty z catalogu
-export const getAllFoodVariantsRepository = async (catalogId) => {
+export const getAllFoodVariantsCatalogRepository = async (catalogId) => {
   try {
     const variants = await prisma.foodVariant.findMany({
       where: { foodCatalogId: catalogId },
@@ -28,28 +28,6 @@ export const getAllFoodVariantsRepository = async (catalogId) => {
     return variants;
   } catch (error) {
     console.error("Error fetching all food variants:", error);
-    throw error;
-  }
-};
-
-//@TODO vratit i varianty co se pouzivaji v inventari (isDeleted pro user, invetnater muzu byt true)
-// nacte vsechny uzivatelovy varianty z catalogu nebo ty co se pouzivaji v inventari
-export const getRelevantFoodVariantsRepository = async (catalogId, userId) => {
-  try {
-    const variants = await prisma.foodVariant.findMany({
-      where: {
-        foodCatalogId: catalogId,
-        addedBy: userId,
-      },
-      orderBy: { title: "asc" },
-      select: {
-        id: true,
-        title: true,
-      },
-    });
-    return variants;
-  } catch (error) {
-    console.error("Error fetching all relevantfood variants:", error);
     throw error;
   }
 };
@@ -184,7 +162,6 @@ export const getOrCreateFoodVariant = async (
 //Provede soft-delete varianty, pokud neni vazana na zadne jidlo s existujicimi instancemi
 export const softDeleteOrphanedVariantRepository = async (variantId, tx = prisma) => {
   if (!variantId) return null;
-
   try {
     const result = await tx.foodVariant.updateMany({
       where: {
@@ -328,6 +305,35 @@ export const recoverFoodVariantRepository = async (variantId, tx = prisma) => {
     });
   } catch (error) {
     console.error(`Failed to recover variant ${variantId}:`, error);
+    throw error;
+  }
+};
+
+// vrati varianty, ktere se pouzivaji a maji instance
+export const getActiveFoodVariantsRepository = async (catalogId, inventoryId) => {
+  try {
+    const variants = await prisma.foodVariant.findMany({
+      where: {
+        foodCatalogId: catalogId,
+        foods: {
+          some: {
+            inventoryId: inventoryId,
+            instances: {
+              some: {},
+            },
+          },
+        },
+      },
+      orderBy: { title: "asc" },
+      select: { id: true, title: true },
+    });
+
+    return variants.map((v) => ({
+      variantId: v.id,
+      variantTitle: v.title,
+    }));
+  } catch (error) {
+    console.error("Error fetching active food variants:", error);
     throw error;
   }
 };

@@ -87,9 +87,9 @@ app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 
   // spusteni po startu (v produkci je mozne odebrat)
-  cleanExpiredRefreshTokens();
+  // cleanExpiredRefreshTokens();
   dailyUpdateExchangeRate();
-  cleanupInventoryData();
+  // cleanupInventoryData();
 
   // Každý den ve 3:00 - smazaní nepotřebných refresh tokenů
   cron.schedule("0 3 * * *", async () => {

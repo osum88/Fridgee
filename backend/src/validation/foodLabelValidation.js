@@ -13,3 +13,4 @@ export const updateFoodLabelSchema = Joi.object({
 export const foodLabelIdSchema = Joi.object({
   foodLabelId: Joi.number().integer().required(),
 });
+

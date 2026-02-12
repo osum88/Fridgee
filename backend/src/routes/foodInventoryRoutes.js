@@ -1,12 +1,13 @@
 import express from "express";
 import { authenticateToken, authorizeUser } from "../middlewares/authMiddleware.js";
-import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, deleteOtherFoodInventoryUser, getAllFoodInventory, getInventoryDetailsWithUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
+import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, deleteOtherFoodInventoryUser, getAllFoodInventory, getInventoryContent, getInventoryDetailsWithUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
 import { acceptInventoryInvitation, rejectInventoryInvitation, sendInventoryInvitation } from "../controllers/inventoryInvitationController.js";
 import validate from "../middlewares/validator.js";
-import { inventoryIdSchema, changeRoleSchema, changeSettingSchema, createFoodInventorySchema, deleteOtherSchema, deleteSchema, getInventoryUsersSchema, updateFoodInventorySchema } from "../validation/foodInventoryValidation.js";
+import { inventoryIdSchema, changeRoleSchema, changeSettingSchema, createFoodInventorySchema, deleteOtherSchema, deleteSchema, getInventoryUsersSchema, updateFoodInventorySchema, searchInventoryLabelSchema } from "../validation/foodInventoryValidation.js";
 import { invitationIdSchema, sendInvitationSchema } from "../validation/inventoryInvitationValidation.js";
 import { sanitize } from "../middlewares/sanitize.js";
 import { getFoodCategoriesByInventory } from "../controllers/foodCategoryController.js";
+import { getLabelSuggestions } from "../controllers/foodLabelController.js";
 
 const router = express.Router();
 
@@ -50,12 +51,18 @@ router.patch("/:inventoryId", validate(updateFoodInventorySchema), authenticateT
 // vrati vsechny kategorie z inventare
 router.get("/:inventoryId/food-category", validate(inventoryIdSchema), authenticateToken, sanitize, authorizeUser, getFoodCategoriesByInventory);
 
+// vrati vsechny jidla s kategoriemi, intancemi a labely
+router.get("/:inventoryId/content", validate(inventoryIdSchema), authenticateToken, sanitize, authorizeUser, getInventoryContent);
+
+//ziska detail inventare s opravnenim 
+router.get("/:inventoryId", validate(inventoryIdSchema), authenticateToken, sanitize, authorizeUser, getInventoryDetailsWithUser);
+
 //vrati vsechny inventare uzivatele
 router.get("/", authenticateToken, authorizeUser, getAllFoodInventory);
 
-//ziska detail inventare s opravnenim 
-router.get("/:inventoryId", validate(inventoryIdSchema), authenticateToken, authorizeUser, getInventoryDetailsWithUser);
-
+//hleda jidlo podle stringu
+router.get("/:inventoryId/suggestions", validate(searchInventoryLabelSchema), authenticateToken, sanitize, authorizeUser, getLabelSuggestions);
+// /api/inventory/19/suggestions?title=apple&limit=5
 
 
 

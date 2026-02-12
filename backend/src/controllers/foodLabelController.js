@@ -1,4 +1,4 @@
-import { deleteFoodLabelService, updateFoodLabelService } from "../services/foodLabelService.js";
+import { deleteFoodLabelService,  getLabelSuggestionsService,  updateFoodLabelService } from "../services/foodLabelService.js";
 import handleResponse from "../utils/responseHandler.js";
 
 // updatuje uzivateluv label
@@ -28,3 +28,26 @@ export const deleteFoodLabel = async (req, res, next) => {
   }
 };
 
+//hleda jidlo podle stringu
+export const getLabelSuggestions = async (req, res, next) => {
+  try {
+    const { inventoryId } = req.params;
+    const { title: searchString, limit = 10 } = req.query;
+    const userId = req.userId;
+    const isAdmin = req.adminRoute;
+
+    if (!searchString || searchString.trim().length < 2) {
+      return handleResponse(res, 200, "Suggestions fetched successfully", []);
+    }
+    const suggestions = await getLabelSuggestionsService(
+      userId,
+      inventoryId,
+      searchString,
+      parseInt(limit),
+      isAdmin,
+    );
+    handleResponse(res, 200, "Suggestions fetched successfully", suggestions);
+  } catch (err) {
+    next(err);
+  }
+};

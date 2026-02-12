@@ -6,40 +6,59 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from "../errors/errors.js";
+import { getFoodCatalogWithLabelByBarcodeRepository } from "../repositories/foodCatalogRepository.js";
+import { getFoodInventoryUserRepository } from "../repositories/foodInventoryRepository.js";
+import { getActiveFoodVariantsRepository } from "../repositories/foodVariantRepository.js";
 
-import {
-  
-  deleteFoodCatalogRepository,
-  getAllFoodCatalogsByUserRepository,
-  getFoodCatalogByBarcodeRepository,
-  getFoodCatalogByIdRepository,
-  updateFoodCatalogRepository,
-  
-} from "../repositories/foodCatalogRepository.js";
-import { getRelevantFoodVariantsRepository } from "../repositories/foodVariantRepository.js";
-import { getUserByIdRepository } from "../repositories/userRepository.js";
-import { getFoodLabelByIdService } from "./foodLabelService.js";
-
-
-
-//vraci food catalog podle id
-export const getFoodCatalogByIdService = async (foodCatalogId, userId, isAdmin) => {
-  const catalog = await getFoodCatalogByIdRepository(foodCatalogId);
-
-  const label = await getFoodLabelByIdService(foodCatalogId, catalog.addedBy, userId, isAdmin);
-
-  const variants = await getRelevantFoodVariantsRepository(catalog.id, userId);
-
-  return { ...catalog, ...label, variants };
-};
-
-//vraci vsechny catalogy usera
-export const getAllFoodCatalogsByUserService = async (userId, isAdmin) => {
-  if (isAdmin) {
-    await getUserByIdRepository(userId);
+// vrati katalog, label a variant podle barcodu
+export const getFoodCatalogWithLabelByBarcodeService = async (
+  barcode,
+  inventoryId,
+  userId,
+  isAdmin,
+) => {
+  //overi ze user patri do invenatre, jinak hleda bez inventoryId
+  if (!isAdmin && inventoryId) {
+    const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId, false);
+    if (!inventoryUser) {
+      inventoryId = null;
+    }
   }
-  const catalogs = await getAllFoodCatalogsByUserRepository(userId);
-  return catalogs;
+  //vrati catalog a label
+  const catalogWithLabel = await getFoodCatalogWithLabelByBarcodeRepository(
+    barcode,
+    inventoryId,
+    userId,
+  );
+  if (!catalogWithLabel) return null;
+
+  let activeVariants = [];
+  if (inventoryId && inventoryId !== "null") {
+    activeVariants = await getActiveFoodVariantsRepository(catalogWithLabel.id, inventoryId);
+  }
+
+  // vezme useruv lebel, pokud neni tak ten v inventari
+  const activeLabel = catalogWithLabel?.labels[0] || catalogWithLabel?.foods[0]?.label || {};
+
+  const data = {
+    inventoryId: inventoryId,
+    catalogId: catalogWithLabel.id,
+    barcode: catalogWithLabel.barcode,
+    title: activeLabel?.title || "",
+    description: activeLabel?.description || "",
+    foodImageUrl: activeLabel?.foodImageUrl || "",
+    price: activeLabel?.price || 0,
+    unit: activeLabel?.unit || "",
+    amount: activeLabel?.amount || 0,
+    variants: activeVariants,
+    ...(isAdmin
+      ? {
+          foodId: catalogWithLabel.foods[0]?.id || null,
+          userId: catalogWithLabel.addedBy,
+          isUserLabel: catalogWithLabel.addedBy === userId,
+          isInInventory: catalogWithLabel?.foods?.length > 0,
+        }
+      : {}),
+  };
+  return data;
 };
-
-

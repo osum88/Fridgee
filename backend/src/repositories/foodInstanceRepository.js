@@ -7,7 +7,6 @@ import {
   UnauthorizedError,
 } from "../errors/errors.js";
 import prisma from "../utils/prisma.js";
-import { formatTitleCase } from "../utils/stringUtils.js";
 import { getFoodInstancesCountRepository } from "./foodRepository.js";
 import {
   resolveTargetFoodEntityRepository,

@@ -7,19 +7,11 @@ import {
   UnauthorizedError,
 } from "../errors/errors.js";
 import {
-  
   getFoodVariantByIdRepository,
-  getAllFoodVariantsRepository,
-  updateFoodVariantRepository,
-  deleteFoodVariantRepository,
-  getRelevantFoodVariantsRepository,
-  getFoodVariantByTitleRepository,
+  getAllFoodVariantsCatalogRepository,
 } from "../repositories/foodVariantRepository.js";
-import { getFoodCatalogByIdRepository } from "../repositories/foodCatalogRepository.js";
-import { getUserByIdRepository } from "../repositories/userRepository.js";
 import { getVariantByFoodIdRepository } from "../repositories/foodRepository.js";
 import { determineUpdateValue, formatTitleCase } from "../utils/stringUtils.js";
-
 
 // vraci food variant podle id
 export const getFoodVariantByIdService = async (variantId) => {
@@ -29,38 +21,11 @@ export const getFoodVariantByIdService = async (variantId) => {
 };
 
 // vraci vsechny varianty katalogu podle kontextu (admin vs user)
-export const getFoodVariantsContextService = async (catalogId, userId, isAdmin) => {
+export const getAllFoodVariantsCatalogService = async (catalogId, isAdmin) => {
   if (isAdmin) {
-    // vraci vsechny varianty z katalogu (admin)
-    return await getAllFoodVariantsRepository(catalogId);
-  } else {
-    // vraci vsechny moje varianty z katalogu nebo ty co se pouzivaji v inventari(user)
-    return await getRelevantFoodVariantsRepository(catalogId, userId);
-    //@TODO vratit i varianty co se pouzivaji v inventari
+    return await getAllFoodVariantsCatalogRepository(catalogId);
   }
 };
-
-// smaze variantu podle id
-export const deleteFoodVariantService = async (catalogId, userId, isAdmin) => {
-  const variant = await getFoodVariantByIdRepository(catalogId);
-
-  if (!isAdmin && variant?.addedBy !== userId) {
-    throw new ForbiddenError("You are not allowed to delete this catalog.");
-  }
-
-  //@TODO
-  //musi se overit ze varienta neni nikde pouzita pokud ano pak se nesmaze
-
-  //soft delete
-  if (true) {
-    await updateFoodVariantRepository(catalogId, { isDeleted: true });
-  } else {
-    //hard delete
-    await deleteFoodVariantRepository(catalogId);
-  }
-  return true;
-};
-
 
 //zpracuje a zvaliduje zmeny varianty potraviny.
 export const resolveVariantUpdateData = async (
