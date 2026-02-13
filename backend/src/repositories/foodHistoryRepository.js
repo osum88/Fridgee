@@ -34,26 +34,24 @@ export const logLabelUpdateHistoryRepository = async (
     const uniqueInventoryHistory = new Map();
     for (const food of affectedFoods) {
       // zapiseme pouze pokud má food alespon jednu instanci
-      if (food._count.instances > 0) {
-        if (!uniqueInventoryHistory.has(food.inventoryId)) {
-          uniqueInventoryHistory.set(food.inventoryId, {
-            inventoryId: food.inventoryId,
-            foodId: food.id,
-            catalogId: food.catalogId,
-            action: "LABEL_UPDATE",
-            changedBy: userId,
-            quantityBefore: null,
-            quantityAfter: null,
-            metadata: {
-              before: oldTitle || null,
-              after: newTitle || null,
-            },
-            foodInstanceId: null,
-            priceId: null,
-            snapshotUnit: null,
-            snapshotAmount: null,
-          });
-        }
+      if (food._count.instances > 0 && !uniqueInventoryHistory.has(food.inventoryId)) {
+            uniqueInventoryHistory.set(food.inventoryId, {
+              inventoryId: food.inventoryId,
+              foodId: food.id,
+              catalogId: food.catalogId,
+              action: "LABEL_UPDATE",
+              changedBy: userId,
+              quantityBefore: null,
+              quantityAfter: null,
+              metadata: {
+                before: oldTitle || null,
+                after: newTitle || null,
+              },
+              foodInstanceId: null,
+              priceId: null,
+              snapshotUnit: null,
+              snapshotAmount: null,
+            });
       }
     }
 

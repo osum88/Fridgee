@@ -41,12 +41,11 @@ export const consumeMultipleFoodInstancesService = async (userId, data, isAdmin)
     await getFoodInventoryUserRepository(userId, inventoryIds[0]);
   }
   const amountToConsume = data?.amountToConsume || 0;
-  const result = await consumeMultipleFoodInstancesRepository(
-    userId,
-    foodInstancesIds,
-    amountToConsume,
-  );
-  return result;
+  return await consumeMultipleFoodInstancesRepository(
+      userId,
+      foodInstancesIds,
+      amountToConsume,
+    );
 };
 
 //updatuje jednu nebo vice stejnych instanci

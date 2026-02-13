@@ -77,7 +77,7 @@ export const consumeMultipleFoodInstancesRepository = async (
           data: {
             inventoryId: instance.food.inventoryId,
             foodId: instance.foodId,
-            foodInstanceId: 0 === newAmount ? null : instance.id,
+            foodInstanceId: newAmount === 0 ? null : instance.id,
             catalogId: instance.food.catalogId,
             priceId: instance.priceId,
             action: "CONSUME",
@@ -87,7 +87,7 @@ export const consumeMultipleFoodInstancesRepository = async (
             quantityAfter: currentCount,
             changedBy: userId,
             metadata:
-              0 === newAmount
+              newAmount === 0
                 ? { fullConsumption: isFullConsumption, ...batchItem }
                 : { amount: { before: instance?.amount, after: newAmount }, ...batchItem },
           },
@@ -174,9 +174,7 @@ export const getInventoryIdsByInstanceIdsRepository = async (ids, throwError = t
       return [];
     }
 
-    const uniqueInventoryIds = [...new Set(instances.map((i) => i.food.inventoryId))];
-
-    return uniqueInventoryIds;
+    return [...new Set(instances.map((i) => i.food.inventoryId))];
   } catch (error) {
     console.error("Error fetching inventory ids by food instance ids:", error);
     throw error;

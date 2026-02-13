@@ -17,8 +17,7 @@ export const generateAccessToken = (user) => {
         isAdmin: user.isAdmin,
         username: user.username,
     };
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
-    return token;
+    return jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
 };
 
 export const generateRefreshToken = async (userId) => {

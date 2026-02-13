@@ -68,8 +68,7 @@ export const addFoodToInventoryService = async (userId, foodData, isAdmin) => {
     amount: finalData.amount ? parseFloat(finalData.amount) : 0,
   };
 
-  const result = await addFoodToInventoryRepository(userId, preparedData);
-  return result;
+  return await addFoodToInventoryRepository(userId, preparedData);
 };
 
 export const updateFoodService = async (userId, data, isAdmin) => {
@@ -123,7 +122,7 @@ export const updateFoodService = async (userId, data, isAdmin) => {
       };
     }
   }
-  const result = updateFoodRepository(
+  return updateFoodRepository(
     foodId,
     userId,
     variantData,
@@ -131,5 +130,4 @@ export const updateFoodService = async (userId, data, isAdmin) => {
     labelData,
     minimalQuantityData,
   );
-  return result;
 };

@@ -11,13 +11,12 @@ import prisma from "../utils/prisma.js";
 // vytvorti novou kategorii food
 export const createFoodCategoryRepository = async (inventoryId, title, tx = prisma) => {
   try {
-    const newCategory = await tx.foodCategory.create({
+    return await tx.foodCategory.create({
       data: {
         inventoryId,
         title,
       },
     });
-    return newCategory;
   } catch (error) {
     console.error("Error creating food category:", error);
     throw error;
@@ -75,11 +74,10 @@ export const getFoodCategoryByIdRepository = async (id, throwError = true) => {
 // vrati vsechny kategorie z konkretniho inventare
 export const getFoodCategoriesByInventoryRepository = async (inventoryId) => {
   try {
-    const categories = await prisma.foodCategory.findMany({
+    return await prisma.foodCategory.findMany({
       where: { inventoryId },
       orderBy: { createdAt: "asc" },
     });
-    return categories;
   } catch (error) {
     console.error("Error fetching food categories by inventory:", error);
     throw error;
@@ -181,7 +179,7 @@ export const deleteFoodCategoryWithHistoryRepository = async (categoryId, userId
 // zjisti jestli v inventari uz neexistuje katagorie s takovym nazvem
 export const getFoodCategoryByTitleRepository = async (inventoryId, title, tx = prisma) => {
   try {
-    const category = await tx.foodCategory.findFirst({
+    return await tx.foodCategory.findFirst({
       where: {
         inventoryId,
         title: {
@@ -190,7 +188,6 @@ export const getFoodCategoryByTitleRepository = async (inventoryId, title, tx = 
         },
       },
     });
-    return category;
   } catch (error) {
     console.error("Error checking food category by title:", error);
     throw error;

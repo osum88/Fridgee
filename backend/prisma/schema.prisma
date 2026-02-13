@@ -350,6 +350,7 @@ model FoodLabel {
 
   @@index([userId, catalogId])
   @@index([catalogId])
+  @@index([normalizedTitle])
   @@map("food_labels")
 }
 

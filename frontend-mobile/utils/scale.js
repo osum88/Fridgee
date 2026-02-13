@@ -10,7 +10,7 @@ export const responsiveFont = (size, factor = 0.5) => {
 
   const finalSize = scaled * fontScale;
   let maxSize = isTablet ? size + size * 0.4 : Number.MAX_SAFE_INTEGER;
-  maxSize = 16 > maxSize ? finalSize : maxSize;
+  maxSize = maxSize < 16 ? finalSize : maxSize;
 
   return Platform.OS === "web"
     ? Math.min(finalSize || size, size + 2)
@@ -58,7 +58,7 @@ export const responsiveSize = {
     const isTablet = width >= 768;
     const scaled = moderateScale(size, factor);
     let maxSize = isTablet ? size + size * 0.4 : Number.MAX_SAFE_INTEGER;
-    maxSize = 16 > maxSize ? scaled : maxSize;
+    maxSize = maxSize < 16 ? scaled : maxSize;
 
     return Platform.OS === "web"
       ? Math.min(scaled || size, size + size * 0.15)

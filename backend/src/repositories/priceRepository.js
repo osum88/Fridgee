@@ -7,16 +7,15 @@ export const createPriceRepository = async (data, tx = prisma) => {
     if (!data?.price || data.price <= 0) {
       return null;
     }
-    const newPrice = await tx.price.create({
-      data: {
-        price: data.price,
-        baseCurrency: data?.baseCurrency || "CZK",
-        exchangeAmount: data?.exchangeAmount,
-        exchangeRate: data?.exchangeRate,
-        exchangeRateDate: data?.exchangeRateDate,
-      },
-    });
-    return newPrice;
+    return await tx.price.create({
+          data: {
+            price: data.price,
+            baseCurrency: data?.baseCurrency || "CZK",
+            exchangeAmount: data?.exchangeAmount,
+            exchangeRate: data?.exchangeRate,
+            exchangeRateDate: data?.exchangeRateDate,
+          },
+        });
   } catch (error) {
     console.error("Error creating price:", error);
     throw error;
@@ -78,14 +77,13 @@ export const deleteUnusedPricesRepository = async (tx = prisma) => {
     }
 
     // smaze vsechny nepouzivane price
-    const result = await tx.price.deleteMany({
-      where: {
-        id: {
-          notIn: Array.from(allUsedIds),
-        },
-      },
-    });
-    return result;
+    return await tx.price.deleteMany({
+          where: {
+            id: {
+              notIn: Array.from(allUsedIds),
+            },
+          },
+        });
   } catch (error) {
     console.error("Error in deleteUnusedPricesRepository:", error);
     throw error;

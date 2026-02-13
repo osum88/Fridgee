@@ -31,9 +31,9 @@ export const getEuroRate = async (date = null) => {
   // pokud euro neni pro dane datum, zkusime aktualni (REKURZE)
   if (!euro && iso) {
     console.log(`Rate for ${iso} not found, fetching current rate instead.`);
-    return null
+    return null;
   }
-  const data = {
+  return {
     amount: euro.amount,
     country: euro.country,
     currencyCode: euro.currencyCode,
@@ -41,13 +41,11 @@ export const getEuroRate = async (date = null) => {
     rate: euro.rate,
     exchangeRateDate: new Date(euro.validFor),
   };
-  return data;
 };
 
 // vytvori novy exchange rate
 export const createExchangeRateService = async (data) => {
-  const newExchangeRate = await createExchangeRateRepository(data);
-  return newExchangeRate;
+  return await createExchangeRateRepository(data);
 };
 
 // update exchange rate podle currencyCode a convertedCurrencyCode
@@ -55,12 +53,7 @@ export const updateExchangeRateService = async (currencyCode, convertedCurrencyC
   if (!currencyCode || !convertedCurrencyCode) {
     throw new Error("Currency codes must be provided");
   }
-  const updatedExchangeRate = await updateExchangeRateRepository(
-    currencyCode,
-    convertedCurrencyCode,
-    updates,
-  );
-  return updatedExchangeRate;
+  return await updateExchangeRateRepository(currencyCode, convertedCurrencyCode, updates);
 };
 
 // smaze exchange rate
@@ -68,11 +61,7 @@ export const deleteExchangeRateService = async (currencyCode, convertedCurrencyC
   if (!currencyCode || !convertedCurrencyCode) {
     throw new Error("Currency codes must be provided");
   }
-  const deletedExchangeRate = await deleteExchangeRateRepository(
-    currencyCode,
-    convertedCurrencyCode,
-  );
-  return deletedExchangeRate;
+  return await deleteExchangeRateRepository(currencyCode, convertedCurrencyCode);
 };
 
 // vratí exchange rate
@@ -80,6 +69,5 @@ export const getExchangeRateService = async (currencyCode, convertedCurrencyCode
   if (!currencyCode || !convertedCurrencyCode) {
     throw new Error("Currency codes must be provided");
   }
-  const exchangeRate = await getExchangeRateRepository(currencyCode, convertedCurrencyCode);
-  return exchangeRate;
+  return await getExchangeRateRepository(currencyCode, convertedCurrencyCode);
 };

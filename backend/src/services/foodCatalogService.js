@@ -17,31 +17,32 @@ export const getFoodCatalogWithLabelByBarcodeService = async (
   userId,
   isAdmin,
 ) => {
+  let currentInventoryId = inventoryId
   //overi ze user patri do invenatre, jinak hleda bez inventoryId
-  if (!isAdmin && inventoryId) {
-    const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId, false);
+  if (!isAdmin && currentInventoryId) {
+    const inventoryUser = await getFoodInventoryUserRepository(userId, currentInventoryId, false);
     if (!inventoryUser) {
-      inventoryId = null;
+      currentInventoryId = null;
     }
   }
   //vrati catalog a label
   const catalogWithLabel = await getFoodCatalogWithLabelByBarcodeRepository(
     barcode,
-    inventoryId,
+    currentInventoryId,
     userId,
   );
   if (!catalogWithLabel) return null;
 
   let activeVariants = [];
-  if (inventoryId && inventoryId !== "null") {
-    activeVariants = await getActiveFoodVariantsRepository(catalogWithLabel.id, inventoryId);
+  if (currentInventoryId && currentInventoryId !== "null") {
+    activeVariants = await getActiveFoodVariantsRepository(catalogWithLabel.id, currentInventoryId);
   }
 
   // vezme useruv lebel, pokud neni tak ten v inventari
   const activeLabel = catalogWithLabel?.labels[0] || catalogWithLabel?.foods[0]?.label || {};
 
-  const data = {
-    inventoryId: inventoryId,
+  return {
+    inventoryId: currentInventoryId,
     catalogId: catalogWithLabel.id,
     barcode: catalogWithLabel.barcode,
     title: activeLabel?.title || "",
@@ -60,5 +61,4 @@ export const getFoodCatalogWithLabelByBarcodeService = async (
         }
       : {}),
   };
-  return data;
 };

@@ -4,7 +4,7 @@ import { useRef, useCallback } from "react";
 export const useDebouncedMutation = (defaultDelay = 1000) => {
   const debounceTimeoutRef = useRef({});
 
-  const debouncedMutate = useCallback(
+  return useCallback(
     (mutation, key = "default", variables = {}, delay = defaultDelay) => {
       if (!mutation || typeof mutation.mutate !== "function") return;
 
@@ -18,9 +18,6 @@ export const useDebouncedMutation = (defaultDelay = 1000) => {
         debounceTimeoutRef.current[key] = null;
       }, delay);
     },
-    [defaultDelay]
+    [defaultDelay],
   );
-
-  return debouncedMutate;
 };
-

@@ -21,11 +21,10 @@ export const getFoodVariantByIdRepository = async (id, throwError = true) => {
 // nacte vsechny varianty z catalogu
 export const getAllFoodVariantsCatalogRepository = async (catalogId) => {
   try {
-    const variants = await prisma.foodVariant.findMany({
+    return await prisma.foodVariant.findMany({
       where: { foodCatalogId: catalogId },
       orderBy: { title: "asc" },
     });
-    return variants;
   } catch (error) {
     console.error("Error fetching all food variants:", error);
     throw error;
@@ -35,11 +34,10 @@ export const getAllFoodVariantsCatalogRepository = async (catalogId) => {
 // aktualizuje variantu podle id
 export const updateFoodVariantRepository = async (id, data) => {
   try {
-    const updatedVariant = await prisma.foodVariant.update({
+    return await prisma.foodVariant.update({
       where: { id },
       data,
     });
-    return updatedVariant;
   } catch (error) {
     console.error("Error updating food variant:", error);
     throw error;
@@ -49,10 +47,9 @@ export const updateFoodVariantRepository = async (id, data) => {
 // smaze variantu podle id
 export const deleteFoodVariantRepository = async (id) => {
   try {
-    const deletedVariant = await prisma.foodVariant.delete({
+    return await prisma.foodVariant.delete({
       where: { id },
     });
-    return deletedVariant;
   } catch (error) {
     console.error("Error deleting food variant:", error);
     throw error;
@@ -67,7 +64,7 @@ export const getFoodVariantByTitleRepository = async (
   isDeleted = false,
 ) => {
   try {
-    const variant = await prisma.foodVariant.findFirst({
+    return await prisma.foodVariant.findFirst({
       where: {
         title: title,
         foodCatalogId: foodCatalogId,
@@ -75,7 +72,6 @@ export const getFoodVariantByTitleRepository = async (
         isDeleted: isDeleted !== null ? isDeleted : undefined,
       },
     });
-    return variant;
   } catch (error) {
     console.error("Error fetching food variant by title:", error);
     throw error;
@@ -163,7 +159,7 @@ export const getOrCreateFoodVariant = async (
 export const softDeleteOrphanedVariantRepository = async (variantId, tx = prisma) => {
   if (!variantId) return null;
   try {
-    const result = await tx.foodVariant.updateMany({
+    return await tx.foodVariant.updateMany({
       where: {
         id: variantId,
         isDeleted: false,
@@ -181,7 +177,6 @@ export const softDeleteOrphanedVariantRepository = async (variantId, tx = prisma
         isDeleted: true,
       },
     });
-    return result;
   } catch (error) {
     console.error(`Error failed cleanup variant ${variantId}:`, error);
     throw error;

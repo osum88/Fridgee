@@ -20,10 +20,9 @@ export const createFoodLabelRepository = async (data, tx = prisma) => {
       createData.title = formatTitleCase(data.title, false);
     }
 
-    const newLabel = await tx.foodLabel.create({
+    return await tx.foodLabel.create({
       data: createData,
     });
-    return newLabel;
   } catch (error) {
     console.error("Error creating food label:", error);
     throw error;
@@ -33,7 +32,7 @@ export const createFoodLabelRepository = async (data, tx = prisma) => {
 // nacte food label podle catalog id
 export const getFoodLabelByUserIdCatalogIdRepository = async (userId, catalogId) => {
   try {
-    const label = await prisma.foodLabel.findFirst({
+    return await prisma.foodLabel.findFirst({
       where: {
         userId,
         catalogId,
@@ -48,7 +47,6 @@ export const getFoodLabelByUserIdCatalogIdRepository = async (userId, catalogId)
         amount: true,
       },
     });
-    return label;
   } catch (error) {
     console.error("Error fetching food label:", error);
     throw error;
@@ -83,11 +81,10 @@ export const updateFoodLabelRepository = async (labelId, data, tx = prisma) => {
       updateData.title = formatTitleCase(data.title, false);
     }
 
-    const updatedLabel = await tx.foodLabel.update({
+    return await tx.foodLabel.update({
       where: { id: labelId },
       data: updateData,
     });
-    return updatedLabel;
   } catch (error) {
     console.error("Error updating food label:", error);
     throw error;
@@ -157,10 +154,9 @@ export const deleteFoodLabelRepository = async (labelId, userId, isAdmin) => {
 //smaze vsechny labels podle catalog id
 export const deleteFoodLabelsByCatalogIdRepository = async (catalogId) => {
   try {
-    const result = await prisma.foodLabel.deleteMany({
+    return await prisma.foodLabel.deleteMany({
       where: { catalogId },
     });
-    return result;
   } catch (error) {
     console.error("Error deleting food labels by catalogId:", error);
     throw error;
@@ -193,9 +189,7 @@ export const getDefaultFoodLabelByUserLabelIdRepository = async (labelId, userId
 
     if (!userLabel) return null;
 
-    const inventoryDefaultLabel = userLabel?.catalog?.foods?.[0]?.label ?? null;
-
-    return inventoryDefaultLabel;
+    return userLabel?.catalog?.foods?.[0]?.label ?? null;
   } catch (error) {
     console.error(`Error in getFoodLabelWithFallbackRepository for labelId ${labelId}:`, error);
     throw error;

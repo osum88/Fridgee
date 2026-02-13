@@ -5,7 +5,7 @@ import prisma from "../utils/prisma.js";
 //vytvari inventar jidla s prvnim jeho uzivatelem (owner)
 export const createFoodInventoryRepository = async (userId, title, label) => {
   try {
-    const newFoodInventory = await prisma.foodInventory.create({
+    return await prisma.foodInventory.create({
       data: {
         title: title,
         label: label,
@@ -21,7 +21,6 @@ export const createFoodInventoryRepository = async (userId, title, label) => {
         inventory: true,
       },
     });
-    return newFoodInventory;
   } catch (error) {
     console.error("Error creating food inventory:", error);
     throw error;
@@ -103,7 +102,7 @@ export const getFoodInventoryUserRepository = async (
 // zmena role user v inventari
 export const changeRoleFoodInventoryUserRepository = async (userId, foodInventoryId, role) => {
   try {
-    const updatedUser = await prisma.inventoryUser.update({
+    return await prisma.inventoryUser.update({
       where: {
         userId_inventoryId: {
           userId: userId,
@@ -114,7 +113,6 @@ export const changeRoleFoodInventoryUserRepository = async (userId, foodInventor
         role: role,
       },
     });
-    return updatedUser;
   } catch (error) {
     console.error("Error updating user role:", error);
     throw error;
@@ -148,13 +146,12 @@ export const getFoodInventoryUserRoleRepository = async (userId, foodInventoryId
 //vrati pocet owneru
 export const getFoodInventoryOwnerCountRepository = async (inventoryId) => {
   try {
-    const ownerCount = await prisma.inventoryUser.count({
+    return await prisma.inventoryUser.count({
       where: {
         inventoryId: inventoryId,
         role: "OWNER",
       },
     });
-    return ownerCount;
   } catch (error) {
     console.error("Error fetching inventory owner count:", error);
     throw error;
@@ -194,12 +191,11 @@ export const deleteUserFoodInventoryRepository = async (userId, inventoryId) => 
 //smaze inventar
 export const deleteFoodInventoryRepository = async (inventoryId) => {
   try {
-    const deletedInventory = await prisma.foodInventory.delete({
+    return await prisma.foodInventory.delete({
       where: {
         id: inventoryId,
       },
     });
-    return deletedInventory;
   } catch (error) {
     console.error("Error deleting food inventory:", error);
     throw error;
@@ -209,7 +205,7 @@ export const deleteFoodInventoryRepository = async (inventoryId) => {
 //vrati user podle role
 export const getUsersByInventoryIdRepository = async (inventoryId, rolesToFilter) => {
   try {
-    const userInventory = await prisma.inventoryUser.findMany({
+    return await prisma.inventoryUser.findMany({
       where: {
         inventoryId: inventoryId,
         ...(rolesToFilter && {
@@ -243,7 +239,6 @@ export const getUsersByInventoryIdRepository = async (inventoryId, rolesToFilter
         },
       },
     });
-    return userInventory;
   } catch (error) {
     console.error("Error fetching users by inventory ID:", error);
     throw error;
@@ -253,7 +248,7 @@ export const getUsersByInventoryIdRepository = async (inventoryId, rolesToFilter
 //archivace inventare
 export const archiveFoodInventoryRepository = async (inventoryId) => {
   try {
-    const archivedInventory = await prisma.foodInventory.update({
+    return await prisma.foodInventory.update({
       where: {
         id: inventoryId,
       },
@@ -261,7 +256,6 @@ export const archiveFoodInventoryRepository = async (inventoryId) => {
         isArchived: true,
       },
     });
-    return archivedInventory;
   } catch (error) {
     console.error("Error archiving inventory:", error);
     throw error;
@@ -271,7 +265,7 @@ export const archiveFoodInventoryRepository = async (inventoryId) => {
 //zruseni archivace inventare
 export const unarchiveFoodInventoryRepository = async (inventoryId) => {
   try {
-    const unarchivedInventory = await prisma.foodInventory.update({
+    return await prisma.foodInventory.update({
       where: {
         id: inventoryId,
       },
@@ -279,7 +273,6 @@ export const unarchiveFoodInventoryRepository = async (inventoryId) => {
         isArchived: false,
       },
     });
-    return unarchivedInventory;
   } catch (error) {
     console.error("Error unarchiving inventory:", error);
     throw error;
@@ -289,7 +282,7 @@ export const unarchiveFoodInventoryRepository = async (inventoryId) => {
 //update title a label inventare
 export const updateFoodInventoryRepository = async (inventoryId, title, label) => {
   try {
-    const updatedInventory = await prisma.foodInventory.update({
+    return await prisma.foodInventory.update({
       where: {
         id: inventoryId,
       },
@@ -299,7 +292,6 @@ export const updateFoodInventoryRepository = async (inventoryId, title, label) =
         lastActivityAt: new Date(),
       },
     });
-    return updatedInventory;
   } catch (error) {
     console.error("Error updating inventory:", error);
     throw error;
@@ -309,7 +301,7 @@ export const updateFoodInventoryRepository = async (inventoryId, title, label) =
 //update last activity at inventare
 export const updateLastActivityAtFoodInventoryRepository = async (inventoryId) => {
   try {
-    const updatedInventory = await prisma.foodInventory.update({
+    return await prisma.foodInventory.update({
       where: {
         id: inventoryId,
       },
@@ -317,7 +309,6 @@ export const updateLastActivityAtFoodInventoryRepository = async (inventoryId) =
         lastActivityAt: new Date(),
       },
     });
-    return updatedInventory;
   } catch (error) {
     console.error("Error updating last activity at inventory:", error);
     throw error;
@@ -342,7 +333,7 @@ export const getAllFoodInventoryRepository = async (userId) => {
     if (inventoryIds.length === 0) {
       return [];
     }
-    const foodInventories = await prisma.foodInventory.findMany({
+    return await prisma.foodInventory.findMany({
       where: {
         id: {
           in: inventoryIds,
@@ -360,7 +351,6 @@ export const getAllFoodInventoryRepository = async (userId) => {
         lastActivityAt: "desc",
       },
     });
-    return foodInventories;
   } catch (error) {
     console.error("Error fetching food inventory:", error);
     throw error;
@@ -392,7 +382,7 @@ export const changeSettingFoodInventoryUserRepository = async (
       ...newSettings,
     };
 
-    const updatedUser = await prisma.inventoryUser.update({
+    return await prisma.inventoryUser.update({
       where: {
         userId_inventoryId: {
           userId: userId,
@@ -409,7 +399,6 @@ export const changeSettingFoodInventoryUserRepository = async (
         inventoryId: true,
       },
     });
-    return updatedUser;
   } catch (error) {
     console.error("Error updating user settings:", error);
     throw error;
@@ -419,7 +408,7 @@ export const changeSettingFoodInventoryUserRepository = async (
 // vrati vsechny jidla s kategoriemi, instancemi a labely
 export const getInventoryContentRepository = async (inventoryId, userId) => {
   try {
-    const foods = await prisma.food.findMany({
+    return await prisma.food.findMany({
       where: {
         inventoryId: inventoryId,
         instances: { some: {} },
@@ -441,7 +430,6 @@ export const getInventoryContentRepository = async (inventoryId, userId) => {
         },
       },
     });
-    return foods;
   } catch (error) {
     console.error(`Error fetching inventory content for inventoryId ${inventoryId}:`, error);
     throw error;

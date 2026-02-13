@@ -77,5 +77,5 @@ export const moveFile = async (uriFile, folder, fileName, rewrite = false) => {
 //vreti true pokud file existuje
 export const isFileExist = (path, fileName) => {
   const file = new File(path, fileName);
-  return file.exists ? true : false;
+  return !!file.exists;
 };

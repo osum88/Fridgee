@@ -4,13 +4,12 @@ import prisma from "../utils/prisma.js";
 //vytvori novy food catalog
 export const createFoodCatalogRepository = async (userId, barcode, tx = prisma) => {
   try {
-    const newFoodCatalog = await tx.foodCatalog.create({
+    return await tx.foodCatalog.create({
       data: {
         barcode: barcode,
         addedBy: userId,
       },
     });
-    return newFoodCatalog;
   } catch (error) {
     console.error("Error creating food catalog:", error);
     throw error;

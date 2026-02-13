@@ -35,12 +35,7 @@ export const createFoodCategoryService = async (userId, inventoryId, title, isAd
       throw new BadRequestError("Only OWNER or EDITOR can create category.");
     }
   }
-  const newCategory = await createFoodCategoryWithHistoryRepository(
-    inventoryId,
-    formatTitleCase(title),
-    userId,
-  );
-  return newCategory;
+  return await createFoodCategoryWithHistoryRepository(inventoryId, formatTitleCase(title), userId);
 };
 
 // vrati kategorii podle id
@@ -58,8 +53,7 @@ export const getFoodCategoriesByInventoryService = async (inventoryId, userId, i
     await getFoodInventoryUserRepository(userId, inventoryId);
   }
   await getFoodInventoryRepository(inventoryId);
-  const categories = await getFoodCategoriesByInventoryRepository(inventoryId);
-  return categories;
+  return await getFoodCategoriesByInventoryRepository(inventoryId);
 };
 
 // updatuje kategorii podle id
@@ -81,12 +75,7 @@ export const updateFoodCategoryService = async (userId, categoryId, title, isAdm
     throw new BadRequestError("Category title already exists in this inventory.");
   }
 
-  const updatedCategory = await updateFoodCategoryWithHistoryRepository(
-    categoryId,
-    formatTitleCase(title),
-    userId,
-  );
-  return updatedCategory;
+  return await updateFoodCategoryWithHistoryRepository(categoryId, formatTitleCase(title), userId);
 };
 
 // smaze kategorii podle id
@@ -98,8 +87,7 @@ export const deleteFoodCategoryService = async (userId, categoryId, isAdmin) => 
       throw new BadRequestError("Only OWNER can delete category.");
     }
   }
-  const deletedCategory = await deleteFoodCategoryWithHistoryRepository(categoryId, userId);
-  return deletedCategory;
+  return await deleteFoodCategoryWithHistoryRepository(categoryId, userId);
 };
 
 //zpracuje a zvaliduje zmeny kategorii a vrati data pro update nebo null
@@ -158,10 +146,13 @@ export const resolveCategoryUpdateData = async (
 
   const isMovingOrRemoving = newId !== undefined;
 
-  if (isCreatingNewCategory) {
-    if (!isAdmin && inventoryUser?.role !== "OWNER" && inventoryUser?.role !== "EDITOR") {
-      throw new ForbiddenError("Only OWNER or EDITOR can create new categories.");
-    }
+  if (
+    isCreatingNewCategory &&
+    !isAdmin &&
+    inventoryUser?.role !== "OWNER" &&
+    inventoryUser?.role !== "EDITOR"
+  ) {
+    throw new ForbiddenError("Only OWNER or EDITOR can create new categories.");
   }
 
   //zjisti zda uzivatel je jedinym kdo ma insatnci daneho jidla

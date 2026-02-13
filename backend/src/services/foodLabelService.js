@@ -21,9 +21,9 @@ import { determineUpdateValue, isAnyValueDefined, normalizeText } from "../utils
 
 //vraci food label podle id
 export const getFoodLabelByIdService = async (foodCatalogId, ownerId, userId, isAdmin) => {
-  const userLabel = !isAdmin
-    ? await getFoodLabelByUserIdCatalogIdRepository(userId, foodCatalogId)
-    : null;
+  const userLabel = isAdmin
+    ? null
+    : await getFoodLabelByUserIdCatalogIdRepository(userId, foodCatalogId);
 
   const originalLabel = await getFoodLabelByUserIdCatalogIdRepository(ownerId, foodCatalogId);
 
@@ -202,10 +202,8 @@ export const getLabelSuggestionsService = async (
     const aVariantCount = a.foods?.length || 0;
     const bVariantCount = b.foods?.length || 0;
 
-    if (a.title.toLowerCase() === b.title.toLowerCase()) {
-      if (aVariantCount !== bVariantCount) {
-        return bVariantCount - aVariantCount;
-      }
+    if (a.title.toLowerCase() === b.title.toLowerCase() && aVariantCount !== bVariantCount) {
+      return bVariantCount - aVariantCount;
     }
 
     // 7. FALLBACK: Abeceda

@@ -252,8 +252,7 @@ export const getUsersByInventoryIdService = async (userId, inventoryId, rolesToF
   }
 
   // vrati uzivatele z inventare
-  const inventoryUsers = await getUsersByInventoryIdRepository(inventoryId, rolesToFilter);
-  return inventoryUsers;
+  return await getUsersByInventoryIdRepository(inventoryId, rolesToFilter);
 };
 
 //archivace inventare
@@ -312,8 +311,7 @@ export const updateFoodInventoryService = async (userId, inventoryId, title, lab
   }
 
   // updatuje title a label inventare
-  const updatedInventory = await updateFoodInventoryRepository(inventoryId, title, label);
-  return updatedInventory;
+  return await updateFoodInventoryRepository(inventoryId, title, label);
 };
 
 //vrati uzivatele inventare
@@ -323,8 +321,7 @@ export const getAllFoodInventoryService = async (userId, isAdmin) => {
   }
 
   // vrati inventare
-  const inventories = await getAllFoodInventoryRepository(userId);
-  return inventories;
+  return await getAllFoodInventoryRepository(userId);
 };
 
 //vrati invetar s informacemi o uzivateli
@@ -344,12 +341,11 @@ export const getInventoryDetailsWithUserService = async (userId, inventoryId, is
   }
 
   // spojeni dat do jednoho objektu
-  const combinedData = {
-    inventory: inventory,
-    userRole: inventoryUser.role,
-    userSetting: inventoryUser.notificationSettings,
-  };
-  return combinedData;
+  return {
+      inventory: inventory,
+      userRole: inventoryUser.role,
+      userSetting: inventoryUser.notificationSettings,
+    };
 };
 
 //zmena settingu pro uzivatele
@@ -373,8 +369,7 @@ export const changeSettingFoodInventoryUserService = async (
   }
 
   // zmena settingu usera
-  const updatedUser = await changeSettingFoodInventoryUserRepository(userId, inventoryId, settings);
-  return updatedUser;
+  return await changeSettingFoodInventoryUserRepository(userId, inventoryId, settings);
 };
 
 // vrati vsechny jidla s kategoriemi, instancemi a labely

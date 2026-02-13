@@ -238,7 +238,7 @@ export const getBankNumberRepository = async (id) => {
 //vraci uzivatele podle emailu
 export const getUserByEmailRepository = async (email) => {
   try {
-    const user = await prisma.user.findUnique({
+    return await prisma.user.findUnique({
       where: {
         email: email,
       },
@@ -259,7 +259,6 @@ export const getUserByEmailRepository = async (email) => {
         gender: true,
       },
     });
-    return user;
   } catch (error) {
     console.error("Error fetching user by email:", error);
     throw error;
@@ -269,7 +268,7 @@ export const getUserByEmailRepository = async (email) => {
 //vraci uzivatele podle username
 export const getUserByUsernameRepository = async (username) => {
   try {
-    const user = await prisma.user.findUnique({
+    return await prisma.user.findUnique({
       where: {
         username: username,
       },
@@ -277,7 +276,6 @@ export const getUserByUsernameRepository = async (username) => {
         id: true,
       },
     });
-    return user;
   } catch (error) {
     console.error("Error fetching user by username:", error);
     throw error;
@@ -287,7 +285,7 @@ export const getUserByUsernameRepository = async (username) => {
 //updatuje email verfikacni token
 export const updateVerificationTokenRepository = async (id, verificationToken, tokenExpiresAt) => {
   try {
-    const updatedVerificationToken = await prisma.user.update({
+    return await prisma.user.update({
       where: {
         id: parseInt(id),
       },
@@ -296,7 +294,6 @@ export const updateVerificationTokenRepository = async (id, verificationToken, t
         tokenExpiresAt: tokenExpiresAt,
       },
     });
-    return updatedVerificationToken;
   } catch (error) {
     console.error("Error updating verification token:", error);
     throw error;
@@ -310,7 +307,7 @@ export const updatePasswordResetTokenRepository = async (
   passwordResetExpiresAt,
 ) => {
   try {
-    const updatedPasswordResetToken = await prisma.user.update({
+    return await prisma.user.update({
       where: {
         id: parseInt(id),
       },
@@ -319,7 +316,6 @@ export const updatePasswordResetTokenRepository = async (
         passwordResetExpiresAt: passwordResetExpiresAt,
       },
     });
-    return updatedPasswordResetToken;
   } catch (error) {
     console.error("Error updating reset password token:", error);
     throw error;
@@ -329,7 +325,7 @@ export const updatePasswordResetTokenRepository = async (
 //vrati id uzivatele podle verifikačniho email tokenu
 export const getUserIdByVerificationTokenRepository = async (token) => {
   try {
-    const user = await prisma.user.findFirst({
+    return await prisma.user.findFirst({
       where: {
         verificationToken: token,
         tokenExpiresAt: {
@@ -341,7 +337,6 @@ export const getUserIdByVerificationTokenRepository = async (token) => {
         id: true,
       },
     });
-    return user;
   } catch (error) {
     console.error("Error fetching user ID:", error);
     throw error;
@@ -351,7 +346,7 @@ export const getUserIdByVerificationTokenRepository = async (token) => {
 //vrati id uzivatele podle reset password tokenu
 export const getUserByPasswordResetTokenRepository = async (token) => {
   try {
-    const user = await prisma.user.findFirst({
+    return await prisma.user.findFirst({
       where: {
         passwordResetToken: token,
         passwordResetExpiresAt: {
@@ -364,7 +359,6 @@ export const getUserByPasswordResetTokenRepository = async (token) => {
         preferredLanguage: true,
       },
     });
-    return user;
   } catch (error) {
     console.error("Error fetching user by password reset token:", error);
     throw error;
@@ -375,7 +369,7 @@ export const getUserByPasswordResetTokenRepository = async (token) => {
 export const resetPasswordInDbRepository = async (id, password) => {
   try {
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-    const resetPassword = await prisma.user.update({
+    return await prisma.user.update({
       where: {
         id: id,
       },
@@ -389,7 +383,6 @@ export const resetPasswordInDbRepository = async (id, password) => {
         email: true,
       },
     });
-    return resetPassword;
   } catch (error) {
     console.error("Error reset password:", error);
     throw error;
@@ -399,7 +392,7 @@ export const resetPasswordInDbRepository = async (id, password) => {
 //nastavi overeni emailu
 export const verifyUserEmailInDbRepository = async (id) => {
   try {
-    const verifyUserEmail = await prisma.user.update({
+    return await prisma.user.update({
       where: {
         id: id,
       },
@@ -415,7 +408,6 @@ export const verifyUserEmailInDbRepository = async (id) => {
         username: true,
       },
     });
-    return verifyUserEmail;
   } catch (error) {
     console.error("Error verifying user email:", error);
     throw error;
@@ -443,7 +435,7 @@ export const getPreferredLanguageByUserIdRepository = async (id) => {
 //updatuje preferovany jazyk
 export const updatePreferredLanguageByUserIdRepository = async (id, preferredLanguage) => {
   try {
-    const updatedUser = await prisma.user.update({
+    return await prisma.user.update({
       where: {
         id: id,
       },
@@ -454,8 +446,6 @@ export const updatePreferredLanguageByUserIdRepository = async (id, preferredLan
         preferredLanguage: true,
       },
     });
-
-    return updatedUser;
   } catch (error) {
     console.error("Error updating preferred language:", error);
     throw error;
@@ -466,7 +456,7 @@ export const updatePreferredLanguageByUserIdRepository = async (id, preferredLan
 export const searchUsersRepository = async (userId, username, limit) => {
   try {
     const parsedLimit = parseInt(limit, 10) || 10;
-    const users = await prisma.user.findMany({
+    return await prisma.user.findMany({
       where: {
         username: {
           contains: username,
@@ -488,7 +478,6 @@ export const searchUsersRepository = async (userId, username, limit) => {
         profilePictureUrl: true,
       },
     });
-    return users;
   } catch (error) {
     console.error("Error searching users:", error);
     throw error;
@@ -498,7 +487,7 @@ export const searchUsersRepository = async (userId, username, limit) => {
 //updatuje url user profilovaho obrazku
 export const updateUserProfileImageRepository = async (id, imageUrl) => {
   try {
-    const updatedUser = await prisma.user.update({
+    return await prisma.user.update({
       where: {
         id: id,
       },
@@ -510,7 +499,6 @@ export const updateUserProfileImageRepository = async (id, imageUrl) => {
         profilePictureUrl: true,
       },
     });
-    return updatedUser;
   } catch (error) {
     console.error("Error updating user profile image url:", error);
     throw error;
@@ -520,7 +508,7 @@ export const updateUserProfileImageRepository = async (id, imageUrl) => {
 //updatuje posledni login
 export const updateLastLoginRepository = async (id) => {
   try {
-    const updatedUser = await prisma.user.update({
+    return await prisma.user.update({
       where: {
         id: id,
       },
@@ -532,7 +520,6 @@ export const updateLastLoginRepository = async (id) => {
         lastLogin: true,
       },
     });
-    return updatedUser;
   } catch (error) {
     console.error("Error updating last login:", error);
     throw error;
