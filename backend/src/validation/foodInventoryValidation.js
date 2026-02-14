@@ -104,16 +104,47 @@ export const changeSettingAdminSchema = Joi.object({
 });
 
 export const searchInventoryLabelSchema = Joi.object({
-  inventoryId: Joi.alternatives().try(
-    Joi.number().integer().positive(),
-    Joi.string().valid("null") 
-  ).required(),
+  inventoryId: Joi.alternatives()
+    .try(Joi.number().integer().positive(), Joi.string().valid("null"))
+    .required(),
   title: Joi.string().max(50).allow("").optional(),
-  limit: Joi.number().min(0).max(30).default(10).optional(),
+  limit: Joi.number().integer().min(0).max(30).default(10).optional(),
 });
 
 export const searchInventoryLabelAdminSchema = searchInventoryLabelSchema.keys({
   id: Joi.number().integer().positive().required(),
   limit: Joi.number().min(0).default(10).optional(),
+});
 
+export const getHistorySchema = Joi.object({
+  inventoryId: Joi.number().integer().positive().required(),
+  limit: Joi.number().integer().min(1).max(100).default(20),
+  cursor: Joi.number().integer().min(1).optional(),
+  type: Joi.alternatives()
+    .try(
+      Joi.array()
+        .items(
+          Joi.string().valid(
+            "ADD",
+            "CONSUME",
+            "UPDATE",
+            "EXPIRE",
+            "REMOVE",
+            "MERGE",
+            "UPDATE_MERGE",
+            "CATEGORY_MOVE",
+            "LABEL_UPDATE",
+            "MIN_QUANTITY_UPDATE",
+            "CATEGORY_RENAME",
+            "CATEGORY_CREATE",
+            "CATEGORY_REMOVE",
+          ),
+        )
+        .single(),
+      Joi.string().valid(""),
+    )
+    .optional(),
+  fromDate: Joi.date().iso().optional(),
+  toDate: Joi.date().iso().optional(),
+  search: Joi.string().allow("").max(50).optional(),
 });

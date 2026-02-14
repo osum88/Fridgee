@@ -3,11 +3,12 @@ import { authenticateToken, authorizeUser } from "../middlewares/authMiddleware.
 import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, deleteOtherFoodInventoryUser, getAllFoodInventory, getInventoryContent, getInventoryDetailsWithUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
 import { acceptInventoryInvitation, rejectInventoryInvitation, sendInventoryInvitation } from "../controllers/inventoryInvitationController.js";
 import validate from "../middlewares/validator.js";
-import { inventoryIdSchema, changeRoleSchema, changeSettingSchema, createFoodInventorySchema, deleteOtherSchema, deleteSchema, getInventoryUsersSchema, updateFoodInventorySchema, searchInventoryLabelSchema } from "../validation/foodInventoryValidation.js";
+import { inventoryIdSchema, changeRoleSchema, changeSettingSchema, createFoodInventorySchema, deleteOtherSchema, deleteSchema, getInventoryUsersSchema, updateFoodInventorySchema, searchInventoryLabelSchema, getHistorySchema } from "../validation/foodInventoryValidation.js";
 import { invitationIdSchema, sendInvitationSchema } from "../validation/inventoryInvitationValidation.js";
 import { sanitize } from "../middlewares/sanitize.js";
 import { getFoodCategoriesByInventory } from "../controllers/foodCategoryController.js";
 import { getLabelSuggestions } from "../controllers/foodLabelController.js";
+import { getHistory } from "../controllers/foodHistoryController.js";
 
 const router = express.Router();
 
@@ -64,7 +65,9 @@ router.get("/", authenticateToken, authorizeUser, getAllFoodInventory);
 router.get("/:inventoryId/suggestions", validate(searchInventoryLabelSchema), authenticateToken, sanitize, authorizeUser, getLabelSuggestions);
 // /api/inventory/19/suggestions?title=apple&limit=5
 
-
+//vraci historii
+router.get("/:inventoryId/history", validate(getHistorySchema), authenticateToken, sanitize, authorizeUser, getHistory);
+// api/inventory/19/history?limit=20&cursor=64&type=ADD
 
 export default router;
 

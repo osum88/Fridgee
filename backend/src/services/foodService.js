@@ -118,7 +118,7 @@ export const updateFoodService = async (userId, data, isAdmin) => {
       }
       minimalQuantityData = {
         new: { minimalQuantity: newMinimalQuantity },
-        old: { minimalQuantity: food?.minimalQuantity ?? 0 },
+        old: { minimalQuantity: food?.minimalQuantity },
       };
     }
   }

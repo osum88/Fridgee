@@ -244,6 +244,8 @@ export const updateFoodInstancesRepository = async (userId, updatePayload, foodI
           action = newVariant.action;
         }
 
+        const batchItem = updatePayload.length > 1 ? { batchItem: true } : {};
+
         for (const item of updatePayload) {
           console.log("2");
 
@@ -288,7 +290,7 @@ export const updateFoodInstancesRepository = async (userId, updatePayload, foodI
             include: { food: true },
           });
 
-          const metadata = {};
+          const metadata = batchItem;
 
           // metadata pro amount, unit, expirationDate pokud se zmeni
           for (const [key, newValue] of Object.entries(item.instanceData)) {

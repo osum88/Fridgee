@@ -6,7 +6,7 @@ import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFrien
 import { deleteUser, deleteUserProfileImage, getAllUsersAdmin, getUserById, updateUser, updateUserProfileImage } from "../controllers/userController.js";
 import { updateUserAdminSchema, userIdAdminSchema } from "../validation/userValidation.js";
 import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, getAllFoodInventory, getInventoryContent, getInventoryDetailsWithUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
-import { inventoryIdAdminSchema, changeRoleAdminSchema, changeSettingAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema, inventoryIdSchema, searchInventoryLabelAdminSchema } from "../validation/foodInventoryValidation.js";
+import { inventoryIdAdminSchema, changeRoleAdminSchema, changeSettingAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema, inventoryIdSchema, searchInventoryLabelAdminSchema, getHistorySchema } from "../validation/foodInventoryValidation.js";
 import { getFriendsAdminSchema } from "../validation/friendValidation.js";
 import { sanitize } from "../middlewares/sanitize.js";
 import { foodCatalogIdSchema, foodCatalogWithLabelByBarcodeSchema,  } from "../validation/foodCatalogValidation.js";
@@ -20,6 +20,7 @@ import { consumeMultipleFoodInstances, deleteFoodInstances, duplicateFoodInstanc
 import { consumeFoodInstanceSchema, deleteFoodInstancesSchema, duplicateInstancesSchema, updateFoodInstanceSchema } from "../validation/foodInstanceValidation.js";
 import { deleteFoodLabel, getLabelSuggestions, updateFoodLabel } from "../controllers/foodLabelController.js";
 import { foodLabelIdSchema, updateFoodLabelSchema } from "../validation/foodLabelValidation.js";
+import { getHistory } from "../controllers/foodHistoryController.js";
 
 
 const router = express.Router();
@@ -91,6 +92,11 @@ router.get("/users/:id/inventory", authenticateToken, authorizeAdmin, getAllFood
 //hleda jidlo podle stringu
 router.get("/users/:id/inventory/:inventoryId/suggestions", validate(searchInventoryLabelAdminSchema), authenticateToken, sanitize, authorizeAdmin, getLabelSuggestions);
 // /api/admin/users/78/inventory/19/suggestions?title=apple&limit=5
+
+//vraci historii
+router.get("inventory/:inventoryId/history", validate(getHistorySchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getHistory);
+// api/inventory/19/history?limit=20&cursor=64&type=ADD
+
 
 //                         FOOD CATALOG
 

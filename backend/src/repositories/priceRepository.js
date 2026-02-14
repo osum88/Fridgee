@@ -8,14 +8,14 @@ export const createPriceRepository = async (data, tx = prisma) => {
       return null;
     }
     return await tx.price.create({
-          data: {
-            price: data.price,
-            baseCurrency: data?.baseCurrency || "CZK",
-            exchangeAmount: data?.exchangeAmount,
-            exchangeRate: data?.exchangeRate,
-            exchangeRateDate: data?.exchangeRateDate,
-          },
-        });
+      data: {
+        price: data.price,
+        baseCurrency: data?.baseCurrency || "CZK",
+        exchangeAmount: data?.exchangeAmount,
+        exchangeRate: data?.exchangeRate,
+        exchangeRateDate: data?.exchangeRateDate,
+      },
+    });
   } catch (error) {
     console.error("Error creating price:", error);
     throw error;
@@ -78,14 +78,46 @@ export const deleteUnusedPricesRepository = async (tx = prisma) => {
 
     // smaze vsechny nepouzivane price
     return await tx.price.deleteMany({
-          where: {
-            id: {
-              notIn: Array.from(allUsedIds),
-            },
-          },
-        });
+      where: {
+        id: {
+          notIn: Array.from(allUsedIds),
+        },
+      },
+    });
   } catch (error) {
     console.error("Error in deleteUnusedPricesRepository:", error);
     throw error;
+  }
+};
+
+// ziska vsechny price z history
+export const getPricesMapFromHistoryRepository = async (historyRaw) => {
+  try {
+    const priceIds = new Set();
+    const pricesMap = new Map();
+
+    historyRaw.forEach((log) => {
+      if (log.metadata?.price?.before) priceIds.add(log.metadata.price.before);
+      if (log.metadata?.price?.after) priceIds.add(log.metadata.price.after);
+    });
+
+    if (priceIds.size > 0) {
+      const prices = await prisma.price.findMany({
+        where: { id: { in: Array.from(priceIds) } },
+        select: {
+          id: true,
+          price: true,
+          baseCurrency: true,
+          exchangeAmount: true,
+          exchangeRate: true,
+        },
+      });
+      prices.forEach((p) => pricesMap.set(p.id, p));
+    }
+
+    return pricesMap;
+  } catch (error) {
+    console.error("Error fetching prices map for history:", error);
+    return new Map();
   }
 };
