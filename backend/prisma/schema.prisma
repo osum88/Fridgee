@@ -348,6 +348,7 @@ model FoodLabel {
   catalog          FoodCatalog @relation(fields: [catalogId], references: [id], onDelete: Cascade)
   foods            Food[]
 
+  @@index([foodImageCloudId])
   @@index([userId, catalogId])
   @@index([catalogId])
   @@index([normalizedTitle])

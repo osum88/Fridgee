@@ -10,6 +10,8 @@ import {
 import { logLabelUpdateHistoryRepository } from "./foodHistoryRepository.js";
 import { deleteFoodCatalogRepository } from "./foodCatalogRepository.js";
 import { formatTitleCase, normalizeText } from "../utils/stringUtils.js";
+import { cleanupUnusedImage } from "../services/foodLabelService.js";
+import { deleteEveryFilesInFolderCloud } from "../services/imageService.js";
 
 // vytvori novy food label
 export const createFoodLabelRepository = async (data, tx = prisma) => {
@@ -140,6 +142,7 @@ export const deleteFoodLabelRepository = async (labelId, userId, isAdmin) => {
         label = await tx.foodLabel.delete({
           where: { id: foodLabel.id },
         });
+        await cleanupUnusedImage(foodLabel.foodImageCloudId);
         deleteLabelFlag = "HARD-DELETE";
       }
       const catalog = await deleteFoodCatalogRepository(foodLabel.catalogId, userId, isAdmin, tx);
@@ -367,3 +370,5 @@ export const getAvailableFoodLabelsRepository = async (userId, page = 0, limit =
     throw error;
   }
 };
+
+

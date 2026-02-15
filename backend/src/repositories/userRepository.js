@@ -2,6 +2,7 @@ import prisma from "../utils/prisma.js";
 import bcrypt from "bcrypt";
 import { encrypt, decrypt } from "../utils/encryption.js";
 import { NotFoundError } from "../errors/errors.js";
+import { deleteEveryFilesInFolderCloud } from "../services/imageService.js";
 
 const SALT_ROUNDS = 11;
 
@@ -126,84 +127,118 @@ export const updateUserRepository = async (id, updateData) => {
 //smaze uzivatele
 export const deleteUserRepository = async (id) => {
   const userId = parseInt(id);
-
+  const SYSTEM_USER_ID = 1;
   try {
-    const deletedUser = await prisma.$transaction(async (tx) => {
-      // najde id vsech katalogu s barcodem, ktere uzivatel vytvoril
-      const userCreatedCatalogs = await tx.foodCatalog.findMany({
-        where: { addedBy: userId, NOT: { barcode: null } },
-        select: { id: true },
-      });
-      const catalogIds = userCreatedCatalogs.map((c) => c.id);
+    const result = await prisma.$transaction(
+      async (tx) => {
+        // najde id vsech katalogu s barcodem, ktere uzivatel vytvoril
+        const userCreatedCatalogs = await tx.foodCatalog.findMany({
+          where: { addedBy: userId, NOT: { barcode: null } },
+          select: { id: true },
+        });
+        const catalogIds = userCreatedCatalogs.map((c) => c.id);
 
-      // prevede labely pro katalogy s barcodem ktere vytvoril na systemoveho uzivatele
-      await tx.foodLabel.updateMany({
-        where: {
-          userId: userId,
-          catalogId: { in: catalogIds },
-        },
-        data: { userId: 1 },
-      });
-
-      // prevede katalogy s barcodem ktere vytvoril na systemoveho uzivatele
-      await tx.foodCatalog.updateMany({
-        where: {
-          id: { in: catalogIds },
-        },
-        data: { addedBy: 1 },
-      });
-
-      // vsechny ostatni labely, katalogy a varianty udela anonymni
-      await tx.foodLabel.updateMany({
-        where: { userId: userId },
-        data: { userId: null, isDeleted: true },
-      });
-
-      await tx.foodVariant.updateMany({
-        where: { addedBy: userId },
-        data: { addedBy: null, isDeleted: true },
-      });
-
-      await tx.foodCatalog.updateMany({
-        where: { addedBy: userId },
-        data: { addedBy: null, isDeleted: true },
-      });
-
-      // smaze labely, katalogy a varianty, které patri anonymovi (null) a nikdo je nepouziva v food
-      await tx.foodLabel.deleteMany({
-        where: {
-          userId: null,
-          isDeleted: true,
-          NOT: { foods: { some: {} } },
-        },
-      });
-
-      await tx.foodVariant.deleteMany({
-        where: {
-          addedBy: null,
-          isDeleted: true,
-          NOT: { foods: { some: {} } },
-        },
-      });
-
-      await tx.foodCatalog.deleteMany({
-        where: {
-          addedBy: null,
-          isDeleted: true,
-          NOT: {
-            OR: [{ foods: { some: {} } }, { foodHistories: { some: {} } }],
+        // prevede labely pro katalogy s barcodem ktere vytvoril na systemoveho uzivatele
+        await tx.foodLabel.updateMany({
+          where: {
+            userId: userId,
+            catalogId: { in: catalogIds },
           },
+          data: { userId: SYSTEM_USER_ID },
+        });
+
+        // prevede katalogy s barcodem ktere vytvoril na systemoveho uzivatele
+        await tx.foodCatalog.updateMany({
+          where: {
+            id: { in: catalogIds },
+          },
+          data: { addedBy: SYSTEM_USER_ID },
+        });
+
+        // posbira vsechny cloud image id nez zadne mazat a anonymizovat
+        const userLabelsWithImages = await tx.foodLabel.findMany({
+          where: {
+            userId: userId,
+            foodImageCloudId: { not: null },
+            NOT: { foods: { some: {} } },
+          },
+          select: { foodImageCloudId: true },
+        });
+        const candidateCloudIds = [...new Set(userLabelsWithImages.map((l) => l.foodImageCloudId))];
+
+        // vsechny ostatni labely, katalogy a varianty udela anonymni
+        await tx.foodLabel.updateMany({
+          where: { userId: userId },
+          data: { userId: null, isDeleted: true },
+        });
+
+        await tx.foodVariant.updateMany({
+          where: { addedBy: userId },
+          data: { addedBy: null, isDeleted: true },
+        });
+
+        await tx.foodCatalog.updateMany({
+          where: { addedBy: userId },
+          data: { addedBy: null, isDeleted: true },
+        });
+
+        // smaze labely, katalogy a varianty, které patri anonymovi (null) a nikdo je nepouziva v food
+        await tx.foodLabel.deleteMany({
+          where: {
+            userId: null,
+            isDeleted: true,
+            NOT: { foods: { some: {} } },
+          },
+        });
+
+        await tx.foodVariant.deleteMany({
+          where: {
+            addedBy: null,
+            isDeleted: true,
+            NOT: { foods: { some: {} } },
+          },
+        });
+
+        await tx.foodCatalog.deleteMany({
+          where: {
+            addedBy: null,
+            isDeleted: true,
+            NOT: {
+              OR: [{ foods: { some: {} } }, { foodHistories: { some: {} } }],
+            },
+          },
+        });
+
+        // smazeme uživatele
+        const deletedUser = await tx.user.delete({
+          where: { id: userId },
+        });
+
+        return { deletedUser, candidateCloudIds };
+      },
+      { timeout: 15000 },
+    );
+
+    // pokud existuji id imge ktere je potreba smazat
+    if (result?.candidateCloudIds?.length > 0) {
+      const stillUsedLabels = await prisma.foodLabel.findMany({
+        where: {
+          foodImageCloudId: { in: result.candidateCloudIds },
+          isDeleted: false,
         },
+        select: { foodImageCloudId: true },
       });
 
-      // smazeme uživatele
-      return await tx.user.delete({
-        where: { id: userId },
-      });
-    });
+      const stillUsedIds = new Set(stillUsedLabels.map((l) => l.foodImageCloudId));
+      const idsToDelete = result.candidateCloudIds.filter((id) => !stillUsedIds.has(id));
 
-    if (deletedUser) {
-      const { passwordHash, bankNumber, ...rest } = deletedUser;
+      if (idsToDelete.length > 0) {
+        deleteEveryFilesInFolderCloud(idsToDelete);
+      }
+    }
+
+    if (result?.deletedUser) {
+      const { passwordHash, bankNumber, ...rest } = result.deletedUser;
       return rest;
     }
     return null;

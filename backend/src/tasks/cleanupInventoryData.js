@@ -1,4 +1,5 @@
 import { deleteUnusedPricesRepository } from "../repositories/priceRepository.js";
+import { deleteEveryFilesInFolderCloud } from "../services/imageService.js";
 import prisma from "../utils/prisma.js";
 
 //maze historii starsi nez rok a uklidi jiz nepotrebna data (food, variant, price, catalog, label)
@@ -32,6 +33,9 @@ export const cleanupInventoryData = async () => {
             NOT: { foods: { some: {} } },
           },
         });
+
+        //smaze vsechny nepotrebne food image z cloudu
+        await cleanupLabelImages(tx);
 
         //smaze soft deleted labely ktere se nepouzivaji v zadnem jidle
         const deletedLabels = await tx.foodLabel.deleteMany({
@@ -71,11 +75,45 @@ export const cleanupInventoryData = async () => {
         };
       },
       {
-        timeout: 20000,
+        timeout: 30000,
       },
     );
   } catch (error) {
     console.error("Error during inventory data cleanup:", error);
     throw error;
+  }
+};
+
+//smaze vsechny nepotrebne food image z cloudu
+const cleanupLabelImages = async (tx = prisma) => {
+  // ziskame id vsech nepouzivanych smazanych labelu
+  const deletedLabels = await tx.foodLabel.findMany({
+    where: {
+      isDeleted: true,
+      foodImageCloudId: { not: null },
+      NOT: { foods: { some: {} } },
+    },
+    select: { foodImageCloudId: true },
+  });
+
+  const candidateIds = [...new Set(deletedLabels.map((l) => l.foodImageCloudId))];
+
+  if (candidateIds.length === 0) return [];
+
+  // overime ze ktere z ids jsou jeste pouzivane
+  const stillUsedLabels = await tx.foodLabel.findMany({
+    where: {
+      isDeleted: false,
+      foodImageCloudId: { in: candidateIds },
+    },
+    select: { foodImageCloudId: true },
+  });
+
+  const stillUsedIds = new Set(stillUsedLabels.map((l) => l.foodImageCloudId));
+
+  const idsToDelete = candidateIds.filter((id) => !stillUsedIds.has(id));
+
+  if (idsToDelete.length > 0) {
+    deleteEveryFilesInFolderCloud(idsToDelete);
   }
 };

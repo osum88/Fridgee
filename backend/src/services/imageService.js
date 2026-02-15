@@ -29,7 +29,7 @@ export const uploadImageToCloud = async (
   folderPath,
   tags = [],
   overwriteFile = true,
-  useUniqueFileName = false
+  useUniqueFileName = false,
 ) => {
   try {
     return await imagekit.upload({
@@ -55,12 +55,28 @@ export const getEveryFilesIdFromFolderCloud = async (folderPath) => {
   return files.map((file) => file.fileId);
 };
 
-//smaze vsechny fotky ve folder
+//smaze vsechny fotky podle ids
 export const deleteEveryFilesInFolderCloud = async (fileIds) => {
+  if (!fileIds?.length) return true;
+
+  const CHUNK_SIZE = 100;
+  let allSuccessful = true;
+
+  // bulk je omezen na 100 ids
   try {
-    await Promise.all(fileIds.map((id) => imagekit.deleteFile(id)));
-    return true;
+    for (let i = 0; i < fileIds.length; i += CHUNK_SIZE) {
+      const chunk = fileIds.slice(i, i + CHUNK_SIZE);
+      try {
+        await imagekit.bulkDeleteFiles(chunk);
+        console.log(`Successfully deleted chunk of ${chunk.length} files.`);
+      } catch (error) {
+        console.error(`Failed to delete chunk starting at index ${i}:`, error);
+        allSuccessful = false;
+      }
+    }
+    return allSuccessful;
   } catch (error) {
+    console.error("Bulk deletion failed:", error);
     return false;
   }
 };
