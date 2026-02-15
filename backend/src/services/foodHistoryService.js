@@ -10,7 +10,7 @@ export const getHistoryService = async (inventoryId, data, userId, isAdmin) => {
   }
 
   //zmena limitu pro pripad bulk zaznamu
-  const desiredLimit = data.limit || 20;
+  const desiredLimit = data.limit || 40;
   const dbLimit = Math.min(desiredLimit * 5, 200);
 
   const historyRaw = await getHistoryRepository(inventoryId, userId, { ...data, limit: dbLimit });

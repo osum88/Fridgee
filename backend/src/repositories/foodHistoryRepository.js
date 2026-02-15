@@ -71,11 +71,12 @@ export const logLabelUpdateHistoryRepository = async (
 
 // vraci historii
 export const getHistoryRepository = async (inventoryId, userId, data) => {
-  const { limit, cursorId, type, fromDate, toDate, searchString } = data;
+  const { limit, cursorId, type, fromDate, toDate, searchString, changedBy } = data;
 
   return await prisma.foodHistory.findMany({
     where: {
       inventoryId,
+      ...(changedBy?.length && { changedBy: { in: changedBy } }),
       ...(type?.length && { action: { in: type } }),
       ...((fromDate || toDate) && {
         changedAt: {

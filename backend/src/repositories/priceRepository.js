@@ -38,6 +38,31 @@ export const getPriceByIdRepository = async (id) => {
   }
 };
 
+//vraci id price podle dat
+export const findOrCreatePriceIdRepository = async (priceData,  tx) => {
+    const existingPrice = await tx.price.findFirst({
+    where: {
+      price: priceData.price,
+      baseCurrency: priceData.baseCurrency,
+      exchangeRate: {
+        equals: priceData.exchangeRate,
+      },
+      exchangeAmount: {
+        equals: priceData.exchangeAmount,
+      },
+      exchangeRateDate: priceData.exchangeRateDate,
+    },
+    select: { id: true },
+  });
+
+  if (existingPrice) {
+    return existingPrice.id;
+  } else {
+    const newPrice = await tx.price.create({ data: priceData });
+    return newPrice.id;
+  }
+};
+
 //smaze vsechny nepouzivane ceny
 export const deleteUnusedPricesRepository = async (tx = prisma) => {
   try {

@@ -12,6 +12,7 @@ import {
   resolveTargetFoodEntityRepository,
   softDeleteOrphanedVariantRepository,
 } from "./foodVariantRepository.js";
+import { findOrCreatePriceIdRepository } from "./priceRepository.js";
 
 // smaze vice foodinstance pokud je spotrebovana nebo upravi amount pokud je jen castecna konzumace
 export const consumeMultipleFoodInstancesRepository = async (
@@ -265,6 +266,8 @@ export const updateFoodInstancesRepository = async (userId, updatePayload, foodI
           await tx.$executeRaw`SELECT id FROM foods WHERE id = ${newFoodId} FOR UPDATE`;
 
           let finalPriceId = item.oldData.priceId;
+          console.log(item.oldData)
+          console.log(item?.priceData)
 
           // logika price
           if (item.priceData === null) {
@@ -273,9 +276,8 @@ export const updateFoodInstancesRepository = async (userId, updatePayload, foodI
             finalPriceId = null;
           } else if (item.priceData !== undefined) {
             console.log("5");
-
-            const newPrice = await tx.price.create({ data: item.priceData });
-            finalPriceId = newPrice.id;
+            //najde nebo vytvori nove price
+            finalPriceId = await findOrCreatePriceIdRepository(item?.priceData, tx);
           }
 
           // update instance

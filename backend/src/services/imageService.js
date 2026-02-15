@@ -23,7 +23,14 @@ export const resizeImage = async (image, width, format = "webp") => {
 };
 
 //uploaduje image na cloud
-export const uploadImageToCloud = async (buffer, fileName, folderPath, tags = []) => {
+export const uploadImageToCloud = async (
+  buffer,
+  fileName,
+  folderPath,
+  tags = [],
+  overwriteFile = true,
+  useUniqueFileName = false
+) => {
   try {
     return await imagekit.upload({
       file: buffer,
@@ -31,8 +38,8 @@ export const uploadImageToCloud = async (buffer, fileName, folderPath, tags = []
       folder: folderPath,
       isPrivateFile: false,
       tags,
-      useUniqueFileName: false,
-      overwriteFile: true,
+      useUniqueFileName: useUniqueFileName,
+      overwriteFile: overwriteFile,
     });
   } catch (error) {
     return false;
@@ -63,6 +70,19 @@ export const deleteUserFolderFromCloud = async (folderPath) => {
   const fileIds = await getEveryFilesIdFromFolderCloud(folderPath);
   if (fileIds.length > 0) {
     await deleteEveryFilesInFolderCloud(fileIds);
+  }
+};
+
+//smaze fotku z cloudu
+export const deleteImageFromCloud = async (foodImageCloudId) => {
+  try {
+    if (!foodImageCloudId) return false;
+
+    await imagekit.deleteFile(foodImageCloudId);
+    return true;
+  } catch (error) {
+    console.error(`ImageKit deletion failed for ID ${foodImageCloudId}:`, error.message);
+    return false;
   }
 };
 

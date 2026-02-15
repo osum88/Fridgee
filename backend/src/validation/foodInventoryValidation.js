@@ -147,4 +147,10 @@ export const getHistorySchema = Joi.object({
   fromDate: Joi.date().iso().optional(),
   toDate: Joi.date().iso().optional(),
   search: Joi.string().allow("").max(50).optional(),
+  changedBy: Joi.alternatives()
+    .try(
+      Joi.number().integer().positive(),
+      Joi.array().items(Joi.number().integer().positive()).single(),
+    )
+    .optional(),
 });

@@ -7,14 +7,10 @@ import {
   UnauthorizedError,
 } from "../errors/errors.js";
 import prisma from "../utils/prisma.js";
-import { formatTitleCase } from "../utils/stringUtils.js";
 import { createFoodCatalogRepository } from "./foodCatalogRepository.js";
 import { moveFoodsToCategoryRepository } from "./foodCategoryRepository.js";
 import { logLabelUpdateHistoryRepository } from "./foodHistoryRepository.js";
-import {
-  createFoodLabelRepository,
-  updateFoodLabelRepository,
-} from "./foodLabelRepository.js";
+import { createFoodLabelRepository, updateFoodLabelRepository } from "./foodLabelRepository.js";
 import {
   getOrCreateFoodVariant,
   resolveTargetFoodEntityRepository,
@@ -101,7 +97,16 @@ export const addFoodToInventoryRepository = async (userId, data) => {
 
         //rozhodujeme jestli vytvorit label
         let needsLabelUpdate = newCatalogCreate || !isCatalogUse;
-        const labelFields = ["title", "description", "foodImageUrl", "price", "amount", "unit"];
+        const labelFields = [
+          "title",
+          "description",
+          "foodImageUrl",
+          "price",
+          "amount",
+          "unit",
+          "foodImageCloudId",
+        ];
+        let oldImageCloudId = null;
 
         let finalLabelId = userLabel?.id || null;
         const originalLabel = isCatalogUse?.defaultLabelId
@@ -113,6 +118,12 @@ export const addFoodToInventoryRepository = async (userId, data) => {
         //vraci true pokud se label od pouzivaneho nejak lisi
         if (userLabel) {
           console.log("6");
+          const isPhotoChanging =
+            data.foodImageUrl !== undefined && data.foodImageUrl !== userLabel?.foodImageUrl;
+
+          if (isPhotoChanging && userLabel.foodImageCloudId) {
+            oldImageCloudId = userLabel.foodImageCloudId;
+          }
 
           needsLabelUpdate = labelFields.some(
             (key) => data[key] !== undefined && data[key] !== userLabel[key],
@@ -141,6 +152,7 @@ export const addFoodToInventoryRepository = async (userId, data) => {
             title: data?.title,
             description: data?.description ?? undefined,
             foodImageUrl: data?.foodImageUrl ?? undefined,
+            foodImageCloudId: data?.foodImageCloudId ?? undefined,
             price: data?.price ?? undefined,
             amount: data?.amount ?? undefined,
             unit: data?.unit ?? undefined,
@@ -279,7 +291,7 @@ export const addFoodToInventoryRepository = async (userId, data) => {
           });
         }
 
-        return instances;
+        return { oldImageCloudId, instances };
       },
       {
         timeout: 10000,

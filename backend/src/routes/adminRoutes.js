@@ -94,8 +94,8 @@ router.get("/users/:id/inventory/:inventoryId/suggestions", validate(searchInven
 // /api/admin/users/78/inventory/19/suggestions?title=apple&limit=5
 
 //vraci historii
-router.get("inventory/:inventoryId/history", validate(getHistorySchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getHistory);
-// api/inventory/19/history?limit=20&cursor=64&type=ADD
+router.get("/inventory/:inventoryId/history", validate(getHistorySchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getHistory);
+// api/admin/inventory/19/history?limit=20&cursor=64&type=ADD
 
 
 //                         FOOD CATALOG

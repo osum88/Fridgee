@@ -17,7 +17,7 @@ export const getFoodCatalogWithLabelByBarcodeService = async (
   userId,
   isAdmin,
 ) => {
-  let currentInventoryId = inventoryId
+  let currentInventoryId = inventoryId;
   //overi ze user patri do invenatre, jinak hleda bez inventoryId
   if (!isAdmin && currentInventoryId) {
     const inventoryUser = await getFoodInventoryUserRepository(userId, currentInventoryId, false);
@@ -48,6 +48,7 @@ export const getFoodCatalogWithLabelByBarcodeService = async (
     title: activeLabel?.title || "",
     description: activeLabel?.description || "",
     foodImageUrl: activeLabel?.foodImageUrl || "",
+    foodImageCloudId: activeLabel?.foodImageCloudId || null,
     price: activeLabel?.price || 0,
     unit: activeLabel?.unit || "",
     amount: activeLabel?.amount || 0,

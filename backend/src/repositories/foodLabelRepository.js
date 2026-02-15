@@ -288,3 +288,82 @@ export const getUserFoodLabelsRepository = async (userId, searchString, limit) =
     throw error;
   }
 };
+
+// overi jestli dane id fotky se jeste nekde pouziva
+export const isImageUsedElsewhereRepository = async (foodImageCloudId, tx = prisma) => {
+  if (!foodImageCloudId) return false;
+
+  try {
+    return await tx.foodLabel.findFirst({
+      where: {
+        foodImageCloudId: foodImageCloudId,
+      },
+    });
+  } catch (error) {
+    console.error("Error checking image usage in repository:", error);
+    return true;
+  }
+};
+
+//vrati vsechny userovi labely a vsechny co se pouzivaji v neajkem inventari
+export const getAvailableFoodLabelsRepository = async (userId, page = 0, limit = 200) => {
+  try {
+    return await prisma.$transaction(async (tx) => {
+      // zjistime id vsech catalogu uzivatelovych labelu
+      const userLabels = await tx.foodLabel.findMany({
+        where: {
+          userId: userId,
+          isDeleted: false,
+        },
+        select: { catalogId: true },
+      });
+
+      const userCatalogIds = userLabels.map((l) => l.catalogId);
+
+      const labels = await tx.foodLabel.findMany({
+        where: {
+          OR: [
+            // vlastni labely
+            { userId: userId, isDeleted: false },
+            // defaultni labely k jidlu, ktere ma user v inventari
+            {
+              isDeleted: false,
+              catalogId: { notIn: userCatalogIds },
+              foods: {
+                some: {
+                  instances: { some: {} },
+                  inventory: {
+                    users: { some: { userId: userId } },
+                  },
+                },
+              },
+            },
+          ],
+        },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          foodImageUrl: true,
+          foodImageCloudId: true,
+          price: true,
+          unit: true,
+          amount: true,
+          userId: true,
+          catalogId: true,
+          catalog: { select: { barcode: true } },
+        },
+        orderBy: [{ title: "asc" }, { id: "asc" }],
+        skip: page * limit,
+        take: limit,
+      });
+      return labels.map(({ catalog, ...label }) => ({
+        ...label,
+        barcode: catalog?.barcode || null,
+      }));
+    });
+  } catch (error) {
+    console.error("Error fetching available food labels:", error);
+    throw error;
+  }
+};

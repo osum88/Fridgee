@@ -67,7 +67,7 @@ router.get("/:inventoryId/suggestions", validate(searchInventoryLabelSchema), au
 
 //vraci historii
 router.get("/:inventoryId/history", validate(getHistorySchema), authenticateToken, sanitize, authorizeUser, getHistory);
-// api/inventory/19/history?limit=20&cursor=64&type=ADD
+// api/inventory/19/history?limit=40&cursor=64&type=ADD
 
 export default router;
 

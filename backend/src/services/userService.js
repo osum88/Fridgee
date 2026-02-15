@@ -14,6 +14,7 @@ import {
   updateUserRepository,
 } from "../repositories/userRepository.js";
 import {
+  deleteImageFromCloud,
   deleteUserFolderFromCloud,
   generateImageFilename,
   getImageUpdateTimeFromCloud,
