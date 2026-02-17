@@ -6,7 +6,7 @@ import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFrien
 import { deleteUser, deleteUserProfileImage, getAllUsersAdmin, getUserById, updateUser, updateUserProfileImage } from "../controllers/userController.js";
 import { updateUserAdminSchema, userIdAdminSchema } from "../validation/userValidation.js";
 import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, getAllFoodInventory, getInventoryContent, getInventoryDetailsWithUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
-import { inventoryIdAdminSchema, changeRoleAdminSchema, changeSettingAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema, inventoryIdSchema, searchInventoryLabelAdminSchema, getHistorySchema } from "../validation/foodInventoryValidation.js";
+import { inventoryIdAdminSchema, changeRoleAdminSchema, changeSettingAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema, inventoryIdSchema, searchInventoryLabelAdminSchema, getHistorySchema, inventoryIdBarcodeSchema } from "../validation/foodInventoryValidation.js";
 import { getFriendsAdminSchema } from "../validation/friendValidation.js";
 import { sanitize } from "../middlewares/sanitize.js";
 import { foodCatalogIdSchema, foodCatalogWithLabelByBarcodeSchema,  } from "../validation/foodCatalogValidation.js";
@@ -14,7 +14,7 @@ import { getFoodCatalogWithLabelByBarcode } from "../controllers/foodCatalogCont
 import { categoryIdSchema, createFoodCategorySchema, updateFoodCategorySchema } from "../validation/foodCategoryValidation.js";
 import { createFoodCategory, deleteFoodCategory, getFoodCategoriesByInventory, getFoodCategoryById, updateFoodCategory } from "../controllers/foodCategoryController.js";
 import { getAllFoodVariantsCatalog } from "../controllers/foodVariantController.js";
-import { addFoodToInventory,  updateFood } from "../controllers/foodController.js";
+import { addFoodToInventory,  getFoodByBarcode,  updateFood } from "../controllers/foodController.js";
 import { addFoodToInventoryFoodSchema, updateFoodSchema } from "../validation/foodValidation.js";
 import { consumeMultipleFoodInstances, deleteFoodInstances, duplicateFoodInstances, updateFoodInstance } from "../controllers/foodInstanceController.js";
 import { consumeFoodInstanceSchema, deleteFoodInstancesSchema, duplicateInstancesSchema, updateFoodInstanceSchema } from "../validation/foodInstanceValidation.js";
@@ -82,6 +82,9 @@ router.get("/inventory/:inventoryId/food-category", validate(inventoryIdSchema),
 
 // vrati vsechny jidla s kategoriemi, instancemi a labely
 router.get("/inventory/:inventoryId/content", validate(inventoryIdSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getInventoryContent);
+
+// vrati vsechny instance food podle barcodu
+router.get("/inventory/:inventoryId/barcode/:barcode", validate(inventoryIdBarcodeSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getFoodByBarcode);
 
 //ziska detail inventare s opravnenim 
 router.get("/users/:id/inventory/:inventoryId", validate(inventoryIdAdminSchema), authenticateToken, sanitize, authorizeAdmin, getInventoryDetailsWithUser);

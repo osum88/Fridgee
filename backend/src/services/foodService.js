@@ -14,6 +14,7 @@ import {
 } from "../repositories/foodInventoryRepository.js";
 import {
   addFoodToInventoryRepository,
+  getFoodByBarcodeRepository,
   getFoodByIdRepository,
   updateFoodRepository,
 } from "../repositories/foodRepository.js";
@@ -26,7 +27,7 @@ import {
   uploadFoodLabelImageService,
 } from "./foodLabelService.js";
 import { resolveVariantUpdateData } from "./foodVariantService.js";
-import { resolvePriceExchangeData } from "./priceService.js";
+import { convertPrice, createBaseCurrency, resolvePriceExchangeData } from "./priceService.js";
 
 // prida jidlo do inventare a vytvori instanci, price i history, pokd neexistuje tak i catalog, label, variant
 export const addFoodToInventoryService = async (userId, foodData, isAdmin) => {
@@ -180,4 +181,99 @@ export const updateFoodService = async (userId, data, isAdmin) => {
     }
     throw error;
   }
+};
+
+// vrati vsechny instance food podle barcodu
+export const getFoodByBarcodeService = async (barcode, inventoryId, userId, isAdmin) => {
+  if (!isAdmin) {
+    await getFoodInventoryUserRepository(userId, inventoryId);
+  }
+  const currency = await createBaseCurrency(userId, null);
+
+  const foods = await getFoodByBarcodeRepository(barcode, inventoryId, userId);
+
+  if (!foods || foods.length === 0) return { instances: [] };
+
+  const finalBarcode = foods[0]?.catalog?.barcode;
+  const userLabelTitle = foods[0]?.catalog?.labels[0]?.title;
+  const activeLabelTitle = userLabelTitle || foods[0]?.label?.title || "unknown";
+
+  // seskupovani podle variant
+  const variantsMap = foods.reduce((vAcc, food) => {
+    const variantTitle = food?.variant?.title || "";
+
+    // agregace instanci v ramci dane varianty
+    const aggregatedInstancesMap = food.instances.reduce((iAcc, inst) => {
+      //prepocet ceny
+      const convertedPrice = inst.price
+        ? convertPrice(
+            inst.price.price,
+            inst.price.exchangeRate,
+            inst.price.exchangeAmount,
+            inst.price.baseCurrency,
+            currency,
+          )
+        : null;
+
+      //klice pro agregaci
+      const priceKey = convertedPrice !== null ? convertedPrice.toFixed(2) : "no-price";
+      const dateKey = inst.expirationDate
+        ? inst.expirationDate.toISOString().split("T")[0]
+        : "no-date";
+      const amountUnitKey = inst.amount > 0 ? `${inst.amount}_${inst.unit}` : "no-amount-unit";
+
+      const groupKey = `${dateKey}_${priceKey}_${amountUnitKey}`;
+
+      if (!iAcc[groupKey]) {
+        iAcc[groupKey] = {
+          expirationDate: inst.expirationDate,
+          price: convertedPrice ? Number(convertedPrice.toFixed(2)) : null,
+          currency: currency,
+          amount: inst.amount || 0,
+          unit: inst.amount > 0 ? inst.unit : null,
+          count: 0,
+          instanceIds: [],
+        };
+      }
+      iAcc[groupKey].count += 1;
+      iAcc[groupKey].instanceIds.push(inst.id);
+      return iAcc;
+    }, {});
+
+    if (!vAcc[variantTitle]) {
+      vAcc[variantTitle] = {
+        variantTitle: variantTitle || null,
+        instances: [],
+      };
+    }
+
+    vAcc[variantTitle].instances.push(...Object.values(aggregatedInstancesMap));
+    return vAcc;
+  }, {});
+
+  const variantsArray = Object.values(variantsMap).map((v) => {
+    // razeni instanci, bez expirace prvni, dalsi podle data
+    v.instances.sort((a, b) => {
+      if (!a.expirationDate && b.expirationDate) return -1;
+      if (a.expirationDate && !b.expirationDate) return 1;
+      if (!a.expirationDate && !b.expirationDate) return 0;
+      return new Date(a.expirationDate) - new Date(b.expirationDate);
+    });
+    return v;
+  });
+
+  // razeni variant, prazdne prvni, jinak abecedne
+  variantsArray.sort((a, b) => {
+    if (!a.variantTitle && b.variantTitle) return -1;
+    if (a.variantTitle && !b.variantTitle) return 1;
+    if (!a.variantTitle && !b.variantTitle) return 0;
+
+    return a.variantTitle.localeCompare(b.variantTitle, ["cs", "en"], { sensitivity: "base" });
+  });
+
+  return {
+    labelTitle: activeLabelTitle,
+    barcode: finalBarcode,
+    variants: variantsArray,
+  };
 };

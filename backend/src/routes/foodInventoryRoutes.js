@@ -3,12 +3,13 @@ import { authenticateToken, authorizeUser } from "../middlewares/authMiddleware.
 import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, deleteOtherFoodInventoryUser, getAllFoodInventory, getInventoryContent, getInventoryDetailsWithUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
 import { acceptInventoryInvitation, rejectInventoryInvitation, sendInventoryInvitation } from "../controllers/inventoryInvitationController.js";
 import validate from "../middlewares/validator.js";
-import { inventoryIdSchema, changeRoleSchema, changeSettingSchema, createFoodInventorySchema, deleteOtherSchema, deleteSchema, getInventoryUsersSchema, updateFoodInventorySchema, searchInventoryLabelSchema, getHistorySchema } from "../validation/foodInventoryValidation.js";
+import { inventoryIdSchema, changeRoleSchema, changeSettingSchema, createFoodInventorySchema, deleteOtherSchema, deleteSchema, getInventoryUsersSchema, updateFoodInventorySchema, searchInventoryLabelSchema, getHistorySchema, inventoryIdBarcodeSchema } from "../validation/foodInventoryValidation.js";
 import { invitationIdSchema, sendInvitationSchema } from "../validation/inventoryInvitationValidation.js";
 import { sanitize } from "../middlewares/sanitize.js";
 import { getFoodCategoriesByInventory } from "../controllers/foodCategoryController.js";
 import { getLabelSuggestions } from "../controllers/foodLabelController.js";
 import { getHistory } from "../controllers/foodHistoryController.js";
+import { getFoodByBarcode } from "../controllers/foodController.js";
 
 const router = express.Router();
 
@@ -54,6 +55,9 @@ router.get("/:inventoryId/food-category", validate(inventoryIdSchema), authentic
 
 // vrati vsechny jidla s kategoriemi, intancemi a labely
 router.get("/:inventoryId/content", validate(inventoryIdSchema), authenticateToken, sanitize, authorizeUser, getInventoryContent);
+
+// vrati vsechny instance food podle barcodu
+router.get("/:inventoryId/barcode/:barcode", validate(inventoryIdBarcodeSchema), authenticateToken, sanitize, authorizeUser, getFoodByBarcode);
 
 //ziska detail inventare s opravnenim 
 router.get("/:inventoryId", validate(inventoryIdSchema), authenticateToken, sanitize, authorizeUser, getInventoryDetailsWithUser);

@@ -289,28 +289,10 @@ export const updateFoodInventoryRepository = async (inventoryId, title, label) =
       data: {
         title: title,
         label: label,
-        lastActivityAt: new Date(),
       },
     });
   } catch (error) {
     console.error("Error updating inventory:", error);
-    throw error;
-  }
-};
-
-//update last activity at inventare
-export const updateLastActivityAtFoodInventoryRepository = async (inventoryId) => {
-  try {
-    return await prisma.foodInventory.update({
-      where: {
-        id: inventoryId,
-      },
-      data: {
-        lastActivityAt: new Date(),
-      },
-    });
-  } catch (error) {
-    console.error("Error updating last activity at inventory:", error);
     throw error;
   }
 };
@@ -345,11 +327,8 @@ export const getAllFoodInventoryRepository = async (userId) => {
         title: true,
         label: true,
         memberCount: true,
-        lastActivityAt: true,
       },
-      orderBy: {
-        lastActivityAt: "desc",
-      },
+      orderBy: { title: "asc" },
     });
   } catch (error) {
     console.error("Error fetching food inventory:", error);
@@ -408,7 +387,28 @@ export const changeSettingFoodInventoryUserRepository = async (
 // vrati vsechny jidla s kategoriemi, instancemi a labely
 export const getInventoryContentRepository = async (inventoryId, userId) => {
   try {
-    return await prisma.food.findMany({
+    const inventoryContent = await prisma.inventoryUser.findUnique({
+      where: {
+        userId_inventoryId: {
+          userId: userId,
+          inventoryId: inventoryId,
+        },
+      },
+      select: {
+        role: true,
+        joinedAt: true,
+        notificationSettings: true,
+        inventory: {
+          select: {
+            title: true,
+            label: true,
+            memberCount: true,
+          },
+        },
+      },
+    });
+    const { inventory, ...restInventory } = inventoryContent;
+    const content = await prisma.food.findMany({
       where: {
         inventoryId: inventoryId,
         instances: { some: {} },
@@ -430,6 +430,7 @@ export const getInventoryContentRepository = async (inventoryId, userId) => {
         },
       },
     });
+    return { inventory: { ...inventory, ...restInventory }, content };
   } catch (error) {
     console.error(`Error fetching inventory content for inventoryId ${inventoryId}:`, error);
     throw error;

@@ -154,3 +154,8 @@ export const getHistorySchema = Joi.object({
     )
     .optional(),
 });
+
+export const inventoryIdBarcodeSchema = Joi.object({
+  inventoryId: Joi.number().integer().positive().required(),
+  barcode: Joi.string().max(150).required(),
+});

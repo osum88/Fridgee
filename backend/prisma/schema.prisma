@@ -98,7 +98,6 @@ model FoodInventory {
   label           String?               @db.VarChar(100)
   isArchived      Boolean               @default(false) @map("is_archived")
   memberCount     Int                   @default(0) @map("member_count")
-  lastActivityAt  DateTime              @default(now()) @map("last_activity_at")
   createdAt       DateTime              @default(now()) @map("created_at")
   updatedAt       DateTime              @updatedAt @map("updated_at")
   users           InventoryUser[]       @relation("inventory")
@@ -182,6 +181,7 @@ enum Unit {
   CL
   DL
   L
+  MULTIPACK
 }
 
 // reprezentuje konkretni potravinu v inventari

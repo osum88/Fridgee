@@ -588,3 +588,61 @@ export const getFoodInstancesCountRepository = async (foodId, tx = prisma) => {
     throw error;
   }
 };
+
+// vrati vsechny instance food podle barcodu
+export const getFoodByBarcodeRepository = async (barcode, inventoryId, userId) => {
+  try {
+    return await prisma.food.findMany({
+      where: {
+        inventoryId: inventoryId,
+        instances: { some: {} },
+        catalog: { barcode: barcode },
+      },
+      select: {
+        id: true,
+        catalog: {
+          select: {
+            barcode: true,
+            labels: {
+              where: { userId: userId, isDeleted: false },
+              select: {
+                title: true,
+              },
+            },
+          },
+        },
+        variant: {
+          select: {
+            title: true,
+          },
+        },
+        label: {
+          select: {
+            title: true,
+          },
+        },
+        instances: {
+          orderBy: { expirationDate: "asc" },
+          select: {
+            id: true,
+            expirationDate: true,
+            unit: true,
+            amount: true,
+            priceId: true,
+            price: {
+              select: {
+                price: true,
+                baseCurrency: true,
+                exchangeAmount: true,
+                exchangeRate: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching food by barcode:", error);
+    throw error;
+  }
+};

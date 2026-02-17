@@ -40,8 +40,7 @@ app.use(
 
 //rate limit
 const apiLimiter = rateLimit({
-  //@TODO
-  windowMs: 1 * 60 * 1000, //nastavit 15 potom
+  windowMs: 1 * 60 * 1000, // TODO nastavit 15 potom
   max: 500,
   message: "Too many requests from this IP address, please try again later.",
   standardHeaders: true,
@@ -49,8 +48,7 @@ const apiLimiter = rateLimit({
 });
 
 const authLimiter = rateLimit({
-  //@TODO
-  windowMs: 1 * 60 * 1000, //nastavit 5 potom
+  windowMs: 1 * 60 * 1000, // TODO nastavit 5 potom
   max: 15,
   message: "Too many requests from this IP address, please try again in 5 minutes.",
   standardHeaders: true,
