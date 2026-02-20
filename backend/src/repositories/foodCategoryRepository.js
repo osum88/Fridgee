@@ -76,7 +76,11 @@ export const getFoodCategoriesByInventoryRepository = async (inventoryId) => {
   try {
     return await prisma.foodCategory.findMany({
       where: { inventoryId },
-      orderBy: { createdAt: "asc" },
+      select: {
+        id: true,
+        title: true,
+      },
+      orderBy: { title: "asc" },
     });
   } catch (error) {
     console.error("Error fetching food categories by inventory:", error);

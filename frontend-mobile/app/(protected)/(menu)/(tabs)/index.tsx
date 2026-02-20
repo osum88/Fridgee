@@ -8,6 +8,15 @@ import i18n from "@/constants/translations";
 import { useUser } from "@/hooks/useUser";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Card } from "@/components/Card/Card";
+import { CardItem } from "@/components/Card/CardItem";
+import { ThemedLine } from "@/components/themed/ThemedLine";
+import {
+  responsiveFont,
+  responsiveSize,
+  responsiveVertical,
+  responsivePadding,
+} from "@/utils/scale";
 
 export default function HomeScreen() {
   const { signOut } = useUser();
@@ -35,131 +44,29 @@ export default function HomeScreen() {
             },
           ]}
         >
-          <ThemedText
-            type="subtitle"
-            style={[styles.tapText, { color: currentColors.onPrimary }]}
-          >
+          <ThemedText type="subtitle" style={[styles.tapText, { color: currentColors.onPrimary }]}>
             {i18n.t("loginButton")}
           </ThemedText>
         </Link>
 
-        <Pressable
-          onPress={() => signOut()}
-          style={[
-            styles.tap,
-            {
-              backgroundColor: currentColors.primary,
-            },
-          ]}
-        >
-          <ThemedText
-            type="subtitle"
-            style={[styles.tapText, { color: currentColors.onPrimary }]}
-          >
-            Log out
-          </ThemedText>
-        </Pressable>
+        {/* <Card>
+          <CardItem
+            iconName={"person"}
+            iconSize={responsiveSize.moderate(19)}
+            label={i18n.t("username")}
+            value={"Asd"}
+            isLoading={false}
+          />
 
-        <Link
-          href="../../resendVerifyEmail"
-          style={[
-            styles.tap,
-            {
-              backgroundColor: currentColors.primary,
-            },
-          ]}
-        >
-          <ThemedText
-            type="subtitle"
-            style={[styles.tapText, { color: currentColors.onPrimary }]}
-          >
-            {i18n.t("resendEmail")}
-          </ThemedText>
-        </Link>
-        <Link
-          href="../../resetPassword"
-          style={[
-            styles.tap,
-            {
-              backgroundColor: currentColors.primary,
-            },
-          ]}
-        >
-          <ThemedText
-            type="subtitle"
-            style={[styles.tapText, { color: currentColors.onPrimary }]}
-          >
-            {i18n.t("resetPassword")}
-          </ThemedText>
-        </Link>
-
-        <Link
-          href="../../emailVerify"
-          style={[
-            styles.tap,
-            {
-              backgroundColor: currentColors.primary,
-            },
-          ]}
-        >
-          <ThemedText
-            type="subtitle"
-            style={[styles.tapText, { color: currentColors.onPrimary }]}
-          >
-            {i18n.t("emailVerify")}
-          </ThemedText>
-        </Link>
-
-        <Link
-          href="../searchFriends"
-          style={[
-            styles.tap,
-            {
-              backgroundColor: currentColors.primary,
-            },
-          ]}
-        >
-          <ThemedText
-            type="subtitle"
-            style={[styles.tapText, { color: currentColors.onPrimary }]}
-          >
-            {i18n.t("search")}{" "}
-          </ThemedText>
-        </Link>
-
-        <Link
-          href="../friendsList"
-          style={[
-            styles.tap,
-            {
-              backgroundColor: currentColors.primary,
-            },
-          ]}
-        >
-          <ThemedText
-            type="subtitle"
-            style={[styles.tapText, { color: currentColors.onPrimary }]}
-          >
-            {i18n.t("friends")}
-          </ThemedText>
-        </Link>
-
-        <Link
-          href="../profile"
-          style={[
-            styles.tap,
-            {
-              backgroundColor: currentColors.primary,
-            },
-          ]}
-        >
-          <ThemedText
-            type="subtitle"
-            style={[styles.tapText, { color: currentColors.onPrimary }]}
-          >
-            {i18n.t("profile")}{" "}
-          </ThemedText>
-        </Link>
+          <ThemedLine style={{ height: 1 }} />
+          <CardItem
+            iconName={"envelope"}
+            iconSize={responsiveSize.moderate(19)}
+            label={i18n.t("email")}
+            value={"userData?.data?.email"}
+            isLoading={false}
+          />
+        </Card> */}
       </ThemedView>
     </ParallaxScrollView>
   );

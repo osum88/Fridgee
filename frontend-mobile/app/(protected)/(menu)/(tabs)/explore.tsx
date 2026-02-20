@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import { Platform, StyleSheet } from "react-native";
+import { Platform, StyleSheet, Pressable } from "react-native";
 
 import { Collapsible } from "@/components/Collapsible";
 import { ExternalLink } from "@/components/ExternalLink";
@@ -8,10 +8,15 @@ import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { useLanguage } from "@/contexts/LanguageContext";
-
+import { Link } from "expo-router";
+import i18n from "@/constants/translations";
+import { useUser } from "@/hooks/useUser";
+import { useThemeColor } from "@/hooks/colors/useThemeColor";
 export default function TabTwoScreen() {
-  useLanguage();
+  const { signOut } = useUser();
 
+  useLanguage();
+  const currentColors = useThemeColor();
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#deccccff", dark: "#353636" }}
@@ -27,9 +32,7 @@ export default function TabTwoScreen() {
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Explore</ThemedText>
       </ThemedView>
-      <ThemedText>
-        This app includes example code to help you get started.
-      </ThemedText>
+      <ThemedText>This app includes example code to help you get started.</ThemedText>
       <Collapsible title="File-based routing">
         <ThemedText>This app has two screens: </ThemedText>
         <ThemedText>sets up the tab navigator.</ThemedText>
@@ -37,74 +40,106 @@ export default function TabTwoScreen() {
           <ThemedText type="link">Learn more</ThemedText>
         </ExternalLink>
       </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the
-          web version, press <ThemedText type="defaultSemiBold">w</ThemedText>{" "}
-          in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the{" "}
-          <ThemedText type="defaultSemiBold">@2x</ThemedText> and{" "}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to
-          provide files for different screen densities
-        </ThemedText>
-        <Image
-          source={require("@/assets/images/react-logo.png")}
-          style={{ alignSelf: "center" }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText>{" "}
-          to see how to load{" "}
-          <ThemedText style={{ fontFamily: "SpaceMono" }}>
-            custom fonts such as this one.
+      <ThemedView style={styles.stepContainer}>
+        <Link
+          href="/(auth)/login"
+          style={[
+            styles.tap,
+            {
+              backgroundColor: currentColors.primary,
+              color: currentColors.onPrimary,
+            },
+          ]}
+        >
+          <ThemedText type="subtitle" style={[styles.tapText, { color: currentColors.onPrimary }]}>
+            {i18n.t("loginButton")}
           </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The hook lets you
-          inspect what the user&apos;s current color scheme is, and so you can
-          adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{" "}
-          <ThemedText type="defaultSemiBold">
-            components/HelloWave.tsx
-          </ThemedText>{" "}
-          component uses the powerful{" "}
-          <ThemedText type="defaultSemiBold">
-            react-native-reanimated
-          </ThemedText>{" "}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The{" "}
-              <ThemedText type="defaultSemiBold">
-                components/ParallaxScrollView.tsx
-              </ThemedText>{" "}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
+        </Link>
+
+        <Pressable
+          onPress={() => signOut()}
+          style={[
+            styles.tap,
+            {
+              backgroundColor: currentColors.primary,
+            },
+          ]}
+        >
+          <ThemedText type="subtitle" style={[styles.tapText, { color: currentColors.onPrimary }]}>
+            Log out
+          </ThemedText>
+        </Pressable>
+
+        <Link
+          href="/(auth)/resendVerifyEmail"
+          style={[
+            styles.tap,
+            {
+              backgroundColor: currentColors.primary,
+            },
+          ]}
+        >
+          <ThemedText type="subtitle" style={[styles.tapText, { color: currentColors.onPrimary }]}>
+            {i18n.t("resendEmail")}
+          </ThemedText>
+        </Link>
+        <Link
+          href="/(auth)/resetPassword"
+          style={[
+            styles.tap,
+            {
+              backgroundColor: currentColors.primary,
+            },
+          ]}
+        >
+          <ThemedText type="subtitle" style={[styles.tapText, { color: currentColors.onPrimary }]}>
+            {i18n.t("resetPassword")}
+          </ThemedText>
+        </Link>
+
+        <Link
+          href="/(auth)/emailVerify"
+          style={[
+            styles.tap,
+            {
+              backgroundColor: currentColors.primary,
+            },
+          ]}
+        >
+          <ThemedText type="subtitle" style={[styles.tapText, { color: currentColors.onPrimary }]}>
+            {i18n.t("emailVerify")}
+          </ThemedText>
+        </Link>
+
+        <Link
+          href="/searchFriends"
+          style={[
+            styles.tap,
+            {
+              backgroundColor: currentColors.primary,
+            },
+          ]}
+        >
+          <ThemedText type="subtitle" style={[styles.tapText, { color: currentColors.onPrimary }]}>
+            {i18n.t("search")}{" "}
+          </ThemedText>
+        </Link>
+
+        <Link href="/friendsList" style={[styles.tap, { backgroundColor: currentColors.primary }]}>
+          <ThemedText type="subtitle" style={[styles.tapText, { color: currentColors.onPrimary }]}>
+            {i18n.t("friends")}
+          </ThemedText>
+        </Link>
+
+        <Link
+          href="/addFoodManually"
+          style={[styles.tap, { backgroundColor: currentColors.primary }]}
+        >
+          <ThemedText type="subtitle" style={[styles.tapText, { color: currentColors.onPrimary }]}>
+            Přidat jídlo
+          </ThemedText>
+        </Link>
+      </ThemedView>
     </ParallaxScrollView>
   );
 }
@@ -116,8 +151,34 @@ const styles = StyleSheet.create({
     left: -35,
     position: "absolute",
   },
+
   titleContainer: {
     flexDirection: "row",
+    alignItems: "center",
     gap: 8,
+  },
+
+  reactLogo: {
+    height: 178,
+    width: 290,
+    bottom: 0,
+    left: 0,
+    position: "absolute",
+  },
+  stepContainer: {
+    gap: 12,
+    marginBottom: 8,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  tap: {
+    flexBasis: "48%",
+    padding: 16,
+    textAlign: "center",
+    borderRadius: 8,
+  },
+  tapText: {
+    textAlign: "center",
   },
 });

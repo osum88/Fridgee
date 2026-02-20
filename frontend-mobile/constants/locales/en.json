@@ -134,6 +134,24 @@
   "errorBirthDateInFuture": "The date of birth must be between the year 1920 and the present.",
   "errorBankNumberInvalid": "Invalid bank account number or IBAN.",
   "errorGender": "Gender must be selected from the available options.",
-  "errorCountry": "Country must be selected from the available options."
- 
+  "errorCountry": "Country must be selected from the available options.",
+  "inventory": "Inventory",
+  "inventories": "Inventories",
+  "currency": "Currency",
+  "noResults": "No results",
+  "foodName": "Food name",
+  "enterFoodName": "Enter food name",
+  "addFood": "Add food",
+  "expirationDate": "Expiration date",
+  "days": "Days",
+  "multipackQuantity": "Pieces per pack",
+  "enterMultipackQuantity": "Enter number of pieces",
+  "amount": "Amount",
+  "enterAmount": "Enter amount",
+  "multipack": "Multipack",
+  "noUnit": "No unit",
+  "unit": "Unit",
+  "selectUnit": "Select unit",
+   "errorAmountRange": "Amount must be between 0 and 9999.",
+  "errorMultipackQuantityRange": "Number of items must be between 0 and 9999."
 }

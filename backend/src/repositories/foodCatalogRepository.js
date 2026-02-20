@@ -126,6 +126,8 @@ export const getFoodCatalogWithLabelByBarcodeRepository = async (
             select: {
               id: true,
               label: true,
+              category: true,
+              variant: true,
             },
           },
         }),
@@ -151,5 +153,3 @@ export const validateCatalogOwnershipRepository = async (id, userId) => {
     throw error;
   }
 };
-
-

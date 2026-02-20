@@ -7,24 +7,19 @@ import {
   Alert,
   TouchableOpacity,
 } from "react-native";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
 import { responsiveSize } from "@/utils/scale";
 import { TextInput, HelperText, ActivityIndicator } from "react-native-paper";
-import { DateInput } from "@/components/common/DateInput";
-import { DropdownMenu } from "@/components/common/DropdownMenu";
+import { DateInput } from "@/components/input/DateInput";
+import { DropdownMenu } from "@/components/input/DropdownMenu";
 import { useLocalSearchParams, useNavigation } from "expo-router";
-import { SecretInput } from "@/components/common/SecretInput";
+import { SecretInput } from "@/components/input/SecretInput";
 import { ibanToBban, validateDate } from "@/utils/stringUtils";
 import { ThemedText } from "@/components/themed/ThemedText";
 import useUpdateProfile from "@/hooks/user/useUpdateProfile";
+import { DoubleInputRow } from "@/components/input/DoubleInputRow";
 
 export default function EditProfile() {
   const color = useThemeColor();
@@ -51,7 +46,7 @@ export default function EditProfile() {
       try {
         const parsed = JSON.parse(userData);
         setOriginalData(parsed?.data || {});
-        const hasBankNumber = parsed?.data?.bankNumber ? true : false;
+        const hasBankNumber = !!parsed?.data?.bankNumber;
         setExistBankNumber(hasBankNumber);
 
         setInputText({
@@ -59,9 +54,7 @@ export default function EditProfile() {
           surname: parsed?.data?.surname || "",
           birthDate: parsed?.data?.birthDate || "",
           gender:
-            parsed?.data?.gender && parsed.data.gender !== "UNSPECIFIED"
-              ? parsed.data.gender
-              : "",
+            parsed?.data?.gender && parsed.data.gender !== "UNSPECIFIED" ? parsed.data.gender : "",
           bankNumber: hasBankNumber ? "" : parsed?.data?.bankNumber || "",
           country: parsed?.data?.country || "",
         });
@@ -76,14 +69,10 @@ export default function EditProfile() {
     for (const key in inputText) {
       if (inputText[key] !== originalData[key]) {
         if (
-          (key === "bankNumber" &&
-            !inputText[key] &&
-            originalData[key] &&
-            typeof originalData[key] !== "string") ||
+          key === "bankNumber" ||
+          (!inputText[key] && originalData[key] && typeof originalData[key] !== "string") ||
           (!inputText[key] && !originalData[key]) ||
-          (key === "gender" &&
-            !inputText[key] &&
-            originalData[key] === "UNSPECIFIED")
+          (key === "gender" && !inputText[key] && originalData[key] === "UNSPECIFIED")
         ) {
           continue;
         }
@@ -95,7 +84,7 @@ export default function EditProfile() {
 
   // zabrani uzavreni obrazovky pri neulozenych zmenach
   useEffect(() => {
-    const unsubscribe = navigation.addListener("beforeRemove", (event) => {
+    return navigation.addListener("beforeRemove", (event) => {
       if (!hasChanges) return;
 
       event.preventDefault();
@@ -110,8 +99,6 @@ export default function EditProfile() {
         { text: i18n.t("cancel"), style: "cancel", onPress: () => {} },
       ]);
     });
-
-    return unsubscribe;
   }, [navigation, isSubmitting, hasChanges]);
 
   //nastavi tlacitko ulozit v headeru
@@ -242,11 +229,7 @@ export default function EditProfile() {
   const formatText = useCallback((text) => {
     let rawText = text;
 
-    if (
-      typeof text === "object" &&
-      text !== null &&
-      text.bankNumber !== undefined
-    ) {
+    if (typeof text === "object" && text !== null && text.bankNumber !== undefined) {
       rawText = text.bankNumber;
     }
     return String(rawText || "").replace(/\s+/g, "");
@@ -257,14 +240,14 @@ export default function EditProfile() {
       style={styles.keyboardContainer}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <ThemedView style={[styles.contentWrapper]}>
-          <ThemedView style={styles.doubleInput}>
-            {/* jmeno */}
-            <ThemedView style={styles.input}>
+          {/* jmeno */}
+          <DoubleInputRow
+            ratio={[1, 1]}
+            error={errors.name}
+            inputColor={inputColor}
+            leftComponent={
               <TextInput
                 value={inputText.name}
                 onChangeText={(text) =>
@@ -292,18 +275,9 @@ export default function EditProfile() {
                 cursorColor={color.text}
                 theme={inputColor}
               />
-              <HelperText
-                type="error"
-                visible={!!errors.name}
-                style={{ marginLeft: responsiveSize.horizontal(-9) }}
-                theme={inputColor}
-              >
-                {errors.name}
-              </HelperText>
-            </ThemedView>
-
-            {/* prijmeni */}
-            <ThemedView style={styles.input}>
+            }
+            // prijmeni
+            rightComponent={
               <TextInput
                 value={inputText.surname}
                 onChangeText={(text) =>
@@ -330,8 +304,8 @@ export default function EditProfile() {
                 cursorColor={color.text}
                 theme={inputColor}
               />
-            </ThemedView>
-          </ThemedView>
+            }
+          />
 
           {/* datum narozeni */}
           <DateInput
@@ -342,17 +316,13 @@ export default function EditProfile() {
             autoComplete="birthdate-full"
             inputColor={inputColor}
             error={errors.birthDate}
-            setError={(value) =>
-              setErrors((prev) => ({ ...prev, birthDate: value }))
-            }
+            setError={(value) => setErrors((prev) => ({ ...prev, birthDate: value }))}
           />
 
           {/* pohlavi */}
           <DropdownMenu
             value={inputText.gender}
-            onChange={(gender) =>
-              setInputText({ ...inputText, gender: gender })
-            }
+            onChange={(gender) => setInputText({ ...inputText, gender: gender })}
             label={i18n.t("gender")}
             isSubmitting={!isSubmitting}
             items={[
@@ -363,30 +333,24 @@ export default function EditProfile() {
             placeholder={i18n.t("selectGender")}
             inputColor={inputColor}
             error={errors.gender}
-            setError={(value) =>
-              setErrors((prev) => ({ ...prev, gender: value }))
-            }
+            setError={(value) => setErrors((prev) => ({ ...prev, gender: value }))}
           />
 
-          {/* zeme */}
+          {/* zeme a měna*/}
           <DropdownMenu
             value={inputText.country}
-            onChange={(country) =>
-              setInputText({ ...inputText, country: country })
-            }
-            label={i18n.t("bankAccountCountry")}
+            onChange={(country) => setInputText({ ...inputText, country: country })}
+            label={`${i18n.t("bankAccountCountry")} / ${i18n.t("currency")}`}
             isSubmitting={!isSubmitting}
             items={[
-              { value: "CZ", label: i18n.t("czech") },
-              { value: "SK", label: i18n.t("slovakia") },
-              { value: "OTHER", label: i18n.t("otherZ") },
+              { value: "CZ", label: `${i18n.t("czech")} (Kč)` },
+              { value: "SK", label: `${i18n.t("slovakia")} (€)` },
+              { value: "OTHER", label: `${i18n.t("otherZ")} (€)` },
             ]}
             placeholder={i18n.t("selectCountry")}
             inputColor={inputColor}
             error={errors.country}
-            setError={(value) =>
-              setErrors((prev) => ({ ...prev, country: value }))
-            }
+            setError={(value) => setErrors((prev) => ({ ...prev, country: value }))}
           />
 
           {/* bankovani cislo nebo IBAN v zavislosti na zemi */}
@@ -414,9 +378,7 @@ export default function EditProfile() {
                 }
               }}
               error={errors.bankNumber}
-              setError={(value) =>
-                setErrors((prev) => ({ ...prev, bankNumber: value }))
-              }
+              setError={(value) => setErrors((prev) => ({ ...prev, bankNumber: value }))}
             />
           ) : (
             <SecretInput
@@ -442,9 +404,7 @@ export default function EditProfile() {
                 }
               }}
               error={errors.bankNumber}
-              setError={(value) =>
-                setErrors((prev) => ({ ...prev, bankNumber: value }))
-              }
+              setError={(value) => setErrors((prev) => ({ ...prev, bankNumber: value }))}
             />
           )}
         </ThemedView>
@@ -472,9 +432,6 @@ const styles = StyleSheet.create({
     width: "100%",
     justifyContent: "space-between",
     gap: responsiveSize.horizontal(12),
-  },
-  input: {
-    flexBasis: "48%",
   },
   item: {
     paddingVertical: 12,

@@ -2,7 +2,7 @@ import { Stack } from "expo-router";
 import i18n from "@/constants/translations";
 import { responsiveFont } from "@/utils/scale";
 
-export default function ProfileLayout() {
+export default function InventoryFoodsLayout() {
   return (
     <Stack
       detachInactiveScreens={false}
@@ -13,20 +13,10 @@ export default function ProfileLayout() {
       }}
     >
       <Stack.Screen
-        name="profile"
+        name="addFoodManually"
         options={{
           animation: "fade",
-          title: i18n.t("profile"),
-          headerShown: true,
-        }}
-      />
-      <Stack.Screen
-        name="editProfile"
-        options={{
-          animation: "fade",
-          // headerShadowVisible: false,
-          // animationTypeForReplace:"pop",
-          title: i18n.t("editProfile"),
+          title: i18n.t("addFood"),
           headerShown: true,
         }}
       />

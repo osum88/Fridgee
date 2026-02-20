@@ -8,7 +8,9 @@ import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { useCameraPermissions } from "expo-camera";
 import i18n from "@/constants/translations";
 import { IconOverlay } from "@/components/icons/IconOverlay";
+import { BadgedIcon } from "@/components/icons/BadgedIcon";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ThemedView } from "@/components/themed/ThemedView";
 
 export default function TabLayout() {
   const colorCurrent = useThemeColor();
@@ -50,38 +52,51 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: i18n.t("home"),
+          title: i18n.t("inventory"),
           headerShown: true,
           headerLeft: () => (
-            <Pressable
-              style={styles.settingIcon}
-              onPress={() => navigation.openDrawer()}
-            >
+            <Pressable style={styles.menuIcon} onPress={() => navigation.openDrawer()}>
               <IconSymbol
                 name="line.horizontal.3"
-                size={responsiveSize.moderate(23)}
+                size={responsiveSize.moderate(25)}
                 color={colorCurrent.text}
               />
             </Pressable>
           ),
           headerRight: () => (
-            <Pressable
-              style={styles.settingIcon}
-              onPress={() => navigation.openDrawer()}
+            <ThemedView
+              style={{ flexDirection: "row", backgroundColor: colorCurrent.tabsBackground }}
             >
-              <IconSymbol
-                name="bell"
-                size={responsiveSize.moderate(24)}
-                color={colorCurrent.text}
-              />
-            </Pressable>
+              <Pressable style={styles.icon} onPress={() => navigation.openDrawer()}>
+                <BadgedIcon
+                  icons={["archivebox", "arrow.left.circle"]}
+                  size={responsiveSize.moderate(26)}
+                  color={colorCurrent.text}
+                  lightColorBackground={colorCurrent.tabsBackground}
+                  darkColorBackground={colorCurrent.tabsBackground}
+                />
+              </Pressable>
+              <Pressable style={styles.icon} onPress={() => navigation.openDrawer()}>
+                <IconSymbol
+                  name="bell"
+                  size={responsiveSize.moderate(26)}
+                  color={colorCurrent.text}
+                />
+              </Pressable>
+              <Pressable
+                style={[styles.icon, styles.paddingEnd]}
+                onPress={() => router.push("../profile")}
+              >
+                <IconSymbol
+                  name="person"
+                  size={responsiveSize.moderate(26)}
+                  color={colorCurrent.text}
+                />
+              </Pressable>
+            </ThemedView>
           ),
           tabBarIcon: ({ color }) => (
-            <IconSymbol
-              size={responsiveSize.moderate(24)}
-              name="house.fill"
-              color={color}
-            />
+            <IconSymbol size={responsiveSize.moderate(24)} name="archivebox.fill" color={color} />
           ),
         }}
       />
@@ -118,7 +133,7 @@ export default function TabLayout() {
                       onPress: () => Linking.openSettings(),
                     },
                     { text: i18n.t("cancel"), style: "cancel" },
-                  ]
+                  ],
                 );
               }
             }
@@ -131,10 +146,7 @@ export default function TabLayout() {
           title: "Explore",
           headerShown: true,
           headerLeft: () => (
-            <Pressable
-              style={styles.settingIcon}
-              onPress={() => navigation.openDrawer()}
-            >
+            <Pressable style={styles.menuIcon} onPress={() => navigation.openDrawer()}>
               <IconSymbol
                 name="line.horizontal.3"
                 size={responsiveSize.moderate(24)}
@@ -143,11 +155,7 @@ export default function TabLayout() {
             </Pressable>
           ),
           tabBarIcon: ({ color }) => (
-            <IconSymbol
-              size={responsiveSize.moderate(22)}
-              name="paperplane.fill"
-              color={color}
-            />
+            <IconSymbol size={responsiveSize.moderate(22)} name="paperplane.fill" color={color} />
           ),
         }}
       />
@@ -156,8 +164,15 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
-  settingIcon: {
+  menuIcon: {
     paddingHorizontal: responsiveSize.horizontal(12),
     paddingVertical: responsiveSize.vertical(5),
+  },
+  icon: {
+    paddingHorizontal: responsiveSize.horizontal(7),
+    paddingVertical: responsiveSize.vertical(5),
+  },
+  paddingEnd: {
+    paddingEnd: responsiveSize.horizontal(12),
   },
 });

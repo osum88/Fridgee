@@ -10,7 +10,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedButton } from "@/components/themed/ThemedButton";
-import { FormGroupPassword } from "@/components/common/FormGroupPassword";
+import { FormGroupPassword } from "@/components/input/FormGroupPassword";
 import { useState } from "react";
 import useResetPasswordMutation from "@/hooks/auth/useResetPasswordMutation";
 import { SuccessAnimation } from "@/components/animated/SuccessAnimation";

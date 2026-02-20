@@ -5,23 +5,22 @@ import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
 import { responsiveSize } from "@/utils/scale";
 import { TextInput, HelperText } from "react-native-paper";
-import {
-  formatDate,
-  formatDateInput,
-  parseDateMidnight,
-} from "@/utils/stringUtils";
+import { formatDate, formatDateInput, parseDateMidnight } from "@/utils/stringUtils";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 export function DateInput({
   value,
   onChange,
   label,
-  isSubmitting,
+  isSubmitting = true,
   autoComplete,
+  maxYearsInFuture,
+  minYearsInPast,
   error: externalError,
   setError: externalSetError,
   inputColor,
   inputStyles,
+  showError = true,
   ...props
 }) {
   const [dateText, setDateText] = useState("");
@@ -37,9 +36,21 @@ export function DateInput({
   const color = useThemeColor();
 
   useEffect(() => {
-    if (!dateText && !prevDate) {
-      setDateText(value ? formatDate(value) : "");
-      setPrevDate(value ? formatDate(value) : "");
+    if (isFocused) return;
+    if (!value) {
+      setDateText("");
+      setPrevDate("");
+      return;
+    }
+
+    const dateObj = value instanceof Date ? value : new Date(value);
+
+    if (!isNaN(dateObj.getTime())) {
+      const formattedValue = formatDate(dateObj);
+      if (formattedValue !== dateText) {
+        setDateText(formattedValue);
+        setPrevDate(formattedValue);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
@@ -61,26 +72,36 @@ export function DateInput({
   const handleDateInput = (text) => {
     setError("");
     if (text) {
-      const [day, month, year] = text.split(".").map(Number);
+      const parts = text.split(".");
+      const dayStr = parts[0];
+      const monthStr = parts[1];
+      const yearStr = parts[2];
+
+      const day = Number(dayStr);
+      const month = Number(monthStr);
+      const year = Number(yearStr);
+      const currentYear = new Date().getFullYear();
 
       // validace dne
-      if (day && Number(day) > 31) {
+      if (dayStr !== "" && (day > 31 || day < 1)) {
         setError(i18n.t("errorDay"));
       }
 
       // validace mesice
-      if (month && Number(month) > 12) {
+      if (monthStr !== undefined && monthStr !== "" && (month > 12 || month < 1)) {
         setError(i18n.t("errorMonth"));
       }
 
       // validace roku
-      const currentYear = new Date().getFullYear();
-      if (year && Number(year) > currentYear) {
-        setError(`${i18n.t("errorYear")} ${currentYear}`);
-      }
-      const year1920 = new Date(1920, 0, 1).getFullYear();
-      if (Number(year) < year1920) {
-        setError(`${i18n.t("errorYearLow")} ${year1920}`);
+      if (yearStr && yearStr.length === 4) {
+        const maxAllowedYear = maxYearsInFuture ? currentYear + maxYearsInFuture : currentYear;
+        const minAllowedYear = minYearsInPast ? currentYear - minYearsInPast : currentYear - 105;
+
+        if (year > maxAllowedYear) {
+          setError(`${i18n.t("errorYear")} ${maxAllowedYear}`);
+        } else if (year < minAllowedYear) {
+          setError(`${i18n.t("errorYearLow")} ${minAllowedYear}`);
+        }
       }
     }
 
@@ -135,9 +156,7 @@ export function DateInput({
         onBlur={() => setIsFocused(false)}
         right={
           <TextInput.Icon
-            color={
-              error ? color.error : isFocused ? color.tabsText : color.inputIcon
-            }
+            color={error ? color.error : isFocused ? color.tabsText : color.inputIcon}
             icon="calendar"
             onPress={() => {
               setShowPicker(true);
@@ -147,20 +166,23 @@ export function DateInput({
         }
         {...props}
       />
-      <HelperText
-        type="error"
-        visible={error}
-        style={{ marginLeft: responsiveSize.horizontal(-9) }}
-        theme={inputColor}
-      >
-        {error}
-      </HelperText>
+      {showError && (
+        <HelperText
+          type="error"
+          visible={error}
+          style={{
+            marginLeft: responsiveSize.horizontal(-9),
+            marginTop: responsiveSize.vertical(-2),
+          }}
+          theme={inputColor}
+        >
+          {error}
+        </HelperText>
+      )}
 
       {showPicker && (
         <DateTimePicker
-          value={
-            value instanceof Date ? value : value ? new Date(value) : new Date()
-          }
+          value={value instanceof Date ? value : value ? new Date(value) : new Date()}
           mode="date"
           display={Platform.OS === "ios" ? "spinner" : "default"}
           onChange={handleDateCalendar}

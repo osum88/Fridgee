@@ -9,7 +9,7 @@ import {
   responsiveVertical,
 } from "@/utils/scale";
 import { useState } from "react";
-import { FormGroupPassword } from "@/components/common/FormGroupPassword";
+import { FormGroupPassword } from "@/components/input/FormGroupPassword";
 import { ThemedButton } from "@/components/themed/ThemedButton";
 import Tooltip from "react-native-walkthrough-tooltip";
 import { IconSymbol } from "@/components/icons/IconSymbol";

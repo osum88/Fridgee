@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { ThemedLine } from "@/components/themed/ThemedLine";
-import { Search } from "@/components/common/Search";
+import { Search } from "@/components/input/Search";
 import i18n from "@/constants/translations";
 import { useSearchUsersQuery } from "@/hooks/user/useUserQuery";
 import { useProfilePlaceHolder } from "@/hooks/useProfilePlaceHolder";
@@ -31,7 +31,6 @@ import {
   responsivePadding,
 } from "@/utils/scale";
 import { IMAGEKIT_URL_ENDPOINT } from "@/config/config";
-
 
 const FriendItem = React.memo(
   ({
@@ -68,7 +67,9 @@ const FriendItem = React.memo(
     const imageSource = useMemo(() => {
       return errorMap[item.id]
         ? profilePlaceHolder
-        : { uri: `${IMAGEKIT_URL_ENDPOINT}/users/${item.id}/profile/profile_${item.id}_150x150.webp`};
+        : {
+            uri: `${IMAGEKIT_URL_ENDPOINT}/users/${item.id}/profile/profile_${item.id}_150x150.webp`,
+          };
     }, [errorMap, item.id, profilePlaceHolder]);
 
     const onErrorImage = useCallback(() => {
@@ -89,7 +90,7 @@ const FriendItem = React.memo(
           limit,
           item.friendships?.status,
           item.friendships?.senderId,
-          item.friendships?.receiverId
+          item.friendships?.receiverId,
         );
       }
     }, [
@@ -113,11 +114,7 @@ const FriendItem = React.memo(
               style={styles.profileImage}
             />
             <ThemedView style={styles.textContainer}>
-              <ThemedText
-                style={styles.username}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
+              <ThemedText style={styles.username} numberOfLines={1} ellipsizeMode="tail">
                 {item.username}
               </ThemedText>
               {item.name && item.surname && (
@@ -141,7 +138,7 @@ const FriendItem = React.memo(
         </ThemedView>
       </Pressable>
     );
-  }
+  },
 );
 
 FriendItem.displayName = "FriendItem";
@@ -159,19 +156,14 @@ export default function SearchFriends() {
   const [selectedFriend, setSelectedFriend] = useState(null);
   const [visible, setVisible] = useState(false);
 
-  const {
-    data: users,
-    isLoading,
-    isFetching,
-  } = useSearchUsersQuery(debouncedUsername, limit);
+  const { data: users, isLoading, isFetching } = useSearchUsersQuery(debouncedUsername, limit);
 
   const { friendshipManager } = useFriendManager();
 
   const isInitialLoading = isLoading && !users; //data z api
   const isRefetching = isFetching && !!users; //data z cache
 
-  const showSkeleton =
-    (isInitialLoading || isRefetching) && username.length > 0;
+  const showSkeleton = (isInitialLoading || isRefetching) && username.length > 0;
 
   //vytvari zpozdeni aby se api neposilalo po kazdem znaku
   const debounceSetUsername = useMemo(
@@ -179,7 +171,7 @@ export default function SearchFriends() {
       debounce((value) => {
         setDebouncedUsername(value);
       }, 500),
-    []
+    [],
   );
 
   //nastavi username pri psani
@@ -191,7 +183,7 @@ export default function SearchFriends() {
       }
       debounceSetUsername(text);
     },
-    [limit, height, debounceSetUsername]
+    [limit, height, debounceSetUsername],
   );
 
   //nastavi username pri vyhledani enterem
@@ -240,16 +232,14 @@ export default function SearchFriends() {
                 limit,
                 selectedFriend.friendships?.status,
                 selectedFriend.friendships?.senderId,
-                selectedFriend.friendships?.receiverId
+                selectedFriend.friendships?.receiverId,
               );
             }}
           />
         )}
 
         {showSkeleton ? (
-          <ThemedView
-            style={{ paddingHorizontal: responsiveSize.horizontal(7) }}
-          >
+          <ThemedView style={{ paddingHorizontal: responsiveSize.horizontal(7) }}>
             {Array.from({ length: limit }).map((_, i) => (
               <Skeleton key={i} />
             ))}
@@ -277,12 +267,7 @@ export default function SearchFriends() {
             maxToRenderPerBatch={10}
             removeClippedSubviews={true}
             ListEmptyComponent={() => {
-              if (
-                !isLoading &&
-                !isFetching &&
-                users?.data?.length === 0 &&
-                username.length > 0
-              ) {
+              if (!isLoading && !isFetching && users?.data?.length === 0 && username.length > 0) {
                 return (
                   <ThemedView style={styles.noUsersFound}>
                     <ThemedText>{i18n.t("noUsersFound")}</ThemedText>
@@ -319,9 +304,7 @@ const styles = StyleSheet.create({
   line: {
     width: "100%",
     height:
-      responsiveSize.vertical(0.7) < 0.6
-        ? StyleSheet.hairlineWidth
-        : responsiveSize.vertical(0.7),
+      responsiveSize.vertical(0.7) < 0.6 ? StyleSheet.hairlineWidth : responsiveSize.vertical(0.7),
     marginVertical: responsiveSize.vertical(9),
   },
   profileImage: {

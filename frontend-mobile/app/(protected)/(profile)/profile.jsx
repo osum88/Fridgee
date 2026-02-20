@@ -17,11 +17,7 @@ import {
   responsivePadding,
 } from "@/utils/scale";
 import { ActivityIndicator, Snackbar } from "react-native-paper";
-import {
-  toast,
-  ToastPosition,
-  ToastProvider,
-} from "@backpackapp-io/react-native-toast";
+import { toast, ToastPosition, ToastProvider } from "@backpackapp-io/react-native-toast";
 import useUpdateUserProfileImageMutation from "@/hooks/user/useUpdateUserProfileImageMutation";
 import useDeleteUserProfileImageMutation from "@/hooks/user/useDeleteUserProfileImageMutation";
 import { IMAGEKIT_URL_ENDPOINT } from "@/config/config";
@@ -58,11 +54,7 @@ export default function Profile() {
   const { data: userData, isLoading } = useGetUserQuery(userId, true);
 
   //nacteni profilovky z cache
-  const { cacheProfileImage } = useCachedProfileImage(
-    userId,
-    isLoading,
-    userData?.data
-  );
+  const { cacheProfileImage } = useCachedProfileImage(userId, isLoading, userData?.data);
 
   // useEffect(() => {
   //   toast("Zprávaaax praahkkgjao uživatele", {
@@ -103,9 +95,7 @@ export default function Profile() {
       ? userData.data.profilePictureUrl.split("?v=")[1]
       : Date.now();
 
-    const cacheUri = cacheProfileImage
-      ? `${cacheProfileImage}?v=${version}`
-      : null;
+    const cacheUri = cacheProfileImage ? `${cacheProfileImage}?v=${version}` : null;
     const cloudUri = userData?.data?.profilePictureUrl
       ? `${IMAGEKIT_URL_ENDPOINT}${userData.data.profilePictureUrl}`
       : null;
@@ -115,11 +105,7 @@ export default function Profile() {
       cloudUri ? { uri: cloudUri } : null,
       profilePlaceHolder,
     ].filter(Boolean);
-  }, [
-    cacheProfileImage,
-    userData?.data?.profilePictureUrl,
-    profilePlaceHolder,
-  ]);
+  }, [cacheProfileImage, userData?.data?.profilePictureUrl, profilePlaceHolder]);
 
   //profilova fotka
   const sourceImage = useMemo(() => {
@@ -128,22 +114,19 @@ export default function Profile() {
     if (userData?.data?.profilePictureUrl === "none") return profilePlaceHolder;
 
     return imageSources[imageIndex] ?? profilePlaceHolder;
-  }, [
-    image,
-    imageIndex,
-    imageSources,
-    userData?.data?.profilePictureUrl,
-    profilePlaceHolder,
-  ]);
+  }, [image, imageIndex, imageSources, userData?.data?.profilePictureUrl, profilePlaceHolder]);
 
-  const isCZorSK =
-    userData?.data?.country === "CZ" || userData?.data?.country === "SK";
+  const isCZorSK = userData?.data?.country === "CZ" || userData?.data?.country === "SK";
+
+  const countryText = useMemo(() => {
+    if (userData?.data?.country === "CZ") return `${i18n.t("czech")} (Kč)`;
+    if (userData?.data?.country === "SK") return `${i18n.t("slovakia")} (€)`;
+    if (userData?.data?.country === "OTHER") return `${i18n.t("otherZ")} (€)`;
+    return "";
+  }, [userData?.data?.country]);
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.scrollContent}
-      showsVerticalScrollIndicator={false}
-    >
+    <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       <ThemedView safe={true} style={[styles.contentWrapper]}>
         <ThemedView>
           {isLoading && !userData?.data?.profilePictureUrl ? (
@@ -171,16 +154,9 @@ export default function Profile() {
             onPress={() => {
               setVisible(true);
             }}
-            style={[
-              styles.cameraButton,
-              { backgroundColor: color.borderImage },
-            ]}
+            style={[styles.cameraButton, { backgroundColor: color.borderImage }]}
           >
-            <IconSymbol
-              size={responsiveSize.moderate(25)}
-              name="camera.fill"
-              color={color.text}
-            />
+            <IconSymbol size={responsiveSize.moderate(25)} name="camera.fill" color={color.text} />
           </TouchableOpacity>
         </ThemedView>
         <ProfileImageSelector
@@ -198,9 +174,7 @@ export default function Profile() {
         {/* informace o profilu */}
         <ThemedView style={styles.section}>
           <ThemedView style={styles.sectionText}>
-            <ThemedText style={styles.sectionTitle}>
-              {i18n.t("personalInfo")}
-            </ThemedText>
+            <ThemedText style={styles.sectionTitle}>{i18n.t("personalInfo")}</ThemedText>
             <Link
               href={{
                 pathname: "/editProfile",
@@ -244,9 +218,7 @@ export default function Profile() {
               />
             )}
 
-            {userData?.data?.gender !== "UNSPECIFIED" && (
-              <ThemedLine style={{ height: 1 }} />
-            )}
+            {userData?.data?.gender !== "UNSPECIFIED" && <ThemedLine style={{ height: 1 }} />}
 
             {userData?.data?.gender !== "UNSPECIFIED" && (
               <CardItem
@@ -268,16 +240,24 @@ export default function Profile() {
 
             {userData?.data?.bankNumber && <ThemedLine style={{ height: 1 }} />}
 
+            {userData?.data?.country && (
+              <CardItem
+                iconName={"globe"}
+                iconSize={responsiveSize.moderate(19)}
+                label={`${i18n.t("bankAccountCountry")} / ${i18n.t("currency")}`}
+                value={countryText}
+                isLoading={isLoading}
+              />
+            )}
+
+            {userData?.data?.bankNumber && <ThemedLine style={{ height: 1 }} />}
+
             {userData?.data?.bankNumber && (
               <CardItemSecret
                 iconName={"building.columns"}
                 iconSize={responsiveSize.moderate(19)}
                 label={isCZorSK ? i18n.t("bankNumber") : "IBAN"}
-                value={
-                  isCZorSK
-                    ? ibanToBban(bankNumber)
-                    : bankNumber
-                }
+                value={isCZorSK ? ibanToBban(bankNumber) : bankNumber}
                 isLoading={isLoading}
                 isSecrete={true}
                 type={isCZorSK ? "czOrSk" : "iban"}
@@ -311,25 +291,16 @@ export default function Profile() {
 
         {/* Actions */}
         <ThemedView style={styles.section}>
-          <ThemedText
-            style={[
-              styles.sectionTitle,
-              { marginBottom: responsiveSize.vertical(8) },
-            ]}
-          >
+          <ThemedText style={[styles.sectionTitle, { marginBottom: responsiveSize.vertical(8) }]}>
             {i18n.t("tools")}
           </ThemedText>
 
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() =>
-              queryClient.invalidateQueries({ queryKey: ["user", userId] })
-            }
+            onPress={() => queryClient.invalidateQueries({ queryKey: ["user", userId] })}
           >
             <IconSymbol name="gear" size={20} color={"#007AFF"} />
-            <ThemedText style={styles.actionButtonText}>
-              {i18n.t("changePassword")}
-            </ThemedText>
+            <ThemedText style={styles.actionButtonText}>{i18n.t("changePassword")}</ThemedText>
             <IconSymbol name="chevron.right" size={16} color={"#6C757D"} />
           </TouchableOpacity>
         </ThemedView>

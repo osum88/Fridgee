@@ -236,6 +236,12 @@ export const getLabelSuggestionsRepository = async (userId, inventoryId, searchS
           where: { inventoryId: inventoryId, instances: { some: {} } },
           select: {
             id: true,
+            category: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
             variant: {
               select: {
                 id: true,
@@ -248,7 +254,7 @@ export const getLabelSuggestionsRepository = async (userId, inventoryId, searchS
           },
         },
       },
-      take: limit * 3,
+      take: limit * 4,
     });
   } catch (error) {
     console.error("Error in getSmartFoodSuggestionsRepository:", error);
@@ -370,5 +376,3 @@ export const getAvailableFoodLabelsRepository = async (userId, page = 0, limit =
     throw error;
   }
 };
-
-

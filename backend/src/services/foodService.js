@@ -228,6 +228,7 @@ export const getFoodByBarcodeService = async (barcode, inventoryId, userId, isAd
         iAcc[groupKey] = {
           expirationDate: inst.expirationDate,
           price: convertedPrice ? Number(convertedPrice.toFixed(2)) : null,
+
           currency: currency,
           amount: inst.amount || 0,
           unit: inst.amount > 0 ? inst.unit : null,

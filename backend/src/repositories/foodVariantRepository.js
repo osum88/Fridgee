@@ -90,7 +90,7 @@ export const getOrCreateFoodVariant = async (
   // pokud mame id vracime
   if (variantId) {
     const variant = await tx.foodVariant.findUnique({
-      where: { id: variantId },
+      where: { id: variantId, foodCatalogId: catalogId },
     });
     if (variant) {
       if (variant?.isDeleted) {

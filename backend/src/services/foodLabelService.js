@@ -6,6 +6,7 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from "../errors/errors.js";
+import { getFoodCategoriesByInventoryRepository } from "../repositories/foodCategoryRepository.js";
 import { getFoodInventoryUserRepository } from "../repositories/foodInventoryRepository.js";
 import {
   createFoodLabelRepository,
@@ -284,6 +285,7 @@ export const getLabelSuggestionsService = async (
   const uniqueSuggestions = [];
   const seenCatalogIds = new Set();
   const seenTitles = new Set();
+  const categories = await getFoodCategoriesByInventoryRepository(inventoryId);
 
   for (const item of sorted) {
     const normalizedTitle = normalizeText(item.title);
@@ -295,12 +297,20 @@ export const getLabelSuggestionsService = async (
       seenCatalogIds.add(item.catalogId);
       seenTitles.add(normalizedTitle);
 
-      const variants = item.foods
+      const existingFoods = item.foods || [];
+
+      const variants = existingFoods
         .filter((f) => f.variant && f.variant.title)
         .map((f) => ({
           variantId: f.variant.id,
           variantTitle: f.variant.title,
         }));
+
+      const existingItems = existingFoods.map((f) => ({
+        variantId: f.variant?.id || null,
+        categoryId: f.category?.id || null,
+        categoryTitle: f.category?.title || "",
+      }));
 
       uniqueSuggestions.push({
         inventoryId: inventoryId,
@@ -310,24 +320,26 @@ export const getLabelSuggestionsService = async (
         description: item?.description || "",
         foodImageUrl: item?.foodImageUrl || "",
         foodImageCloudId: item?.foodImageCloudId || null,
+        categoryTitle: item?.foods?.title || "",
         price: item?.price || 0,
         unit: item?.unit || "",
         amount: item?.amount || 0,
+        existingItems,
         variants: variants,
         ...(isAdmin
           ? {
-              foodId: item.foods[0]?.id || null,
+              foodId: existingFoods[0]?.id || null,
               userId: item.userId,
               isUserLabel: item.userId === userId,
-              hasStock: item.foods?.some((f) => (f._count?.instances || 0) > 0) || false,
-              isInInventory: item.foods.length > 0,
+              hasStock: existingFoods.some((f) => (f._count?.instances || 0) > 0) || false,
+              isInInventory: existingFoods.length > 0,
             }
           : {}),
       });
     }
     if (uniqueSuggestions.length >= limit) break;
   }
-  return uniqueSuggestions;
+  return { categories: categories, foods: uniqueSuggestions };
 };
 
 // uploaduje fotku na cloud
@@ -414,3 +426,4 @@ export const getAvailableFoodLabelsService = async (userId, page = 1, limit = 20
     hasNextPage: labels.length === safeLimit,
   };
 };
+

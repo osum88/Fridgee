@@ -42,7 +42,7 @@ export const getLabelSuggestions = async (req, res, next) => {
     const userId = req.userId;
     const isAdmin = req.adminRoute;
 
-    if (!searchString || searchString.trim().length < 2) {
+    if (!searchString || searchString.trim().length < 1) {
       return handleResponse(res, 200, "Suggestions fetched successfully", []);
     }
     const suggestions = await getLabelSuggestionsService(

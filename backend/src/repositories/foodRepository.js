@@ -206,7 +206,21 @@ export const addFoodToInventoryRepository = async (userId, data) => {
             catalogId: catalogId,
             variantId: variantId || null,
           },
+          include: {
+            _count: {
+              select: { instances: true },
+            },
+          },
         });
+
+        //pokud jidlo existuje ale nema instance muzem aktulizovat cataegorii
+        if (food && food._count.instances === 0) {
+          console.log("13.5");
+          await tx.food.update({
+            where: { id: food.id },
+            data: { categoryId: data?.categoryId || null },
+          });
+        }
 
         if (!food) {
           console.log("14");
@@ -612,6 +626,11 @@ export const getFoodByBarcodeRepository = async (barcode, inventoryId, userId) =
           },
         },
         variant: {
+          select: {
+            title: true,
+          },
+        },
+        category: {
           select: {
             title: true,
           },

@@ -1,3 +1,6 @@
+import i18n from "@/constants/translations";
+import { Unit } from "@/constants/food";
+
 // prevede date do DD.MM.YYYY
 export const formatDate = (isoString) => {
   if (!isoString) return "";
@@ -16,9 +19,7 @@ export const editDate = (day, month, year) => {
   const minutes = now.getUTCMinutes();
   const seconds = now.getUTCSeconds();
   const milliseconds = now.getUTCMilliseconds();
-  return new Date(
-    Date.UTC(year, month - 1, day, hours, minutes, seconds, milliseconds)
-  );
+  return new Date(Date.UTC(year, month - 1, day, hours, minutes, seconds, milliseconds));
 };
 
 // parsuje datum DD.MM.YYYY do date
@@ -89,16 +90,14 @@ export const ibanToBban = (iban) => {
     const accountPart = bban.slice(4);
     const prefix = accountPart.slice(0, 6).replace(/^0+/, "") || "0";
     const number = accountPart.slice(6).replace(/^0+/, "") || "0";
-    return /[1-9]/.test(prefix)
-      ? `${prefix}-${number}/${bankCode}`
-      : `${number}/${bankCode}`;
+    return /[1-9]/.test(prefix) ? `${prefix}-${number}/${bankCode}` : `${number}/${bankCode}`;
   }
   return iban;
 };
 
 //validuje date
 export const validateDate = (inputDate) => {
-  console.log(inputDate)
+  console.log(inputDate);
   if (!inputDate) return false;
   let date;
 
@@ -109,32 +108,27 @@ export const validateDate = (inputDate) => {
   }
 
   if (isNaN(date.getTime())) {
-     console.log(date.getTime())
+    console.log(date.getTime());
     return false;
   }
   const minDate = new Date("1920-01-01T00:00:00Z");
 
   if (date.getTime() < minDate.getTime()) {
-         console.log(date.getTime())
-         console.log(minDate.getTime())
-
+    console.log(date.getTime());
+    console.log(minDate.getTime());
 
     return false;
   }
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const normalizedDate = new Date(
-    date.getUTCFullYear(),
-    date.getUTCMonth(),
-    date.getUTCDate()
-  );
+  const normalizedDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
   if (normalizedDate.getTime() > today.getTime()) {
-    console.log(normalizedDate.getTime())
-    console.log(today.getTime())
+    console.log(normalizedDate.getTime());
+    console.log(today.getTime());
     return false;
   }
-  console.log(today.getTime())
+  console.log(today.getTime());
   return true;
 };
 
@@ -142,7 +136,52 @@ export const validateDate = (inputDate) => {
 export function hasValidationError(field, errors) {
   if (!Array.isArray(errors)) return false;
 
-  return errors?.some(
-    (msg) => typeof msg === "string" && msg.includes(`"${field}"`)
-  );
+  return errors?.some((msg) => typeof msg === "string" && msg.includes(`"${field}"`));
 }
+
+// vrati pocet dni mezi dneskem a cislovym datem
+export const getDaysUntil = (targetDate, minYearsInPast = 105) => {
+  if (!targetDate) return 0;
+  if (isNaN(targetDate)) return 0;
+
+  const minAllowedYear = new Date().getFullYear() - minYearsInPast;
+  if (targetDate.getFullYear() < minAllowedYear) {
+    return 0;
+  }
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const expDate = new Date(targetDate);
+  expDate.setHours(0, 0, 0, 0);
+
+  const diffTime = expDate.getTime() - today.getTime();
+  return Math.round(diffTime / (1000 * 60 * 60 * 24));
+};
+
+// vrati datum, ktere nastane za x ni od dneska
+export const getDateFromDays = (days) => {
+  const count = parseInt(days, 10);
+  if (isNaN(count)) return new Date();
+
+  const resultDate = new Date();
+  resultDate.setDate(resultDate.getDate() + count);
+  resultDate.setHours(12, 0, 0, 0);
+
+  return resultDate;
+};
+
+// funkce pro ziskani spravneho labelu pro pole mnozstvi
+export const getAmountTexts = (unit) => {
+  if (unit === Unit.MULTIPACK) {
+    return {
+      label: i18n.t("multipackQuantity"),
+      placeholder: i18n.t("enterMultipackQuantity"),
+      error: i18n.t("errorMultipackQuantityRange"),
+    };
+  }
+  return {
+    label: i18n.t("amount"),
+    placeholder: i18n.t("enterAmount"),
+    error: i18n.t("errorAmountRange"),
+  };
+};

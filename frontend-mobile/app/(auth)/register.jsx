@@ -10,8 +10,8 @@ import { Link } from "expo-router";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedButton } from "@/components/themed/ThemedButton";
-import { FormGroup } from "../../components/common/FormGroup";
-import { FormGroupPassword } from "@/components/common/FormGroupPassword";
+import { FormGroup } from "../../components/input/FormGroup";
+import { FormGroupPassword } from "@/components/input/FormGroupPassword";
 import { useState } from "react";
 import useRegisterMutation from "@/hooks/auth/useRegisterMutation";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -37,8 +37,7 @@ export default function Register() {
   const isTablet = width >= 768;
 
   //pokud je obrazovka mala, odkaz se zobrazuje pres tlacitko a scrollview se nezapne, tohle prida padding pro srollview pokud je podminka splnena
-  const isViewBlocked =
-    viewHeight + bottomHeight + insets.top + insets.bottom > height;
+  const isViewBlocked = viewHeight + bottomHeight + insets.top + insets.bottom > height;
 
   const { registerMutation, isLoading } = useRegisterMutation({
     setUsernameError,
@@ -51,8 +50,7 @@ export default function Register() {
     setEmailError(null);
     setPasswordError(null);
 
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
     if (!username || !email || !password || !confirmPassword) {
@@ -90,10 +88,7 @@ export default function Register() {
           ]}
         >
           <ThemedView
-            style={[
-              styles.contentWrapper,
-              { width: isTablet ? "80%" : "100%" },
-            ]}
+            style={[styles.contentWrapper, { width: isTablet ? "80%" : "100%" }]}
             onLayout={(e) => setViewHeight(e.nativeEvent.layout.height)}
           >
             <ThemedText style={styles.register} type="title">
@@ -165,10 +160,7 @@ export default function Register() {
         <ThemedView style={styles.textRow}>
           <ThemedText>{i18n.t("alreadyHaveAnAccount")}</ThemedText>
           <Link href="/login" replace asChild>
-            <ThemedText
-              lightColor={currentColors.primary}
-              darkColor={currentColors.primary}
-            >
+            <ThemedText lightColor={currentColors.primary} darkColor={currentColors.primary}>
               {i18n.t("loginNow")}
             </ThemedText>
           </Link>

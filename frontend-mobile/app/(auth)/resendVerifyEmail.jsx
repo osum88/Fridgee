@@ -10,7 +10,7 @@ import { Link } from "expo-router";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedButton } from "@/components/themed/ThemedButton";
-import { FormGroup } from "../../components/common/FormGroup";
+import { FormGroup } from "../../components/input/FormGroup";
 import { useState, useEffect } from "react";
 import useResendVerifyEmailMutation from "@/hooks/auth/useResendVerifyEmailMutation";
 import { useUser } from "@/hooks/useUser";

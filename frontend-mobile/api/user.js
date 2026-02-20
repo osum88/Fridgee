@@ -21,7 +21,7 @@ export const getUserByIdApi = async (userData) => {
       "Error in getUserByIdApi: ",
       error,
       "->",
-      error.response?.data?.message || error.message
+      error.response?.data?.message || error.message,
     );
     throw error;
   }
@@ -37,7 +37,7 @@ export const updatePreferredLanguageApi = async (userData) => {
       "Error in updatePreferredLanguageApi: ",
       error,
       "->",
-      error.response?.data?.message || error.message
+      error.response?.data?.message || error.message,
     );
     throw error;
   }
@@ -46,16 +46,14 @@ export const updatePreferredLanguageApi = async (userData) => {
 //vyhleda uzivatele podle username
 export const searchUsersApi = async (username, limit = 8) => {
   try {
-    const response = await apiClient.get(
-      `/users/search?username=${username}&limit=${limit}`
-    );
+    const response = await apiClient.get(`/users/search?username=${username}&limit=${limit}`);
     return response.data;
   } catch (error) {
     console.error(
       "Error in searchUsersApi: ",
       error,
       "->",
-      error.response?.data?.message || error.message
+      error.response?.data?.message || error.message,
     );
     throw error;
   }
@@ -75,7 +73,7 @@ export const updateUserProfileImageApi = async (file) => {
       "Error in uploadProfileImageApi: ",
       error,
       "->",
-      error.response?.data?.message || error.message
+      error.response?.data?.message || error.message,
     );
     throw error;
   }
@@ -91,7 +89,7 @@ export const deleteUserProfileImageApi = async () => {
       "Error in deleteUserProfileImageApi: ",
       error,
       "->",
-      error.response?.data?.message || error.message
+      error.response?.data?.message || error.message,
     );
     throw error;
   }
@@ -109,7 +107,7 @@ export const getBankNumberPasswordApi = async (data) => {
       "Error in getBankNumberPassword: ",
       error,
       "->",
-      error.response?.data?.message || error.message
+      error.response?.data?.message || error.message,
     );
     if (error.response) {
       if (
@@ -142,7 +140,7 @@ export const updateProfileApi = async (data) => {
       "Error in updateProfileApi: ",
       error,
       "->",
-      error.response?.data?.message || error.message
+      error.response?.data?.message || error.message,
     );
     if (error.response) {
       const errorData = error?.response?.data?.errors;
@@ -153,9 +151,7 @@ export const updateProfileApi = async (data) => {
           throw new BankNumberError(i18n.t("errorBankNumberNeedCountry"));
         }
 
-        if (
-          errorMessage === "SPAYD generation failed or returned invalid format."
-        ) {
+        if (errorMessage === "SPAYD generation failed or returned invalid format.") {
           throw new BankNumberError(i18n.t("errorBankNumberInvalid"));
         }
 

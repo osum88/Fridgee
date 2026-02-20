@@ -25,48 +25,42 @@ const MAPPING = {
   //domecek
   "house.fill": { name: "home", source: "MaterialIcons" },
   "paperplane.fill": { name: "send", source: "MaterialIcons" },
-  "chevron.left.forwardslash.chevron.right": {
-    name: "code",
-    source: "MaterialIcons",
-  },
+  "chevron.left.forwardslash.chevron.right": { name: "code", source: "MaterialIcons" },
   "chevron.right": { name: "chevron-right", source: "MaterialIcons" },
   // lupa
-  "magnifyingglass": { name: "search", source: "MaterialIcons" },
+  magnifyingglass: { name: "search", source: "MaterialIcons" },
   // menu
   "line.horizontal.3": { name: "menu", source: "MaterialIcons" },
   // zvonek
-  "bell": { name: "notifications-none", source: "MaterialIcons" },
+  bell: { name: "notifications-none", source: "MaterialIcons" },
   // nakupni kosik
-  "cart": { name: "shopping-cart", source: "MaterialIcons" },
+  cart: { name: "shopping-cart", source: "MaterialIcons" },
   // fajvka
-  "checkmark": { name: "check", source: "MaterialIcons" },
+  checkmark: { name: "check", source: "MaterialIcons" },
   // oko
-  "eye": { name: "visibility", source: "MaterialIcons" },
+  eye: { name: "visibility", source: "MaterialIcons" },
   // preskrtnute oko
   "eye.slash": { name: "visibility-off", source: "MaterialIcons" },
   // sipka doleva
   "chevron.left": { name: "arrow-back", source: "MaterialIcons" },
   // krizek
-  "xmark": { name: "close", source: "MaterialIcons" },
+  xmark: { name: "close", source: "MaterialIcons" },
   // dark mode
   "moon.stars": { name: "nightlight-round", source: "MaterialIcons" },
   // light mode
   "sun.max": { name: "white-balance-sunny", source: "MaterialCommunityIcons" },
   // system mode
-  "circle.lefthalf.fill": {
-    name: "contrast",
-    source: "MaterialIcons",
-  },
+  "circle.lefthalf.fill": { name: "contrast", source: "MaterialIcons" },
   // fotak outline
-  "camera": { name: "camera-outline", source: "MaterialCommunityIcons" },
+  camera: { name: "camera-outline", source: "MaterialCommunityIcons" },
   // fotak
   "camera.fill": { name: "photo-camera", source: "MaterialIcons" },
   // obrazek outline
-  "photo": { name: "image-outline", source: "MaterialCommunityIcons" },
+  photo: { name: "image-outline", source: "MaterialCommunityIcons" },
   // obrazek
   "photo.fill": { name: "image", source: "MaterialCommunityIcons" },
   // kos outline
-  "trash": { name: "delete-outline", source: "MaterialCommunityIcons" },
+  trash: { name: "delete-outline", source: "MaterialCommunityIcons" },
   // kos
   "trash.fill": { name: "delete", source: "MaterialCommunityIcons" },
   //baterka
@@ -76,27 +70,30 @@ const MAPPING = {
   //obraceni fotaku
   "camera.rotate": { name: "camera-flip-outline", source: "MaterialCommunityIcons" },
   //ramecek skenu
-  "viewfinder": { name: "scan-helper", source: "MaterialCommunityIcons" },
+  viewfinder: { name: "scan-helper", source: "MaterialCommunityIcons" },
   //plus outline
   "plus.circle": { name: "plus-circle-outline", source: "MaterialCommunityIcons" },
   //otaznik
   "questionmark.circle": { name: "help", source: "MaterialIcons" },
   //setting
-  "gear": { name: "settings", source: "MaterialIcons" },
+  gear: { name: "settings", source: "MaterialIcons" },
   //lednice
-  "refrigerator": { name: "fridge", source: "MaterialCommunityIcons" },
+  refrigerator: { name: "fridge", source: "MaterialCommunityIcons" },
   //email
-  "envelope": { name: "email-outline", source: "MaterialCommunityIcons" },
+  envelope: { name: "email-outline", source: "MaterialCommunityIcons" },
   //banka
   "building.columns": { name: "bank-outline", source: "MaterialCommunityIcons" },
   //dort
   "birthday.cake": { name: "cake-variant-outline", source: "MaterialCommunityIcons" },
   //kalendar
-  "calendar": { name: "calendar-outline", source: "MaterialCommunityIcons" },
-  //admin 
-  "checkmark.shield": { name: "badge-account-horizontal-outline", source: "MaterialCommunityIcons" },
+  calendar: { name: "calendar-outline", source: "MaterialCommunityIcons" },
+  //admin
+  "checkmark.shield": {
+    name: "badge-account-horizontal-outline",
+    source: "MaterialCommunityIcons",
+  },
   //osoba
-  "person": { name: "account-outline", source: "MaterialCommunityIcons" },
+  person: { name: "account-outline", source: "MaterialCommunityIcons" },
   //gender
   "person.crop.square": { name: "human-male", source: "MaterialCommunityIcons" },
   //sipka dolu
@@ -105,8 +102,14 @@ const MAPPING = {
   "chevron.up": { name: "chevron-up", source: "MaterialCommunityIcons" },
   //info
   "info.circle": { name: "information-outline", source: "MaterialCommunityIcons" },
-
-
+  //inventare
+  "archivebox.fill": { name: "archive", source: "MaterialCommunityIcons" },
+  //sipka v kruhu outline
+  "arrow.left.circle": { name: "arrow-left-thin", source: "MaterialCommunityIcons" },
+  //inventare outline
+  "archivebox": { name: "archive-outline", source: "MaterialCommunityIcons" },
+  //globus
+  "globe": { name: "earth", source: "MaterialCommunityIcons" },
 } as IconMapping;
 
 /**

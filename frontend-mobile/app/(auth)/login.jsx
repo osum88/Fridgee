@@ -11,8 +11,8 @@ import { Link } from "expo-router";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedButton } from "@/components/themed/ThemedButton";
-import { FormGroup } from "../../components/common/FormGroup";
-import { FormGroupPassword } from "../../components/common/FormGroupPassword";
+import { FormGroup } from "../../components/input/FormGroup";
+import { FormGroupPassword } from "../../components/input/FormGroupPassword";
 import { useState } from "react";
 import { ThemedCheckbox } from "@/components/themed/ThemedCheckbox";
 import useLoginMutation from "@/hooks/auth/useLoginMutation";
@@ -53,12 +53,7 @@ export default function Login() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
-          <ThemedView
-            style={[
-              styles.contentWrapper,
-              { width: isTablet ? "80%" : "100%" },
-            ]}
-          >
+          <ThemedView style={[styles.contentWrapper, { width: isTablet ? "80%" : "100%" }]}>
             <ThemedText style={styles.login} type="title">
               {i18n.t("login")}
             </ThemedText>
@@ -134,10 +129,7 @@ export default function Login() {
         <ThemedView style={styles.textRow}>
           <ThemedText>{i18n.t("notRegisteredYet")}</ThemedText>
           <Link href="/register" replace asChild>
-            <ThemedText
-              lightColor={currentColors.primary}
-              darkColor={currentColors.primary}
-            >
+            <ThemedText lightColor={currentColors.primary} darkColor={currentColors.primary}>
               {i18n.t("createAccount")}
             </ThemedText>
           </Link>

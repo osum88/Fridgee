@@ -1,6 +1,6 @@
 import { useUser } from "@/hooks/useUser";
 import useFriendMutation from "@/hooks/friends/useFriendMutation";
-import { useDebouncedMutation } from "@/hooks/useDebouncedMutation";
+import { useDebouncedMutation } from "@/hooks/debounce/useDebouncedMutation";
 import { useQueryClient } from "@tanstack/react-query";
 import { invalidateQueries } from "@/utils/invalidateQueries";
 
@@ -64,50 +64,118 @@ const useFriendManager = () => {
   } = useFriendMutation();
   const debouncedMutate = useDebouncedMutation();
 
-  const friendshipManager = (user2Id, username, limit, status, senderId, receiverId, cache = "searchUsername", friendData = {}) => {
+  const friendshipManager = (
+    user2Id,
+    username,
+    limit,
+    status,
+    senderId,
+    receiverId,
+    cache = "searchUsername",
+    friendData = {},
+  ) => {
     if (!status) {
-      const previousUsers = updateCacheOptimistic({ user2Id, username, limit, cache, status: "PENDING", friendData });
-      debouncedMutate(addFriendMutation, `${user2Id}`, { user2Id, username, limit, cache, previousUsers});
-
+      const previousUsers = updateCacheOptimistic({
+        user2Id,
+        username,
+        limit,
+        cache,
+        status: "PENDING",
+        friendData,
+      });
+      debouncedMutate(addFriendMutation, `${user2Id}`, {
+        user2Id,
+        username,
+        limit,
+        cache,
+        previousUsers,
+      });
     } else if (status?.toLowerCase() === "pending") {
       if (userId === senderId) {
-        const previousUsers = updateCacheOptimistic({ user2Id, username, limit, cache, friendData });
-        debouncedMutate(cancelFriendRequestMutation, `${user2Id}`, { user2Id, username, limit, cache, previousUsers});
-
+        const previousUsers = updateCacheOptimistic({
+          user2Id,
+          username,
+          limit,
+          cache,
+          friendData,
+        });
+        debouncedMutate(cancelFriendRequestMutation, `${user2Id}`, {
+          user2Id,
+          username,
+          limit,
+          cache,
+          previousUsers,
+        });
       } else if (userId === receiverId) {
-        const previousUsers = updateCacheOptimistic({ user2Id, username, limit, cache, status: "ACCEPTED", friendData, previousUsers});
-        acceptFriendRequestMutation.mutate({ user2Id, username, limit, cache});
+        const previousUsers = updateCacheOptimistic({
+          user2Id,
+          username,
+          limit,
+          cache,
+          status: "ACCEPTED",
+          friendData,
+          previousUsers,
+        });
+        acceptFriendRequestMutation.mutate({ user2Id, username, limit, cache });
       }
     } else if (status.toLowerCase() === "accepted") {
-      const previousUsers = updateCacheOptimistic({ user2Id, username, limit, cache, friendData, previousUsers });
+      const previousUsers = updateCacheOptimistic({
+        user2Id,
+        username,
+        limit,
+        cache,
+        friendData,
+        previousUsers,
+      });
       deleteFriendMutation.mutate({ user2Id, username, limit, cache });
     }
   };
 
-  const respondToFriendRequest = async (user2Id, status, receiverId, action, invalidateAll = false,  username = null, friendData = {}, cache = "receivedFriendRequests", limit = null, ) => {
+  const respondToFriendRequest = async (
+    user2Id,
+    status,
+    receiverId,
+    action,
+    invalidateAll = false,
+    username = null,
+    friendData = {},
+    cache = "receivedFriendRequests",
+    limit = null,
+  ) => {
     if (status?.toLowerCase() === "pending" && userId === receiverId) {
-      let previousUsers
+      let previousUsers;
       if (!invalidateAll) {
         previousUsers = updateCacheOptimistic({ user2Id, username, limit, cache, friendData });
       }
-    
+
       if (action === "accept") {
         try {
-          await acceptFriendRequestMutation.mutateAsync({ user2Id, username, limit, cache, previousUsers });
+          await acceptFriendRequestMutation.mutateAsync({
+            user2Id,
+            username,
+            limit,
+            cache,
+            previousUsers,
+          });
           invalidateQueries(queryClient, ["allFriends"]);
         } catch (error) {
-          throw error
+          throw error;
         }
       } else if (action === "refuse") {
         try {
-          await deleteFriendMutation.mutateAsync({ user2Id, username, limit, cache, previousUsers });
-
+          await deleteFriendMutation.mutateAsync({
+            user2Id,
+            username,
+            limit,
+            cache,
+            previousUsers,
+          });
         } catch (error) {
-           throw error
+          throw error;
         }
       }
       if (invalidateAll) {
-        invalidateQueries(queryClient, ["searchUsername", "allFriends", "receivedFriendRequests",]);
+        invalidateQueries(queryClient, ["searchUsername", "allFriends", "receivedFriendRequests"]);
       }
     }
   };

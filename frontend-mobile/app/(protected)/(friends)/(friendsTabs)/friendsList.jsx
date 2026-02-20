@@ -1,14 +1,8 @@
 import React, { useMemo, useState, useCallback } from "react";
 import { ThemedView } from "@/components/themed/ThemedView";
-import {
-  FlatList,
-  Image,
-  Pressable,
-  StyleSheet,
-  useWindowDimensions,
-} from "react-native";
+import { FlatList, Image, Pressable, StyleSheet, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
-import { Search } from "@/components/common/Search";
+import { Search } from "@/components/input/Search";
 import i18n from "@/constants/translations";
 import { useAllFriendsApiQuery } from "@/hooks/friends/useFriendQuery";
 import { useProfilePlaceHolder } from "@/hooks/useProfilePlaceHolder";
@@ -93,11 +87,7 @@ const FriendItem = React.memo(
               style={styles.profileImage}
             />
             <ThemedView style={styles.textContainer}>
-              <ThemedText
-                style={styles.username}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
+              <ThemedText style={styles.username} numberOfLines={1} ellipsizeMode="tail">
                 {friendInfo(item, "username")}
               </ThemedText>
 
@@ -117,7 +107,7 @@ const FriendItem = React.memo(
         </ThemedView>
       </Pressable>
     );
-  }
+  },
 );
 
 FriendItem.displayName = "FriendItem";
@@ -136,19 +126,14 @@ export default function FriendsList() {
   const [selectedFriend, setSelectedFriend] = useState(null);
   const [visible, setVisible] = useState(false);
 
-  const {
-    data: users,
-    isLoading,
-    isFetching,
-  } = useAllFriendsApiQuery(debouncedUsername);
+  const { data: users, isLoading, isFetching } = useAllFriendsApiQuery(debouncedUsername);
 
   const { friendshipManager } = useFriendManager();
 
   const isInitialLoading = isLoading && !users; //data z api
   const isRefetching = isFetching && !!users; //data z cache
 
-  const showSkeleton =
-    (isInitialLoading || isRefetching) && username.length > 0;
+  const showSkeleton = (isInitialLoading || isRefetching) && username.length > 0;
 
   //vytvari zpozdeni aby se api neposilalo po kazdem znaku
   const debounceSetUsername = useMemo(
@@ -156,7 +141,7 @@ export default function FriendsList() {
       debounce((value) => {
         setDebouncedUsername(value);
       }, 500),
-    []
+    [],
   );
 
   //nastavi username pri psani
@@ -182,7 +167,7 @@ export default function FriendsList() {
       }
       return null;
     },
-    [userId]
+    [userId],
   );
 
   return (
@@ -213,7 +198,7 @@ export default function FriendsList() {
               selectedFriend?.status,
               selectedFriend?.senderId,
               selectedFriend?.receiverId,
-              "allFriends"
+              "allFriends",
             );
           }}
         />
@@ -241,12 +226,7 @@ export default function FriendsList() {
             />
           )}
           ListEmptyComponent={() => {
-            if (
-              !isLoading &&
-              !isFetching &&
-              users?.data?.length === 0 &&
-              username.length > 0
-            ) {
+            if (!isLoading && !isFetching && users?.data?.length === 0 && username.length > 0) {
               return (
                 <ThemedView style={{ padding: 16, alignItems: "center" }}>
                   <ThemedText>{i18n.t("noFriendsFound")}</ThemedText>

@@ -46,7 +46,7 @@ export default function ScannerAdd() {
       setCountSameScannedData((prev) => {
         const newCount = prev + 1;
 
-        if (newCount >= 4) {
+        if (newCount >= 3) {
           console.log("Scanned is:", type, data, newCount);
 
           setCountSameScannedData(0);

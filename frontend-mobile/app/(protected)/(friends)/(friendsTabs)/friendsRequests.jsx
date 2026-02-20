@@ -1,14 +1,8 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { ThemedView } from "@/components/themed/ThemedView";
-import {
-  FlatList,
-  Image,
-  Pressable,
-  StyleSheet,
-  useWindowDimensions,
-} from "react-native";
+import { FlatList, Image, Pressable, StyleSheet, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
-import { Search } from "@/components/common/Search";
+import { Search } from "@/components/input/Search";
 import i18n from "@/constants/translations";
 import { useReceivedFriendRequestsQuery } from "@/hooks/friends/useFriendQuery";
 import { useProfilePlaceHolder } from "@/hooks/useProfilePlaceHolder";
@@ -67,7 +61,7 @@ const FriendItem = React.memo(
         "accept",
         false,
         debouncedUsername,
-        item.sender
+        item.sender,
       );
     }, [item, debouncedUsername, respondToFriendRequest]);
 
@@ -79,7 +73,7 @@ const FriendItem = React.memo(
         "refuse",
         false,
         debouncedUsername,
-        item.sender
+        item.sender,
       );
     }, [item, debouncedUsername, respondToFriendRequest]);
 
@@ -107,11 +101,7 @@ const FriendItem = React.memo(
               style={styles.profileImage}
             />
             <ThemedView style={styles.textContainer}>
-              <ThemedText
-                style={styles.username}
-                numberOfLines={2}
-                ellipsizeMode="tail"
-              >
+              <ThemedText style={styles.username} numberOfLines={2} ellipsizeMode="tail">
                 <ThemedText style={[styles.username, { fontWeight: "600" }]}>
                   {item.sender?.username}
                 </ThemedText>{" "}
@@ -126,16 +116,12 @@ const FriendItem = React.memo(
               icon="checkmark"
               onPress={onAccept}
             />
-            <FriendActionButton
-              style={styles.btn}
-              icon="xmark"
-              onPress={onRefuse}
-            />
+            <FriendActionButton style={styles.btn} icon="xmark" onPress={onRefuse} />
           </ThemedView>
         </ThemedView>
       </Pressable>
     );
-  }
+  },
 );
 
 FriendItem.displayName = "FriendItem";
@@ -151,19 +137,14 @@ export default function FriendsRequests() {
   const profilePlaceHolder = useProfilePlaceHolder();
   const { colorScheme } = useTheme();
 
-  const {
-    data: users,
-    isLoading,
-    isFetching,
-  } = useReceivedFriendRequestsQuery(debouncedUsername);
+  const { data: users, isLoading, isFetching } = useReceivedFriendRequestsQuery(debouncedUsername);
 
   const { respondToFriendRequest } = useFriendManager();
 
   const isInitialLoading = isLoading && !users; //data z api
   const isRefetching = isFetching && !!users; //data z cache
 
-  const showSkeleton =
-    (isInitialLoading || isRefetching) && username.length > 0;
+  const showSkeleton = (isInitialLoading || isRefetching) && username.length > 0;
 
   //vytvari zpozdeni aby se api neposilalo po kazdem znaku
   const debounceSetUsername = useMemo(
@@ -171,7 +152,7 @@ export default function FriendsRequests() {
       debounce((value) => {
         setDebouncedUsername(value);
       }, 500),
-    []
+    [],
   );
 
   //nastavi username pri psani
@@ -224,12 +205,7 @@ export default function FriendsRequests() {
           maxToRenderPerBatch={10}
           removeClippedSubviews={true}
           ListEmptyComponent={() => {
-            if (
-              !isLoading &&
-              !isFetching &&
-              users?.data?.length === 0 &&
-              username.length > 0
-            ) {
+            if (!isLoading && !isFetching && users?.data?.length === 0 && username.length > 0) {
               return (
                 <ThemedView style={{ padding: 16, alignItems: "center" }}>
                   <ThemedText>{i18n.t("noFriendsFound")}</ThemedText>
