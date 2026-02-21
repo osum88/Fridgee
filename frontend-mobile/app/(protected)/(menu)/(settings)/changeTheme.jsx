@@ -4,7 +4,7 @@ import { ThemedLine } from "@/components/themed/ThemedLine";
 import { CheckableItem } from "@/components/common/CheckableItem";
 import { useCallback } from "react";
 import i18n from "@/constants/translations";
-import { Colors } from "@/constants/Colors";
+import { Colors } from "@/constants/colors";
 import { useTheme } from "@/contexts/ThemeContext";
 import { responsiveSize, responsivePadding } from "@/utils/scale";
 

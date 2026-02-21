@@ -9,6 +9,7 @@ import {
   ScrollView,
 } from "react-native";
 import i18n from "@/constants/translations";
+import { GET_INPUT_THEME_NATIVE_PAPER } from "@/constants/colors";
 
 import { TextInput, HelperText, Portal } from "react-native-paper";
 import { ThemedView } from "@/components/themed/ThemedView";
@@ -152,18 +153,7 @@ export function SearchableDropdown({
     }, 300);
   };
 
-  if (!inputColor) {
-    inputColor = {
-      colors: {
-        outline: color.fullName,
-        background: color.background,
-        primary: color.tabsText,
-        error: color.error,
-        onSurface: color.text,
-        onSurfaceVariant: color.inputTextPaper,
-      },
-    };
-  }
+    inputColor = useMemo(() => GET_INPUT_THEME_NATIVE_PAPER(color), [color]);
 
   const isNoResultShow = !showNoResult && filteredItems.length === 0;
 

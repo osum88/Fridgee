@@ -1,5 +1,5 @@
 import { useUser } from "@/hooks/useUser";
-import useFriendMutation from "@/hooks/friends/useFriendMutation";
+import useFriendMutation from "@/hooks/queries/friends/useFriendMutation";
 import { useDebouncedMutation } from "@/hooks/debounce/useDebouncedMutation";
 import { useQueryClient } from "@tanstack/react-query";
 import { invalidateQueries } from "@/utils/invalidateQueries";

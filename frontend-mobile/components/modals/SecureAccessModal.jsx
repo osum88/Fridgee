@@ -14,7 +14,7 @@ import { ThemedButton } from "@/components/themed/ThemedButton";
 import Tooltip from "react-native-walkthrough-tooltip";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { ThemedView } from "@/components/themed/ThemedView";
-import useGetBankNumberPassword from "@/hooks/user/useGetBankNumberPassword";
+import useGetBankNumberPassword from "@/hooks/queries/user/useGetBankNumberPassword";
 
 export function SecureAccessModal({
   visible,

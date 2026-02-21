@@ -3,7 +3,7 @@ import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedLine } from "@/components/themed/ThemedLine";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CheckableItem } from "@/components/common/CheckableItem";
-import { useUpdatePreferredLanguageMutation } from "@/hooks/user/useUserQuery";
+import { useUpdatePreferredLanguageMutation } from "@/hooks/queries/user/useUserQuery";
 import { useRef, useCallback } from "react";
 import { responsiveSize, responsivePadding } from "@/utils/scale";
 

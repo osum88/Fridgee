@@ -3,15 +3,23 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"]
     }
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-, "app/(auth)/login.jsx", "app/(auth)/register.jsx", "components/themed/ThemedLine.jsx", "app/_layout.jsx", "hooks/useProfilePlaceHolder.js", "hooks/colors/useThemeColor.ts", "app/(protected)/(friends)/(friendsTabs)/_layout.jsx", "app/(protected)/(menu)/(tabs)/scannerAdd.jsx", "app/(protected)/(menu)/(tabs)/_layout.jsx"  ]
+    "expo-env.d.ts",
+    "app/(auth)/login.jsx",
+    "app/(auth)/register.jsx",
+    "components/themed/ThemedLine.jsx",
+    "app/_layout.jsx",
+    "hooks/useProfilePlaceHolder.js",
+    "hooks/colors/useThemeColor.ts",
+    "app/(protected)/(friends)/(friendsTabs)/_layout.jsx",
+    "app/(protected)/(menu)/(tabs)/scannerAdd.jsx",
+    "app/(protected)/(menu)/(tabs)/_layout.jsx",
+    "constants/colors.js"
+  ]
 }

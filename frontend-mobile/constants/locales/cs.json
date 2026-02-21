@@ -153,5 +153,10 @@
   "unit": "Měrná jednotka",
   "selectUnit": "Vyberte jednotku",
    "errorAmountRange": "Množství musí být mezi 0 a 9999.",
-  "errorMultipackQuantityRange": "Počet kusů musí být mezi 0 a 9999."
+  "errorMultipackQuantityRange": "Počet kusů musí být mezi 0 a 9999.",
+   "price": "Cena",
+  "enterPrice": "Zadejte cenu",
+  "priceRequired": "Cena je povinná.",
+  "priceInvalid": "Cena musí být mezi 0 a 99999.",
+  "priceDecimals": "Cena může mít maximálně 2 desetinná místa."
 }

@@ -7,7 +7,7 @@ import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
 import { useProfilePlaceHolder } from "@/hooks/useProfilePlaceHolder";
 import { IconSymbol } from "@/components/icons/IconSymbol";
-import { useGetUserQuery } from "@/hooks/user/useUserQuery";
+import { useGetUserQuery } from "@/hooks/queries/user/useUserQuery";
 import { useImageUpload } from "@/hooks/image/useImageUpload";
 import { ProfileImageSelector } from "@/components/image/ProfileImageSelector";
 import {
@@ -18,8 +18,8 @@ import {
 } from "@/utils/scale";
 import { ActivityIndicator, Snackbar } from "react-native-paper";
 import { toast, ToastPosition, ToastProvider } from "@backpackapp-io/react-native-toast";
-import useUpdateUserProfileImageMutation from "@/hooks/user/useUpdateUserProfileImageMutation";
-import useDeleteUserProfileImageMutation from "@/hooks/user/useDeleteUserProfileImageMutation";
+import useUpdateUserProfileImageMutation from "@/hooks/queries/user/useUpdateUserProfileImageMutation";
+import useDeleteUserProfileImageMutation from "@/hooks/queries/user/useDeleteUserProfileImageMutation";
 import { IMAGEKIT_URL_ENDPOINT } from "@/config/config";
 import { useCachedProfileImage } from "@/hooks/image/useCachedProfileImage";
 import { useQueryClient } from "@tanstack/react-query";

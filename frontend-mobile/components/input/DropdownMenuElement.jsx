@@ -1,7 +1,7 @@
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { StyleSheet } from "react-native";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { responsiveSize } from "@/utils/scale";
@@ -13,6 +13,7 @@ import Animated, {
   interpolate,
 } from "react-native-reanimated";
 import * as SystemUI from "expo-system-ui";
+import { GET_INPUT_THEME_NATIVE_PAPER } from "@/constants/colors";
 
 export function DropdownMenu({
   value,
@@ -40,18 +41,10 @@ export function DropdownMenu({
     return {
       transform: [
         {
-          translateY: interpolate(
-            labelPosition.value,
-            [0, 1],
-            [prevTranslateY, translateY]
-          ),
+          translateY: interpolate(labelPosition.value, [0, 1], [prevTranslateY, translateY]),
         },
         {
-          translateX: interpolate(
-            labelPosition.value,
-            [0, 1],
-            [prevTranslateX, translateX]
-          ),
+          translateX: interpolate(labelPosition.value, [0, 1], [prevTranslateX, translateX]),
         },
         {
           scale: interpolate(labelPosition.value, [0, 1], [1, 0.8]),
@@ -87,18 +80,7 @@ export function DropdownMenu({
     }, 300);
   };
 
-  if (!inputColor) {
-    inputColor = {
-      colors: {
-        outline: color.fullName,
-        background: color.background,
-        primary: color.tabsText,
-        error: color.error,
-        onSurface: color.text,
-        onSurfaceVariant: color.inputTextPaper,
-      },
-    };
-  }
+    inputColor = useMemo(() => GET_INPUT_THEME_NATIVE_PAPER(color), [color]);
 
   const renderLabel = () => {
     if (value || isFocus) {
@@ -108,8 +90,7 @@ export function DropdownMenu({
             styles.label,
             animatedLabelStyle,
             {
-              backgroundColor:
-                inputColor?.colors?.background || color.background,
+              backgroundColor: inputColor?.colors?.background || color.background,
             },
           ]}
         >
@@ -141,10 +122,7 @@ export function DropdownMenu({
           },
           inputStyles,
         ]}
-        placeholderStyle={[
-          styles.placeholderStyle,
-          { color: color.inputTextPaper },
-        ]}
+        placeholderStyle={[styles.placeholderStyle, { color: color.inputTextPaper }]}
         selectedTextStyle={[styles.selectedTextStyle, { color: color.text }]}
         itemTextStyle={{ color: color.text }}
         containerStyle={[
@@ -168,11 +146,7 @@ export function DropdownMenu({
           <IconSymbol
             name={isFocus ? "chevron.up" : "chevron.down"}
             size={responsiveSize.moderate(22)}
-            color={
-              isFocus
-                ? inputColor?.colors?.primary || color.tabsText
-                : color.inputIcon
-            }
+            color={isFocus ? inputColor?.colors?.primary || color.tabsText : color.inputIcon}
           />
         )}
         {...props}

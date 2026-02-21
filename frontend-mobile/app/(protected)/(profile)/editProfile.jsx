@@ -18,8 +18,9 @@ import { useLocalSearchParams, useNavigation } from "expo-router";
 import { SecretInput } from "@/components/input/SecretInput";
 import { ibanToBban, validateDate } from "@/utils/stringUtils";
 import { ThemedText } from "@/components/themed/ThemedText";
-import useUpdateProfile from "@/hooks/user/useUpdateProfile";
+import useUpdateProfile from "@/hooks/queries/user/useUpdateProfile";
 import { DoubleInputRow } from "@/components/input/DoubleInputRow";
+import { GET_INPUT_THEME_NATIVE_PAPER } from "@/constants/colors";
 
 export default function EditProfile() {
   const color = useThemeColor();
@@ -213,17 +214,7 @@ export default function EditProfile() {
     originalData.bankNumber,
   ]);
 
-  const inputColor = {
-    colors: {
-      outline: color.fullName,
-      background: color.background,
-      primary: color.tabsText,
-      error: color.error,
-      text: color.error,
-      onSurface: color.text,
-      onSurfaceVariant: color.inputTextPaper,
-    },
-  };
+  const inputColor = useMemo(() => GET_INPUT_THEME_NATIVE_PAPER(color), [color]);
 
   // formatuje text pro bankovni cislo
   const formatText = useCallback((text) => {

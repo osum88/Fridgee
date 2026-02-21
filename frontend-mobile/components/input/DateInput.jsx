@@ -1,12 +1,14 @@
 import { ThemedView } from "@/components/themed/ThemedView";
 import { Platform } from "react-native";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
 import { responsiveSize } from "@/utils/scale";
 import { TextInput, HelperText } from "react-native-paper";
 import { formatDate, formatDateInput, parseDateMidnight } from "@/utils/stringUtils";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { GET_INPUT_THEME_NATIVE_PAPER } from "@/constants/colors";
+
 
 export function DateInput({
   value,
@@ -55,18 +57,9 @@ export function DateInput({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
-  if (!inputColor) {
-    inputColor = {
-      colors: {
-        outline: color.fullName,
-        background: color.background,
-        primary: color.tabsText,
-        error: color.error,
-        onSurface: color.text,
-        onSurfaceVariant: color.inputTextPaper,
-      },
-    };
-  }
+ 
+    inputColor = useMemo(() => GET_INPUT_THEME_NATIVE_PAPER(color), [color]);
+  
 
   //zpracuje datum zadany rucne a a opravuje smazani tecek ktere se automaticky doplnuji
   const handleDateInput = (text) => {

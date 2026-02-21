@@ -1,6 +1,6 @@
 import { ThemedView } from "@/components/themed/ThemedView";
 import { StyleSheet, TouchableOpacity } from "react-native";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
 import { responsiveSize } from "@/utils/scale";
@@ -8,6 +8,7 @@ import { TextInput, HelperText } from "react-native-paper";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { SecureAccessModal } from "@/components/modals/SecureAccessModal";
 import { isCzOrSkAccountFormat, isValidIBANFormat } from "@/utils/stringUtils";
+import { GET_INPUT_THEME_NATIVE_PAPER } from "@/constants/colors";
 
 export function SecretInput({
   value,
@@ -46,18 +47,7 @@ export function SecretInput({
     }
   }, [onShowText, showBankNumber, isShowTextSet, value]);
 
-  if (!inputColor) {
-    inputColor = {
-      colors: {
-        outline: color.fullName,
-        background: color.background,
-        primary: color.tabsText,
-        error: color.error,
-        onSurface: color.text,
-        onSurfaceVariant: color.inputTextPaper,
-      },
-    };
-  }
+  inputColor = useMemo(() => GET_INPUT_THEME_NATIVE_PAPER(color), [color]);
 
   //validace bankovniho cisla
   const validateBankNumber = (text) => {
@@ -124,9 +114,7 @@ export function SecretInput({
           <IconSymbol
             size={responsiveSize.moderate(24)}
             name={showBankNumber || showModal ? "eye" : "eye.slash"}
-            color={
-              error ? color.error : isFocused ? color.tabsText : color.inputIcon
-            }
+            color={error ? color.error : isFocused ? color.tabsText : color.inputIcon}
           />
         </TouchableOpacity>
         <HelperText

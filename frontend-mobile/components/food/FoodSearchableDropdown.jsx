@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import i18n from "@/constants/translations";
 import { SearchableDropdown } from "@/components/input/SearchableDropdown";
 import { useDebounce } from "../../hooks/debounce/useDebounce";
-import { useGetLabelSuggestionsQuary } from "../../hooks/food/useGetLabelSuggestionsQuary";
+import { useGetLabelSuggestionsQuary } from "../../hooks/queries/food/useGetLabelSuggestionsQuary";
 
 export function FoodSearchableDropdown({
   setInputText,

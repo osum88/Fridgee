@@ -13,7 +13,7 @@ export const Unit = {
   NOUNIT: "NOUNIT",
 };
 
-// pomocne pole pro dropdown
+// pomocne pole pro dropdown unit
 export const UNIT_OPTIONS = Object.values(Unit).map((unit) => ({
   label:
     unit === "MULTIPACK"
@@ -24,4 +24,19 @@ export const UNIT_OPTIONS = Object.values(Unit).map((unit) => ({
   value: unit,
 }));
 
+export const Currency = {
+  CZK: "CZK",
+  EUR: "EUR",
+};
 
+// mapovani symbolu
+const CURRENCY_SYMBOLS = {
+  [Currency.CZK]: "Kč",
+  [Currency.EUR]: "€",
+};
+
+// pomocne pole pro dropdown men
+export const CURRENCY_OPTIONS = Object.values(Currency).map((curr) => ({
+  label: CURRENCY_SYMBOLS[curr],
+  value: curr,
+}));

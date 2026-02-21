@@ -4,7 +4,7 @@ import { FlatList, Image, Pressable, StyleSheet, useWindowDimensions } from "rea
 import { router } from "expo-router";
 import { Search } from "@/components/input/Search";
 import i18n from "@/constants/translations";
-import { useAllFriendsApiQuery } from "@/hooks/friends/useFriendQuery";
+import { useAllFriendsApiQuery } from "@/hooks/queries/friends/useFriendQuery";
 import { useProfilePlaceHolder } from "@/hooks/useProfilePlaceHolder";
 import debounce from "lodash.debounce";
 import { ThemedText } from "@/components/themed/ThemedText";

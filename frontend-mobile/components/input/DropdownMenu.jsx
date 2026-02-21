@@ -16,6 +16,8 @@ import Animated, {
   interpolate,
   Easing,
 } from "react-native-reanimated";
+import { GET_INPUT_THEME_NATIVE_PAPER } from "@/constants/colors";
+
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { IconSymbol } from "@/components/icons/IconSymbol";
@@ -108,18 +110,7 @@ export function DropdownMenu({
     }, 300);
   };
 
-  if (!inputColor) {
-    inputColor = {
-      colors: {
-        outline: color.fullName,
-        background: color.background,
-        primary: color.tabsText,
-        error: color.error,
-        onSurface: color.text,
-        onSurfaceVariant: color.inputTextPaper,
-      },
-    };
-  }
+    inputColor = useMemo(() => GET_INPUT_THEME_NATIVE_PAPER(color), [color]);
 
   //zobrazeny text
   const selectedLabel = useMemo(() => {
@@ -233,14 +224,11 @@ export function DropdownMenu({
         </Portal>
       )}
 
-      {showError && <HelperText
-        type="error"
-        visible={!!error}
-        style={styles.helper}
-        theme={inputColor}
-      >
-        {error}
-      </HelperText>}
+      {showError && (
+        <HelperText type="error" visible={!!error} style={styles.helper} theme={inputColor}>
+          {error}
+        </HelperText>
+      )}
     </ThemedView>
   );
 }
@@ -296,7 +284,7 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   helper: {
-      marginLeft: responsiveSize.horizontal(-9),
-      marginTop: responsiveSize.vertical(-2), 
-    },
+    marginLeft: responsiveSize.horizontal(-9),
+    marginTop: responsiveSize.vertical(-2),
+  },
 });

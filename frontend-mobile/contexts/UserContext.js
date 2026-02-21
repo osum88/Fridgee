@@ -17,7 +17,7 @@ import {
   setAccessTokenGetter,
   setSignOutCallback,
 } from "@/utils/api-client";
-import { useGetUserQuery } from "@/hooks/user/useUserQuery";
+import { useGetUserQuery } from "@/hooks/queries/user/useUserQuery";
 import { jwtDecode } from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useLogoutMutation from "@/hooks/auth/useLogoutMutation";

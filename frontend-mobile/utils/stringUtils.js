@@ -185,3 +185,35 @@ export const getAmountTexts = (unit) => {
     error: i18n.t("errorAmountRange"),
   };
 };
+
+// vraci mena podle kodu ziskaneho z zeme
+export const getCurrency = (countryCode) => {
+  const currencySymbols = {
+    OTHER: "EUR",
+    CZ: "CZK",
+    SK: "EUR",
+  };
+  return currencySymbols[countryCode] || "CZK";
+};
+
+// formatuje vstup pro cenu (1 tecka nebo carka, maximalne 2 desetinna mista)
+export const formatPriceInput = (text) => {
+  let cleaned = text.replace(/[^0-9.,]/g, "");
+
+  // kontrola by tam byla bud 1 carka nebo 1 tecka
+  const separatorMatch = cleaned.match(/[.,]/g);
+  if (separatorMatch && separatorMatch.length > 1) {
+    const firstSeparatorIndex = cleaned.search(/[.,]/);
+    const beforeSeparator = cleaned.substring(0, firstSeparatorIndex + 1);
+    const afterSeparator = cleaned.substring(firstSeparatorIndex + 1).replace(/[.,]/g, "");
+    cleaned = beforeSeparator + afterSeparator;
+  }
+
+  // omezeni na 2 desetina mista
+  const parts = cleaned.split(/[.,]/);
+  if (parts.length > 1 && parts[1].length > 2) {
+    const usedSeparator = cleaned.match(/[.,]/)[0];
+    cleaned = parts[0] + usedSeparator + parts[1].slice(0, 2);
+  }
+  return cleaned;
+};

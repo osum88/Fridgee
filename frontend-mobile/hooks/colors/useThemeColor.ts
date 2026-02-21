@@ -1,4 +1,4 @@
-import { Colors } from "@/constants/Colors";
+import { Colors } from "@/constants/colors";
 import { useTheme } from "@/contexts/ThemeContext";
 
 type Theme = "light" | "dark";
@@ -9,12 +9,12 @@ export function useThemeColor(): ColorsType;
 export function useThemeColor(colorName: ColorName): string;
 export function useThemeColor(
   props: { light?: string; dark?: string },
-  colorName?: ColorName
+  colorName?: ColorName,
 ): string;
 
 export function useThemeColor(
   arg1?: ColorName | { light?: string; dark?: string },
-  arg2?: ColorName
+  arg2?: ColorName,
 ) {
   const { colorScheme } = useTheme();
   const theme: Theme = (colorScheme ?? "light") as Theme;

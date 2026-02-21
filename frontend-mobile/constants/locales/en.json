@@ -152,6 +152,11 @@
   "noUnit": "No unit",
   "unit": "Unit",
   "selectUnit": "Select unit",
-   "errorAmountRange": "Amount must be between 0 and 9999.",
-  "errorMultipackQuantityRange": "Number of items must be between 0 and 9999."
+  "errorAmountRange": "Amount must be between 0 and 9999.",
+  "errorMultipackQuantityRange": "Number of items must be between 0 and 9999.",
+  "price": "Price",
+  "enterPrice": "Enter price",
+  "priceRequired": "Price is required.",
+  "priceInvalid": "Price must be between 0 and 99999.",
+  "priceDecimals": "Price can have at most 2 decimal places."
 }

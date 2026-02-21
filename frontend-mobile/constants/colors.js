@@ -37,14 +37,14 @@ export const Colors = {
     navigationHeader: "#1d9bc5ff",
     inputIcon: "#69686fff",
     inputTextPaper: "#49464d",
-    whiteAndSurface: "#fff"
+    whiteAndSurface: "#fff",
   },
   dark: {
     text: "#e0e0e0",
     background: "#121212",
     surface: "#1e1e1e",
     tint: tintColorDark,
-    tintOpacity:  "#ffffff1a",
+    tintOpacity: "#ffffff1a",
     icon: "#9BA1A6",
     tabIconDefault: "#9BA1A6",
     tabIconSelected: tintColorDark,
@@ -69,6 +69,18 @@ export const Colors = {
     navigationHeader: "#232323",
     inputIcon: "#9c9a9aff",
     inputTextPaper: "#c6c1ca",
-    whiteAndSurface: "#1e1e1e"
+    whiteAndSurface: "#1e1e1e",
   },
 };
+
+export const GET_INPUT_THEME_NATIVE_PAPER = (color) => ({
+  colors: {
+    outline: color.fullName,
+    background: color.background,
+    primary: color.tabsText,
+    error: color.error,
+    text: color.error,
+    onSurface: color.text,
+    onSurfaceVariant: color.inputTextPaper,
+  },
+});
