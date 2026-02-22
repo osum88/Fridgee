@@ -12,7 +12,7 @@ import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedButton } from "@/components/themed/ThemedButton";
 import { FormGroupPassword } from "@/components/input/FormGroupPassword";
 import { useState } from "react";
-import useResetPasswordMutation from "@/hooks/auth/useResetPasswordMutation";
+import useResetPasswordMutation from "@/hooks/queries/auth/useResetPasswordMutation";
 import { SuccessAnimation } from "@/components/animated/SuccessAnimation";
 import { responsiveSize } from "@/utils/scale";
 

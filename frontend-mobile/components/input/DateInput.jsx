@@ -9,7 +9,6 @@ import { formatDate, formatDateInput, parseDateMidnight } from "@/utils/stringUt
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { GET_INPUT_THEME_NATIVE_PAPER } from "@/constants/colors";
 
-
 export function DateInput({
   value,
   onChange,
@@ -57,9 +56,7 @@ export function DateInput({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
- 
-    inputColor = useMemo(() => GET_INPUT_THEME_NATIVE_PAPER(color), [color]);
-  
+  inputColor = useMemo(() => GET_INPUT_THEME_NATIVE_PAPER(color), [color]);
 
   //zpracuje datum zadany rucne a a opravuje smazani tecek ktere se automaticky doplnuji
   const handleDateInput = (text) => {
@@ -117,8 +114,15 @@ export function DateInput({
 
   //zpracuje datum z kalendare
   const handleDateCalendar = (event, selectedDate) => {
+    if (event.type === "dismissed") {
+      setShowPicker(false);
+      setIsEditable(!isEditable);
+      return;
+    }
+
     setShowPicker(false);
     setIsEditable(!isEditable);
+
     if (selectedDate) {
       onChange(selectedDate);
       setDateText(formatDate(selectedDate));

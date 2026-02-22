@@ -18,7 +18,7 @@ export const Colors = {
     tabIconSelected: tintColorLight,
     outline: "#dadee0ff",
     error: "#df4b31ff",
-    primary: "#1d9bc5ff",
+    primary: "#1d9bc5",
     onPrimary: "#fff",
     input: "#F5F5F5",
     inputText: "#787683",
@@ -38,6 +38,7 @@ export const Colors = {
     inputIcon: "#69686fff",
     inputTextPaper: "#49464d",
     whiteAndSurface: "#fff",
+    stepperButton: "rgba(29, 155, 197, 0.8)",
   },
   dark: {
     text: "#e0e0e0",
@@ -70,6 +71,7 @@ export const Colors = {
     inputIcon: "#9c9a9aff",
     inputTextPaper: "#c6c1ca",
     whiteAndSurface: "#1e1e1e",
+    stepperButton: "#22b2e2",
   },
 };
 

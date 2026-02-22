@@ -107,7 +107,7 @@ export const searchInventoryLabelSchema = Joi.object({
   inventoryId: Joi.alternatives()
     .try(Joi.number().integer().positive(), Joi.string().valid("null"))
     .required(),
-  title: Joi.string().max(50).allow("").optional(),
+  title: Joi.string().max(100).allow("").optional(),
   limit: Joi.number().integer().min(0).max(30).default(10).optional(),
 });
 
@@ -146,7 +146,7 @@ export const getHistorySchema = Joi.object({
     .optional(),
   fromDate: Joi.date().iso().optional(),
   toDate: Joi.date().iso().optional(),
-  search: Joi.string().allow("").max(50).optional(),
+  search: Joi.string().allow("").max(100).optional(),
   changedBy: Joi.alternatives()
     .try(
       Joi.number().integer().positive(),

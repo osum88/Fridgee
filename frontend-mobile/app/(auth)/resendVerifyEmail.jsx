@@ -12,7 +12,7 @@ import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedButton } from "@/components/themed/ThemedButton";
 import { FormGroup } from "../../components/input/FormGroup";
 import { useState, useEffect } from "react";
-import useResendVerifyEmailMutation from "@/hooks/auth/useResendVerifyEmailMutation";
+import useResendVerifyEmailMutation from "@/hooks/queries/auth/useResendVerifyEmailMutation";
 import { useUser } from "@/hooks/useUser";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { responsiveSize } from "@/utils/scale";

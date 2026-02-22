@@ -5,7 +5,7 @@ import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedButton } from "@/components/themed/ThemedButton";
 import { useEffect, useState } from "react";
-import useVerifyEmailMutation from "@/hooks/auth/useVerifyEmailMutation";
+import useVerifyEmailMutation from "@/hooks/queries/auth/useVerifyEmailMutation";
 import { SuccessAnimation } from "@/components/animated/SuccessAnimation";
 import { JumpingDots } from "@/components/animated/JumpingDots";
 import { useUser } from "@/hooks/useUser";

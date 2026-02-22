@@ -2,8 +2,8 @@ import Joi from "joi";
 
 export const updateFoodLabelSchema = Joi.object({
   foodLabelId: Joi.number().integer().required(),
-  title: Joi.string().max(40).optional(),
-  description: Joi.string().allow("").max(100).optional(),
+  title: Joi.string().max(100).optional(),
+  description: Joi.string().allow("").max(250).optional(),
   foodImageUrl: Joi.string().uri().allow("").optional(),
   foodImageCloudId: Joi.number().integer().optional(),
   amount: Joi.number().min(0).max(9999).precision(3).optional(),

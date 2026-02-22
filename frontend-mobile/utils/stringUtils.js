@@ -176,13 +176,11 @@ export const getAmountTexts = (unit) => {
     return {
       label: i18n.t("multipackQuantity"),
       placeholder: i18n.t("enterMultipackQuantity"),
-      error: i18n.t("errorMultipackQuantityRange"),
     };
   }
   return {
     label: i18n.t("amount"),
     placeholder: i18n.t("enterAmount"),
-    error: i18n.t("errorAmountRange"),
   };
 };
 
@@ -196,8 +194,8 @@ export const getCurrency = (countryCode) => {
   return currencySymbols[countryCode] || "CZK";
 };
 
-// formatuje vstup pro cenu (1 tecka nebo carka, maximalne 2 desetinna mista)
-export const formatPriceInput = (text) => {
+// formatuje vstup pro cislo (1 tecka nebo carka, maximalne 2 desetinna mista)
+export const formatNumberInput = (text) => {
   let cleaned = text.replace(/[^0-9.,]/g, "");
 
   // kontrola by tam byla bud 1 carka nebo 1 tecka
@@ -216,4 +214,59 @@ export const formatPriceInput = (text) => {
     cleaned = parts[0] + usedSeparator + parts[1].slice(0, 2);
   }
   return cleaned;
+};
+
+// validuje format cisla a nastavuje error
+export const validateNumericInput = (value, fieldName, setErrors, maxLimit = 999999) => {
+  if (!value) {
+    setErrors((prev) => ({ ...prev, [fieldName]: "" }));
+    return null;
+  }
+
+  if (value.endsWith(".") || value.endsWith(",")) {
+    setErrors((prev) => ({ ...prev, [fieldName]: "" }));
+    return null;
+  }
+
+  // max 2 desetinná místa
+  const numericRegex = /^\d+([.,]\d{1,2})?$/;
+  if (!numericRegex.test(value)) {
+    setErrors((prev) => ({
+      ...prev,
+      [fieldName]: i18n.t("invalidNumberFormat"), 
+    }));
+    return null;
+  }
+
+  // kontrola rozsahu
+  const numericValue = parseFloat(value.replace(",", "."));
+  if (numericValue < 0 || numericValue > maxLimit) {
+    setErrors((prev) => ({
+      ...prev,
+      [fieldName]: i18n.t("valueNumberInvalid"),
+    }));
+    return null;
+  }
+
+  setErrors((prev) => ({ ...prev, [fieldName]: "" }));
+  return numericValue;
+};
+
+// ziska categoryId pro danou variantu, pokud neni varianta null, jinak hleda zaznam s variantId null
+export const getCategoryIdByVariant = (selectedCatalog, selectedVariantId) => {
+  if (!selectedCatalog?.existingItems) return "null";
+
+  const matchingItem = selectedCatalog.existingItems.find(
+    (item) => String(item.variantId) === String(selectedVariantId)
+  );
+
+  if (matchingItem && matchingItem.categoryId !== null) {
+    return matchingItem.categoryId.toString();
+  }
+
+  const defaultItem = selectedCatalog.existingItems.find(
+    (item) => item.variantId === null
+  );
+
+  return defaultItem?.categoryId?.toString() ?? "null";
 };

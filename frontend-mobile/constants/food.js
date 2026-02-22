@@ -10,16 +10,16 @@ export const Unit = {
   DL: "DL",
   L: "L",
   MULTIPACK: "MULTIPACK",
-  NOUNIT: "NOUNIT",
+  NOUNIT: "null",
 };
 
 // pomocne pole pro dropdown unit
 export const UNIT_OPTIONS = Object.values(Unit).map((unit) => ({
   label:
     unit === "MULTIPACK"
-      ? i18n.t("multipack")?.toLowerCase()
-      : unit === "NOUNIT"
-        ? i18n.t("noUnit")?.toLowerCase()
+      ? i18n.t("multipack")
+      : unit === "null"
+        ? i18n.t("noUnit")
         : unit?.toLowerCase(),
   value: unit,
 }));

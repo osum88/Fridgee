@@ -26,18 +26,20 @@ export default function MenuLayout() {
         },
       }}
     >
-       {/* <Drawer.Screen
+      <Drawer.Screen
         name="(tabs)"
-         options={{ drawerItemStyle: { display: "none" }, headerShown: false }} 
-      />  */}
-      <Drawer.Screen name="(tabs)" options={{ headerShown: false }} />
+        options={{
+          drawerLabel: i18n.t("inventories"),
+          headerShown: false,
+          drawerIconName: "archivebox.fill",
+        }}
+      />
       <Drawer.Screen
         name="(settings)"
         options={{
           drawerLabel: i18n.t("settings"),
           headerShown: false,
           drawerIconName: "gear",
-      
         }}
       />
     </Drawer>

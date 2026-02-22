@@ -47,14 +47,21 @@ export function DropdownMenu({
   const color = useThemeColor();
   const isChanging = useRef(false);
   const [internalError, internalSetError] = useState("");
+  const [labelWidth, setLabelWidth] = useState(0);
 
   const error = externalError !== undefined ? externalError : internalError;
   const setError = externalSetError || internalSetError;
 
   const labelPosition = useSharedValue(value ? 1 : 0);
   const targetTranslateY = responsiveSize.vertical(-21);
-  const targetTranslateX = responsiveSize.horizontal(-5);
+  const targetTranslateX = responsiveSize.horizontal(5);
   const initialTranslateX = responsiveSize.horizontal(12);
+
+  // funkce pro zachyceni sirky
+  const onLabelLayout = (event) => {
+    const { width } = event.nativeEvent.layout;
+    if (width !== labelWidth) setLabelWidth(width);
+  };
 
   // konfigurace plynule animace
   const timingConfig = {
@@ -68,19 +75,28 @@ export function DropdownMenu({
   }, [value, isOpen]);
 
   //animace nadpisu
-  const animatedLabelStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        translateY: interpolate(labelPosition.value, [0, 1], [0, targetTranslateY]),
-      },
-      {
-        translateX: interpolate(labelPosition.value, [0, 1], [initialTranslateX, targetTranslateX]),
-      },
-      {
-        scale: interpolate(labelPosition.value, [0, 1], [1, 0.75]),
-      },
-    ],
-  }));
+  const animatedLabelStyle = useAnimatedStyle(() => {
+    const scale = interpolate(labelPosition.value, [0, 1], [1, 0.75]);
+    const compensation = (labelWidth * (1 - scale)) / 2;
+
+    return {
+      transform: [
+        {
+          translateY: interpolate(labelPosition.value, [0, 1], [0, targetTranslateY]),
+        },
+        {
+          translateX: interpolate(
+            labelPosition.value,
+            [0, 1],
+            [initialTranslateX, targetTranslateX - compensation],
+          ),
+        },
+        {
+          scale: scale,
+        },
+      ],
+    };
+  }, [labelWidth]); 
 
   // kliknuti do dropdown menu
   const handleOpen = () => {
@@ -110,7 +126,7 @@ export function DropdownMenu({
     }, 300);
   };
 
-    inputColor = useMemo(() => GET_INPUT_THEME_NATIVE_PAPER(color), [color]);
+  inputColor = useMemo(() => GET_INPUT_THEME_NATIVE_PAPER(color), [color]);
 
   //zobrazeny text
   const selectedLabel = useMemo(() => {
@@ -133,6 +149,7 @@ export function DropdownMenu({
           ]}
         >
           <ThemedText
+            onLayout={onLabelLayout}
             style={[
               styles.label,
               {
@@ -246,7 +263,7 @@ const styles = StyleSheet.create({
   labelContainer: {
     position: "absolute",
     zIndex: 999,
-    paddingHorizontal: responsiveSize.horizontal(2),
+    paddingHorizontal: responsiveSize.horizontal(8),
     top: responsiveSize.vertical(18),
   },
   label: {

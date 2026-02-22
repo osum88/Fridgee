@@ -41,40 +41,33 @@ export const getFoodCatalogWithLabelByBarcodeService = async (
     activeVariants = await getActiveFoodVariantsRepository(catalogWithLabel.id, currentInventoryId);
   }
 
-  const allCategories = currentInventoryId
-    ? await getFoodCategoriesByInventoryRepository(currentInventoryId)
-    : [];
-
   // vezme useruv lebel, pokud neni tak ten v inventari
   const activeLabel = catalogWithLabel?.labels[0] || existingFoods[0]?.label || {};
 
   return {
-    categories: allCategories,
-    foods: {
-      inventoryId: currentInventoryId,
-      catalogId: catalogWithLabel.id,
-      barcode: catalogWithLabel.barcode,
-      title: activeLabel?.title || "",
-      description: activeLabel?.description || "",
-      foodImageUrl: activeLabel?.foodImageUrl || "",
-      foodImageCloudId: activeLabel?.foodImageCloudId || null,
-      price: activeLabel?.price || 0,
-      unit: activeLabel?.unit || "",
-      amount: activeLabel?.amount || 0,
-      existingItems: existingFoods.map((f) => ({
-        variantId: f.variant?.id || null,
-        categoryId: f.category?.id || null,
-        categoryTitle: f.category?.title || "",
-      })),
-      variants: activeVariants,
-      ...(isAdmin
-        ? {
-            foodId: catalogWithLabel.foods[0]?.id || null,
-            userId: catalogWithLabel.addedBy,
-            isUserLabel: catalogWithLabel.addedBy === userId,
-            isInInventory: catalogWithLabel?.foods?.length > 0,
-          }
-        : {}),
-    },
+    inventoryId: currentInventoryId,
+    catalogId: catalogWithLabel.id,
+    barcode: catalogWithLabel.barcode,
+    title: activeLabel?.title || "",
+    description: activeLabel?.description || "",
+    foodImageUrl: activeLabel?.foodImageUrl || "",
+    foodImageCloudId: activeLabel?.foodImageCloudId || null,
+    price: activeLabel?.price || 0,
+    unit: activeLabel?.unit || "",
+    amount: activeLabel?.amount || 0,
+    existingItems: existingFoods.map((f) => ({
+      variantId: f.variant?.id || null,
+      categoryId: f.category?.id || null,
+      categoryTitle: f.category?.title || "",
+    })),
+    variants: activeVariants,
+    ...(isAdmin
+      ? {
+          foodId: catalogWithLabel.foods[0]?.id || null,
+          userId: catalogWithLabel.addedBy,
+          isUserLabel: catalogWithLabel.addedBy === userId,
+          isInInventory: catalogWithLabel?.foods?.length > 0,
+        }
+      : {}),
   };
 };

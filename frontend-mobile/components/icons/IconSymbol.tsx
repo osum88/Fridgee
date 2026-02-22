@@ -102,6 +102,8 @@ const MAPPING = {
   "chevron.up": { name: "chevron-up", source: "MaterialCommunityIcons" },
   //info
   "info.circle": { name: "information-outline", source: "MaterialCommunityIcons" },
+  //info vyplnene
+  "info.circle.fill": { name: "information", source: "MaterialCommunityIcons" },
   //inventare
   "archivebox.fill": { name: "archive", source: "MaterialCommunityIcons" },
   //sipka v kruhu outline
@@ -110,6 +112,11 @@ const MAPPING = {
   "archivebox": { name: "archive-outline", source: "MaterialCommunityIcons" },
   //globus
   "globe": { name: "earth", source: "MaterialCommunityIcons" },
+  //plus
+  "plus": { name: "plus", source: "MaterialCommunityIcons" },
+  //minus
+  "minus": { name: "minus", source: "MaterialCommunityIcons" },
+
 } as IconMapping;
 
 /**

@@ -285,7 +285,6 @@ export const getLabelSuggestionsService = async (
   const uniqueSuggestions = [];
   const seenCatalogIds = new Set();
   const seenTitles = new Set();
-  const categories = await getFoodCategoriesByInventoryRepository(inventoryId);
 
   for (const item of sorted) {
     const normalizedTitle = normalizeText(item.title);
@@ -320,7 +319,6 @@ export const getLabelSuggestionsService = async (
         description: item?.description || "",
         foodImageUrl: item?.foodImageUrl || "",
         foodImageCloudId: item?.foodImageCloudId || null,
-        categoryTitle: item?.foods?.title || "",
         price: item?.price || 0,
         unit: item?.unit || "",
         amount: item?.amount || 0,
@@ -339,7 +337,7 @@ export const getLabelSuggestionsService = async (
     }
     if (uniqueSuggestions.length >= limit) break;
   }
-  return { categories: categories, foods: uniqueSuggestions };
+  return  uniqueSuggestions ;
 };
 
 // uploaduje fotku na cloud

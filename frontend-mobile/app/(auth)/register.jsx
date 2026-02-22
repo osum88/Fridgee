@@ -13,7 +13,7 @@ import { ThemedButton } from "@/components/themed/ThemedButton";
 import { FormGroup } from "../../components/input/FormGroup";
 import { FormGroupPassword } from "@/components/input/FormGroupPassword";
 import { useState } from "react";
-import useRegisterMutation from "@/hooks/auth/useRegisterMutation";
+import useRegisterMutation from "@/hooks/queries/auth/useRegisterMutation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { responsiveSize } from "@/utils/scale";

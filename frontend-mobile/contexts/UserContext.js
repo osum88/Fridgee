@@ -20,7 +20,7 @@ import {
 import { useGetUserQuery } from "@/hooks/queries/user/useUserQuery";
 import { jwtDecode } from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import useLogoutMutation from "@/hooks/auth/useLogoutMutation";
+import useLogoutMutation from "@/hooks/queries/auth/useLogoutMutation";
 import { invalidateQueries } from "@/utils/invalidateQueries";
 import { useQueryClient } from "@tanstack/react-query";
 
