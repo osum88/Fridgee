@@ -7,17 +7,21 @@ import { consumeMultipleFoodInstances, deleteFoodInstances, duplicateFoodInstanc
 
 const router = express.Router();
 
+router.use(authenticateToken);
+router.use(authorizeUser);
+router.use(sanitize);
+
 // smaze foodinstance pokud je spotrebovana nebo upravi amount pokud je jen castecna konzumace
-router.patch("/consume", validate(consumeFoodInstanceSchema), authenticateToken, sanitize, authorizeUser , consumeMultipleFoodInstances);
+router.patch("/consume", validate(consumeFoodInstanceSchema), consumeMultipleFoodInstances);
 
 //updatuje jednu nebo vice stejnych instanci
-router.patch("/", validate(updateFoodInstanceSchema), authenticateToken, sanitize, authorizeUser , updateFoodInstance);
+router.patch("/", validate(updateFoodInstanceSchema), updateFoodInstance);
 
 //duplikuje instance food
-router.post("/duplicate", validate(duplicateInstancesSchema), authenticateToken, sanitize, authorizeUser, duplicateFoodInstances);
+router.post("/duplicate", validate(duplicateInstancesSchema), duplicateFoodInstances);
 
 //smaze jednu nebo vice instanci
-router.delete("/", validate(deleteFoodInstancesSchema), authenticateToken, sanitize, authorizeUser, deleteFoodInstances);
+router.delete("/", validate(deleteFoodInstancesSchema), deleteFoodInstances);
 
 
 

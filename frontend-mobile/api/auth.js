@@ -1,6 +1,6 @@
 import apiClient from "@/utils/api-client";
 import i18n from "@/constants/translations";
-import { EmailError, PasswordError, UsernameError } from "@/errors/CustomError";
+import { EmailError, PasswordError, } from "@/errors/CustomError";
 
 export const loginApi = async (loginData) => {
   try {
@@ -11,38 +11,10 @@ export const loginApi = async (loginData) => {
     });
     return response.data;
   } catch (error) {
-      console.error("Error in loginApi: ", error, "->", error.response?.data?.message || error.message);
-    if (error.response) {
-      if (
-        error.response.status === 400 &&
-        error.response.data.message === "Wrong email or password"
-      ) {
-        throw new Error(i18n.t("error400Login"));
-      } else if (
-        error.response.data?.errors?.includes('"email" must be a valid email')
-      ) {
-        throw new Error(i18n.t("errorValidEmail"));
-      } else if (
-        error.response.data?.errors?.includes(
-          '"email" is not allowed to be empty'
-        ) ||
-        error.response.data?.errors?.includes(
-          '"password" is not allowed to be empty'
-        )
-      ) {
-        throw new Error(i18n.t("errorEmptyEmailPassword"));
-      } else if (
-        error.response.data.includes("Too many requests from this IP address")
-      ) {
-        throw new Error(i18n.t("errorTooManyRequest"));
-      } else {
-        throw new Error(i18n.t("errorDefault"));
-      }
-    } else if (error.request) {
-      throw new Error(i18n.t("errorNetwork"));
-    } else {
-      throw new Error(i18n.t("errorDefault"));
-    }
+    console.error(
+      `Error in loginApi: ${error} -> ${error.response?.data?.message || error.message}`,
+    );
+    throw error;
   }
 };
 
@@ -55,62 +27,10 @@ export const signupApi = async (signupData) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error signupApi: ", error);
-    if (error.response) {
-      console.error("Error signupApi: ", error.response.data);
-      const errors = error.response?.data?.errors || [];
-      const data = error.response.data;
-
-      if (
-        error.response.status === 409 &&
-        error.response.data.message === "A user with this email already exists."
-      ) {
-        throw new EmailError(i18n.t("errorUserEmailExists"));
-      } else if (
-        error.response.status === 409 &&
-        error.response.data.message ===
-          "A user with this username already exists."
-      ) {
-        throw new UsernameError(i18n.t("errorUserUsernameExists"));
-      } else if (
-        error.response.data?.errors?.includes('"email" must be a valid email')
-      ) {
-        throw new EmailError(i18n.t("errorValidEmail"));
-      } else if (
-        errors.some((e) => e.includes("fails to match the required pattern"))
-      ) {
-        throw new PasswordError(i18n.t("errorPasswordTooWeak"));
-      } else if (
-        errors.some((e) =>
-          e.includes("length must be at least 8 characters long")
-        )
-      ) {
-        throw new PasswordError(i18n.t("errorPasswordTooWeak"));
-      } else if (
-        errors.some((e) =>
-          e.includes("length must be less than or equal to 30 characters long")
-        )
-      ) {
-        throw new UsernameError(i18n.t("errorUsernameTooLong"));
-      } else if (
-        errors.some((e) =>
-          e.includes("length must be at least 3 characters long")
-        )
-      ) {
-        throw new UsernameError(i18n.t("errorUsernameTooLong"));
-      } else if (
-        typeof data === "string" &&
-        data.includes("Too many requests from this IP address")
-      ) {
-        throw new Error(i18n.t("errorTooManyRequest"));
-      } else {
-        throw new Error(i18n.t("errorDefault"));
-      }
-    } else if (error.request) {
-      throw new Error(i18n.t("errorNetwork"));
-    } else {
-      throw new Error(i18n.t("errorDefault"));
-    }
+    console.error(
+      `Error in signupApi: ${error} -> ${error.response?.data?.message || error.message}`,
+    );
+    throw error;
   }
 };
 
@@ -123,7 +43,9 @@ export const refreshApi = async (refreshData) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error refreshApi: ", error, error.response?.data?.message || error.message);
+    console.error(
+      `Error in refreshApi: ${error} -> ${error.response?.data?.message || error.message}`,
+    );
     throw error;
   }
 };
@@ -144,24 +66,25 @@ export const logoutApi = async (logoutData) => {
 
 export const verifyEmailApi = async (verifyToken) => {
   try {
-    console.log("token", verifyToken)
+    console.log("token", verifyToken);
     const response = await apiClient.get(`/auth/verify-email?token=${verifyToken}`);
     return response.data;
   } catch (error) {
-    console.error("Error verifyEmailApi: ", error);
+    console.error(
+      `Error in verifyEmailApi: ${error} -> ${error.response?.data?.message || error.message}`,
+    );
     throw error;
   }
 };
 
 export const forgotPasswordApi = async (forgotPasswordData) => {
   try {
-    const response = await apiClient.post(
-      "/auth/forgot-password",
-      forgotPasswordData
-    );
+    const response = await apiClient.post("/auth/forgot-password", forgotPasswordData);
     return response.data;
   } catch (error) {
-    console.error("Error forgotPasswordApi: ", error);
+    console.error(
+      `Error in forgotPasswordApi: ${error} -> ${error.response?.data?.message || error.message}`,
+    );
     throw error;
   }
 };
@@ -171,53 +94,43 @@ export const resendVerifyEmailApi = async (resendVerifyEmailData) => {
     const response = await apiClient.post("/auth/resend-verify-email", resendVerifyEmailData);
     return response.data;
   } catch (error) {
-    console.error("Error resendVerifyEmailApi: ", error);
-   
+    console.error(
+      `Error in resendVerifyEmailApi: ${error} -> ${error.response?.data?.message || error.message}`,
+    );
+
     if (
       error.response.status === 409 &&
       error.response.data.message === "Email is already verified."
     ) {
       throw new EmailError(i18n.t("emailAlreadyVerified"));
-    } else if (
-      error.response.data?.errors?.includes('"email" must be a valid email')
-    ) {
+    } else if (error.response.data?.errors?.includes('"email" must be a valid email')) {
       throw new EmailError(i18n.t("errorValidEmail"));
-    } 
+    }
     throw error;
   }
 };
 
 export const resetPasswordApi = async (token, resetPasswordData) => {
   try {
-    const response = await apiClient.post(
-      `/auth/reset-password?token=${token}`,
-      resetPasswordData
-    );
+    const response = await apiClient.post(`/auth/reset-password?token=${token}`, resetPasswordData);
     return response.data;
   } catch (error) {
-    console.error("Error forgotPasswordApi: ", error);
+    console.error(
+      `Error in forgotPasswordApi: ${error} -> ${error.response?.data?.message || error.message}`,
+    );
     if (error.response) {
-      console.error("Error forgotPasswordApi: ", error.response.data);
-      const errors = error.response?.data?.errors || [];
-      const data = error.response.data;
+      const { status, type, code } = error.response?.data || {};
 
-      if (
-        error.response.status === 404 &&
-        error.response.data.message ===
-          "Password has been reset successfully. You can now log in."
-      ) {
-        throw error;
-      } else if (
-        errors.some((e) => e.includes("fails to match the required pattern")) ||
-        errors.some((e) =>
-          e.includes("length must be at least 8 characters long")
-        )
-      ) {
-        throw new PasswordError(i18n.t("errorPasswordTooWeak"));
-      } else if (
-        typeof data === "string" &&
-        data.includes("Too many requests from this IP address")
-      ) {
+      if (status === 400) {
+        if (type === "newPassword" && (code === "STRING_PATTERN.BASE" || code === "STRING_MIN")) {
+          throw new PasswordError(i18n.t("errorPasswordTooWeak"));
+        } else if (
+          type === "resetPassword" &&
+          (code === "INVALID_TOKEN" || code === "TOKEN_EXPIRED")
+        ) {
+          throw new PasswordError(i18n.t("invalidOrExpiredResetToken"));
+        }
+      } else if (status === 429) {
         throw new PasswordError(i18n.t("errorTooManyRequest"));
       } else {
         throw new PasswordError(i18n.t("errorDefault"));
@@ -231,9 +144,6 @@ export const resetPasswordApi = async (token, resetPasswordData) => {
 };
 
 export const changePasswordApi = async (changePasswordData) => {
-  const response = await apiClient.post(
-    "/auth/change-password",
-    changePasswordData
-  );
+  const response = await apiClient.post("/auth/change-password", changePasswordData);
   return response.data;
 };

@@ -12,6 +12,7 @@ import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedLine } from "@/components/themed/ThemedLine";
 import { CheckableItem } from "@/components/common/CheckableItem";
 import i18n from "@/constants/translations";
+import { ImageSelector } from "@/components/image/ImageSelector";
 
 import { useTheme } from "@/contexts/ThemeContext";
 import {
@@ -58,6 +59,9 @@ import { UniversalTextInput } from "../../../components/input/UniversalTextInput
 import { Stepper } from "../../../components/common/Stepper";
 import Tooltip from "react-native-walkthrough-tooltip";
 import { IconSymbol } from "@/components/icons/IconSymbol";
+import { FoodImagePicker } from "@/components/food/FoodImagePicker";
+import { useImageUpload } from "@/hooks/image/useImageUpload";
+import useUpdateProfile from "@/hooks/queries/user/useUpdateProfile";
 
 export default function AddFoodManually() {
   const color = useThemeColor();
@@ -69,8 +73,15 @@ export default function AddFoodManually() {
   const [lockCategory, setLockCategory] = useState(false);
   const [scrollSpace, setScrollSpace] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
-  const profilePlaceHolder = useProfilePlaceHolder();
+  const [image, setImage] = useState(null);
+  const [visible, setVisible] = useState(false);
+  const { pickImage, takePhoto, uploadImage } = useImageUpload("back");
+  const navigation = useNavigation();
   const scrollRef = useRef(null);
+
+
+  const { updateProfile, isSubmitting } = useUpdateProfile();
+
 
   const [inputText, setInputText] = useState({
     inventoryId: "",
@@ -85,8 +96,8 @@ export default function AddFoodManually() {
     title: "",
     // description: "",
     // currency: "",
-    foodImageUrl: "",
-    foodImageCloudId: "",
+    // foodImageUrl: "",
+    // foodImageCloudId: "",
     // amount: "",
     unit: "null",
     quantity: "1",
@@ -138,8 +149,8 @@ export default function AddFoodManually() {
       catalogId: selectedCatalog?.catalogId || undefined,
       description: selectedCatalog?.description || "",
 
-      //   foodImageCloudId: null,
-      //   foodImageUrl: "",
+      foodImageCloudId: selectedCatalog?.foodImageCloudId || null,
+      foodImageUrl: selectedCatalog?.foodImageUrl || "",
       price: selectedCatalog?.price?.toString() || "0",
       unit: selectedCatalog?.unit || "null",
     }));
@@ -193,6 +204,126 @@ export default function AddFoodManually() {
 
   const inputColor = useMemo(() => GET_INPUT_THEME_NATIVE_PAPER(color), [color]);
 
+  const handleImagePick = async (type) => {
+    if (type === "camera") {
+      const uri = await takePhoto();
+      if (uri) {
+        setImage(uri);
+        const { formData } = await uploadImage(uri);
+        console.log(formData, "form");
+      }
+    } else if (type === "photo") {
+      const uri = await pickImage();
+      if (uri) {
+        setImage(uri);
+        const { formData } = await uploadImage(uri);
+        console.log(formData, "form");
+      }
+    } else if (type === "remove") {
+      setImage(null);
+      setInputText((prev) => ({ ...prev, foodImageUrl: "" }));
+    }
+  };
+
+  //nastavi tlacitko ulozit v headeru
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => {
+            console.log("1");
+            if (inputText["bankNumber"] && !isSubmitting) {
+              console.log("2");
+
+              if (inputText.birthDate) {
+                setErrors((prev) => ({
+                  ...prev,
+                  birthDate: i18n.t("errorBirthDateInFuture"),
+                }));
+                return;
+              }
+              if (!inputText.gender) {
+                inputText.gender = "UNSPECIFIED";
+              }
+              if (inputText.bankNumber && !inputText.country) {
+                setErrors((prev) => ({
+                  ...prev,
+                  country: " ",
+                  bankNumber: i18n.t("errorBankNumberNeedCountry"),
+                }));
+              }
+              let bankNumberWasDeleted = false;
+              if (!inputText.bankNumber) {
+                delete inputText.bankNumber;
+                bankNumberWasDeleted = true;
+              }
+              updateProfile.mutate(inputText, {
+                onSuccess: () => {
+                  if (bankNumberWasDeleted) {
+                  }
+                  setErrors((prev) => ({
+                    ...prev,
+                    name: "",
+                    surname: "",
+                    birthDate: "",
+                    gender: "",
+                    country: "",
+                    bankNumber: "",
+                  }));
+
+                  // isSaving.current = true;
+                  navigation.goBack();
+                },
+
+                onError: (error) => {
+                  const errorMap = {
+                    name: "name",
+                    surname: "surname",
+                    birthDate: "birthDate",
+                    gender: "gender",
+                    country: "country",
+                    bankNumber: "bankNumber",
+                  };
+
+                  if (errorMap[error.type]) {
+                    setErrors((prev) => ({
+                      ...prev,
+                      [error.type]: error.message,
+                    }));
+                  } else {
+                    setErrors((prev) => ({
+                      ...prev,
+                      name: " ",
+                      surname: " ",
+                      birthDate: " ",
+                      gender: " ",
+                      country: " ",
+                      bankNumber: error.message || i18n.t("errorDefault"),
+                    }));
+                  }
+                },
+              });
+            }
+          }}
+        >
+          {isSubmitting ? (
+            <ActivityIndicator size="small" color={color.text} />
+          ) : (
+            <ThemedText
+              style={{
+                color: color.text,
+                fontSize: responsiveSize.moderate(18),
+                fontWeight: "600",
+              }}
+            >
+              {i18n.t("add")}
+            </ThemedText>
+          )}
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, color, inputText]);
+
   // console.log("categorieswwww", categories);
   // console.log("selectedCatalog", selectedCatalog);
   // console.log("existingItems", selectedCatalog?.existingItems);
@@ -213,6 +344,7 @@ export default function AddFoodManually() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
+      {/* TODO  vyresit jak udelat aby to mohl prepsat*/}
         <ThemedView safe={true} style={[styles.contentWrapper]}>
           {/* nazev potraviny */}
           <FoodSearchableDropdown
@@ -226,7 +358,7 @@ export default function AddFoodManually() {
           />
           {/* pocet kusu pro pridani */}
           <Stepper
-            label={i18n.t("quantity")}
+            label={i18n.t("quantity") || "1"}
             value={Number(inputText.quantity) || 1}
             onChange={(val) => setInputText((prev) => ({ ...prev, quantity: val }))}
             min={1}
@@ -501,6 +633,17 @@ export default function AddFoodManually() {
               </HelperText>
             </ThemedView>
           )}
+          <FoodImagePicker
+            imageUrl={image || inputText.foodImageUrl}
+            onPickImage={() => setVisible(true)}
+            isLoading={false}
+          />
+          <ImageSelector
+            label={i18n.t("foodPhotoTitle")}
+            visible={visible}
+            setVisible={setVisible}
+            onPress={(type) => handleImagePick(type)}
+          />
           {/* popisek/poznamka */}
           <UniversalTextInput
             value={inputText?.description || ""}

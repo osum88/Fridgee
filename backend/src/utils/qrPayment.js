@@ -12,11 +12,17 @@ export const generateSpaydPaymentFormat = (iban, amount, currency, message) => {
       msg: message,
     });
     if (!spayd || typeof spayd !== "string") {
-      throw new BadRequestError("SPAYD generation failed or returned invalid format.");
+      throw new BadRequestError("SPAYD generation failed or returned invalid format.", {
+        type: "bankNumber",
+        code: "SPAYD_GENERATION_FAILED",
+      });
     }
     return spayd;
   } catch (error) {
-    throw new BadRequestError("Error generate SPAYD payment format.");
+    throw new BadRequestError("Error generate SPAYD payment format.", {
+      type: "bankNumber",
+      code: "SPAYD_INVALID_FORMAT",
+    });
   }
 };
 
@@ -80,13 +86,19 @@ export const isValidIbanOrBban = (input, countryCode) => {
     const bban = `${bankCode}${paddedPrefix}${paddedNumber}`;
 
     if (!isValidBBAN(countryCode, bban)) {
-      throw new BadRequestError("Invalid bank number format.");
+      throw new BadRequestError("Invalid bank number format.", {
+        type: "bankNumber",
+        code: "INVALID_FORMAT",
+      });
     }
 
     const iban = fromBBAN(countryCode, bban);
 
     if (!isValid(iban)) {
-      throw new BadRequestError("Converted IBAN is invalid.");
+      throw new BadRequestError("Converted IBAN is invalid.", {
+        type: "bankNumber",
+        code: "INVALID_CONVERT_IBAN",
+      });
     }
     // valida pro spayd
     generateSpaydPaymentFormat(iban);
@@ -97,9 +109,15 @@ export const isValidIbanOrBban = (input, countryCode) => {
   const ibanRegex = /^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$/;
   if (ibanRegex.test(cleaned)) {
     if (!isValid(cleaned)) {
-      throw new BadRequestError("Invalid IBAN format.");
+      throw new BadRequestError("Invalid IBAN format.", {
+        type: "bankNumber",
+        code: "INVALID_IBAN",
+      });
     }
     return electronicFormat(cleaned);
   }
-  throw new BadRequestError("Invalid IBAN or bank number format.");
+  throw new BadRequestError("Invalid IBAN or bank number format.", {
+    type: "bankNumber",
+    code: "BANK_NUMBER_GENERIC_ERROR",
+  });
 };

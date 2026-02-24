@@ -3,10 +3,12 @@ import apiClient from "@/utils/api-client";
 // pridani pritele (odeslani zadosti)
 export const addFriendApi = async (user2Id) => {
   try {
-    const response = await apiClient.post("/friends/add", {user2Id});
+    const response = await apiClient.post("/friends/add", { user2Id });
     return response.data;
   } catch (error) {
-    console.error("Error in addFriendApi: ", error, "->", error.response?.data?.message || error.message);
+    console.error(
+      `Error in addFriendApi: ${error} -> ${error.response?.data?.message || error.message}`,
+    );
     throw error;
   }
 };
@@ -17,7 +19,9 @@ export const cancelFriendRequestApi = async (friendId) => {
     const response = await apiClient.delete(`/friends/cancel/${friendId}`);
     return response.data;
   } catch (error) {
-    console.error("Error in cancelFriendRequestApi: ", error, "->", error.response?.data?.message || error.message);
+    console.error(
+      `Error in cancelFriendRequestApi: ${error} -> ${error.response?.data?.message || error.message}`,
+    );
     throw error;
   }
 };
@@ -28,7 +32,9 @@ export const deleteFriendApi = async (friendId) => {
     const response = await apiClient.delete(`/friends/${friendId}`);
     return response.data;
   } catch (error) {
-    console.error("Error in deleteFriendApi: ", error, "->", error.response?.data?.message || error.message);
+    console.error(
+      `Error in deleteFriendApi: ${error} -> ${error.response?.data?.message || error.message}`,
+    );
     throw error;
   }
 };
@@ -39,7 +45,9 @@ export const acceptFriendRequestApi = async (friendId) => {
     const response = await apiClient.patch(`/friends/accept/${friendId}`);
     return response.data;
   } catch (error) {
-    console.error("Error in acceptFriendRequestApi: ", error, "->", error.response?.data?.message || error.message);
+    console.error(
+      `Error in acceptFriendRequestApi: ${error} -> ${error.response?.data?.message || error.message}`,
+    );
     throw error;
   }
 };
@@ -50,7 +58,9 @@ export const getSentFriendRequestsApi = async (username) => {
     const response = await apiClient.get(`/friends/requests/sent?username=${username}`);
     return response.data;
   } catch (error) {
-    console.error("Error in getSentFriendRequestsApi: ", error, "->", error.response?.data?.message || error.message);
+    console.error(
+      `Error in getSentFriendRequestsApi: ${error} -> ${error.response?.data?.message || error.message}`,
+    );
     throw error;
   }
 };
@@ -61,7 +71,9 @@ export const getReceivedFriendRequestsApi = async (username) => {
     const response = await apiClient.get(`/friends/requests/received?username=${username}`);
     return response.data;
   } catch (error) {
-    console.error("Error in getReceivedFriendRequestsApi: ", error, "->", error.response?.data?.message || error.message);
+    console.error(
+      `Error in getReceivedFriendRequestsApi: ${error} -> ${error.response?.data?.message || error.message}`,
+    );
     throw error;
   }
 };
@@ -72,9 +84,9 @@ export const getAllFriendsApi = async (username) => {
     const response = await apiClient.get(`/friends?username=${username}`);
     return response.data;
   } catch (error) {
-    console.error("Error in getAllFriendsApi: ", error, "->", error.response?.data?.message || error.message);
+    console.error(
+      `Error in getAllFriendsApi: ${error} -> ${error.response?.data?.message || error.message}`,
+    );
     throw error;
   }
 };
-
-

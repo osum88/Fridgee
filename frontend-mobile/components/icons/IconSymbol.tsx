@@ -116,6 +116,9 @@ const MAPPING = {
   "plus": { name: "plus", source: "MaterialCommunityIcons" },
   //minus
   "minus": { name: "minus", source: "MaterialCommunityIcons" },
+  // tuzka
+  "pencil": { name: "lead-pencil", source: "MaterialCommunityIcons" },
+
 
 } as IconMapping;
 

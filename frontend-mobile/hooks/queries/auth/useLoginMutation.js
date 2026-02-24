@@ -2,6 +2,8 @@ import { loginApi } from "@/api/auth";
 import { useUser } from "@/hooks/useUser";
 import i18n from "@/constants/translations";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { handleApiError } from "../../../utils/handleApiError";
+
 
 const useLoginMutation = ({ setError, rememberMe }) => {
   const { signIn } = useUser();
@@ -31,7 +33,9 @@ const useLoginMutation = ({ setError, rememberMe }) => {
       }
     },
     onError: (error) => {
-      setError(error.message);
+      console.log("sad")
+      handleApiError(error, setError)
+      // setError(error.message);
     },
   });
 

@@ -40,12 +40,18 @@ export const createUserService = async (
 ) => {
   const existingUserByEmail = await getUserByEmailRepository(email);
   if (existingUserByEmail) {
-    throw new ConflictError("A user with this email already exists.");
+    throw new ConflictError("A user with this email already exists.", {
+      type: "email",
+      code: "EMAIL_ALREADY_EXISTS",
+    });
   }
 
   const existingUserByUsername = await getUserByUsernameRepository(username);
   if (existingUserByUsername) {
-    throw new ConflictError("A user with this username already exists.");
+    throw new ConflictError("A user with this username already exists.", {
+      type: "username",
+      code: "USERNAME_ALREADY_EXISTS",
+    });
   }
 
   return await createUserRepository(
@@ -82,7 +88,10 @@ export const updateUserService = async (id, updateData, isAdmin) => {
   if (updateData.email && updateData.email !== userToUpdate.email) {
     const existingUserByEmail = await getUserByEmailRepository(updateData?.email);
     if (existingUserByEmail) {
-      throw new ConflictError("A user with this email already exists.");
+      throw new ConflictError("A user with this email already exists.", {
+        type: "email",
+        code: "EMAIL_ALREADY_EXISTS",
+      });
     }
   }
 
@@ -90,7 +99,10 @@ export const updateUserService = async (id, updateData, isAdmin) => {
   if (updateData.username && updateData.username !== userToUpdate.username) {
     const existingUserByUsername = await getUserByUsernameRepository(updateData?.username);
     if (existingUserByUsername) {
-      throw new ConflictError("A user with this username already exists.");
+      throw new ConflictError("A user with this username already exists.", {
+        type: "username",
+        code: "USERNAME_ALREADY_EXISTS",
+      });
     }
   }
 
@@ -119,7 +131,10 @@ export const updateUserService = async (id, updateData, isAdmin) => {
   // bankovni cislo lze zadat jen pokud je i vybrana zeme bankovniho cisla
   if (filteredData?.bankNumber) {
     if (!filteredData?.country) {
-      throw new BadRequestError("Error country is required for bank number.");
+      throw new BadRequestError("Error country is required for bank number.", {
+        type: "bankNumber",
+        code: "STRING_EMPTY",
+      });
     }
     const iban = isValidIbanOrBban(filteredData?.bankNumber, filteredData.country);
     filteredData.bankNumber = iban;
@@ -175,7 +190,10 @@ export const getBankNumberPasswordService = async (id, password) => {
   // overeni hesla
   const isSame = await bcrypt.compare(password, user.passwordHash);
   if (!isSame) {
-    throw new BadRequestError("Wrong password");
+    throw new BadRequestError("Wrong password", {
+      type: "password",
+      code: "INVALID_PASSWORD",
+    });
   }
   const bankNumber = await getBankNumberRepository(id);
   return bankNumber || { bankNumber: "" };
@@ -184,7 +202,10 @@ export const getBankNumberPasswordService = async (id, password) => {
 //vyhleda uzivatele
 export const searchUsersService = async (userId, username, limit = 10) => {
   if (!username || username.trim() === "") {
-    throw new BadRequestError("Username is required for search.");
+    throw new BadRequestError("Username is required for search.", {
+      type: "searchUsername",
+      code: "STRING_EMPTY",
+    });
   }
 
   const sanitizedUsername = username.trim().replace(/\s+/g, "").toLowerCase();

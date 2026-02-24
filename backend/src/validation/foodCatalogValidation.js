@@ -4,9 +4,8 @@ export const foodCatalogIdSchema = Joi.object({
   foodCatalogId: Joi.number().integer().positive().required(),
 });
 
-export const foodCatalogIdAdminSchema = Joi.object({
+export const foodCatalogIdAdminSchema = foodCatalogIdSchema.keys({
   id: Joi.number().integer().positive().required(),
-  foodCatalogId: Joi.number().integer().positive().required(),
 });
 
 export const foodCatalogWithLabelByBarcodeSchema = Joi.object({

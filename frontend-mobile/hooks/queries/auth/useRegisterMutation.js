@@ -2,13 +2,9 @@ import { signupApi } from "@/api/auth";
 import { useUser } from "@/hooks/useUser";
 import i18n from "@/constants/translations";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { EmailError, PasswordError, UsernameError } from "@/errors/CustomError";
+import { handleApiError } from "@/utils/handleApiError";
 
-const useRegisterMutation = ({
-  setUsernameError,
-  setEmailError,
-  setPasswordError,
-}) => {
+const useRegisterMutation = ({ setErrors, errors }) => {
   const { signIn } = useUser();
 
   const queryClient = useQueryClient();
@@ -33,21 +29,12 @@ const useRegisterMutation = ({
         }
       } catch (err) {
         console.error("Error saving refresh token:", err);
-        setPasswordError(i18n.t("errorDefault"));
+        setErrors({ email: " ", username: " ", password: i18n.t("errorDefault") });
       }
     },
     onError: (error) => {
-      if (error instanceof EmailError) {
-        setEmailError(error.message);
-      } else if (error instanceof UsernameError) {
-        setUsernameError(error.message);
-      } else if (error instanceof PasswordError) {
-        setPasswordError(error.message);
-      } else {
-        setUsernameError(" ");
-        setEmailError(" ");
-        setPasswordError(error.message);
-      }
+      console.error("Error registry:", error);
+      handleApiError(error, setErrors, errors, "password");
     },
   });
   return { registerMutation, isLoading: registerMutation.isPending };

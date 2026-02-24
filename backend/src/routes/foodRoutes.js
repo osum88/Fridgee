@@ -9,12 +9,14 @@ import multer from "multer";
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
+router.use(authenticateToken);
+router.use(authorizeUser);
 
 // prida jidlo do inventare a vytvori instanci, price i history, pripadne catalog, label, variant
-router.post("/", validate(addFoodToInventoryFoodSchema), authenticateToken, sanitize, authorizeUser, upload.single("file"), addFoodToInventory);
+router.post("/",  upload.single("file"), sanitize, validate(addFoodToInventoryFoodSchema), addFoodToInventory);
 
 // updatuje food, categorii a label food
-router.patch("/", validate(updateFoodSchema), authenticateToken, sanitize, authorizeUser, upload.single("file"), updateFood);
+router.patch("/", upload.single("file"), sanitize, validate(updateFoodSchema), updateFood);
 
 
 

@@ -16,7 +16,7 @@ export function FoodSearchableDropdown({
   ...props
 }) {
   const [searchTerm, setSearchTerm] = useState("");
-  const debouncedSearchTerm = useDebounce(searchTerm, 50);
+  const debouncedSearchTerm = useDebounce(searchTerm, 30);
 
   // ziskani navrhu pro hledani
   const { data: suggestions } = useGetLabelSuggestionsQuary(

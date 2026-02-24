@@ -59,7 +59,7 @@ export const getLabelSuggestions = async (req, res, next) => {
 };
 
 //vrati vsechny userovi labely a vsechny co se pouzivaji v neajkem inventari
-export const getAvailableFoodLabelsController = async (req, res, next) => {
+export const getAvailableFoodLabels = async (req, res, next) => {
   try {
     const userId = req.userId;
     const page = parseInt(req.query.page) || 1;

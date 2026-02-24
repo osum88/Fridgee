@@ -7,18 +7,22 @@ import { categoryIdSchema, createFoodCategorySchema, updateFoodCategorySchema } 
 
 const router = express.Router();
 
+router.use(authenticateToken);
+router.use(authorizeUser);
+router.use(sanitize);
+
 // vytvori novou kategorii
-router.post("/", validate(createFoodCategorySchema), authenticateToken, sanitize, authorizeUser, createFoodCategory);
+router.post("/", validate(createFoodCategorySchema), createFoodCategory);
 
 // vrati kategorii podle id
-router.get("/:categoryId", validate(categoryIdSchema), authenticateToken, sanitize, authorizeUser, getFoodCategoryById);
+router.get("/:categoryId", validate(categoryIdSchema), getFoodCategoryById);
 
 
 // updatuje kategorii podle id
-router.patch("/:categoryId", validate(updateFoodCategorySchema), authenticateToken, sanitize, authorizeUser, updateFoodCategory);
+router.patch("/:categoryId", validate(updateFoodCategorySchema), updateFoodCategory);
 
 // smaze kategorii podle id
-router.delete("/:categoryId", validate(categoryIdSchema), authenticateToken, sanitize, authorizeUser, deleteFoodCategory);
+router.delete("/:categoryId", validate(categoryIdSchema), deleteFoodCategory);
 
 export default router;
 

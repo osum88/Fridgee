@@ -7,8 +7,12 @@ import { foodVariantIdSchema } from "../validation/foodVariantValidation.js";
 
 const router = express.Router();
 
+router.use(authenticateToken);
+router.use(authorizeUser);
+router.use(sanitize);
+
 // vrati variantu podle jejiho ID
-router.get("/:variantId", validate(foodVariantIdSchema), authenticateToken, sanitize, authorizeUser, getFoodVariantById);
+router.get("/:variantId", validate(foodVariantIdSchema), getFoodVariantById);
 
 export default router;
 

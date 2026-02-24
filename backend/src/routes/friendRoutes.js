@@ -7,26 +7,30 @@ import { sanitize } from "../middlewares/sanitize.js";
 
 const router = express.Router();
 
+router.use(authenticateToken);
+router.use(authorizeUser);
+router.use(sanitize);
+
 //pridani do pratel
-router.post("/add", authenticateToken, authorizeUser, addFriend);
+router.post("/add", addFriend);
 
 //zruseni zadosti
-router.delete("/cancel/:friendId", authenticateToken, authorizeUser, cancelRequestFriend);      
+router.delete("/cancel/:friendId", cancelRequestFriend);      
 
 //odstraneni nekoho z pratel
-router.delete("/:friendId", authenticateToken, authorizeUser, deleteFriend);            
+router.delete("/:friendId", deleteFriend);            
 
 //akceptovani zadosti
-router.patch("/accept/:friendId", authenticateToken, authorizeUser, acceptFriend);
+router.patch("/accept/:friendId", acceptFriend);
 
 //seznam vsech odeslanych zadosti
-router.get("/requests/sent", validate(getFriendsSchema), authenticateToken, sanitize, authorizeUser, getSentFriendRequests);
+router.get("/requests/sent", validate(getFriendsSchema), getSentFriendRequests);
 
 //seznam vsech prijatych zadosti
-router.get("/requests/received", validate(getFriendsSchema), authenticateToken, sanitize, authorizeUser, getReceivedFriendRequests);
+router.get("/requests/received", validate(getFriendsSchema), getReceivedFriendRequests);
 
 //seznam vsech pratel
-router.get("/", validate(getFriendsSchema), authenticateToken, sanitize, authorizeUser, getAllFriends);
+router.get("/", validate(getFriendsSchema), getAllFriends);
 
 export default router;
 

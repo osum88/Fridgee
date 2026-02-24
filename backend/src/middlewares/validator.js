@@ -1,3 +1,5 @@
+import { BadRequestError } from "../errors/errors.js";
+
 const validate = (schema) => (req, res, next) => {
   const body = req.body || {};
   const params = req.params || {};
@@ -12,11 +14,20 @@ const validate = (schema) => (req, res, next) => {
   });
 
   if (error) {
-    const errorMessages = error.details.map((detail) => detail.message);
-    return res.status(400).json({
-      status: 400,
-      message: "Validation failed",
-      errors: errorMessages,
+    // const errorMessages = error.details.map((detail) => detail.message);
+    // return res.status(400).json({
+    //   status: 400,
+    //   message: "Validation failed",
+    //   errors: errorMessages,
+    // });
+    const firstDetail = error.details[0];
+
+    const fieldName = firstDetail.context.label || firstDetail.context.key;
+    const errorCode = firstDetail.type.replace(".", "_").toUpperCase();
+
+    throw new BadRequestError(firstDetail.message, {
+      type: fieldName,
+      code: errorCode,
     });
   }
 

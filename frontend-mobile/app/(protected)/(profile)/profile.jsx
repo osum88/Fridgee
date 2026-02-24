@@ -9,7 +9,7 @@ import { useProfilePlaceHolder } from "@/hooks/useProfilePlaceHolder";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { useGetUserQuery } from "@/hooks/queries/user/useUserQuery";
 import { useImageUpload } from "@/hooks/image/useImageUpload";
-import { ProfileImageSelector } from "@/components/image/ProfileImageSelector";
+import { ImageSelector } from "@/components/image/ImageSelector";
 import {
   responsiveFont,
   responsiveSize,
@@ -89,7 +89,7 @@ export default function Profile() {
     }
   };
 
-  //pole odkazu, pokud nefunguje odkza z cache pak se pouzije cloud jinak placeholder
+  //pole odkazu, pokud nefunguje odkaz z cache pak se pouzije cloud jinak placeholder
   const imageSources = useMemo(() => {
     const version = userData?.data?.profilePictureUrl?.includes("?v=")
       ? userData.data.profilePictureUrl.split("?v=")[1]
@@ -159,7 +159,8 @@ export default function Profile() {
             <IconSymbol size={responsiveSize.moderate(25)} name="camera.fill" color={color.text} />
           </TouchableOpacity>
         </ThemedView>
-        <ProfileImageSelector
+        <ImageSelector
+          label={i18n.t("profilePhotoTitle")}
           visible={visible}
           setVisible={setVisible}
           onPress={(type) => handleImagePick(type)}

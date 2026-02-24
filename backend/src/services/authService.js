@@ -75,13 +75,19 @@ export const loginService = async ({ email, password }) => {
   // overeni uzivatele
   const user = await getUserByEmailRepository(email);
   if (!user) {
-    throw new BadRequestError("Wrong email or password");
+    throw new BadRequestError("Wrong email or password", {
+      type: "login",
+      code: "INVALID_LOGIN",
+    });
   }
 
   // overeni hesla
   const isSame = await bcrypt.compare(password, user.passwordHash);
   if (!isSame) {
-    throw new BadRequestError("Wrong email or password");
+    throw new BadRequestError("Wrong email or password", {
+      type: "login",
+      code: "INVALID_LOGIN",
+    });
   }
 
   //verifikace emailu
@@ -222,12 +228,18 @@ export const resetPasswordService = async (token, newPassword) => {
   //overeni uzivatele
   const user = await getUserByPasswordResetTokenRepository(token);
   if (!user) {
-    throw new NotFoundError("Password has been reset successfully. You can now log in.");
+    throw new BadRequestError("Invalid or expired reset token.", {
+      type: "resetPassword",
+      code: "INVALID_TOKEN",
+    });
   }
 
   //overeni expirace
   if (new Date() > user.passwordResetTokenExpiresAt) {
-    throw new NotFoundError("Password has been reset successfully. You can now log in.");
+    throw new BadRequestError("Invalid or expired reset token.", {
+      type: "resetPassword",
+      code: "TOKEN_EXPIRED",
+    });
   }
   //resetovani hesla
   await resetPasswordInDbRepository(user.id, newPassword);

@@ -2,7 +2,7 @@ import { Alert, Linking } from "react-native";
 import i18n from "@/constants/translations";
 import * as ImagePicker from "expo-image-picker";
 
-export const useImagePicker = () => {
+export const useImagePicker = (cameraType = "front") => {
   //vyfoceni fotky
   const takePhoto = async () => {
     try {
@@ -29,14 +29,14 @@ export const useImagePicker = () => {
         }
       }
       let result = await ImagePicker.launchCameraAsync({
-        cameraType: ImagePicker.CameraType.front,
+        ...(cameraType === "front" && { cameraType: ImagePicker.CameraType.front }),
+        ...(cameraType === "back" && { cameraType: ImagePicker.CameraType.back }),
         allowsEditing: true,
         aspect: [1, 1],
         quality: 1,
       });
 
       if (!result.canceled) {
-        //   setImage(result.assets[0].uri);
         return result.assets[0].uri;
       }
     } catch (error) {
@@ -79,7 +79,6 @@ export const useImagePicker = () => {
       });
 
       if (!result.canceled) {
-        //   setImage(result.assets[0].uri);
         return result.assets[0].uri;
       }
     } catch (error) {

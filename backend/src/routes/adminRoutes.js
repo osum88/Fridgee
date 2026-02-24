@@ -3,8 +3,8 @@ import validate from "../middlewares/validator.js";
 import multer from "multer";
 import { authenticateToken, authorizeAdmin, authorizeAdminWithoutUserId } from "../middlewares/authMiddleware.js";
 import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFriends, getReceivedFriendRequests, getSentFriendRequests } from "../controllers/friendController.js";
-import { deleteUser, deleteUserProfileImage, getAllUsersAdmin, getUserById, updateUser, updateUserProfileImage } from "../controllers/userController.js";
-import { updateUserAdminSchema, userIdAdminSchema } from "../validation/userValidation.js";
+import { createUser, deleteUser, deleteUserProfileImage, getAllUsersAdmin, getUserById, updateUser, updateUserProfileImage } from "../controllers/userController.js";
+import { createUserSchema, updateUserAdminSchema, userIdAdminSchema } from "../validation/userValidation.js";
 import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, getAllFoodInventory, getInventoryContent, getInventoryDetailsWithUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
 import { inventoryIdAdminSchema, changeRoleAdminSchema, changeSettingAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema, inventoryIdSchema, searchInventoryLabelAdminSchema, getHistorySchema, inventoryIdBarcodeSchema } from "../validation/foodInventoryValidation.js";
 import { getFriendsAdminSchema } from "../validation/friendValidation.js";
@@ -131,10 +131,10 @@ router.get("/food-variant/food-catalog/:foodCatalogId", validate(foodCatalogIdSc
 //                          FOOD
 
 // prida jidlo do inventare a vytvori instanci, price i history, pripadne catalog, label, variant
-router.post("/food", validate(addFoodToInventoryFoodSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, addFoodToInventory);
+router.post("/food", authenticateToken, authorizeAdminWithoutUserId, sanitize, upload.single("file"), validate(addFoodToInventoryFoodSchema), addFoodToInventory);
 
 // updatuje food, categorii a label food
-router.patch("/", validate(updateFoodSchema),  authenticateToken, sanitize, authorizeAdminWithoutUserId, updateFood);
+router.patch("/", authenticateToken, authorizeAdminWithoutUserId, sanitize, upload.single("file"), validate(updateFoodSchema), updateFood);
 
 //                          FOOD INSTANCE
 
@@ -178,6 +178,8 @@ router.patch("/users/:id", validate(updateUserAdminSchema), authenticateToken, s
 //smaze uzivatele
 router.delete("/users/:id", validate(userIdAdminSchema), authenticateToken, authorizeAdmin, deleteUser);
 
+//vytvoreni uzivatele
+router.post("/users", validate(createUserSchema), sanitize, authorizeAdminWithoutUserId, createUser);
 
 
 export default router;

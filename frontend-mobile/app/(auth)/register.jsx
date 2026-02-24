@@ -18,6 +18,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { responsiveSize } from "@/utils/scale";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { resetErrors } from "@/utils/stringUtils";
 
 export default function Register() {
   const currentColors = useThemeColor();
@@ -25,13 +26,16 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
-  const [usernameError, setUsernameError] = useState(null);
-  const [emailError, setEmailError] = useState(null);
-  const [passwordError, setPasswordError] = useState(null);
   const { locale } = useLanguage();
   const insets = useSafeAreaInsets();
   const [bottomHeight, setBottomHeight] = useState(0);
   const [viewHeight, setViewHeight] = useState(0);
+
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+    username: "",
+  });
 
   const { width, height } = useWindowDimensions();
   const isTablet = width >= 768;
@@ -40,31 +44,25 @@ export default function Register() {
   const isViewBlocked = viewHeight + bottomHeight + insets.top + insets.bottom > height;
 
   const { registerMutation, isLoading } = useRegisterMutation({
-    setUsernameError,
-    setEmailError,
-    setPasswordError,
+    setErrors, errors
   });
 
   const handleSubmit = () => {
-    setUsernameError(null);
-    setEmailError(null);
-    setPasswordError(null);
+    resetErrors(setErrors, errors);
 
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
     if (!username || !email || !password || !confirmPassword) {
-      setUsernameError(" ");
-      setEmailError(" ");
-      setPasswordError(i18n.t("errorAllFieldsRequired"));
+      setErrors({ email: " ", username: " ", password: i18n.t("errorAllFieldsRequired") });
     } else if (password !== confirmPassword) {
-      setPasswordError(i18n.t("errorPasswordMismatch"));
+      setErrors((prev) => ({ ...prev, password: i18n.t("errorPasswordMismatch") }));
     } else if (username.length < 3 || username.length > 30) {
-      setUsernameError(i18n.t("errorUsernameTooLong"));
+      setErrors((prev) => ({ ...prev, username: i18n.t("errorUsernameTooLong") }));
     } else if (!passwordRegex.test(password)) {
-      setPasswordError(i18n.t("errorPasswordTooWeak"));
+      setErrors((prev) => ({ ...prev, password: i18n.t("errorPasswordTooWeak") }));
     } else if (!emailRegex.test(email)) {
-      setEmailError(i18n.t("errorValidEmail"));
+      setErrors((prev) => ({ ...prev, email: i18n.t("errorValidEmail") }));
     } else {
       registerMutation.mutate({
         username,
@@ -103,7 +101,7 @@ export default function Register() {
                 style={styles.input}
                 value={username?.replace(/\s+/g, "")}
                 onChangeText={setUsername}
-                error={usernameError}
+                error={errors?.username}
               />
               <FormGroup
                 label={i18n.t("emailAddress")}
@@ -114,7 +112,7 @@ export default function Register() {
                 maxLength={150}
                 autoCapitalize="none"
                 onChangeText={setEmail}
-                error={emailError}
+                error={errors?.email}
               />
               <FormGroupPassword
                 label={i18n.t("password")}
@@ -125,7 +123,7 @@ export default function Register() {
                 importantForAutofill="no"
                 value={password?.replace(/\s+/g, "")}
                 onChangeText={setPassword}
-                error={passwordError}
+                error={errors?.password}
                 showError={false}
               />
 
@@ -138,7 +136,7 @@ export default function Register() {
                 importantForAutofill="no"
                 value={confirmPassword?.replace(/\s+/g, "")}
                 onChangeText={setConfirmPassword}
-                error={passwordError}
+                error={errors?.password}
               />
             </ThemedView>
 

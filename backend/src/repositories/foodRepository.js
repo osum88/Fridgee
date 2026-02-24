@@ -87,7 +87,10 @@ export const addFoodToInventoryRepository = async (userId, data) => {
         });
 
         if ((newCatalogCreate || !isCatalogUse || userOwnsCatalog) && !data?.title) {
-          throw new BadRequestError("Title must exist.");
+          throw new BadRequestError("Title must exist.", {
+            type: "labelTitle",
+            code: "STRING_EMPTY",
+          });
         }
 
         //najdem uzivateluv label pokud jiz existuje

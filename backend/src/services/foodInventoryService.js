@@ -32,7 +32,10 @@ export const createFoodInventoryService = async (userId, title, label, isAdmin) 
     await getUserByIdRepository(userId);
   }
   if (!title) {
-    throw new BadRequestError("Title is required for a new food inventory.");
+       throw new BadRequestError("Title is required for a new food inventory.", {
+                type: "foodTitle",
+                code: "STRING_EMPTY",
+              });
   }
 
   const newFoodInventory = await createFoodInventoryRepository(userId, title, label);

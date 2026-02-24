@@ -5,7 +5,7 @@ export const addFoodToInventoryFoodSchema = Joi.object({
   barcode: Joi.string().allow("").max(150),
   variantId: Joi.number().integer().allow(null).optional(),
   variantTitle: Joi.string().trim().max(40).allow("").optional(),
-  title: Joi.string().max(100).optional(),
+  title: Joi.string().max(100).optional().label("labelTitle"),
   description: Joi.string().allow("").max(250).optional(),
   foodImageUrl: Joi.string().uri().allow("").optional(),
   foodImageCloudId: Joi.number().integer().optional(),

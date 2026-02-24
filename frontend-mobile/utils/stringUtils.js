@@ -132,12 +132,6 @@ export const validateDate = (inputDate) => {
   return true;
 };
 
-// hleda v poli erroru konkretni
-export function hasValidationError(field, errors) {
-  if (!Array.isArray(errors)) return false;
-
-  return errors?.some((msg) => typeof msg === "string" && msg.includes(`"${field}"`));
-}
 
 // vrati pocet dni mezi dneskem a cislovym datem
 export const getDaysUntil = (targetDate, minYearsInPast = 105) => {
@@ -269,4 +263,16 @@ export const getCategoryIdByVariant = (selectedCatalog, selectedVariantId) => {
   );
 
   return defaultItem?.categoryId?.toString() ?? "null";
+};
+
+ // prevede vsechny hodnoty v objektu chyb na prazdne retezce nebo vyresetuje jednoduchy retezec
+export const resetErrors = (setFieldErrors, fieldErrors) => {
+  if (fieldErrors !== null && typeof fieldErrors === "object") {
+    const resetObj = Object.fromEntries(
+      Object.keys(fieldErrors).map((key) => [key, ""])
+    );
+    setFieldErrors(resetObj);
+  } else {
+    setFieldErrors("");
+  }
 };

@@ -38,7 +38,7 @@ export const Colors = {
     inputIcon: "#69686fff",
     inputTextPaper: "#49464d",
     whiteAndSurface: "#fff",
-    stepperButton: "rgba(29, 155, 197, 0.8)",
+    stepperButton: "#4bafd1",
   },
   dark: {
     text: "#e0e0e0",

@@ -19,19 +19,17 @@
   "enterYourUsername": "Enter your username",
   "rememberMe": "Remember me",
   "forgotPasswordDescription": "Enter your email address below and we’ll send you a link to reset your password.",
+  "invalidOrExpiredResetToken": "The password reset link is invalid or has expired. Please request a new one.",
   "resetPasswordLink": "Send Reset Link",
   "backToLogin": "Back to Login",
   "resendIn": "Resend in",
   "errorNetwork": "Network Error. Please check your connection and try again.",
-  "error400Login": "Wrong email or password.",
   "errorPassword": "Wrong password.",
   "errorDefault": "An unexpected error occurred. Please try again later.",
   "errorValidEmail": "Email must be a valid email address.",
   "errorEmptyEmailPassword": "Email and password cannot be empty.",
   "errorEmptyEmail": "Email cannot be empty.",
   "errorTooManyRequest": "Too many requests, please try again later.",
-  "errorUserEmailExists": "A user with this email already exists.",
-  "errorUserUsernameExists": "A user with this username already exists.",
   "errorAllFieldsRequired": "All fields must be filled.",
   "errorPasswordMismatch": "Passwords do not match.",
   "errorPasswordTooWeak": "Password must contain at least 8 characters, an uppercase letter, a number, and a special character.",
@@ -129,12 +127,8 @@
   "discardChange": "Discard",
   "save": "Save",
   "errorBankNumberNeedCountry": "If you enter a bank account number or IBAN, you must also select the bank account country.",
-  "errorName": "The first name can be up to 40 characters long.",
-  "errorSurname": "The last name can be up to 40 characters long.",
-  "errorBirthDateInFuture": "The date of birth must be between the year 1920 and the present.",
-  "errorBankNumberInvalid": "Invalid bank account number or IBAN.",
-  "errorGender": "Gender must be selected from the available options.",
-  "errorCountry": "Country must be selected from the available options.",
+
+  "errorBirthDateInFuture": "Date of birth cannot be in the future.",
   "inventory": "Inventory",
   "inventories": "Inventories",
   "currency": "Currency",
@@ -169,5 +163,55 @@
   "variant": "Variant",
   "variantPlaceholder": "Enter variant",
   "variantExplanationTip": "The variant is used to distinguish food items with the same barcode (e.g. different flavors or types).",
-  "quantity": "Food quantity"
+  "quantity": "Food quantity",
+  "foodPhotoTitle": "Food photo",
+  "profilePhotoTitle": "Profile photo",
+  "add": "Add",
+
+  "errors": {
+    "bankNumber": {
+      "STRING_EMPTY": "If you enter a bank account number or IBAN, you must also select the bank account country.",
+      "SPAYD_GENERATION_FAILED": "Invalid bank account number or IBAN.",
+      "SPAYD_INVALID_FORMAT": "Invalid bank account number or IBAN.",
+      "INVALID_CONVERT_IBAN": "Invalid bank account number format, e.g. 19-1234567890/0800",
+      "INVALID_IBAN": "Invalid IBAN format, e.g. CZ6508000000191234567890",
+      "default": "Invalid bank account number or IBAN."
+    },
+    "name": {
+      "STRING_MAX": "The first name can be up to 40 characters long.",
+      "default": "Error in the first name field."
+    },
+    "surname": {
+      "STRING_MAX": "The last name can be up to 40 characters long.",
+      "default": "Error in the last name field."
+    },
+    "birthDate": {
+      "DATE_MAX": "Date of birth cannot be in the future.",
+      "default": "Error in the date of birth."
+    },
+    "gender": {
+      "default": "Gender must be selected from the available options."
+    },
+    "country": {
+      "default": "Country must be selected from the available options."
+    },
+    "login": {
+      "INVALID_LOGIN": "Wrong email or password."
+    },
+    "email": {
+      "STRING_EMAIL": "Email must be a valid email address.",
+      "STRING_EMPTY": "Email and password cannot be empty.",
+      "EMAIL_ALREADY_EXISTS": "A user with this email already exists."
+    },
+    "password": {
+      "STRING_EMPTY": "Email and password cannot be empty.",
+      "STRING_PATTERN.BASE": "Password must contain at least 8 characters, an uppercase letter, a number, and a special character.",
+      "STRING_MIN": "Password must contain at least 8 characters, an uppercase letter, a number, and a special character."
+    },
+    "username": {
+      "USERNAME_ALREADY_EXISTS": "A user with this username already exists.",
+      "STRING_MAX": "Username must be between 3 and 30 characters.",
+      "STRING_MIN": "Username must be between 3 and 30 characters."
+    }
+  }
 }

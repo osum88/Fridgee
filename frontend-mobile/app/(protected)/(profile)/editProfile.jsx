@@ -7,7 +7,7 @@ import {
   Alert,
   TouchableOpacity,
 } from "react-native";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
 import { responsiveSize } from "@/utils/scale";
@@ -21,12 +21,15 @@ import { ThemedText } from "@/components/themed/ThemedText";
 import useUpdateProfile from "@/hooks/queries/user/useUpdateProfile";
 import { DoubleInputRow } from "@/components/input/DoubleInputRow";
 import { GET_INPUT_THEME_NATIVE_PAPER } from "@/constants/colors";
+import { handleApiError } from "../../../utils/handleApiError";
+import { resetErrors } from "../../../utils/stringUtils";
 
 export default function EditProfile() {
   const color = useThemeColor();
   const [inputText, setInputText] = useState({});
   const [originalData, setOriginalData] = useState({});
   const [existBankNumber, setExistBankNumber] = useState(true);
+  const isSaving = useRef(false);
   const [errors, setErrors] = useState({
     name: "",
     surname: "",
@@ -68,9 +71,8 @@ export default function EditProfile() {
   // zjisti jestli doslo ke zmenam v udajich
   const hasChanges = useMemo(() => {
     for (const key in inputText) {
-      if (inputText[key] !== originalData[key]) {
+      if (inputText[key] !== originalData[key] && key !== "bankNumber") {
         if (
-          key === "bankNumber" ||
           (!inputText[key] && originalData[key] && typeof originalData[key] !== "string") ||
           (!inputText[key] && !originalData[key]) ||
           (key === "gender" && !inputText[key] && originalData[key] === "UNSPECIFIED")
@@ -86,7 +88,7 @@ export default function EditProfile() {
   // zabrani uzavreni obrazovky pri neulozenych zmenach
   useEffect(() => {
     return navigation.addListener("beforeRemove", (event) => {
-      if (!hasChanges) return;
+      if (!hasChanges || isSaving.current) return;
 
       event.preventDefault();
 
@@ -108,7 +110,7 @@ export default function EditProfile() {
       headerRight: () => (
         <TouchableOpacity
           onPress={() => {
-            if (hasChanges && !isSubmitting) {
+            if ((hasChanges || inputText["bankNumber"]) && !isSubmitting) {
               if (inputText.birthDate && !validateDate(inputText.birthDate)) {
                 setErrors((prev) => ({
                   ...prev,
@@ -144,45 +146,14 @@ export default function EditProfile() {
                       bankNumber: originalBeforeDeleted,
                     });
                   }
-                  setErrors((prev) => ({
-                    ...prev,
-                    name: "",
-                    surname: "",
-                    birthDate: "",
-                    gender: "",
-                    country: "",
-                    bankNumber: "",
-                  }));
+                  resetErrors(setErrors, errors);
 
-                  // navigation.goBack();
+                  isSaving.current = true;
+                  navigation.goBack();
                 },
 
                 onError: (error) => {
-                  const errorMap = {
-                    name: "name",
-                    surname: "surname",
-                    birthDate: "birthDate",
-                    gender: "gender",
-                    country: "country",
-                    bankNumber: "bankNumber",
-                  };
-
-                  if (errorMap[error.type]) {
-                    setErrors((prev) => ({
-                      ...prev,
-                      [error.type]: error.message,
-                    }));
-                  } else {
-                    setErrors((prev) => ({
-                      ...prev,
-                      name: " ",
-                      surname: " ",
-                      birthDate: " ",
-                      gender: " ",
-                      country: " ",
-                      bankNumber: error.message || i18n.t("errorDefault"),
-                    }));
-                  }
+                  handleApiError(error, setErrors, errors, "bankNumber");
                 },
               });
             }

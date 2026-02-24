@@ -7,8 +7,12 @@ import {  getFoodCatalogWithLabelByBarcode, } from "../controllers/foodCatalogCo
 
 const router = express.Router();
 
+router.use(authenticateToken);
+router.use(authorizeUser);
+router.use(sanitize);
+
 // vrati katalog, label a variant podle barcodu
-router.get("/barcode/:barcode", validate(foodCatalogWithLabelByBarcodeSchema), authenticateToken, sanitize, authorizeUser, getFoodCatalogWithLabelByBarcode);
+router.get("/barcode/:barcode", validate(foodCatalogWithLabelByBarcodeSchema), getFoodCatalogWithLabelByBarcode);
 // /api/food-catalog/barcode/:barcode?inventoryId=123
 
 export default router;

@@ -6,7 +6,8 @@ import i18n from "@/constants/translations";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { responsiveFont, responsiveSize } from "@/utils/scale";
 
-export function ProfileImageSelector({
+export function ImageSelector({
+  label,
   visible,
   setVisible,
   onPress,
@@ -27,7 +28,7 @@ export function ProfileImageSelector({
         {...otherProps}
       >
         <Dialog.Content style={styles.dialog}>
-          <ThemedText style={styles.titleText}>Profile photo</ThemedText>
+          <ThemedText style={styles.titleText}>{label}</ThemedText>
         </Dialog.Content>
 
         <Dialog.Actions style={styles.actions}>

@@ -1,15 +1,6 @@
 import i18n from "@/constants/translations";
 import apiClient from "@/utils/api-client";
-import {
-  NameError,
-  SurnameError,
-  BirthDateError,
-  GenderError,
-  CountryError,
-  BankNumberError,
-  EveryError,
-} from "@/errors/CustomError";
-import { hasValidationError } from "@/utils/stringUtils";
+
 
 //vrati uzivatele podle id
 export const getUserByIdApi = async (userData) => {
@@ -18,10 +9,7 @@ export const getUserByIdApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.error(
-      "Error in getUserByIdApi: ",
-      error,
-      "->",
-      error.response?.data?.message || error.message,
+      `Error in getUserByIdApi: ${error} -> ${error.response?.data?.message || error.message}`,
     );
     throw error;
   }
@@ -34,10 +22,7 @@ export const updatePreferredLanguageApi = async (userData) => {
     return response.data;
   } catch (error) {
     console.error(
-      "Error in updatePreferredLanguageApi: ",
-      error,
-      "->",
-      error.response?.data?.message || error.message,
+      `Error in updatePreferredLanguageApi: ${error} -> ${error.response?.data?.message || error.message}`,
     );
     throw error;
   }
@@ -50,10 +35,7 @@ export const searchUsersApi = async (username, limit = 8) => {
     return response.data;
   } catch (error) {
     console.error(
-      "Error in searchUsersApi: ",
-      error,
-      "->",
-      error.response?.data?.message || error.message,
+      `Error in searchUsersApi: ${error} -> ${error.response?.data?.message || error.message}`,
     );
     throw error;
   }
@@ -70,10 +52,7 @@ export const updateUserProfileImageApi = async (file) => {
     return response.data;
   } catch (error) {
     console.error(
-      "Error in uploadProfileImageApi: ",
-      error,
-      "->",
-      error.response?.data?.message || error.message,
+      `Error in uploadProfileImageApi: ${error} -> ${error.response?.data?.message || error.message}`,
     );
     throw error;
   }
@@ -86,10 +65,7 @@ export const deleteUserProfileImageApi = async () => {
     return response.data;
   } catch (error) {
     console.error(
-      "Error in deleteUserProfileImageApi: ",
-      error,
-      "->",
-      error.response?.data?.message || error.message,
+      `Error in deleteUserProfileImageApi: ${error} -> ${error.response?.data?.message || error.message}`,
     );
     throw error;
   }
@@ -101,23 +77,15 @@ export const getBankNumberPasswordApi = async (data) => {
     const response = await apiClient.post("/users/bank-number", data);
     return response.data;
   } catch (error) {
-    console.warn(error);
-
     console.error(
-      "Error in getBankNumberPassword: ",
-      error,
-      "->",
-      error.response?.data?.message || error.message,
+      `Error in getBankNumberPassword: ${error} -> ${error.response?.data?.message || error.message}`,
     );
     if (error.response) {
-      if (
-        error.response.status === 400 &&
-        (error.response.data.message === "Wrong password" ||
-          error.response.data.message === "Validation failed" ||
-          error.response.data.message === "Wrong email or password")
-      ) {
+      const { status } = error.response?.data || {};
+
+      if (status === 400) {
         throw new Error(i18n.t("errorPassword"));
-      } else if (error.response.status === 429) {
+      } else if (status === 429) {
         throw new Error(i18n.t("errorTooManyRequest"));
       } else {
         throw new Error(i18n.t("errorDefault"));
@@ -137,78 +105,8 @@ export const updateProfileApi = async (data) => {
     return response.data;
   } catch (error) {
     console.error(
-      "Error in updateProfileApi: ",
-      error,
-      "->",
-      error.response?.data?.message || error.message,
+      `Error in updateProfileApi: ${error} -> ${error.response?.data?.message || error.message}`,
     );
-    if (error.response) {
-      const errorData = error?.response?.data?.errors;
-      const errorMessage = error?.response?.data?.message;
-
-      if (error.response.status === 400) {
-        if (errorMessage === "Error country is required for bank number.") {
-          throw new BankNumberError(i18n.t("errorBankNumberNeedCountry"));
-        }
-
-        if (errorMessage === "SPAYD generation failed or returned invalid format.") {
-          throw new BankNumberError(i18n.t("errorBankNumberInvalid"));
-        }
-
-        if (errorMessage === "Error generate SPAYD payment format.") {
-          throw new BankNumberError(i18n.t("errorBankNumberInvalid"));
-        }
-
-        if (errorMessage === "Invalid bank number format.") {
-          if (data?.country === "OTHER") {
-            throw new BankNumberError(i18n.t("invalidIbanFormat"));
-          } else {
-            throw new BankNumberError(i18n.t("invalidBankAccountFormat"));
-          }
-        }
-
-        if (errorMessage === "Converted IBAN is invalid.") {
-          throw new BankNumberError(i18n.t("invalidBankAccountFormat"));
-        }
-
-        if (errorMessage === "Invalid IBAN format.") {
-          throw new BankNumberError(i18n.t("invalidIbanFormat"));
-        }
-
-        if (errorMessage === "Invalid IBAN or bank number format.") {
-          throw new BankNumberError(i18n.t("errorBankNumberInvalid"));
-        }
-
-        if (errorMessage === "Validation failed") {
-          if (hasValidationError("name", errorData)) {
-            throw new NameError(i18n.t("errorName"));
-          }
-          if (hasValidationError("surname", errorData)) {
-            throw new SurnameError(i18n.t("errorSurname"));
-          }
-          if (hasValidationError("birthDate", errorData)) {
-            throw new BirthDateError(i18n.t("errorBirthDateInFuture"));
-          }
-          if (hasValidationError("bankNumber", errorData)) {
-            throw new BankNumberError(i18n.t("errorBankNumberInvalid"));
-          }
-          if (hasValidationError("gender", errorData)) {
-            throw new GenderError(i18n.t("errorGender"));
-          }
-          if (hasValidationError("country", errorData)) {
-            throw new CountryError(i18n.t("errorCountry"));
-          }
-        }
-        throw new EveryError(i18n.t("errorDefault"));
-      } else if (error.response.status === 429) {
-        throw new EveryError(i18n.t("errorTooManyRequest"));
-      } else {
-        throw new EveryError(i18n.t("errorDefault"));
-      }
-    } else if (error.request) {
-      throw new EveryError(i18n.t("errorNetwork"));
-    } else {
-      throw new EveryError(i18n.t("errorDefault"));
-    }
+    throw error;
   }
 };

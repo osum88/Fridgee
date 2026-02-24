@@ -2,14 +2,12 @@ import Joi from "joi";
 import { InventoryRole } from "@prisma/client";
 
 export const createFoodInventorySchema = Joi.object({
-  title: Joi.string().min(3).max(100).required(),
-  label: Joi.string().max(150).allow(null, "").optional(),
+  title: Joi.string().min(3).max(100).required().label("inventoryTitle"),
+  label: Joi.string().max(150).allow(null, "").optional().label("inventoryLabel"),
 });
 
-export const createFoodInventoryAdminSchema = Joi.object({
+export const createFoodInventoryAdminSchema = createFoodInventorySchema.keys({
   id: Joi.number().integer().positive().required(),
-  title: Joi.string().min(3).max(100).required(),
-  label: Joi.string().max(150).allow(null, "").optional(),
 });
 
 export const createInventoryUserAdminSchema = Joi.object({
@@ -28,13 +26,8 @@ export const changeRoleSchema = Joi.object({
     .required(),
 });
 
-export const changeRoleAdminSchema = Joi.object({
+export const changeRoleAdminSchema = changeRoleSchema.keys({
   id: Joi.number().integer().positive().required(),
-  inventoryId: Joi.number().integer().positive().required(),
-  targetUserId: Joi.number().integer().positive().required(),
-  newRole: Joi.string()
-    .valid(InventoryRole.USER, InventoryRole.EDITOR, InventoryRole.OWNER)
-    .required(),
 });
 
 export const deleteSchema = Joi.object({
@@ -42,10 +35,8 @@ export const deleteSchema = Joi.object({
   newOwnerId: Joi.number().integer().positive().optional(),
 });
 
-export const deleteAdminSchema = Joi.object({
+export const deleteAdminSchema = deleteSchema.keys({
   id: Joi.number().integer().positive().required(),
-  inventoryId: Joi.number().integer().positive().required(),
-  newOwnerId: Joi.number().integer().positive().optional(),
 });
 
 export const deleteOtherSchema = Joi.object({
@@ -69,15 +60,14 @@ export const inventoryIdSchema = Joi.object({
   inventoryId: Joi.number().integer().positive().required(),
 });
 
-export const inventoryIdAdminSchema = Joi.object({
+export const inventoryIdAdminSchema = inventoryIdSchema.keys({
   id: Joi.number().integer().positive().required(),
-  inventoryId: Joi.number().integer().positive().required(),
 });
 
 export const updateFoodInventorySchema = Joi.object({
   inventoryId: Joi.number().integer().positive().required(),
-  title: Joi.string().min(3).max(100).optional(),
-  label: Joi.string().max(150).allow(null, "").optional(),
+  title: Joi.string().min(3).max(100).optional().label("inventoryTitle"),
+  label: Joi.string().max(150).allow(null, "").optional().label("inventoryLabel"),
 }).or("title", "label");
 
 export const changeSettingSchema = Joi.object({
@@ -91,16 +81,8 @@ export const changeSettingSchema = Joi.object({
     .required(),
 });
 
-export const changeSettingAdminSchema = Joi.object({
+export const changeSettingAdminSchema = changeSettingSchema.keys({
   id: Joi.number().integer().positive().required(),
-  inventoryId: Joi.number().integer().positive().required(),
-  settings: Joi.object({
-    expiringFood: Joi.boolean().optional(),
-    lowStock: Joi.boolean().optional(),
-    inventoryUpdates: Joi.boolean().optional(),
-  })
-    .min(1)
-    .required(),
 });
 
 export const searchInventoryLabelSchema = Joi.object({
