@@ -22,7 +22,7 @@ export function DropdownMenu({
   isSubmitting,
   items = [],
   placeholder,
-  inputColor,
+  inputColor: externalInputColor,
   inputStyles,
   ...props
 }) {
@@ -80,7 +80,10 @@ export function DropdownMenu({
     }, 300);
   };
 
-    inputColor = useMemo(() => GET_INPUT_THEME_NATIVE_PAPER(color), [color]);
+  const finalInputColor = useMemo(
+    () => externalInputColor || GET_INPUT_THEME_NATIVE_PAPER(color),
+    [externalInputColor, color],
+  );
 
   const renderLabel = () => {
     if (value || isFocus) {
@@ -90,14 +93,14 @@ export function DropdownMenu({
             styles.label,
             animatedLabelStyle,
             {
-              backgroundColor: inputColor?.colors?.background || color.background,
+              backgroundColor: finalInputColor?.colors?.background || color.background,
             },
           ]}
         >
           <ThemedText
             style={[
               isFocus && {
-                color: inputColor?.colors?.primary || color.tabsText,
+                color: finalInputColor?.colors?.primary || color.tabsText,
               },
             ]}
           >
@@ -116,8 +119,8 @@ export function DropdownMenu({
           styles.dropdown,
           {
             borderColor: isFocus
-              ? inputColor?.colors?.primary || color.tabsText
-              : inputColor?.colors?.outline || color.fullName,
+              ? finalInputColor?.colors?.primary || color.tabsText
+              : finalInputColor?.colors?.outline || color.fullName,
             borderWidth: isFocus ? 2 : 1,
           },
           inputStyles,
@@ -146,7 +149,7 @@ export function DropdownMenu({
           <IconSymbol
             name={isFocus ? "chevron.up" : "chevron.down"}
             size={responsiveSize.moderate(22)}
-            color={isFocus ? inputColor?.colors?.primary || color.tabsText : color.inputIcon}
+            color={isFocus ? finalInputColor?.colors?.primary || color.tabsText : color.inputIcon}
           />
         )}
         {...props}

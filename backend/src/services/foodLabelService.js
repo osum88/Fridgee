@@ -230,33 +230,36 @@ export const getLabelSuggestionsService = async (
   }
 
   const result = await getLabelSuggestionsRepository(userId, inventoryId, searchString, limit);
-
+  console.log(result);
   if (!result || result.length === 0) return [];
 
   // serazeni labelu
   const sorted = result.sort((a, b) => {
-    const aInCurrentInventory = a.foods && a.foods.length > 0;
-    const bInCurrentInventory = b.foods && b.foods.length > 0;
+    const aInventoryFoods = a.catalog?.foods || [];
+    const bInventoryFoods = b.catalog?.foods || [];
 
-    const aHasInstances = a.foods?.some((f) => (f._count?.instances || 0) > 0);
-    const bHasInstances = b.foods?.some((f) => (f._count?.instances || 0) > 0);
+    const aInCurrentInventory = aInventoryFoods.length > 0;
+    const bInCurrentInventory = bInventoryFoods.length > 0;
+
+    const aHasInstances = aInventoryFoods.some((f) => (f._count?.instances || 0) > 0);
+    const bHasInstances = bInventoryFoods.some((f) => (f._count?.instances || 0) > 0);
 
     const aIsUserLabel = a.userId === userId;
     const bIsUserLabel = b.userId === userId;
 
     // 1. PRIORITA: Userovi labely v tomto inventari, kde jejich food ma instance
-    const aPrio1 = aIsUserLabel && aInCurrentInventory && aHasInstances ? 1 : 0;
-    const bPrio1 = bIsUserLabel && bInCurrentInventory && bHasInstances ? 1 : 0;
+    const aPrio1 = aIsUserLabel && aHasInstances ? 1 : 0;
+    const bPrio1 = bIsUserLabel && bHasInstances ? 1 : 0;
     if (aPrio1 !== bPrio1) return bPrio1 - aPrio1;
 
     // 2. PRIORITA: Userovi labely v tomto inventari, kde jejich food nema instance
-    const aPrio2 = aIsUserLabel && aInCurrentInventory && !aHasInstances ? 1 : 0;
-    const bPrio2 = bIsUserLabel && bInCurrentInventory && !bHasInstances ? 1 : 0;
+    const aPrio2 = aIsUserLabel && aInCurrentInventory ? 1 : 0;
+    const bPrio2 = bIsUserLabel && bInCurrentInventory ? 1 : 0;
     if (aPrio2 !== bPrio2) return bPrio2 - aPrio2;
 
     // 3. PRIORITA: Cizi labely v tomto inventari, kde jejich food ma instance
-    const aPrio3 = !aIsUserLabel && aInCurrentInventory && aHasInstances ? 1 : 0;
-    const bPrio3 = !bIsUserLabel && bInCurrentInventory && bHasInstances ? 1 : 0;
+    const aPrio3 = !aIsUserLabel && aHasInstances ? 1 : 0;
+    const bPrio3 = !bIsUserLabel && bHasInstances ? 1 : 0;
     if (aPrio3 !== bPrio3) return bPrio3 - aPrio3;
 
     // 4. PRIORITA: Cizi labely v tomto inventari, kde jejich food nema instance, ale catalog ma barcode
@@ -270,22 +273,22 @@ export const getLabelSuggestionsService = async (
     if (aIsUserLabel !== bIsUserLabel) return bIsUserLabel - aIsUserLabel;
 
     // 6. PRIORITA: Pocet unikatnich variant (pokud se nazvy shoduji)
-    const aVariantCount = a.foods?.length || 0;
-    const bVariantCount = b.foods?.length || 0;
-
-    if (a.title.toLowerCase() === b.title.toLowerCase() && aVariantCount !== bVariantCount) {
-      return bVariantCount - aVariantCount;
+    if (
+      a.title.toLowerCase() === b.title.toLowerCase() &&
+      aInventoryFoods.length !== bInventoryFoods.length
+    ) {
+      return bInventoryFoods.length - aInventoryFoods.length;
     }
 
     // 7. FALLBACK: Abeceda
     return a.title.localeCompare(b.title, ["cs", "en"], { sensitivity: "base" });
   });
 
-  // vyfiltruje stejne catalogId a title
   const uniqueSuggestions = [];
   const seenCatalogIds = new Set();
   const seenTitles = new Set();
 
+  //deduplikace catalogId a stejnych nazvu
   for (const item of sorted) {
     const normalizedTitle = normalizeText(item.title);
 
@@ -296,16 +299,16 @@ export const getLabelSuggestionsService = async (
       seenCatalogIds.add(item.catalogId);
       seenTitles.add(normalizedTitle);
 
-      const existingFoods = item.foods || [];
+      const inventoryFoods = item.catalog?.foods || [];
 
-      const variants = existingFoods
+      const variants = inventoryFoods
         .filter((f) => f.variant && f.variant.title)
         .map((f) => ({
           variantId: f.variant.id,
           variantTitle: f.variant.title,
         }));
 
-      const existingItems = existingFoods.map((f) => ({
+      const existingItems = inventoryFoods.map((f) => ({
         variantId: f.variant?.id || null,
         categoryId: f.category?.id || null,
         categoryTitle: f.category?.title || "",
@@ -318,7 +321,7 @@ export const getLabelSuggestionsService = async (
         title: item?.title || "",
         description: item?.description || "",
         foodImageUrl: item?.foodImageUrl || "",
-        foodImageCloudId: item?.foodImageCloudId || null,
+        foodImageCloudId: item?.foodImageCloudId || "",
         price: item?.price || 0,
         unit: item?.unit || "",
         amount: item?.amount || 0,
@@ -326,18 +329,18 @@ export const getLabelSuggestionsService = async (
         variants: variants,
         ...(isAdmin
           ? {
-              foodId: existingFoods[0]?.id || null,
-              userId: item.userId,
               isUserLabel: item.userId === userId,
-              hasStock: existingFoods.some((f) => (f._count?.instances || 0) > 0) || false,
-              isInInventory: existingFoods.length > 0,
+              foodId: inventoryFoods[0]?.id || null, 
+              userId: item.userId,
+              hasStock: inventoryFoods.some((f) => (f._count?.instances || 0) > 0) || false,
+              isInInventory: inventoryFoods.length > 0, 
             }
           : {}),
       });
     }
     if (uniqueSuggestions.length >= limit) break;
   }
-  return  uniqueSuggestions ;
+  return uniqueSuggestions;
 };
 
 // uploaduje fotku na cloud
@@ -347,12 +350,6 @@ export const uploadFoodLabelImageService = async (
   image,
   foodImageCloudId,
 ) => {
-  if (foodImageUrl === null || foodImageUrl === "") {
-    return {
-      foodImageUrl: null,
-      foodImageCloudId: null,
-    };
-  }
   if (image) {
     try {
       const IMAGE_SIZE = 350;
@@ -381,7 +378,6 @@ export const uploadFoodLabelImageService = async (
 
       if (result) {
         const updateTime = Math.floor(Date.now() / 1000);
-
         return {
           foodImageUrl: `${result.filePath}?v=${updateTime}`,
           foodImageCloudId: result.fileId,
@@ -391,7 +387,12 @@ export const uploadFoodLabelImageService = async (
       console.error("Upload failed, attempting to fallback to recycling:", err);
     }
   }
-
+  if (foodImageUrl === null || foodImageUrl === "") {
+    return {
+      foodImageUrl: null,
+      foodImageCloudId: null,
+    };
+  }
   if (foodImageCloudId && foodImageUrl) {
     const labelByCloudId = await isImageUsedElsewhereRepository(foodImageCloudId);
 
@@ -424,4 +425,3 @@ export const getAvailableFoodLabelsService = async (userId, page = 1, limit = 20
     hasNextPage: labels.length === safeLimit,
   };
 };
-

@@ -1,6 +1,6 @@
 import { ThemedView } from "@/components/themed/ThemedView";
 import { StyleSheet, TouchableOpacity } from "react-native";
-import { useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
 import { responsiveSize } from "@/utils/scale";
@@ -10,7 +10,7 @@ import { SecureAccessModal } from "@/components/modals/SecureAccessModal";
 import { isCzOrSkAccountFormat, isValidIBANFormat } from "@/utils/stringUtils";
 import { GET_INPUT_THEME_NATIVE_PAPER } from "@/constants/colors";
 
-export function SecretInput({
+function SecretInputComponent({
   value,
   onChangeText,
   label,
@@ -22,7 +22,7 @@ export function SecretInput({
   error: externalError,
   setError: externalSetError,
   onShowText,
-  inputColor,
+  inputColor: externalInputColor,
   inputStyles,
   ...props
 }) {
@@ -47,29 +47,35 @@ export function SecretInput({
     }
   }, [onShowText, showBankNumber, isShowTextSet, value]);
 
-  inputColor = useMemo(() => GET_INPUT_THEME_NATIVE_PAPER(color), [color]);
+  const finalInputColor = useMemo(
+    () => externalInputColor || GET_INPUT_THEME_NATIVE_PAPER(color),
+    [externalInputColor, color],
+  );
 
   //validace bankovniho cisla
-  const validateBankNumber = (text) => {
-    setIsFocused(false);
-    let isValid = true;
+  const validateBankNumber = useCallback(
+    (text) => {
+      setIsFocused(false);
+      let isValid = true;
 
-    if (type === "iban") {
-      isValid = isValidIBANFormat(text);
-      if (!isValid) {
-        setError(i18n.t("invalidIbanFormat"));
+      if (type === "iban") {
+        isValid = isValidIBANFormat(text);
+        if (!isValid) {
+          setError(i18n.t("invalidIbanFormat"));
+        }
+      } else if (type === "czOrSk") {
+        isValid = isCzOrSkAccountFormat(text);
+        if (!isValid) {
+          setError(i18n.t("invalidBankAccountFormat"));
+        }
       }
-    } else if (type === "czOrSk") {
-      isValid = isCzOrSkAccountFormat(text);
-      if (!isValid) {
-        setError(i18n.t("invalidBankAccountFormat"));
-      }
-    }
 
-    if (isValid || !text) {
-      setError("");
-    }
-  };
+      if (isValid || !text) {
+        setError("");
+      }
+    },
+    [type, setError],
+  ); // Závislosti jsou stabilní
 
   return (
     <>
@@ -98,7 +104,7 @@ export function SecretInput({
             height: responsiveSize.vertical(41),
           }}
           cursorColor={color.text}
-          theme={inputColor}
+          theme={finalInputColor}
           onFocus={() => setIsFocused(true)}
           onBlur={() => validateBankNumber(value)}
           right={<TextInput.Icon />}
@@ -121,7 +127,7 @@ export function SecretInput({
           type="error"
           visible={error}
           style={{ marginLeft: responsiveSize.horizontal(-9) }}
-          theme={inputColor}
+          theme={finalInputColor}
         >
           {error}
         </HelperText>
@@ -136,6 +142,8 @@ export function SecretInput({
     </>
   );
 }
+
+export const SecretInput = memo(SecretInputComponent);
 
 const styles = StyleSheet.create({
   iconButton: {

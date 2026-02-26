@@ -5,14 +5,9 @@ import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { responsiveFont, responsiveSize } from "@/utils/scale";
+import { memo } from "react";
 
-export function ImageSelector({
-  label,
-  visible,
-  setVisible,
-  onPress,
-  ...otherProps
-}) {
+function ImageSelectorComponent({ label, visible, setVisible, onPress, ...otherProps }) {
   const color = useThemeColor();
 
   const handleClose = () => {
@@ -39,14 +34,8 @@ export function ImageSelector({
               onPress?.("camera");
             }}
           >
-            <IconSymbol
-              size={responsiveSize.moderate(28)}
-              name="camera"
-              color={color.tabsText}
-            />
-            <ThemedText
-              style={[styles.buttonLabel, { color: color.outlineButton }]}
-            >
+            <IconSymbol size={responsiveSize.moderate(28)} name="camera" color={color.tabsText} />
+            <ThemedText style={[styles.buttonLabel, { color: color.outlineButton }]}>
               {i18n.t("camera")}
             </ThemedText>
           </TouchableOpacity>
@@ -57,14 +46,8 @@ export function ImageSelector({
               onPress?.("photo");
             }}
           >
-            <IconSymbol
-              size={responsiveSize.moderate(28)}
-              name="photo"
-              color={color.tabsText}
-            />
-            <ThemedText
-              style={[styles.buttonLabel, { color: color.outlineButton }]}
-            >
+            <IconSymbol size={responsiveSize.moderate(28)} name="photo" color={color.tabsText} />
+            <ThemedText style={[styles.buttonLabel, { color: color.outlineButton }]}>
               {i18n.t("gallery")}
             </ThemedText>
           </TouchableOpacity>
@@ -80,9 +63,7 @@ export function ImageSelector({
               name="trash"
               color={color.notFoccusIcon}
             />
-            <ThemedText
-              style={[styles.buttonLabel, { color: color.outlineButton }]}
-            >
+            <ThemedText style={[styles.buttonLabel, { color: color.outlineButton }]}>
               {i18n.t("remove1")}
             </ThemedText>
           </TouchableOpacity>
@@ -91,6 +72,8 @@ export function ImageSelector({
     </Portal>
   );
 }
+
+export const ImageSelector = memo(ImageSelectorComponent);
 
 const styles = StyleSheet.create({
   dialogContainer: {

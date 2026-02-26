@@ -1,9 +1,9 @@
-import React from "react";
+import React, { memo } from "react";
 import { TextInput } from "react-native";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { responsiveFont, responsivePadding } from "@/utils/scale";
 
-export function ThemedTextInput({ style, transparent = false, ...otherProps }) {
+function ThemedTextInputComponent({ style, transparent = false, ...otherProps }) {
   const currentColors = useThemeColor();
 
   return (
@@ -23,3 +23,5 @@ export function ThemedTextInput({ style, transparent = false, ...otherProps }) {
     />
   );
 }
+
+export const ThemedTextInput = memo(ThemedTextInputComponent);

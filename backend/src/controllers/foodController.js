@@ -12,15 +12,13 @@ export const addFoodToInventory = async (req, res, next) => {
     const isAdmin = req.adminRoute;
     const image = req.file && req.file.size > 0 ? req.file : undefined;
 
-    console.log("file", req.file)
-    console.log("params", req.params)
-    console.log("body", req.body)
+    console.log("image", image);
+    console.log("file", req.file);
+    console.log("params", req.params);
+    console.log("body", req.body);
 
-
-
-    // const food = await addFoodToInventoryService(userId, { ...req.body, image }, isAdmin);
-    // handleResponse(res, 201, "Food created successfully", food);
-    handleResponse(res, 201, "Food created successfully");
+    const food = await addFoodToInventoryService(userId, { ...req.body, image }, isAdmin);
+    handleResponse(res, 201, "Food created successfully", food);
   } catch (err) {
     next(err);
   }

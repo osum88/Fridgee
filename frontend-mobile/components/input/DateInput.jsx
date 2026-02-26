@@ -1,6 +1,6 @@
 import { ThemedView } from "@/components/themed/ThemedView";
 import { Platform } from "react-native";
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
 import { responsiveSize } from "@/utils/scale";
@@ -9,7 +9,7 @@ import { formatDate, formatDateInput, parseDateMidnight } from "@/utils/stringUt
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { GET_INPUT_THEME_NATIVE_PAPER } from "@/constants/colors";
 
-export function DateInput({
+function DateInputComponent({
   value,
   onChange,
   label,
@@ -19,7 +19,7 @@ export function DateInput({
   minYearsInPast,
   error: externalError,
   setError: externalSetError,
-  inputColor,
+  inputColor: externalInputColor,
   inputStyles,
   showError = true,
   ...props
@@ -56,7 +56,24 @@ export function DateInput({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
-  inputColor = useMemo(() => GET_INPUT_THEME_NATIVE_PAPER(color), [color]);
+  const finalInputColor = useMemo(
+    () => externalInputColor || GET_INPUT_THEME_NATIVE_PAPER(color),
+    [externalInputColor, color],
+  );
+
+  const getYearError = (year) => {
+    const currentYear = new Date().getFullYear();
+    const maxAllowedYear = maxYearsInFuture ? currentYear + maxYearsInFuture : currentYear;
+    const minAllowedYear = minYearsInPast ? currentYear - minYearsInPast : currentYear - 105;
+
+    if (year > maxAllowedYear) {
+      return `${i18n.t("errorYear")} ${maxAllowedYear}`;
+    }
+    if (year < minAllowedYear) {
+      return `${i18n.t("errorYearLow")} ${minAllowedYear}`;
+    }
+    return null;
+  };
 
   //zpracuje datum zadany rucne a a opravuje smazani tecek ktere se automaticky doplnuji
   const handleDateInput = (text) => {
@@ -70,7 +87,6 @@ export function DateInput({
       const day = Number(dayStr);
       const month = Number(monthStr);
       const year = Number(yearStr);
-      const currentYear = new Date().getFullYear();
 
       // validace dne
       if (dayStr !== "" && (day > 31 || day < 1)) {
@@ -84,14 +100,8 @@ export function DateInput({
 
       // validace roku
       if (yearStr && yearStr.length === 4) {
-        const maxAllowedYear = maxYearsInFuture ? currentYear + maxYearsInFuture : currentYear;
-        const minAllowedYear = minYearsInPast ? currentYear - minYearsInPast : currentYear - 105;
-
-        if (year > maxAllowedYear) {
-          setError(`${i18n.t("errorYear")} ${maxAllowedYear}`);
-        } else if (year < minAllowedYear) {
-          setError(`${i18n.t("errorYearLow")} ${minAllowedYear}`);
-        }
+        const yearError = getYearError(year);
+        if (yearError) setError(yearError);
       }
     }
 
@@ -124,6 +134,13 @@ export function DateInput({
     setIsEditable(!isEditable);
 
     if (selectedDate) {
+      const yearError = getYearError(selectedDate.getFullYear());
+
+      if (yearError) {
+        setError(yearError);
+      } else {
+        setError("");
+      }
       onChange(selectedDate);
       setDateText(formatDate(selectedDate));
     }
@@ -148,7 +165,7 @@ export function DateInput({
           height: responsiveSize.vertical(41),
         }}
         cursorColor={color.text}
-        theme={inputColor}
+        theme={finalInputColor}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         right={
@@ -171,7 +188,7 @@ export function DateInput({
             marginLeft: responsiveSize.horizontal(-9),
             marginTop: responsiveSize.vertical(-2),
           }}
-          theme={inputColor}
+          theme={finalInputColor}
         >
           {error}
         </HelperText>
@@ -188,3 +205,6 @@ export function DateInput({
     </ThemedView>
   );
 }
+
+
+export const DateInput = memo(DateInputComponent);

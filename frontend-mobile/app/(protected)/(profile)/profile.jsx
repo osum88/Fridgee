@@ -2,7 +2,7 @@ import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { useUser } from "@/hooks/useUser";
 import { Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
 import { useProfilePlaceHolder } from "@/hooks/useProfilePlaceHolder";
@@ -67,27 +67,43 @@ export default function Profile() {
   // }, []);
 
   //vyber moznosti pri zmene profilovky
-  const handleImagePick = async (type) => {
-    if (type === "camera") {
-      // toast.success("Obrázek nahrán!");
-      const uri = await takePhoto();
-      if (uri) {
-        setImage(uri);
-        const { formData, uri: uploadUri } = await uploadImage(uri);
-        updateUserProfileImageMutation.mutate({ formData, uploadUri });
-      }
-    } else if (type === "photo") {
-      const uri = await pickImage();
-      if (uri) {
-        setImage(uri);
-        const { formData, uri: uploadUri } = await uploadImage(uri);
-        updateUserProfileImageMutation.mutate({ formData, uploadUri });
-      }
-    } else if (type === "remove") {
-      setImage("none");
-      deleteUserProfileImageMutation.mutate();
-    }
-  };
+
+  const handleImagePick = useCallback(
+    async (type) => {
+      const actions = {
+        camera: async () => {
+          // toast.success("Obrázek nahrán!");
+          const uri = await takePhoto();
+          if (uri) {
+            setImage(uri);
+            const { formData, uri: uploadUri } = await uploadImage(uri);
+            updateUserProfileImageMutation.mutate({ formData, uploadUri });
+          }
+        },
+        photo: async () => {
+          const uri = await pickImage();
+          if (uri) {
+            setImage(uri);
+            const { formData, uri: uploadUri } = await uploadImage(uri);
+            updateUserProfileImageMutation.mutate({ formData, uploadUri });
+          }
+        },
+        remove: () => {
+          setImage("none");
+          deleteUserProfileImageMutation.mutate();
+        },
+      };
+
+      await actions[type]?.();
+    },
+    [
+      takePhoto,
+      pickImage,
+      uploadImage,
+      updateUserProfileImageMutation,
+      deleteUserProfileImageMutation,
+    ],
+  );
 
   //pole odkazu, pokud nefunguje odkaz z cache pak se pouzije cloud jinak placeholder
   const imageSources = useMemo(() => {

@@ -8,5 +8,6 @@ export const useGetLabelSuggestionsQuary = (labelTitle, inventoryId, enabled = t
     queryFn: () => getInventorySuggestionsApi(inventoryId, labelTitle),
     enabled: enabled && !!labelTitle && !!inventoryId,
     staleTime: 1000 * 30, //20 sekund
+    placeholderData: (previousData) => previousData,
   });
 };

@@ -1,11 +1,11 @@
-import React from "react";
+import React, { memo } from "react";
 import { View, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { responsiveSize } from "@/utils/scale";
 import { ActivityIndicator } from "react-native-paper";
 
-export const FoodImagePicker = ({ imageUrl, onPickImage, isLoading }) => {
+const FoodImagePickerComponent = ({ imageUrl, onPickImage, isLoading }) => {
   const color = useThemeColor();
 
   return (
@@ -45,6 +45,8 @@ export const FoodImagePicker = ({ imageUrl, onPickImage, isLoading }) => {
     </View>
   );
 };
+
+export const FoodImagePicker = memo(FoodImagePickerComponent);
 
 const styles = StyleSheet.create({
   container: {

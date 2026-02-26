@@ -1,12 +1,11 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, memo } from "react";
 import i18n from "@/constants/translations";
 import { SearchableDropdown } from "@/components/input/SearchableDropdown";
 import { useDebounce } from "../../hooks/debounce/useDebounce";
 import { useGetLabelSuggestionsQuary } from "../../hooks/queries/food/useGetLabelSuggestionsQuary";
 
-export function FoodSearchableDropdown({
-          inputText,
-
+function FoodSearchableDropdownComponent({
+  inputText,
   setInputText,
   setSelectedCatalog,
   inventoryId,
@@ -16,24 +15,27 @@ export function FoodSearchableDropdown({
   ...props
 }) {
   const [searchTerm, setSearchTerm] = useState("");
-  const debouncedSearchTerm = useDebounce(searchTerm, 30);
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // ziskani navrhu pro hledani
   const { data: suggestions } = useGetLabelSuggestionsQuary(
     debouncedSearchTerm,
     inventoryId,
-    debouncedSearchTerm.length > 1,
+    debouncedSearchTerm.length > 0,
   );
 
   //transformace polozek pro dropdown menu
   const dropdownItems = useMemo(() => {
-    return (
-      suggestions?.data?.map((food) => ({
-        label: food.title,
-        value: food.catalogId.toString(),
-      })) || []
-    );
-  }, [suggestions?.data]);
+    if (!inputText || inputText.length <= 0) {
+      return [];
+    }
+   const dataToMap = suggestions?.data || [];
+    
+    return dataToMap.map((food) => ({
+      label: food.title,
+      value: food.catalogId.toString(),
+    }));
+  }, [suggestions?.data, inputText]);
 
   return (
     <SearchableDropdown
@@ -46,6 +48,7 @@ export function FoodSearchableDropdown({
       onChangeSearchTerm={(text) => {
         setSearchTerm(text);
         setInputText(text);
+        if (error) setError("");
       }}
       label={i18n.t("foodName")}
       isSubmitting={false}
@@ -62,3 +65,5 @@ export function FoodSearchableDropdown({
     />
   );
 }
+
+export const FoodSearchableDropdown = memo(FoodSearchableDropdownComponent);

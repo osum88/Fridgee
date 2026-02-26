@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { memo, useRef } from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
@@ -7,9 +7,9 @@ import { IconSymbol } from "@/components/icons/IconSymbol";
 import { HelperText } from "react-native-paper";
 
 // zvysuje a snizuje hodnotu, ktera je mezi min a max, a zobrazuje ji s tlacitky plus a minus
-export const Stepper = ({ value, onChange, min = 1, max = 99, label, containerStyle }) => {
+const StepperComponent = ({ value, onChange, min = 1, max = 99, label, containerStyle }) => {
   const color = useThemeColor();
-  
+
   const intervalRef = useRef(null);
   const timeoutRef = useRef(null);
   const valueRef = useRef(value);
@@ -88,6 +88,8 @@ export const Stepper = ({ value, onChange, min = 1, max = 99, label, containerSt
     </View>
   );
 };
+
+export const Stepper = memo(StepperComponent);
 
 const styles = StyleSheet.create({
   container: {

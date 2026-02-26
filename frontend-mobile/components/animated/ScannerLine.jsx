@@ -5,12 +5,13 @@ import Animated, {
   withRepeat,
   Easing,
   useAnimatedReaction,
+  cancelAnimation,
 } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 
 //cara skeneru
-export function ScannerLine({ top, height, left, width, paused }) {
+function ScannerLineComponent({ top, height, left, width, paused }) {
   //vertikalni pozice cary
   const translateY = useSharedValue(top);
   //vyska horniho gradientu
@@ -30,7 +31,7 @@ export function ScannerLine({ top, height, left, width, paused }) {
           easing: Easing.inOut(Easing.quad),
         }),
         -1, //opakuje se nekonecne
-        true //reverzni smer
+        true, //reverzni smer
       );
       //horni gradient
       translateHeightUp.value = withRepeat(
@@ -39,7 +40,7 @@ export function ScannerLine({ top, height, left, width, paused }) {
           easing: Easing.poly(10),
         }),
         -1, //opakuje se nekonecne
-        true //reverzni smer
+        true, //reverzni smer
       );
       //dolni gradient
       translateHeightDown.value = withRepeat(
@@ -48,9 +49,21 @@ export function ScannerLine({ top, height, left, width, paused }) {
           easing: Easing.poly(10),
         }),
         -1, //opakuje se nekonecne
-        false
+        false,
       );
+    } else {
+      // Zastavení animací při pauze
+      cancelAnimation(translateY);
+      cancelAnimation(translateHeightUp);
+      cancelAnimation(translateHeightDown);
     }
+
+    return () => {
+      // Cleanup při unmountu komponenty
+      cancelAnimation(translateY);
+      cancelAnimation(translateHeightUp);
+      cancelAnimation(translateHeightDown);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [top, height, paused]);
 
@@ -59,7 +72,7 @@ export function ScannerLine({ top, height, left, width, paused }) {
     () => translateY.value,
     (currentY, previousY) => {
       direction.value = currentY > previousY;
-    }
+    },
   );
 
   //posouva caru
@@ -70,10 +83,7 @@ export function ScannerLine({ top, height, left, width, paused }) {
   //pososouva horni gradient
   const upGradientStyle = useAnimatedStyle(() => {
     const maxHeight = translateY.value - top;
-    const safeHeight = Math.max(
-      Math.min(translateHeightUp.value, maxHeight),
-      1
-    );
+    const safeHeight = Math.max(Math.min(translateHeightUp.value, maxHeight), 1);
     const visible = direction.value ? 1 : 0;
     return {
       transform: [{ translateY: translateY.value - safeHeight }],
@@ -86,10 +96,7 @@ export function ScannerLine({ top, height, left, width, paused }) {
   const downGradientStyle = useAnimatedStyle(() => {
     const bottomLimit = top + height;
     const maxHeight = bottomLimit - translateY.value;
-    const safeHeight = Math.max(
-      Math.min(translateHeightDown.value, maxHeight),
-      1
-    );
+    const safeHeight = Math.max(Math.min(translateHeightDown.value, maxHeight), 1);
     const visible = direction.value ? 0 : 1;
     return {
       transform: [{ translateY: translateY.value }],
@@ -159,3 +166,5 @@ export function ScannerLine({ top, height, left, width, paused }) {
     </>
   );
 }
+
+export const ScannerLine = memo(ScannerLineComponent);

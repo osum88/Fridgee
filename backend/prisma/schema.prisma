@@ -337,7 +337,7 @@ model FoodLabel {
   normalizedTitle  String?     @map("normalized_title") @db.VarChar(100)
   description      String?     @map("description") @db.VarChar(250)
   foodImageUrl     String?     @map("food_image_url") @db.VarChar(250)
-  foodImageCloudId Int?        @map("food_image_cloud_id")
+  foodImageCloudId String?     @map("food_image_cloud_id") @db.VarChar(250)
   price            Float       @default(0)
   unit             Unit?
   amount           Float       @default(0)

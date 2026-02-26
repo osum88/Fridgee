@@ -4,8 +4,9 @@ import { ThemedView } from "@/components/themed/ThemedView";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { responsiveSize } from "@/utils/scale";
+import { memo } from "react";
 
-export function Search({
+export function SearchComponent({
   placeholder,
   value,
   onChangeText,
@@ -51,6 +52,8 @@ export function Search({
     </ThemedView>
   );
 }
+
+export const Search = memo(SearchComponent);
 
 const styles = StyleSheet.create({
   searchInputWrapper: {

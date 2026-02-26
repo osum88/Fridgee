@@ -10,7 +10,11 @@ import prisma from "../utils/prisma.js";
 import { createFoodCatalogRepository } from "./foodCatalogRepository.js";
 import { moveFoodsToCategoryRepository } from "./foodCategoryRepository.js";
 import { logLabelUpdateHistoryRepository } from "./foodHistoryRepository.js";
-import { createFoodLabelRepository, updateFoodLabelRepository } from "./foodLabelRepository.js";
+import {
+  createFoodLabelRepository,
+  getCatalogFoodByTitleRepository,
+  updateFoodLabelRepository,
+} from "./foodLabelRepository.js";
 import {
   getOrCreateFoodVariant,
   resolveTargetFoodEntityRepository,
@@ -34,8 +38,12 @@ export const addFoodToInventoryRepository = async (userId, data) => {
         if (!data?.catalogId) {
           if (data?.barcode === "") {
             console.log("1");
-            const createdCatalog = await createFoodCatalogRepository(userId, null, tx);
-            catalogId = createdCatalog.id;
+            const foodLabelByTitle = await getCatalogFoodByTitleRepository(data?.title, userId);
+            catalogId = foodLabelByTitle?.catalogId || null;
+            if (!foodLabelByTitle) {
+              const createdCatalog = await createFoodCatalogRepository(userId, null, tx);
+              catalogId = createdCatalog.id;
+            }
             newCatalogCreate = true;
           }
           //pokud barcode existuje a nemame catalogId pak se najde jinak se vytvori
@@ -153,12 +161,12 @@ export const addFoodToInventoryRepository = async (userId, data) => {
 
           const labelPayload = {
             title: data?.title,
-            description: data?.description ?? undefined,
-            foodImageUrl: data?.foodImageUrl ?? undefined,
-            foodImageCloudId: data?.foodImageCloudId ?? undefined,
+            description: data?.description,
+            foodImageUrl: data?.foodImageUrl,
+            foodImageCloudId: data?.foodImageCloudId,
             price: data?.price ?? undefined,
             amount: data?.amount ?? undefined,
-            unit: data?.unit ?? undefined,
+            unit: data?.unit,
             isDeleted: false,
           };
 

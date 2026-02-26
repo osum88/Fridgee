@@ -3,12 +3,8 @@ import { StyleSheet, TouchableOpacity } from "react-native";
 import { Dialog, Portal } from "react-native-paper";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
-import {
-  responsiveFont,
-  responsiveSize,
-  responsiveVertical,
-} from "@/utils/scale";
-import { useState } from "react";
+import { responsiveFont, responsiveSize, responsiveVertical } from "@/utils/scale";
+import { memo, useState } from "react";
 import { FormGroupPassword } from "@/components/input/FormGroupPassword";
 import { ThemedButton } from "@/components/themed/ThemedButton";
 import Tooltip from "react-native-walkthrough-tooltip";
@@ -16,7 +12,7 @@ import { IconSymbol } from "@/components/icons/IconSymbol";
 import { ThemedView } from "@/components/themed/ThemedView";
 import useGetBankNumberPassword from "@/hooks/queries/user/useGetBankNumberPassword";
 
-export function SecureAccessModal({
+function SecureAccessModalComponent({
   visible,
   setVisible,
   type,
@@ -54,7 +50,7 @@ export function SecureAccessModal({
         onError: (error) => {
           setError(error.message);
         },
-      }
+      },
     );
   };
 
@@ -69,9 +65,7 @@ export function SecureAccessModal({
         <Dialog.Content style={styles.dialogContent}>
           <ThemedView style={styles.containerTitle}>
             <ThemedText style={styles.dialogTitle}>
-              {type === "iban"
-                ? i18n.t("showIban")
-                : i18n.t("showBankAccountNumber")}
+              {type === "iban" ? i18n.t("showIban") : i18n.t("showBankAccountNumber")}
             </ThemedText>
 
             <Tooltip
@@ -139,6 +133,8 @@ export function SecureAccessModal({
     </Portal>
   );
 }
+
+export const SecureAccessModal = memo(SecureAccessModalComponent);
 
 const styles = StyleSheet.create({
   dialogContainer: {

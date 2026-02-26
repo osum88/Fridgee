@@ -132,7 +132,6 @@ export const validateDate = (inputDate) => {
   return true;
 };
 
-
 // vrati pocet dni mezi dneskem a cislovym datem
 export const getDaysUntil = (targetDate, minYearsInPast = 105) => {
   if (!targetDate) return 0;
@@ -214,7 +213,7 @@ export const formatNumberInput = (text) => {
 export const validateNumericInput = (value, fieldName, setErrors, maxLimit = 999999) => {
   if (!value) {
     setErrors((prev) => ({ ...prev, [fieldName]: "" }));
-    return null;
+    return true;
   }
 
   if (value.endsWith(".") || value.endsWith(",")) {
@@ -227,7 +226,7 @@ export const validateNumericInput = (value, fieldName, setErrors, maxLimit = 999
   if (!numericRegex.test(value)) {
     setErrors((prev) => ({
       ...prev,
-      [fieldName]: i18n.t("invalidNumberFormat"), 
+      [fieldName]: i18n.t("invalidNumberFormat"),
     }));
     return null;
   }
@@ -251,28 +250,76 @@ export const getCategoryIdByVariant = (selectedCatalog, selectedVariantId) => {
   if (!selectedCatalog?.existingItems) return "null";
 
   const matchingItem = selectedCatalog.existingItems.find(
-    (item) => String(item.variantId) === String(selectedVariantId)
+    (item) => String(item.variantId) === String(selectedVariantId),
   );
 
   if (matchingItem && matchingItem.categoryId !== null) {
     return matchingItem.categoryId.toString();
   }
 
-  const defaultItem = selectedCatalog.existingItems.find(
-    (item) => item.variantId === null
-  );
+  const defaultItem = selectedCatalog.existingItems.find((item) => item.variantId === null);
 
   return defaultItem?.categoryId?.toString() ?? "null";
 };
 
- // prevede vsechny hodnoty v objektu chyb na prazdne retezce nebo vyresetuje jednoduchy retezec
+// prevede vsechny hodnoty v objektu chyb na prazdne retezce nebo vyresetuje jednoduchy retezec
 export const resetErrors = (setFieldErrors, fieldErrors) => {
   if (fieldErrors !== null && typeof fieldErrors === "object") {
-    const resetObj = Object.fromEntries(
-      Object.keys(fieldErrors).map((key) => [key, ""])
-    );
+    const resetObj = Object.fromEntries(Object.keys(fieldErrors).map((key) => [key, ""]));
     setFieldErrors(resetObj);
   } else {
     setFieldErrors("");
   }
+};
+
+// nastavi text chyby pro 'defaultType', jinak pouzije posledni klic v objektu, ostatni nastavi na ""
+export const highlightErrorsWithDefault = (
+  setFieldErrors,
+  fieldErrors,
+  defaultType,
+  errorMessage,
+) => {
+  if (fieldErrors !== null && typeof fieldErrors === "object") {
+    setFieldErrors((prev) => {
+      const keys = Object.keys(prev || fieldErrors);
+      if (keys.length === 0) return prev;
+
+      const targetKey = keys.includes(defaultType) ? defaultType : keys[keys.length - 1];
+
+      return Object.fromEntries(keys.map((key) => [key, key === targetKey ? errorMessage : " "]));
+    });
+  } else {
+    setFieldErrors(errorMessage);
+  }
+};
+
+//  funkce pro aktualizaci konkretniho klice (klicu) v objektu stavu
+export const updateFormValues = (setter, keyOrObject, value) => {
+  setter((prev) => {
+    if (typeof keyOrObject === "object" && keyOrObject !== null) {
+      return {
+        ...prev,
+        ...keyOrObject,
+      };
+    }
+    return {
+      ...prev,
+      [keyOrObject]: value,
+    };
+  });
+};
+
+// nastavi chybu pro konkretni klic a po zadanem case ji smaze
+export const setTemporaryError = (setErrors, key, message, duration = 4000) => {
+  setErrors((prev) => ({
+    ...prev,
+    [key]: message,
+  }));
+
+  setTimeout(() => {
+    setErrors((prev) => ({
+      ...prev,
+      [key]: "",
+    }));
+  }, duration);
 };

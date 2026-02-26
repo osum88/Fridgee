@@ -5,8 +5,9 @@ import { ThemedView } from "@/components/themed/ThemedView";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { responsiveSize } from "@/utils/scale";
+import { memo } from "react";
 
-export function FormGroup({
+function FormGroupComponent({
   label,
   placeholder,
   style,
@@ -20,9 +21,7 @@ export function FormGroup({
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedText style={colorScheme === "light" && styles.text}>
-        {label}
-      </ThemedText>
+      <ThemedText style={colorScheme === "light" && styles.text}>{label}</ThemedText>
       <ThemedView>
         <ThemedView style={{ paddingBottom: responsiveSize.vertical(3) }}>
           <ThemedTextInput
@@ -51,6 +50,7 @@ export function FormGroup({
     </ThemedView>
   );
 }
+export const FormGroup = memo(FormGroupComponent);
 
 const styles = StyleSheet.create({
   container: {

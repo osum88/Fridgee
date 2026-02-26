@@ -5,7 +5,7 @@ import { resetErrors } from "./stringUtils";
 export const handleApiError = (error, setFieldErrors, fieldErrors = null, defaultType = null) => {
   const { status, type, code } = error.response?.data || {};
   const isObjectState = fieldErrors !== null && typeof fieldErrors === "object";
-
+  console.log(status, type, code, "error codes");
   //resetuje errory
   resetErrors(setFieldErrors, fieldErrors);
 

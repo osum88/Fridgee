@@ -4,8 +4,8 @@ export const updateFoodLabelSchema = Joi.object({
   foodLabelId: Joi.number().integer().required(),
   title: Joi.string().max(100).optional().label("labelTitle"),
   description: Joi.string().allow("").max(250).optional(),
-  foodImageUrl: Joi.string().uri().allow("").optional(),
-  foodImageCloudId: Joi.number().integer().optional(),
+  foodImageUrl: Joi.string().allow("").optional(),
+  foodImageCloudId: Joi.string().allow("").optional(),
   amount: Joi.number().min(0).max(9999).precision(3).optional(),
   unit: Joi.string()
     .allow("")

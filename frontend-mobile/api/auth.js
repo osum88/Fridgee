@@ -1,6 +1,6 @@
 import apiClient from "@/utils/api-client";
 import i18n from "@/constants/translations";
-import { EmailError, PasswordError, } from "@/errors/CustomError";
+import { EmailError,  } from "@/errors/CustomError";
 
 export const loginApi = async (loginData) => {
   try {
@@ -118,28 +118,7 @@ export const resetPasswordApi = async (token, resetPasswordData) => {
     console.error(
       `Error in forgotPasswordApi: ${error} -> ${error.response?.data?.message || error.message}`,
     );
-    if (error.response) {
-      const { status, type, code } = error.response?.data || {};
-
-      if (status === 400) {
-        if (type === "newPassword" && (code === "STRING_PATTERN.BASE" || code === "STRING_MIN")) {
-          throw new PasswordError(i18n.t("errorPasswordTooWeak"));
-        } else if (
-          type === "resetPassword" &&
-          (code === "INVALID_TOKEN" || code === "TOKEN_EXPIRED")
-        ) {
-          throw new PasswordError(i18n.t("invalidOrExpiredResetToken"));
-        }
-      } else if (status === 429) {
-        throw new PasswordError(i18n.t("errorTooManyRequest"));
-      } else {
-        throw new PasswordError(i18n.t("errorDefault"));
-      }
-    } else if (error.request) {
-      throw new PasswordError(i18n.t("errorNetwork"));
-    } else {
-      throw new PasswordError(i18n.t("errorDefault"));
-    }
+    throw error;
   }
 };
 

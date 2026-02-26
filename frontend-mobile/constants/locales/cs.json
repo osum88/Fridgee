@@ -19,7 +19,6 @@
   "enterYourUsername": "Zadejte své uživatelské jméno",
   "rememberMe": "Zapamatovat si mě",
   "forgotPasswordDescription": "Zadejte svou e-mailovou adresu a pošleme vám odkaz pro obnovení hesla.",
-  "invalidOrExpiredResetToken": "Odkaz pro obnovení hesla je neplatný nebo již vypršel. Požádejte prosím o nový.",
   "resetPasswordLink": "Odeslat odkaz",
   "backToLogin": "Zpět na přihlášení",
   "resendIn": "Znovu odeslat za",
@@ -204,13 +203,41 @@
     },
     "password": {
       "STRING_EMPTY": "Email ani heslo nesmí být prázdné.",
-      "STRING_PATTERN.BASE": "Heslo musí obsahovat alespoň 8 znaků, velké písmeno, číslici a speciální znak.",
-      "STRING_MIN": "Heslo musí obsahovat alespoň 8 znaků, velké písmeno, číslici a speciální znak."
+      "default": "Heslo musí obsahovat alespoň 8 znaků, velké písmeno, číslici a speciální znak."
+    },
+    "newPassword": {
+      "default": "Heslo musí obsahovat alespoň 8 znaků, velké písmeno, číslici a speciální znak."
     },
     "username": {
       "USERNAME_ALREADY_EXISTS": "Uživatel s tímto uživatelským jménem již existuje.",
       "STRING_MAX": "Uživatelské jméno musí mít 3 až 30 znaků.",
       "STRING_MIN": "Uživatelské jméno musí mít 3 až 30 znaků."
+    },
+    "token": {
+      "INVALID_TOKEN": "Odkaz pro obnovení hesla je neplatný nebo již vypršel. Požádejte prosím o nový.",
+      "TOKEN_EXPIRED": "Odkaz pro obnovení hesla je neplatný nebo již vypršel. Požádejte prosím o nový."
+    },
+    "amount": {
+      "QUANTITY_UNIT_REQUIRED": "Při zadání množství musí být vybrána také jednotka množství.",
+      "NUMBER_MAX": "Množství je mimo povolený rozsah.",
+      "default": "Množství musí být platné číslo (max. 2 desetinná místa)."
+    },
+    "labelTitle": {
+      "STRING_EMPTY": "Název potraviny nemůže bý prázný",
+      "default": "Název potraviny může mít maximálně 100 znaků."
+    },
+    "price": {
+      "NUMBER_MAX": "Cena je mimo povolený rozsah.",
+      "default": "Cena musí být platné číslo (max. 2 desetinná místa)."
+    },
+    "variantTitle": {
+      "STRING_MAX": "Varianta může mít maximálně 40 znaků."
+    },
+    "description": {
+      "STRING_MAX": "Popisek může mít maximálně 250 znaků."
+    },
+    "expirationDate": {
+      "default": "Datum trvanlivosti musí být platné datum ve formátu DD.MM.YYYY."
     }
   }
 }

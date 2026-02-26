@@ -1,9 +1,9 @@
-import { Animated } from "react-native";
+import { Animated, StyleSheet } from "react-native";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 
-export function JumpingDots({ type = "loading", ...otherProps }) {
+function JumpingDotsComponent({ type = "loading", ...otherProps }) {
   const dot1 = useRef(new Animated.Value(0)).current;
   const dot2 = useRef(new Animated.Value(0)).current;
   const dot3 = useRef(new Animated.Value(0)).current;
@@ -15,47 +15,56 @@ export function JumpingDots({ type = "loading", ...otherProps }) {
           Animated.delay(delay),
           Animated.timing(animatedValue, {
             toValue: -4,
-            duration: 200,
+            duration: 250,
             useNativeDriver: true,
           }),
           Animated.timing(animatedValue, {
             toValue: 0,
-            duration: 200,
+            duration: 250,
             useNativeDriver: true,
           }),
-        ])
+        ]),
       );
 
-    createAnimation(dot1, 0).start();
-    createAnimation(dot2, 150).start();
-    createAnimation(dot3, 300).start();
+    const animations = [
+      createAnimation(dot1, 0),
+      createAnimation(dot2, 150),
+      createAnimation(dot3, 300),
+    ];
+    animations.forEach((anim) => anim.start());
+
+    return () => {
+      animations.forEach((anim) => anim.stop());
+    };
   }, [dot1, dot2, dot3]);
 
-  return (
-    <ThemedView style={{ flexDirection: "row", alignItems: "center" }}>
-      <ThemedText type={type} style={[{ marginHorizontal: 1 }]} {...otherProps}>
+  const renderDot = (animatedValue, key) => (
+    <Animated.View key={key} style={[styles.dot, { transform: [{ translateY: animatedValue }] }]}>
+      <ThemedText type={type} {...otherProps}>
         {otherProps.children}
       </ThemedText>
+    </Animated.View>
+  );
 
-      <Animated.Text
-       style={[{ marginHorizontal: 1 }, { transform: [{ translateY: dot1 }] }]}
-        {...otherProps}
-      >
-        <ThemedText type={type}>.</ThemedText>
-      </Animated.Text>
-      <Animated.Text
-       style={[{ marginHorizontal: 1 }, { transform: [{ translateY: dot2 }] }]}
-        {...otherProps}
-      >
-        <ThemedText type={type}>.</ThemedText>
-      </Animated.Text>
-      <Animated.Text
-        style={[{ marginHorizontal: 1 }, { transform: [{ translateY: dot3 }] }]}
-        {...otherProps}
-      >
-        <ThemedText type={type}>.</ThemedText>
-      </Animated.Text>
+  return (
+    <ThemedView style={styles.container}>
+      <ThemedText type={type} style={styles.baseText} {...otherProps}></ThemedText>
+      {[dot1, dot2, dot3].map((dot, index) => renderDot(dot, index))}
     </ThemedView>
   );
 }
 
+export const JumpingDots = memo(JumpingDotsComponent);
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  baseText: {
+    marginHorizontal: 1,
+  },
+  dot: {
+    marginHorizontal: 1,
+  },
+});

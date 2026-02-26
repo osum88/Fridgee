@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback, memo } from "react";
 import {
   View,
   TouchableOpacity,
@@ -24,14 +24,14 @@ import { IconSymbol } from "@/components/icons/IconSymbol";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { responsiveFont, responsiveSize } from "@/utils/scale";
 
-export function DropdownMenu({
+function DropdownMenuComponent({
   value,
   onChange,
   label,
   items = [],
   placeholder,
   isSubmitting = true,
-  inputColor,
+  inputColor: externalInputColor,
   inputStyles,
   showError = true,
   maxHeight = 200,
@@ -96,10 +96,10 @@ export function DropdownMenu({
         },
       ],
     };
-  }, [labelWidth]); 
+  }, [labelWidth]);
 
   // kliknuti do dropdown menu
-  const handleOpen = () => {
+  const handleOpen = useCallback(() => {
     if (!isSubmitting) return;
     dropdownRef.current?.measure((fx, fy, width, height, px, py) => {
       setDropdownY(py + height);
@@ -107,26 +107,33 @@ export function DropdownMenu({
       setDropdownWidth(width);
       setIsOpen(true);
     });
-  };
+  }, [isSubmitting]);
 
   //zpracuje vybranou moznost (kvuli animaci to kontroluje mnohonasobne volani)
-  const handleSelect = (item) => {
-    if (isChanging.current) return;
-    isChanging.current = true;
+  const handleSelect = useCallback(
+    (item) => {
+      if (isChanging.current) return;
+      isChanging.current = true;
 
-    if (item?.value) {
-      onChange(item.value);
-    }
+      if (item?.value) {
+        onChange(item.value);
+      }
 
-    setError("");
-    setIsOpen(false);
+      setError("");
+      setIsOpen(false);
 
-    setTimeout(() => {
-      isChanging.current = false;
-    }, 300);
-  };
+      setTimeout(() => {
+        isChanging.current = false;
+      }, 300);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [onChange, items, setError],
+  );
 
-  inputColor = useMemo(() => GET_INPUT_THEME_NATIVE_PAPER(color), [color]);
+  const finalInputColor = useMemo(
+    () => externalInputColor || GET_INPUT_THEME_NATIVE_PAPER(color),
+    [externalInputColor, color],
+  );
 
   //zobrazeny text
   const selectedLabel = useMemo(() => {
@@ -144,7 +151,7 @@ export function DropdownMenu({
             styles.labelContainer,
             animatedLabelStyle,
             {
-              backgroundColor: inputColor?.colors?.background || color.background,
+              backgroundColor: finalInputColor?.colors?.background || color.background,
             },
           ]}
         >
@@ -156,8 +163,8 @@ export function DropdownMenu({
                 color: error
                   ? color.error
                   : isOpen
-                    ? inputColor?.colors?.primary || color.tabsText
-                    : inputColor?.colors?.onSurfaceVariant || color.inputTextPaper,
+                    ? finalInputColor?.colors?.primary || color.tabsText
+                    : finalInputColor?.colors?.onSurfaceVariant || color.inputTextPaper,
               },
             ]}
           >
@@ -173,8 +180,8 @@ export function DropdownMenu({
               borderColor: error
                 ? color.error
                 : isOpen
-                  ? inputColor?.colors?.primary || color.tabsText
-                  : inputColor?.colors?.outline || color.fullName,
+                  ? finalInputColor?.colors?.primary || color.tabsText
+                  : finalInputColor?.colors?.outline || color.fullName,
               borderWidth: isOpen || error ? 2 : 1,
               paddingRight: paddingRightIcon,
             },
@@ -187,8 +194,8 @@ export function DropdownMenu({
               styles.selectedTextStyle,
               {
                 color: value
-                  ? inputColor?.colors?.onSurface || color.text
-                  : inputColor?.colors?.onSurfaceVariant || color.inputTextPaper,
+                  ? finalInputColor?.colors?.onSurface || color.text
+                  : finalInputColor?.colors?.onSurfaceVariant || color.inputTextPaper,
               },
             ]}
           >
@@ -242,13 +249,14 @@ export function DropdownMenu({
       )}
 
       {showError && (
-        <HelperText type="error" visible={!!error} style={styles.helper} theme={inputColor}>
+        <HelperText type="error" visible={!!error} style={styles.helper} theme={finalInputColor}>
           {error}
         </HelperText>
       )}
     </ThemedView>
   );
 }
+export const DropdownMenu = memo(DropdownMenuComponent);
 
 const styles = StyleSheet.create({
   dropdown: {

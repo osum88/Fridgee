@@ -34,7 +34,6 @@ export default function ResetPassword() {
 
   const handleSubmit = async () => {
     setError(null);
-    setSuccess(true);
 
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;

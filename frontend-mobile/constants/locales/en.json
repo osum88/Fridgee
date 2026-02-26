@@ -19,7 +19,6 @@
   "enterYourUsername": "Enter your username",
   "rememberMe": "Remember me",
   "forgotPasswordDescription": "Enter your email address below and we’ll send you a link to reset your password.",
-  "invalidOrExpiredResetToken": "The password reset link is invalid or has expired. Please request a new one.",
   "resetPasswordLink": "Send Reset Link",
   "backToLogin": "Back to Login",
   "resendIn": "Resend in",
@@ -208,10 +207,31 @@
       "STRING_PATTERN.BASE": "Password must contain at least 8 characters, an uppercase letter, a number, and a special character.",
       "STRING_MIN": "Password must contain at least 8 characters, an uppercase letter, a number, and a special character."
     },
+    "newPassword": {
+      "STRING_PATTERN.BASE": "Password must contain at least 8 characters, an uppercase letter, a number, and a special character.",
+      "STRING_MIN": "Password must contain at least 8 characters, an uppercase letter, a number, and a special character."
+    },
     "username": {
       "USERNAME_ALREADY_EXISTS": "A user with this username already exists.",
       "STRING_MAX": "Username must be between 3 and 30 characters.",
       "STRING_MIN": "Username must be between 3 and 30 characters."
+    },
+    "token": {
+      "INVALID_TOKEN": "The password reset link is invalid or has expired. Please request a new one.",
+      "TOKEN_EXPIRED": "The password reset link is invalid or has expired. Please request a new one."
+    },
+    "amount": {
+      "QUANTITY_UNIT_REQUIRED": "When entering a quantity, a unit must also be selected.",
+
+      "NUMBER_MAX": "Množství je mimo povolený rozsah.",
+      "default": "Množství musí být platné číslo (max. 2 desetinná místa)."
+    },
+    "labelTitle": {
+      "STRING_EMPTY": "Název potraviny nemůže bý prázný"
+    },
+    "price": {
+      "NUMBER_MAX": "Cena je mimo povolený rozsah.",
+      "default": "Cena musí být platné číslo (max. 2 desetinná místa)."
     }
   }
 }

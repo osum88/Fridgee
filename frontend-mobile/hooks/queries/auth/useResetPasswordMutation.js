@@ -1,6 +1,7 @@
 import { resetPasswordApi } from "@/api/auth";
 import { useMutation } from "@tanstack/react-query";
-import { PasswordError } from "@/errors/CustomError";
+import { handleApiError } from "@/utils/handleApiError";
+
 
 const useResetPasswordMutation = ({ setError, setSuccess }) => {
   const resetPasswordMutation = useMutation({
@@ -11,11 +12,7 @@ const useResetPasswordMutation = ({ setError, setSuccess }) => {
       setSuccess(true);
     },
     onError: (error) => {
-      if (error instanceof PasswordError) {
-        setError(error.message);
-      } else {
-        setSuccess(true);
-      }
+      handleApiError(error, setError)
       const errorMessage = error.response?.data?.message || error.message;
       console.error("Error reset password: ", errorMessage);
     },

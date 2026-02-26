@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { memo, useMemo } from "react";
 import { TextInput, HelperText } from "react-native-paper";
 import { responsiveSize } from "@/utils/scale";
 import { ThemedView } from "@/components/themed/ThemedView";
@@ -6,7 +6,7 @@ import { GET_INPUT_THEME_NATIVE_PAPER } from "@/constants/colors";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 
 // obecny input
-export const UniversalTextInput = ({
+const UniversalTextInputComponent = ({
   error,
   typeError = "error",
   mode = "outlined",
@@ -37,3 +37,5 @@ export const UniversalTextInput = ({
     </ThemedView>
   );
 };
+
+export const UniversalTextInput = memo(UniversalTextInputComponent);

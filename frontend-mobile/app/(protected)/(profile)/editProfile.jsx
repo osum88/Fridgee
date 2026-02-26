@@ -11,18 +11,18 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
 import { responsiveSize } from "@/utils/scale";
-import { TextInput, HelperText, ActivityIndicator } from "react-native-paper";
+import { TextInput, ActivityIndicator } from "react-native-paper";
 import { DateInput } from "@/components/input/DateInput";
 import { DropdownMenu } from "@/components/input/DropdownMenu";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { SecretInput } from "@/components/input/SecretInput";
-import { ibanToBban, validateDate } from "@/utils/stringUtils";
+import { ibanToBban, validateDate, resetErrors } from "@/utils/stringUtils";
 import { ThemedText } from "@/components/themed/ThemedText";
 import useUpdateProfile from "@/hooks/queries/user/useUpdateProfile";
 import { DoubleInputRow } from "@/components/input/DoubleInputRow";
 import { GET_INPUT_THEME_NATIVE_PAPER } from "@/constants/colors";
-import { handleApiError } from "../../../utils/handleApiError";
-import { resetErrors } from "../../../utils/stringUtils";
+import { handleApiError } from "@/utils/handleApiError";
+import { SaveButtonContent } from "../../../components/button/SaveContentButton";
 
 export default function EditProfile() {
   const color = useThemeColor();
@@ -159,19 +159,11 @@ export default function EditProfile() {
             }
           }}
         >
-          {isSubmitting ? (
-            <ActivityIndicator size="small" color={color.text} />
-          ) : (
-            <ThemedText
-              style={{
-                color: color.text,
-                fontSize: responsiveSize.moderate(18),
-                fontWeight: "600",
-              }}
-            >
-              {i18n.t("save")}
-            </ThemedText>
-          )}
+          <SaveButtonContent
+            isSubmitting={isSubmitting}
+            color={color}
+            text={"save"}
+          ></SaveButtonContent>
         </TouchableOpacity>
       ),
     });
@@ -183,6 +175,7 @@ export default function EditProfile() {
     inputText,
     updateProfile,
     originalData.bankNumber,
+    errors,
   ]);
 
   const inputColor = useMemo(() => GET_INPUT_THEME_NATIVE_PAPER(color), [color]);

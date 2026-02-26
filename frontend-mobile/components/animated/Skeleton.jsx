@@ -1,23 +1,18 @@
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 import { Animated, StyleSheet } from "react-native";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { responsiveSize, responsivePadding } from "@/utils/scale";
 
 //vytvari "loading" než se nactou uzivatele
-export function Skeleton({
-  textHeight = 15,
-  text1Width = 200,
-  text2Width = 150,
-  ...props
-}) {
+function SkeletonComponent({ textHeight = 15, text1Width = 200, text2Width = 150, ...props }) {
   const baseColor = useThemeColor().surface;
   const highlightColor = useThemeColor().surfaceGradient;
 
   const shimmerAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.loop(
+    const animation = Animated.loop(
       Animated.sequence([
         Animated.timing(shimmerAnim, {
           toValue: 1,
@@ -29,10 +24,12 @@ export function Skeleton({
           duration: 1200,
           useNativeDriver: false,
         }),
-      ])
-    ).start();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+      ]),
+    );
+    animation.start();
+
+    return () => animation.stop();
+  }, [shimmerAnim]);
 
   // prechod mezi mezi baseColor a highlightColor
   const animatedBg = shimmerAnim.interpolate({
@@ -42,9 +39,7 @@ export function Skeleton({
 
   return (
     <ThemedView style={styles.userItem}>
-      <Animated.View
-        style={[styles.profileImage, { backgroundColor: animatedBg }]}
-      />
+      <Animated.View style={[styles.profileImage, { backgroundColor: animatedBg }]} />
       <ThemedView style={styles.textContainer}>
         <Animated.View
           style={[
@@ -94,3 +89,5 @@ const styles = StyleSheet.create({
     gap: responsiveSize.vertical(7),
   },
 });
+
+export const Skeleton = memo(SkeletonComponent);

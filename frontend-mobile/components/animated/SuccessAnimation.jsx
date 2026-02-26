@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { memo, useEffect, useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import Svg, { Circle, Path } from "react-native-svg";
 import Animated, {
@@ -12,12 +12,18 @@ import Animated, {
 import { ThemedView } from "@/components/themed/ThemedView";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 
-
 const AnimatedView = Animated.createAnimatedComponent(View);
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
-export const SuccessAnimation = ({ size = 120, lightColor, darkColor, checkLightColor, checkDarkColor,   ...props }) => {
+const SuccessAnimationComponent = ({
+  size = 120,
+  lightColor,
+  darkColor,
+  checkLightColor,
+  checkDarkColor,
+  ...props
+}) => {
   const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, "primary");
   const checkColor = useThemeColor({ light: checkLightColor, dark: checkDarkColor }, "onPrimary");
 
@@ -42,34 +48,49 @@ export const SuccessAnimation = ({ size = 120, lightColor, darkColor, checkLight
   const pulseOpacity4 = useSharedValue(0.5);
   const pulseBorderWidth4 = useSharedValue(0);
 
-  const pulseCircles = useMemo(() => [
-    { delay: 300, scale: pulseScale1, opacity: pulseOpacity1, borderWidth: pulseBorderWidth1 },
-    { delay: 450, scale: pulseScale2, opacity: pulseOpacity2, borderWidth: pulseBorderWidth2 },
-    { delay: 1100, scale: pulseScale3, opacity: pulseOpacity3, borderWidth: pulseBorderWidth3 },
-    { delay: 1250, scale: pulseScale4, opacity: pulseOpacity4, borderWidth: pulseBorderWidth4 },
-  ], [pulseBorderWidth1, pulseBorderWidth2, pulseBorderWidth3, pulseBorderWidth4, pulseOpacity1, pulseOpacity2, pulseOpacity3, pulseOpacity4, pulseScale1, pulseScale2, pulseScale3, pulseScale4]);
+  const pulseCircles = useMemo(
+    () => [
+      { delay: 300, scale: pulseScale1, opacity: pulseOpacity1, borderWidth: pulseBorderWidth1 },
+      { delay: 450, scale: pulseScale2, opacity: pulseOpacity2, borderWidth: pulseBorderWidth2 },
+      { delay: 1100, scale: pulseScale3, opacity: pulseOpacity3, borderWidth: pulseBorderWidth3 },
+      { delay: 1250, scale: pulseScale4, opacity: pulseOpacity4, borderWidth: pulseBorderWidth4 },
+    ],
+    [
+      pulseBorderWidth1,
+      pulseBorderWidth2,
+      pulseBorderWidth3,
+      pulseBorderWidth4,
+      pulseOpacity1,
+      pulseOpacity2,
+      pulseOpacity3,
+      pulseOpacity4,
+      pulseScale1,
+      pulseScale2,
+      pulseScale3,
+      pulseScale4,
+    ],
+  );
 
   const pulseDuration = 1000;
-
 
   useEffect(() => {
     circleOffset.value = withDelay(
       150,
-      withTiming(0, { duration: 750, easing: Easing.out(Easing.ease) })
+      withTiming(0, { duration: 750, easing: Easing.out(Easing.ease) }),
     );
 
     circleScale.value = withDelay(
       500,
-      withTiming(1, { duration: 300, easing: Easing.bezier(0.2, 1.2, 0.2, 1) })
+      withTiming(1, { duration: 300, easing: Easing.bezier(0.2, 1.2, 0.2, 1) }),
     );
     circleOpacity.value = withDelay(
       500,
-      withTiming(1, { duration: 300, easing: Easing.out(Easing.ease) })
+      withTiming(1, { duration: 300, easing: Easing.out(Easing.ease) }),
     );
 
     checkOffset.value = withDelay(
       850,
-      withTiming(0, { duration: 300, easing: Easing.bezier(0.33, 1, 0.68, 1) })
+      withTiming(0, { duration: 300, easing: Easing.bezier(0.33, 1, 0.68, 1) }),
     );
 
     //animace pulzujicich kruhu
@@ -79,21 +100,21 @@ export const SuccessAnimation = ({ size = 120, lightColor, darkColor, checkLight
         withTiming(10, {
           duration: pulseDuration,
           easing: Easing.out(Easing.ease),
-        })
+        }),
       );
       circle.scale.value = withDelay(
         circle.delay,
         withTiming(1.2, {
           duration: pulseDuration,
           easing: Easing.out(Easing.ease),
-        })
+        }),
       );
       circle.opacity.value = withDelay(
         circle.delay,
         withTiming(0, {
           duration: pulseDuration,
           easing: Easing.out(Easing.ease),
-        })
+        }),
       );
     });
   }, [checkOffset, circleOffset, circleOpacity, circleScale, pulseCircles]);
@@ -126,12 +147,7 @@ export const SuccessAnimation = ({ size = 120, lightColor, darkColor, checkLight
     }));
     return (
       <AnimatedView
-        style={[
-          styles.pulseRing,
-          { width: size },
-          { borderColor: backgroundColor },
-          animatedStyle,
-        ]}
+        style={[styles.pulseRing, { width: size }, { borderColor: backgroundColor }, animatedStyle]}
       />
     );
   };
@@ -193,6 +209,8 @@ export const SuccessAnimation = ({ size = 120, lightColor, darkColor, checkLight
     </ThemedView>
   );
 };
+
+export const SuccessAnimation = memo(SuccessAnimationComponent);
 
 const styles = StyleSheet.create({
   container: {

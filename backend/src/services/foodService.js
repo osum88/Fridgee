@@ -47,6 +47,8 @@ export const addFoodToInventoryService = async (userId, foodData, isAdmin) => {
       await getFoodInventoryUserRepository(userId, foodData?.inventoryId);
     }
 
+    console.log("foodData:", foodData);
+
     //uploaduje food image na cloud
     imageData = await uploadFoodLabelImageService(
       userId,
@@ -54,10 +56,13 @@ export const addFoodToInventoryService = async (userId, foodData, isAdmin) => {
       foodData?.image,
       foodData?.foodImageCloudId,
     );
+    console.log("imageData:", imageData);
+
 
     // vyfiltruje null/undefined
-    const { title, description, barcode, expirationDate, ...filteredUpdateData } =
-      Object.fromEntries(Object.entries(foodData).filter(([_, value]) => value != null));
+    const { title, barcode, expirationDate, image, ...filteredUpdateData } = Object.fromEntries(
+      Object.entries(foodData).filter(([_, value]) => value != null),
+    );
 
     //nahradi prazdne stringy null
     const finalData = cleanEmptyStrings(filteredUpdateData);
@@ -75,7 +80,6 @@ export const addFoodToInventoryService = async (userId, foodData, isAdmin) => {
       ...finalData,
       ...priceFields,
       title,
-      description,
       foodImageUrl: imageData?.foodImageUrl,
       foodImageCloudId: imageData?.foodImageCloudId,
       barcode,

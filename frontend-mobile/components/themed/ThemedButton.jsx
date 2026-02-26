@@ -2,8 +2,9 @@ import { ActivityIndicator, Pressable, StyleSheet } from "react-native";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { responsiveSize, responsiveFont } from "@/utils/scale";
+import { memo } from "react";
 
-export function ThemedButton({
+function ThemedButtonComponent({
   style,
   loading,
   lightColor,
@@ -12,37 +13,23 @@ export function ThemedButton({
   titleDarkColor,
   ...otherProps
 }) {
-  const backgroundColor = useThemeColor(
-    { light: lightColor, dark: darkColor },
-    "primary"
-  );
-  const textColor = useThemeColor(
-    { light: titleLightColor, dark: titleDarkColor },
-    "onPrimary"
-  );
+  const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, "primary");
+  const textColor = useThemeColor({ light: titleLightColor, dark: titleDarkColor }, "onPrimary");
 
   return (
     <Pressable
-      style={({ pressed }) => [
-        { backgroundColor },
-        styles.btn,
-        pressed && styles.pressed,
-        style,
-      ]}
+      style={({ pressed }) => [{ backgroundColor }, styles.btn, pressed && styles.pressed, style]}
       {...otherProps}
     >
-      <ThemedText
-        type="btn"
-        style={{ color: textColor, opacity: loading ? 0 : 1 }}
-      >
+      <ThemedText type="btn" style={{ color: textColor, opacity: loading ? 0 : 1 }}>
         {otherProps.children}
       </ThemedText>
-      {loading && (
-        <ActivityIndicator color="#fff" style={{ position: "absolute" }} />
-      )}
+      {loading && <ActivityIndicator color="#fff" style={{ position: "absolute" }} />}
     </Pressable>
   );
 }
+
+export const ThemedButton = memo(ThemedButtonComponent);
 
 const styles = StyleSheet.create({
   btn: {

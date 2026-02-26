@@ -1,10 +1,7 @@
 import { StyleSheet, Text, type TextProps } from "react-native";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
-import {
-  responsiveFont,
-  responsiveVertical,
-  responsiveSize,
-} from "@/utils/scale";
+import { responsiveFont, responsiveVertical } from "@/utils/scale";
+import { memo } from "react";
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
@@ -22,7 +19,7 @@ export type ThemedTextProps = TextProps & {
     | "error";
 };
 
-export function ThemedText({
+function ThemedTextComponent({
   style,
   lightColor,
   darkColor,
@@ -30,14 +27,8 @@ export function ThemedText({
   ...rest
 }: ThemedTextProps) {
   let color = useThemeColor({ light: lightColor, dark: darkColor }, "text");
-  const colorError = useThemeColor(
-    { light: undefined, dark: undefined },
-    "error"
-  );
-  const colorFullName = useThemeColor(
-    { light: undefined, dark: undefined },
-    "fullName"
-  );
+  const colorError = useThemeColor({ light: undefined, dark: undefined }, "error");
+  const colorFullName = useThemeColor({ light: undefined, dark: undefined }, "fullName");
 
   if (type === "error") {
     color = colorError;
@@ -109,3 +100,5 @@ const styles = StyleSheet.create({
     fontSize: responsiveFont(13),
   },
 });
+
+export const ThemedText = memo(ThemedTextComponent);

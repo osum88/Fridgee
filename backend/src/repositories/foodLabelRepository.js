@@ -231,25 +231,19 @@ export const getLabelSuggestionsRepository = async (userId, inventoryId, searchS
         ],
       },
       include: {
-        catalog: true,
-        foods: {
-          where: { inventoryId: inventoryId, instances: { some: {} } },
-          select: {
-            id: true,
-            category: {
+        catalog: {
+          include: {
+            foods: {
+              where: {
+                inventoryId: inventoryId,
+                instances: { some: {} },
+              },
               select: {
                 id: true,
-                title: true,
+                category: { select: { id: true, title: true } },
+                variant: { select: { id: true, title: true } },
+                _count: { select: { instances: true } },
               },
-            },
-            variant: {
-              select: {
-                id: true,
-                title: true,
-              },
-            },
-            _count: {
-              select: { instances: true },
             },
           },
         },
@@ -269,7 +263,7 @@ export const getUserFoodLabelsRepository = async (userId, searchString, limit) =
       where: {
         userId: userId,
         isDeleted: false,
-        title: { contains: searchString, mode: "insensitive" },
+        normalizedTitle: { contains: normalizeText(searchString), mode: "insensitive" },
       },
       select: {
         id: true,
@@ -373,6 +367,21 @@ export const getAvailableFoodLabelsRepository = async (userId, page = 0, limit =
     });
   } catch (error) {
     console.error("Error fetching available food labels:", error);
+    throw error;
+  }
+};
+
+//hleda jeden label podle jmena
+export const getCatalogFoodByTitleRepository = async (title, userId, tx = prisma) => {
+  try {
+    return await tx.foodLabel.findFirst({
+      where: {
+        normalizedTitle: normalizeText(title),
+        userId: userId,
+      },
+    });
+  } catch (error) {
+    console.error("Error in getCatalogFoodByTitleRepository:", error);
     throw error;
   }
 };

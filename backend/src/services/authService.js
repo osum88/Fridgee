@@ -97,7 +97,8 @@ export const loginService = async ({ email, password }) => {
     await updateVerificationTokenRepository(user.id, verifyToken, tokenExpiresAt);
 
     // const verificationLink = `${process.env.FRONTEND_URL}/api/auth/verify-email?token=${verifyToken}`;
-    const verificationLink = `exp://10.0.0.2:8081/--/emailVerify?token=${verifyToken}`;
+    // const verificationLink = `exp://10.0.0.2:8081/--/emailVerify?token=${verifyToken}`;
+    const verificationLink = `exp://100.125.168.39:8081/--/emailVerify?token=${verifyToken}`;
     // await sendVerificationEmail("josefnovak738@gmail.com", verificationLink, user.preferredLanguage);
     // await sendVerificationEmail(user.email, verificationLink, user.preferredLanguage);
 
@@ -214,7 +215,7 @@ export const forgotPasswordService = async (email) => {
 
   // odkaz a jazyk
   // const resetLink = `${process.env.FRONTEND_URL}/api/auth/reset-password?token=${resetPasswordToken}`;
-  const resetLink = `exp://10.0.0.2:8081/--/resetPassword?token=${resetPasswordToken}`;
+  const resetLink = `exp://100.125.168.39:8081/--/resetPassword?token=${resetPasswordToken}`;
   // const resetLink = `fridgee://reset-password?token=${resetPasswordToken}`;
 
   // odeslani emailu
@@ -229,7 +230,7 @@ export const resetPasswordService = async (token, newPassword) => {
   const user = await getUserByPasswordResetTokenRepository(token);
   if (!user) {
     throw new BadRequestError("Invalid or expired reset token.", {
-      type: "resetPassword",
+      type: "token",
       code: "INVALID_TOKEN",
     });
   }
@@ -237,7 +238,7 @@ export const resetPasswordService = async (token, newPassword) => {
   //overeni expirace
   if (new Date() > user.passwordResetTokenExpiresAt) {
     throw new BadRequestError("Invalid or expired reset token.", {
-      type: "resetPassword",
+      type: "token",
       code: "TOKEN_EXPIRED",
     });
   }

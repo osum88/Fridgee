@@ -7,8 +7,8 @@ export const addFoodToInventoryFoodSchema = Joi.object({
   variantTitle: Joi.string().trim().max(40).allow("").optional(),
   title: Joi.string().max(100).optional().label("labelTitle"),
   description: Joi.string().allow("").max(250).optional(),
-  foodImageUrl: Joi.string().uri().allow("").optional(),
-  foodImageCloudId: Joi.number().integer().optional(),
+  foodImageUrl: Joi.string().allow("").optional(),
+  foodImageCloudId: Joi.string().allow("").optional(),
   minimalQuantity: Joi.number().min(0).max(9999).default(0),
   amount: Joi.number().min(0).max(9999).precision(3).default(0).optional(),
   unit: Joi.string()
@@ -31,7 +31,7 @@ export const updateFoodSchema = Joi.object({
   variantTitle: Joi.string().max(40).allow("").optional(),
   labelTitle: Joi.string().max(100).optional(),
   description: Joi.string().allow("").max(250).optional(),
-  foodImageUrl: Joi.string().uri().allow("").optional(),
-  foodImageCloudId: Joi.number().integer().optional(),
+  foodImageUrl: Joi.string().allow("").optional(),
+  foodImageCloudId: Joi.string().allow("").optional(),
   minimalQuantity: Joi.number().min(0).max(9999),
 });

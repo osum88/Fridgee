@@ -2,13 +2,13 @@ import { StyleSheet, TouchableOpacity } from "react-native";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedTextInput } from "@/components/themed/ThemedTextInput";
 import { ThemedView } from "@/components/themed/ThemedView";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { useTheme } from "@/contexts/ThemeContext";
 import { responsiveSize } from "@/utils/scale";
 
-export function FormGroupPassword({
+export function FormGroupPasswordComponent({
   label,
   placeholder,
   style,
@@ -70,6 +70,9 @@ export function FormGroupPassword({
     </ThemedView>
   );
 }
+
+export const FormGroupPassword = memo(FormGroupPasswordComponent);
+
 
 const styles = StyleSheet.create({
   container: {

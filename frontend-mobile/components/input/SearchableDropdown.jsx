@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, memo, useCallback } from "react";
 import {
   View,
   TouchableOpacity,
@@ -16,7 +16,7 @@ import { ThemedView } from "@/components/themed/ThemedView";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { responsiveFont, responsiveSize } from "@/utils/scale";
 
-export function SearchableDropdown({
+function SearchableDropdownComponent({
   value,
   onChange,
   searchTerm,
@@ -25,7 +25,7 @@ export function SearchableDropdown({
   items = [],
   placeholder,
   isSubmitting,
-  inputColor,
+  inputColor: externalInputColor,
   inputStyles,
   disableAutoSelect = false,
   disableFiltering = false,
@@ -49,6 +49,7 @@ export function SearchableDropdown({
   const prevValueRef = useRef(value);
   const isChanging = useRef(false);
   const inputRef = useRef(null);
+  const searchTermRef = useRef(searchTerm);
 
   const color = useThemeColor();
   const [internalError, internalSetError] = useState("");
@@ -57,10 +58,7 @@ export function SearchableDropdown({
   const setError = externalSetError || internalSetError;
 
   useEffect(() => {
-    if (onChangeSearchTerm) {
-      onChangeSearchTerm(searchTerm);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    searchTermRef.current = searchTerm;
   }, [searchTerm]);
 
   // synchronizace textu v inputu s vybranou hodnotou (value)
@@ -81,8 +79,11 @@ export function SearchableDropdown({
 
   useEffect(() => {
     const keyboardHideSubscription = Keyboard.addListener("keyboardDidHide", () => {
+      const currentTerm = searchTermRef.current;
+      if (!currentTerm) return;
+
       const matched = items.find(
-        (item) => item.label.trim().toLowerCase() === searchTerm.trim().toLowerCase(),
+        (item) => item.label.trim().toLowerCase() === currentTerm.trim().toLowerCase(),
       );
 
       if (matched) {
@@ -92,7 +93,7 @@ export function SearchableDropdown({
     });
 
     return () => keyboardHideSubscription.remove();
-  }, [searchTerm, items, onChange, onChangeSearchTerm]);
+  }, [items, onChange, onChangeSearchTerm]);
 
   // filtrovani polozek na zaklade vstupu
   const filteredItems = useMemo(() => {
@@ -103,99 +104,113 @@ export function SearchableDropdown({
   }, [items, searchTerm, disableFiltering, openManually]);
 
   //otevre dropdown menu a nastavi jeho pozici
-  const handleOpen = (isManually = false) => {
-    if (!containerRef.current || isChanging.current) return;
-    isChanging.current = true;
+  const handleOpen = useCallback(
+    (isManually = false) => {
+      if (!containerRef.current) return;
+      isChanging.current = true;
 
-    // scrolluje
-    if (scrollViewRef?.current && !isManually) {
-      if (setScrollSpace && items?.length > 0) setScrollSpace(true);
+      // scrolluje
+      if (scrollViewRef?.current && !isManually) {
+        if (setScrollSpace && items?.length > 0) setScrollSpace(true);
 
-      containerRef.current.measureInWindow((x, y, w, h) => {
-        const scrollTarget = y - 100;
+        containerRef.current.measureInWindow((x, y, w, h) => {
+          const scrollTarget = y - 100;
 
-        if (scrollTarget > 0) {
-          scrollViewRef.current.scrollTo({
-            y: scrollTarget,
-            animated: true,
-          });
-        }
+          if (scrollTarget > 0) {
+            scrollViewRef.current.scrollTo({
+              y: scrollTarget,
+              animated: true,
+            });
+          }
 
-        // mereni pocka na dokonceni scrollu
-        setTimeout(() => {
-          containerRef.current.measure((fx, fy, width, height, px, py) => {
-            setDropdownY(py + height);
-            setDropdownX(px);
-            setDropdownWidth(width);
-            setIsOpen(true);
+          // mereni pocka na dokonceni scrollu
+          setTimeout(() => {
+            containerRef.current.measure((fx, fy, width, height, px, py) => {
+              setDropdownY(py + height);
+              setDropdownX(px);
+              setDropdownWidth(width);
+              setIsOpen(true);
+              isChanging.current = false;
+            });
+          }, 600);
+        });
+      } else {
+        // manualni otevreni
+        containerRef.current.measure((fx, fy, width, height, px, py) => {
+          setDropdownY(py + height);
+          setDropdownX(px);
+          setDropdownWidth(width);
+          setIsOpen(true);
+          setTimeout(() => {
             isChanging.current = false;
-          });
-        }, 600);
-      });
-    } else {
-      // manualni otevreni
-      containerRef.current.measure((fx, fy, width, height, px, py) => {
-        setDropdownY(py + height);
-        setDropdownX(px);
-        setDropdownWidth(width);
-        setIsOpen(true);
-        setTimeout(() => {
-          isChanging.current = false;
-        }, 100);
-      });
-    }
-  };
+          }, 100);
+        });
+      }
+    },
+    [items, scrollViewRef, setScrollSpace],
+  );
 
   //zpracuje zmenu textu v inputu pokud text odpovida moznosti z dropdown menu, nastavi tu moznost jako vybranou, jinak odznaci vyber
-  const handleSelectWrite = (text) => {
-    isChanging.current = true;
-    onChangeSearchTerm(text);
-    setError("");
+  const handleSelectWrite = useCallback(
+    (text) => {
+      isChanging.current = true;
+      onChangeSearchTerm(text);
+      setError("");
 
-    const normalizedInput = text.trim().toLowerCase();
-    const selectedItem = items.find((item) => item.label.trim().toLowerCase() === normalizedInput);
+      const normalizedInput = text.trim().toLowerCase();
+      const selectedItem = items.find(
+        (item) => item.label.trim().toLowerCase() === normalizedInput,
+      );
 
-    if (selectedItem) {
-      if (value !== selectedItem.value) {
-        prevValueRef.current = selectedItem.value;
-        if (!disableAutoSelect) {
-          onChange(selectedItem.value);
+      if (selectedItem) {
+        if (value !== selectedItem.value) {
+          prevValueRef.current = selectedItem.value;
+          if (!disableAutoSelect) {
+            onChange(selectedItem.value);
+          }
         }
+      } else if (value !== null) {
+        prevValueRef.current = null;
+        onChange(null);
       }
-    } else if (value !== null) {
-      prevValueRef.current = null;
-      onChange(null);
-    }
 
-    setTimeout(() => {
-      isChanging.current = false;
-    }, 50);
-  };
+      setTimeout(() => {
+        isChanging.current = false;
+      }, 50);
+    },
+    [items, value, disableAutoSelect, onChange, onChangeSearchTerm, setError],
+  );
 
   // vyber polozky z dropdown menu, nastavi ji jako vybranou a zavre dropdown
-  const handleSelect = (item) => {
-    if (isChanging.current) return;
-    isChanging.current = true;
+  const handleSelect = useCallback(
+    (item) => {
+      if (isChanging.current) return;
+      isChanging.current = true;
 
-    prevValueRef.current = item.value;
-    onChange(item.value);
-    onChangeSearchTerm(item.label);
-    setError("");
-    setIsOpen(false);
+      prevValueRef.current = item.value;
+      onChange(item.value);
+      onChangeSearchTerm(item.label);
+      setError("");
+      setIsOpen(false);
 
-    setTimeout(() => {
-      isChanging.current = false;
-    }, 300);
-  };
+      setTimeout(() => {
+        isChanging.current = false;
+      }, 300);
+    },
+    [onChange, onChangeSearchTerm, setError],
+  );
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setIsOpen(false);
     setOpenManually(false);
     if (setScrollSpace) setScrollSpace(false);
     isChanging.current = false;
-  };
+  }, [setScrollSpace]);
 
-  inputColor = useMemo(() => GET_INPUT_THEME_NATIVE_PAPER(color), [color]);
+  const finalInputColor = useMemo(
+    () => externalInputColor || GET_INPUT_THEME_NATIVE_PAPER(color),
+    [externalInputColor, color],
+  );
 
   const isNoResultShow = !showNoResult && filteredItems.length === 0;
 
@@ -227,22 +242,22 @@ export function SearchableDropdown({
             }, 100);
           }}
           theme={{
-            ...inputColor,
+            ...finalInputColor,
             colors: {
-              ...inputColor.colors,
+              ...finalInputColor.colors,
               onSurfaceVariant: error
                 ? color.error
                 : isOpen
-                  ? inputColor.colors.primary
-                  : inputColor.colors.onSurfaceVariant,
+                  ? finalInputColor.colors.primary
+                  : finalInputColor.colors.onSurfaceVariant,
             },
           }}
           outlineColor={
             error
               ? color.error
               : isOpen
-                ? inputColor?.colors?.primary || color.tabsText
-                : inputColor?.colors?.outline || color.fullName
+                ? finalInputColor?.colors?.primary || color.tabsText
+                : finalInputColor?.colors?.outline || color.fullName
           }
           placeholderTextColor={color.inputTextPaper}
           outlineStyle={{
@@ -329,12 +344,14 @@ export function SearchableDropdown({
         </Portal>
       )}
 
-      <HelperText type="error" visible={!!error} style={styles.helper} theme={inputColor}>
+      <HelperText type="error" visible={!!error} style={styles.helper} theme={finalInputColor}>
         {error}
       </HelperText>
     </ThemedView>
   );
 }
+
+export const SearchableDropdown = memo(SearchableDropdownComponent);
 
 const styles = StyleSheet.create({
   inputContainer: {

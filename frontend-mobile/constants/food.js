@@ -40,3 +40,8 @@ export const CURRENCY_OPTIONS = Object.values(Currency).map((curr) => ({
   label: CURRENCY_SYMBOLS[curr],
   value: curr,
 }));
+
+
+export const FOOD_MAX_YEAR_EXPIRATION_DATE_IN_FUTURE = 100
+export const FOOD_MIN_YEAR_EXPIRATION_DATE_IN_PAST = 50
+
