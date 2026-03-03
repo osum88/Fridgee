@@ -177,7 +177,10 @@
   "enterManually": "Enter manually…",
   "cancelScanning": "Cancel scanning",
   "uncategorized": "Uncategorized",
-
+  "noFoodTitle": "No food",
+  "noFoodSubtitle": "Add your first food using the buttons below.",
+  "searchFoodPlaceholder": "Search food",
+  
   "errors": {
     "bankNumber": {
       "STRING_EMPTY": "If you enter a bank account number or IBAN, you must also select the bank account country.",

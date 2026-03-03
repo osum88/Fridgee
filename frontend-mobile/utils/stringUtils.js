@@ -323,3 +323,14 @@ export const setTemporaryError = (setErrors, key, message, duration = 4000) => {
     }));
   }, duration);
 };
+
+// převede řetězec na mala pismena a odstraní diakritiku
+export const normalizeText = (str) => {
+  if (!str || typeof str !== "string") return str;
+
+  return str
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+};

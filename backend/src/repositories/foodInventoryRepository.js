@@ -362,28 +362,7 @@ export const changeSettingFoodInventoryUserRepository = async (
 // vrati vsechny jidla s kategoriemi, instancemi a labely
 export const getInventoryContentRepository = async (inventoryId, userId) => {
   try {
-    const inventoryContent = await prisma.inventoryUser.findUnique({
-      where: {
-        userId_inventoryId: {
-          userId: userId,
-          inventoryId: inventoryId,
-        },
-      },
-      select: {
-        role: true,
-        joinedAt: true,
-        notificationSettings: true,
-        inventory: {
-          select: {
-            title: true,
-            label: true,
-            icon: true,
-            memberCount: true,
-          },
-        },
-      },
-    });
-    const { inventory, ...restInventory } = inventoryContent;
+   
     const content = await prisma.food.findMany({
       where: {
         inventoryId: inventoryId,
@@ -406,7 +385,7 @@ export const getInventoryContentRepository = async (inventoryId, userId) => {
         },
       },
     });
-    return { inventory: { ...inventory, ...restInventory }, content };
+    return  content ;
   } catch (error) {
     console.error(`Error fetching inventory content for inventoryId ${inventoryId}:`, error);
     throw error;

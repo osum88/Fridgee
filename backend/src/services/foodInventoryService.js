@@ -402,9 +402,7 @@ export const getInventoryContentService = async (inventoryId, userId, isAdmin) =
   }
   const currency = await createBaseCurrency(userId, null);
 
-  const result = await getInventoryContentRepository(inventoryId, userId);
-
-  const foods = result?.content;
+  const foods = await getInventoryContentRepository(inventoryId, userId);
 
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -428,6 +426,7 @@ export const getInventoryContentService = async (inventoryId, userId, isAdmin) =
     const activeLabel = userCustomLabel || food.label;
 
     const labelTitle = activeLabel?.title;
+    const normalizedTitle = activeLabel?.normalizedTitle;
     const labelFoodImageUrl = activeLabel?.foodImageUrl;
     const labelDescription = activeLabel?.description;
 
@@ -486,6 +485,7 @@ export const getInventoryContentService = async (inventoryId, userId, isAdmin) =
     acc[categoryId].foods.push({
       foodId: food.id,
       labelTitle: labelTitle,
+      normalizedTitle: normalizedTitle,
       labelDescription: labelDescription,
       labelFoodImageUrl: labelFoodImageUrl,
       variantTitle: food.variant?.title || null,
@@ -522,11 +522,9 @@ export const getInventoryContentService = async (inventoryId, userId, isAdmin) =
   });
 
   // seradi kategorie akbecedne a "unknow" umisti prvni
-  const content = categoriesArray.sort((a, b) => {
+  return categoriesArray.sort((a, b) => {
     if (a.categoryTitle === "unknow") return -1;
     if (b.categoryTitle === "unknow") return 1;
     return a.categoryTitle.localeCompare(b.categoryTitle, ["cs", "en"], { sensitivity: "base" });
   });
-
-  return { inventory: result?.inventory, content: content };
 };

@@ -6,10 +6,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export const useInventoryStore = create(
   persist(
     (set) => ({
-      activeInventory: { id: null, title: "", role: null },
+      activeInventory: { id: null, title: "", role: null, memberCount: 1 },
 
-      setActiveInventory: (id, title, role) => set({ activeInventory: { id, title, role } }),
-      clearActiveInventory: () => set({ activeInventory: { id: null, title: "", role: null } }),
+      setActiveInventory: (id, title, role, memberCount) =>
+        set({ activeInventory: { id, title, role, memberCount } }),
+      clearActiveInventory: () =>
+        set({ activeInventory: { id: null, title: "", role: null, memberCount: 1 } }),
     }),
     {
       name: "inventory-storage",

@@ -90,3 +90,21 @@ export const createFoodInventoryApi = async (data) => {
     throw error;
   }
 };
+
+// ziska obsah konkretniho inventare
+export const getInventoryContentApi = async (inventoryId, signal) => {
+  try {
+    console.log("1")
+    const response = await apiClient.get(`/inventory/${inventoryId}/content`, { signal });
+    return response.data;
+  } catch (error) {
+    if (isCancel(error)) {
+      console.log("Request cancelled (getInventoryContentApi).");
+      return null;
+    }
+    console.error(
+      `Error in getInventoryContentApi: ${error.response?.data?.message || error.message}`,
+    );
+    throw error;
+  }
+};

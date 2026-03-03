@@ -41,6 +41,9 @@ export const Colors = {
     stepperButton: "#4bafd1",
     secondButton: "#686565",
     cardBackground: "#fff",
+    validCount: "#4bba4f",
+    expiringSoonCount: "#fbbf0a",
+    expiredCount: "#F44336",
   },
   dark: {
     text: "#e0e0e0",
@@ -76,6 +79,9 @@ export const Colors = {
     stepperButton: "#22b2e2",
     secondButton: "#d7d7d7",
     cardBackground: "#1e1e1e",
+      validCount: "#388E3C",
+    expiringSoonCount: "#FBC02D",
+    expiredCount: "#D32F2F",
   },
 };
 

@@ -11,15 +11,17 @@ export function SearchComponent({
   value,
   onChangeText,
   transparent = false,
+  outlineStyle,
   ...props
 }) {
   const currentColors = useThemeColor();
 
   return (
     <ThemedView
-      style={[
+      style={[  
         !transparent && { backgroundColor: currentColors.input },
-        styles.searchInputWrapper,
+        styles.searchInputWrapper, outlineStyle,
+       
       ]}
     >
       <IconSymbol
@@ -42,11 +44,7 @@ export function SearchComponent({
 
       {value?.length > 0 && (
         <TouchableOpacity onPress={() => onChangeText("")}>
-          <IconSymbol
-            size={responsiveSize.moderate(15)}
-            name="xmark"
-            color={currentColors.icon}
-          />
+          <IconSymbol size={responsiveSize.moderate(15)} name="xmark" color={currentColors.icon} />
         </TouchableOpacity>
       )}
     </ThemedView>

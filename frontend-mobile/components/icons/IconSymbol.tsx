@@ -154,6 +154,9 @@ const MAPPING = {
   "bicycle": { name: "bicycle", source: "MaterialCommunityIcons" },
   // kosik
   "basket.fill": { name: "basket", source: "MaterialCommunityIcons" },
+  // kosik outline
+  "basket": { name: "basket-outline", source: "MaterialCommunityIcons" },
+
   //postel
   "bed.double.fill": { name: "bed-double", source: "MaterialCommunityIcons" },
   //mrkev

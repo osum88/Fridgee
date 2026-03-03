@@ -176,6 +176,9 @@
    "enterManually": "Zadat ručně…",
     "cancelScanning": "Zrušit skenování",
      "uncategorized": "Bez kategorie",
+     "noFoodTitle": "Žádné jídlo",
+  "noFoodSubtitle": "Přidejte své první jídlo pomocí tlačítek níže.",
+  "searchFoodPlaceholder": "Hledat potraviny",
 
   "errors": {
     "bankNumber": {
