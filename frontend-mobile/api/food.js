@@ -28,7 +28,6 @@ export const addFoodToInventoryApi = async (foodData, imageFormData = null) => {
       }
     });
 
-    console.log(finalFormData);
     const response = await apiClient.post("/food", finalFormData, {
       headers: {
         "Content-Type": "multipart/form-data",

@@ -133,7 +133,10 @@ export const getFoodCatalogWithLabelByBarcodeRepository = async (
         }),
       },
     });
+  console.log("foodCatalog",foodCatalog)
+
     return foodCatalog || null;
+
   } catch (error) {
     console.error("Error fetching food catalog by barcode and user:", error);
     throw error;

@@ -7,7 +7,7 @@ import { invalidateQueries } from "@/utils/invalidateQueries";
 const useFriendManager = () => {
   const { userId } = useUser();
   const queryClient = useQueryClient();
-
+//TODO opravit friends list
   const updateCacheOptimistic = ({
     user2Id,
     username,
@@ -74,6 +74,7 @@ const useFriendManager = () => {
     cache = "searchUsername",
     friendData = {},
   ) => {
+    console.log("status",status)
     if (!status) {
       const previousUsers = updateCacheOptimistic({
         user2Id,

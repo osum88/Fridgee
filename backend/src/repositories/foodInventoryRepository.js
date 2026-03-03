@@ -1,25 +1,22 @@
 import { ConflictError, NotFoundError } from "../errors/errors.js";
 import { convertPrice } from "../services/priceService.js";
 import prisma from "../utils/prisma.js";
+import { capitalizeFirst } from "../utils/stringUtils.js";
 
 //vytvari inventar jidla s prvnim jeho uzivatelem (owner)
-export const createFoodInventoryRepository = async (userId, title, label) => {
+export const createFoodInventoryRepository = async (userId, title, label, icon) => {
   try {
     return await prisma.foodInventory.create({
       data: {
-        title: title,
+        title: capitalizeFirst(title),
         label: label,
+        icon: icon,
         memberCount: 1,
-        inventory: {
-          create: {
-            userId: userId,
-            role: "OWNER",
-          },
+        users: {
+          create: { userId: userId, role: "OWNER" },
         },
       },
-      include: {
-        inventory: true,
-      },
+      include: { users: true },
     });
   } catch (error) {
     console.error("Error creating food inventory:", error);
@@ -39,13 +36,9 @@ export const createInventoryUserRepository = async (userId, foodInventoryId, rol
         },
       }),
       prisma.foodInventory.update({
-        where: {
-          id: foodInventoryId,
-        },
+        where: { id: foodInventoryId },
         data: {
-          memberCount: {
-            increment: 1,
-          },
+          memberCount: { increment: 1 },
         },
       }),
     ]);
@@ -60,9 +53,7 @@ export const createInventoryUserRepository = async (userId, foodInventoryId, rol
 export const getFoodInventoryRepository = async (foodInventoryId) => {
   try {
     const foodInventory = await prisma.foodInventory.findUnique({
-      where: {
-        id: foodInventoryId,
-      },
+      where: { id: foodInventoryId },
     });
     if (!foodInventory) {
       throw new NotFoundError("Food inventory not found");
@@ -109,9 +100,7 @@ export const changeRoleFoodInventoryUserRepository = async (userId, foodInventor
           inventoryId: foodInventoryId,
         },
       },
-      data: {
-        role: role,
-      },
+      data: { role: role },
     });
   } catch (error) {
     console.error("Error updating user role:", error);
@@ -129,9 +118,7 @@ export const getFoodInventoryUserRoleRepository = async (userId, foodInventoryId
           inventoryId: foodInventoryId,
         },
       },
-      select: {
-        role: true,
-      },
+      select: { role: true },
     });
     if (!role) {
       throw new NotFoundError("User role in inventory not found");
@@ -171,13 +158,9 @@ export const deleteUserFoodInventoryRepository = async (userId, inventoryId) => 
         },
       }),
       prisma.foodInventory.update({
-        where: {
-          id: inventoryId,
-        },
+        where: { id: inventoryId },
         data: {
-          memberCount: {
-            decrement: 1,
-          },
+          memberCount: { decrement: 1 },
         },
       }),
     ]);
@@ -192,9 +175,7 @@ export const deleteUserFoodInventoryRepository = async (userId, inventoryId) => 
 export const deleteFoodInventoryRepository = async (inventoryId) => {
   try {
     return await prisma.foodInventory.delete({
-      where: {
-        id: inventoryId,
-      },
+      where: { id: inventoryId },
     });
   } catch (error) {
     console.error("Error deleting food inventory:", error);
@@ -249,12 +230,8 @@ export const getUsersByInventoryIdRepository = async (inventoryId, rolesToFilter
 export const archiveFoodInventoryRepository = async (inventoryId) => {
   try {
     return await prisma.foodInventory.update({
-      where: {
-        id: inventoryId,
-      },
-      data: {
-        isArchived: true,
-      },
+      where: { id: inventoryId },
+      data: { isArchived: true },
     });
   } catch (error) {
     console.error("Error archiving inventory:", error);
@@ -266,12 +243,8 @@ export const archiveFoodInventoryRepository = async (inventoryId) => {
 export const unarchiveFoodInventoryRepository = async (inventoryId) => {
   try {
     return await prisma.foodInventory.update({
-      where: {
-        id: inventoryId,
-      },
-      data: {
-        isArchived: false,
-      },
+      where: { id: inventoryId },
+      data: { isArchived: false },
     });
   } catch (error) {
     console.error("Error unarchiving inventory:", error);
@@ -280,15 +253,14 @@ export const unarchiveFoodInventoryRepository = async (inventoryId) => {
 };
 
 //update title a label inventare
-export const updateFoodInventoryRepository = async (inventoryId, title, label) => {
+export const updateFoodInventoryRepository = async (inventoryId, title, label, icon) => {
   try {
     return await prisma.foodInventory.update({
-      where: {
-        id: inventoryId,
-      },
+      where: { id: inventoryId },
       data: {
-        title: title,
+        title: capitalizeFirst(title),
         label: label,
+        icon: icon,
       },
     });
   } catch (error) {
@@ -301,12 +273,8 @@ export const updateFoodInventoryRepository = async (inventoryId, title, label) =
 export const getAllFoodInventoryRepository = async (userId) => {
   try {
     const inventoryUserRecords = await prisma.inventoryUser.findMany({
-      where: {
-        userId: userId,
-      },
-      select: {
-        inventoryId: true,
-      },
+      where: { userId: userId },
+      select: { inventoryId: true },
     });
 
     // ziska pole ID inventaru z vysledku prvniho dotazu
@@ -317,16 +285,23 @@ export const getAllFoodInventoryRepository = async (userId) => {
     }
     return await prisma.foodInventory.findMany({
       where: {
-        id: {
-          in: inventoryIds,
-        },
+        id: { in: inventoryIds },
         isArchived: false,
       },
       select: {
         id: true,
         title: true,
         label: true,
+        icon: true,
         memberCount: true,
+        users: {
+          where: { userId: userId },
+          select: {
+            role: true,
+            joinedAt: true,
+            notificationSettings: true,
+          },
+        },
       },
       orderBy: { title: "asc" },
     });
@@ -402,6 +377,7 @@ export const getInventoryContentRepository = async (inventoryId, userId) => {
           select: {
             title: true,
             label: true,
+            icon: true,
             memberCount: true,
           },
         },

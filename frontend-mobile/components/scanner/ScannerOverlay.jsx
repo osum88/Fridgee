@@ -5,20 +5,23 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScannerLine } from "@/components/animated/ScannerLine";
 import { memo, useMemo } from "react";
 
-function ScannerOverlayComponent() {
+function ScannerOverlayComponent({ containerWidth, containerHeight}) {
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
 
+  const finalWidth = containerWidth || width
+  const finalHeight = containerHeight || height
+
   //rozmery overlay
   const layout = useMemo(() => {
-    const boxSizeWidth = responsiveSize.horizontal(290);
+    const boxSizeWidth = responsiveSize.horizontal(280);
     const boxSizeHeight = responsiveSize.vertical(230);
     const boxBorderWidth = responsiveSize.moderate(5);
     const boxRadius = responsiveSize.moderate(30);
-
-    const topOffset = (height - boxSizeHeight) / 2 + insets.top / 3;
-    const sideOffset = (width - boxSizeWidth) / 2;
     const cornerSize = 65;
+
+    const topOffset = (finalHeight - boxSizeHeight) / 2 + insets.top / 3 ;
+    const sideOffset = (finalWidth - boxSizeWidth) / 2;
 
     return {
       boxSizeWidth,
@@ -29,7 +32,7 @@ function ScannerOverlayComponent() {
       sideOffset,
       cornerSize,
     };
-  }, [width, height, insets.top]);
+  }, [finalWidth, finalHeight, insets.top]);
 
   const {
     boxSizeWidth,
@@ -45,7 +48,7 @@ function ScannerOverlayComponent() {
     <>
       {/* tmavy overlay okolo scannu */}
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
-        <Svg width={width} height={height} style={styles.svgOverlay}>
+        <Svg width={finalWidth} height={finalHeight} style={styles.svgOverlay}>
           <Mask id="mask">
             <Rect width="100%" height="100%" fill="white" />
             <Rect

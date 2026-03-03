@@ -7,7 +7,6 @@ import {
   UnauthorizedError,
 } from "../errors/errors.js";
 import { getFoodCatalogWithLabelByBarcodeRepository } from "../repositories/foodCatalogRepository.js";
-import { getFoodCategoriesByInventoryRepository } from "../repositories/foodCategoryRepository.js";
 import { getFoodInventoryUserRepository } from "../repositories/foodInventoryRepository.js";
 import { getActiveFoodVariantsRepository } from "../repositories/foodVariantRepository.js";
 
@@ -32,6 +31,7 @@ export const getFoodCatalogWithLabelByBarcodeService = async (
     currentInventoryId,
     userId,
   );
+  console.log("catalogWithLabel",catalogWithLabel)
   if (!catalogWithLabel) return null;
 
   const existingFoods = catalogWithLabel?.foods || [];

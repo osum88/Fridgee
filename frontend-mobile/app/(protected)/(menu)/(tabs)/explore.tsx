@@ -12,8 +12,11 @@ import { Link } from "expo-router";
 import i18n from "@/constants/translations";
 import { useUser } from "@/hooks/useUser";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
+import { useCameraNavigation } from "@/hooks/image/useCameraNavigation";
+
 export default function TabTwoScreen() {
   const { signOut } = useUser();
+  const { navigateToScanner } = useCameraNavigation();
 
   useLanguage();
   const currentColors = useThemeColor();
@@ -139,6 +142,20 @@ export default function TabTwoScreen() {
             Přidat jídlo
           </ThemedText>
         </Link>
+        <Pressable
+          onPress={() => navigateToScanner()}
+          style={({ pressed }) => [
+            styles.tap,
+            {
+              backgroundColor: currentColors.primary,
+              opacity: pressed ? 0.8 : 1,
+            },
+          ]}
+        >
+          <ThemedText type="subtitle" style={{ color: currentColors.onPrimary }}>
+            Scanner
+          </ThemedText>
+        </Pressable>
       </ThemedView>
     </ParallaxScrollView>
   );

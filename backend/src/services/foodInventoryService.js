@@ -27,18 +27,18 @@ import { getUserByIdRepository } from "../repositories/userRepository.js";
 import { convertPrice, createBaseCurrency } from "./priceService.js";
 
 // vytvari inventar s jidlem
-export const createFoodInventoryService = async (userId, title, label, isAdmin) => {
+export const createFoodInventoryService = async (userId, title, label, icon, isAdmin) => {
   if (isAdmin) {
     await getUserByIdRepository(userId);
   }
   if (!title) {
-       throw new BadRequestError("Title is required for a new food inventory.", {
-                type: "foodTitle",
-                code: "STRING_EMPTY",
-              });
+    throw new BadRequestError("Title is required for a new food inventory.", {
+      type: "foodTitle",
+      code: "STRING_EMPTY",
+    });
   }
 
-  const newFoodInventory = await createFoodInventoryRepository(userId, title, label);
+  const newFoodInventory = await createFoodInventoryRepository(userId, title, label, icon);
 
   if (!newFoodInventory) {
     throw new InternalServerError("Failed to create food inventory.");
@@ -297,7 +297,14 @@ export const archiveFoodInventoryService = async (userId, inventoryId, isArchive
 };
 
 //updatuje nazev a label inventare
-export const updateFoodInventoryService = async (userId, inventoryId, title, label, isAdmin) => {
+export const updateFoodInventoryService = async (
+  userId,
+  inventoryId,
+  title,
+  label,
+  icon,
+  isAdmin,
+) => {
   if (isNaN(inventoryId)) {
     throw new BadRequestError("Invalid inventory ID provided.");
   }
@@ -314,17 +321,26 @@ export const updateFoodInventoryService = async (userId, inventoryId, title, lab
   }
 
   // updatuje title a label inventare
-  return await updateFoodInventoryRepository(inventoryId, title, label);
+  return await updateFoodInventoryRepository(inventoryId, title, label, icon);
 };
 
-//vrati uzivatele inventare
+//vrati vsechny inventare uzivatele
 export const getAllFoodInventoryService = async (userId, isAdmin) => {
   if (isAdmin) {
     await getUserByIdRepository(userId);
   }
 
   // vrati inventare
-  return await getAllFoodInventoryRepository(userId);
+  const result = await getAllFoodInventoryRepository(userId);
+
+  return result.map((item) => {
+    const { users, ...rest } = item;
+    const userContext = users && users.length > 0 ? users[0] : {};
+    return {
+      ...rest,
+      ...userContext,
+    };
+  });
 };
 
 //vrati invetar s informacemi o uzivateli
@@ -345,9 +361,13 @@ export const getInventoryDetailsWithUserService = async (userId, inventoryId, is
 
   // spojeni dat do jednoho objektu
   return {
-    inventory: inventory,
-    userRole: inventoryUser.role,
-    userSetting: inventoryUser.notificationSettings,
+    id: inventory?.id || null,
+    title: inventory?.title || null,
+    label: inventory?.label || null,
+    icon: inventory?.icon || null,
+    role: inventoryUser?.role || null,
+    joinedAt: inventoryUser?.joinedAt || null,
+    notificationSettings: inventoryUser?.notificationSettings || null,
   };
 };
 

@@ -14,7 +14,7 @@ import { ThemedLine } from "@/components/themed/ThemedLine";
 import { Search } from "@/components/input/Search";
 import i18n from "@/constants/translations";
 import { useSearchUsersQuery } from "@/hooks/queries/user/useUserQuery";
-import { useProfilePlaceHolder } from "@/hooks/useProfilePlaceHolder";
+import { useProfilePlaceHolder } from "@/hooks/image/useProfilePlaceHolder";
 import debounce from "lodash.debounce";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { Skeleton } from "@/components/animated/Skeleton";

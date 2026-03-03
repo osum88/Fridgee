@@ -17,11 +17,11 @@ import handleResponse from "../utils/responseHandler.js";
 // vytvari inventar s jidlem
 export const createFoodInventory = async (req, res, next) => {
   try {
-    const { title, label } = req.body;
+    const { title, label, icon } = req.body;
     const userId = req.userId;
     const isAdmin = req.adminRoute;
 
-    const foodInventory = await createFoodInventoryService(userId, title, label, isAdmin);
+    const foodInventory = await createFoodInventoryService(userId, title, label, icon, isAdmin);
     handleResponse(res, 201, "Food inventory created successfully", foodInventory);
   } catch (err) {
     next(err);
@@ -157,13 +157,14 @@ export const updateFoodInventory = async (req, res, next) => {
     const inventoryId = parseInt(req.params.inventoryId, 10);
     const userId = req.userId;
     const isAdmin = req.adminRoute;
-    const { title, label } = req.body;
+    const { title, label, icon } = req.body;
 
     const updatedInventory = await updateFoodInventoryService(
       userId,
       inventoryId,
       title,
       label,
+      icon,
       isAdmin,
     );
     handleResponse(res, 200, "Inventory updated successfully", updatedInventory);

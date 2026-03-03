@@ -2,7 +2,7 @@ import { Stack } from "expo-router";
 import i18n from "@/constants/translations";
 import { responsiveFont } from "@/utils/scale";
 
-export default function InventoryFoodsLayout() {
+export default function InventoryLayout() {
   return (
     <Stack
       detachInactiveScreens={false}
@@ -13,20 +13,14 @@ export default function InventoryFoodsLayout() {
       }}
     >
       <Stack.Screen
-        name="addFoodManually"
+        name="addInventory"
         options={{
           animation: "fade",
-          title: i18n.t("addFood"),
+          title: i18n.t("addInventory"),
           headerShown: true,
         }}
       />
-      <Stack.Screen
-        name="scannerAdd"
-        options={{
-          animation: "fade",
-          headerShown: false,
-        }}
-      />
+      
     </Stack>
   );
 }

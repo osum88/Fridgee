@@ -3,24 +3,14 @@ import {
   Platform,
   StyleSheet,
   ScrollView,
-  Alert,
   View,
   TouchableOpacity,
   Pressable,
 } from "react-native";
 import { ThemedView } from "@/components/themed/ThemedView";
-import { ThemedLine } from "@/components/themed/ThemedLine";
-import { CheckableItem } from "@/components/common/CheckableItem";
 import i18n from "@/constants/translations";
 import { ImageSelector } from "@/components/image/ImageSelector";
-
-import { useTheme } from "@/contexts/ThemeContext";
-import {
-  responsiveSize,
-  responsiveFont,
-  responsivePadding,
-  responsiveVertical,
-} from "@/utils/scale";
+import { responsiveSize, responsiveFont, responsiveVertical } from "@/utils/scale";
 import {
   getDaysUntil,
   getDateFromDays,
@@ -32,23 +22,13 @@ import {
   getCategoryIdByVariant,
   setTemporaryError,
   resetErrors,
-  highlightErrorsWithDefault,
 } from "@/utils/stringUtils";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
-import {
-  useCallback,
-  useState,
-  seEffect,
-  useLayoutEffect,
-  useMemo,
-  useEffect,
-  useRef,
-} from "react";
-import { TextInput, HelperText, ActivityIndicator } from "react-native-paper";
+import { useCallback, useState, useLayoutEffect, useMemo, useEffect, useRef } from "react";
+import { HelperText } from "react-native-paper";
 import { DateInput } from "@/components/input/DateInput";
 import { DropdownMenu } from "@/components/input/DropdownMenu";
 import { useLocalSearchParams, useNavigation } from "expo-router";
-import { SecretInput } from "@/components/input/SecretInput";
 import { GET_INPUT_THEME_NATIVE_PAPER } from "@/constants/colors";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { SearchableDropdown } from "../../../components/input/SearchableDropdown";
@@ -63,9 +43,8 @@ import { DoubleInputRow } from "@/components/input/DoubleInputRow";
 import { useUser } from "@/hooks/useUser";
 import { useGetUserQuery } from "@/hooks/queries/user/useUserQuery";
 import { useGetInventoryCategoriesQuery } from "@/hooks/queries/inventory/useInventoryQuary";
-import { useProfilePlaceHolder } from "@/hooks/useProfilePlaceHolder";
-import { UniversalTextInput } from "../../../components/input/UniversalTextInput";
-import { Stepper } from "../../../components/common/Stepper";
+import { UniversalTextInput } from "@/components/input/UniversalTextInput";
+import { Stepper } from "@/components/common/Stepper";
 import Tooltip from "react-native-walkthrough-tooltip";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { FoodImagePicker } from "@/components/food/FoodImagePicker";
@@ -73,14 +52,54 @@ import { useImageUpload } from "@/hooks/image/useImageUpload";
 import useAddFoodMutation from "@/hooks/queries/food/useAddFoodMutation";
 import { handleApiError } from "@/utils/handleApiError";
 import { IMAGEKIT_URL_ENDPOINT } from "@/config/config";
-import { SaveButtonContent } from "../../../components/button/SaveContentButton";
-import { JumpingDots } from "../../../components/animated/JumpingDots";
+import { SaveButtonContent } from "@/components/button/SaveButtonContent";
+import { useInventoryStore } from "@/hooks/store/useInventoryStore";
+
+export const validateForm = (errors, setErrors, inputText) => {
+  if (!inputText?.title) {
+    updateFormValues(setErrors, "labelTitle", i18n.t("errors.labelTitle.STRING_EMPTY"));
+    return false;
+  }
+  if (errors?.expirationDate) return false;
+
+  const amount = parseFloat(inputText?.amount || "0");
+  if (amount > 0 && (inputText?.unit === "null" || !inputText?.unit)) {
+    updateFormValues(setErrors, {
+      amount: i18n.t("errors.amount.QUANTITY_UNIT_REQUIRED"),
+      unit: " ",
+    });
+    return false;
+  }
+console.log(inputText?.amount , "4")
+  if (!validateNumericInput(inputText?.amount, "amount", setErrors, 9999)) {
+    return false;
+  }
+console.log("5")
+
+  if (inputText?.price && !validateNumericInput(inputText?.price, "price", setErrors, 999999)) {
+    return false;
+  }
+  return true;
+};
+
+// Vycisteni variant
+export const getVariant = (variantId, variantTitle) => {
+  if (variantId && variantId !== "undefined") return { variantId, variantTitle };
+  if (variantTitle) return { variantTitle };
+  return {};
+};
+
+// Vycisteni obrázků
+export const getImage = (foodImageCloudId, foodImageUrl) => {
+  if (foodImageCloudId && foodImageUrl) return { foodImageCloudId, foodImageUrl };
+  if (foodImageUrl === "" && foodImageCloudId === "null") return { foodImageUrl: "" };
+  return {};
+};
 
 export default function AddFoodManually() {
   const [categories, setCategories] = useState([{ label: i18n.t("noCategory"), value: "null" }]);
   const [variants, setVariants] = useState([]);
   const [selectedCatalog, setSelectedCatalog] = useState(null);
-  const [inventoryId, setInventoryId] = useState(19);
   const [lockCategory, setLockCategory] = useState(false);
   const [scrollSpace, setScrollSpace] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
@@ -92,13 +111,17 @@ export default function AddFoodManually() {
 
   const PADDING_FOR_DROPDOWN_MENU = 300;
 
+  const params = useLocalSearchParams();
+  const { barcode, initialData } = params;
+
+  const activeInventory = useInventoryStore((state) => state.activeInventory);
   const navigation = useNavigation();
   const { userId } = useUser();
-  const color = useThemeColor();
+  const colors = useThemeColor();
   const { pickImage, takePhoto, uploadImage } = useImageUpload("back");
   const { addFood, isSubmitting } = useAddFoodMutation();
   const { data: userData } = useGetUserQuery(userId);
-  const { data: inventoryCategories } = useGetInventoryCategoriesQuery(inventoryId);
+  const { data: inventoryCategories } = useGetInventoryCategoriesQuery(activeInventory.id);
 
   const inputDataRef = useRef(inputText);
 
@@ -123,6 +146,26 @@ export default function AddFoodManually() {
     categoryId: "",
   });
 
+  //nastaveni dat ze skenu barcodu
+  useEffect(() => {
+    // pokud mame barcode a jeste, ktery nema jeste zaznam
+    if (barcode && !inputText.barcode && !initialData) {
+      updateFormValues(setInputText, "barcode", barcode);
+    }
+
+    // pokud mame zaznam k barcodu
+    if (initialData && !selectedCatalog) {
+      try {
+        const parsedData = JSON.parse(initialData);
+        updateFormValues(setInputText, "title", parsedData.title || "");
+        setSelectedCatalog(parsedData);
+      } catch (e) {
+        console.error("Error parsing date from scan:", e);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [barcode, initialData, inputText.barcode]);
+
   // zabrani rerenderu prepareFoodData
   useEffect(() => {
     inputDataRef.current = inputText;
@@ -138,7 +181,6 @@ export default function AddFoodManually() {
   //pri zmene katalogu se resetuji inputy nebo nastavi na data z catalogu
   useEffect(() => {
     if (selectedCatalog?.variants) {
-      console.log("2");
       const variantOptions = selectedCatalog.variants.map((variant) => ({
         label: variant.variantTitle,
         value: variant.variantId.toString(),
@@ -161,6 +203,7 @@ export default function AddFoodManually() {
       price: selectedCatalog?.price?.toString() || "",
       unit: selectedCatalog?.unit || "null",
     }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCatalog]);
 
   //uzamyka category pokud existuje shoda z jiz existujicim food
@@ -191,8 +234,6 @@ export default function AddFoodManually() {
   // nastaveni kategorii pro dropdown menu, pokud je pouze jedna kategorie, nastavi ji jako defaultni
   useEffect(() => {
     if (categories?.length <= 1 && inventoryCategories?.data) {
-      console.log("3");
-
       const categoriesOptions = [
         { label: i18n.t("noCategory"), value: "null" },
         ...inventoryCategories.data.map((cat) => ({
@@ -202,6 +243,7 @@ export default function AddFoodManually() {
       ];
       setCategories(categoriesOptions);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inventoryCategories]);
 
   //defaultni mena uzivatele
@@ -210,7 +252,7 @@ export default function AddFoodManually() {
     return getCurrency(userData.data.country);
   }, [userData?.data?.country]);
 
-  const inputColor = useMemo(() => GET_INPUT_THEME_NATIVE_PAPER(color), [color]);
+  const inputColor = useMemo(() => GET_INPUT_THEME_NATIVE_PAPER(colors), [colors]);
 
   //rozhoduje co se stane pri vyberu fotky
   const handleImagePick = useCallback(
@@ -261,7 +303,6 @@ export default function AddFoodManually() {
   // Pomocná funkce pro přípravu dat (Data Mapper)
   const prepareFoodData = useCallback(() => {
     const currentInput = inputDataRef.current;
-    console.log(currentInput);
     const {
       variantId,
       variantTitle,
@@ -269,66 +310,26 @@ export default function AddFoodManually() {
       foodImageUrl,
       catalogId,
       categoryId,
+      price,
       ...rest
     } = currentInput;
 
-    // Vyčištění variant
-    const getVariant = () => {
-      if (variantId && variantId !== "undefined") return { variantId, variantTitle };
-      if (variantTitle) return { variantTitle };
-      return {};
-    };
-
-    // Vyčištění obrázků
-    const getImage = () => {
-      if (foodImageCloudId && foodImageUrl) return { foodImageCloudId, foodImageUrl };
-      if (foodImageUrl === "" && foodImageCloudId === "null") return { foodImageUrl: "" };
-      return {};
-    };
-
     const getCatalogId = catalogId ? { catalogId } : {};
-
     const getCategoryId = !categoryId || categoryId === "null" ? {} : { categoryId };
+    const formattedPrice = price?.replace(",", ".")
 
     return {
       ...rest,
-      inventoryId,
+      inventoryId: activeInventory.id,
       unit: rest?.unit === "null" ? "" : rest.unit || "",
-      price: rest?.price || 0,
+      price: formattedPrice || 0,
       amount: rest?.amount || 0,
       ...getCatalogId,
       ...getCategoryId,
-      ...getVariant(),
-      ...getImage(),
+      ...getVariant(variantId, variantTitle),
+      ...getImage(foodImageCloudId, foodImageUrl),
     };
-  }, [inventoryId]);
-
-  const validateForm = useCallback(() => {
-    if (!inputText?.title) {
-      updateFormValues(setErrors, "labelTitle", i18n.t("errors.labelTitle.STRING_EMPTY"));
-      return false;
-    }
-    if (errors?.expirationDate) return false;
-
-    const amount = parseFloat(inputText?.amount || "0");
-    if (amount > 0 && (inputText?.unit === "null" || !inputText?.unit)) {
-      updateFormValues(setErrors, {
-        amount: i18n.t("errors.amount.QUANTITY_UNIT_REQUIRED"),
-        unit: " ",
-      });
-      return false;
-    }
-
-    if (!validateNumericInput(inputText?.amount, "amount", setErrors, 9999)) {
-      return false;
-    }
-
-    if (inputText?.price && !validateNumericInput(inputText?.price, "price", setErrors, 999999)) {
-      return false;
-    }
-
-    return true;
-  }, [inputText, errors]);
+  }, [activeInventory.id]);
 
   //nastavi tlacitko ulozit v headeru
   useLayoutEffect(() => {
@@ -337,12 +338,9 @@ export default function AddFoodManually() {
         <TouchableOpacity
           disabled={isSubmitting}
           onPress={() => {
-            if (isSubmitting || !validateForm()) return;
+            if (isSubmitting || !validateForm(errors, setErrors, inputText)) return;
             const foodData = prepareFoodData();
             resetErrors(setErrors, errors);
-
-            console.log("foodDate", foodData);
-            console.log("formData", formData);
 
             addFood.mutate(
               { foodData: foodData, imageFormData: formData },
@@ -360,14 +358,15 @@ export default function AddFoodManually() {
           }}
         >
           <SaveButtonContent
+            key={`header-save-${colors.background}`}
             isSubmitting={isSubmitting}
-            color={color}
-            text={"add"}
+            color={colors}
+            text={i18n.t("add")}
           ></SaveButtonContent>
         </TouchableOpacity>
       ),
     });
-  }, [navigation, color, addFood, errors, formData, isSubmitting, validateForm, prepareFoodData]);
+  }, [navigation, colors, addFood, errors, formData, isSubmitting, inputText, prepareFoodData]);
 
   // console.log("categorieswwww", categories);
   // console.log("selectedCatalog", selectedCatalog);
@@ -376,7 +375,7 @@ export default function AddFoodManually() {
   // console.log(inputText.categoryId, "catid");
   // console.log(lockCategory, "lockCategory");
   // console.log("variant", variants);
-  console.log("textinput", inputText);
+  // console.log("textinput", inputText);
 
   return (
     <KeyboardAvoidingView
@@ -391,16 +390,37 @@ export default function AddFoodManually() {
       >
         {/* TODO  vyresit jak udelat aby to mohl prepsat*/}
         <ThemedView safe={true} style={[styles.contentWrapper]}>
-          {/* nazev potraviny */}
-          <FoodSearchableDropdown
-            inputText={inputText.title}
-            setInputText={(text) => updateFormValues(setInputText, "title", text)}
-            inventoryId={inventoryId}
-            setSelectedCatalog={setSelectedCatalog}
-            error={errors.labelTitle}
-            setError={(value) => updateFormValues(setErrors, "labelTitle", value)}
-            maxLength={100}
-          />
+          {/* nazev potraviny (pokud data jsou ze skenu pak se pouzije normalni input jinat)*/}
+
+          {initialData ? (
+            <UniversalTextInput
+              value={inputText.title || ""}
+              onChangeText={(text) => {
+                updateFormValues(setInputText, "title", text);
+                updateFormValues(setErrors, "labelTitle", "");
+              }}
+              label={i18n.t("foodName")}
+              maxLength={100}
+              placeholder={i18n.t("enterFoodName")}
+              inputColor={inputColor}
+              error={errors.labelTitle}
+              setError={(value) => updateFormValues(setErrors, "labelTitle", value)}
+            />
+          ) : (
+            <FoodSearchableDropdown
+              inputText={inputText.title}
+              setInputText={(text) => {
+                updateFormValues(setInputText, "title", text);
+                updateFormValues(setErrors, "labelTitle", "");
+              }}
+              inventoryId={activeInventory.id}
+              setSelectedCatalog={setSelectedCatalog}
+              error={errors.labelTitle}
+              setError={(value) => updateFormValues(setErrors, "labelTitle", value)}
+              maxLength={100}
+            />
+          )}
+
           {/* pocet kusu pro pridani */}
           <Stepper
             label={i18n.t("quantity") || "1"}
@@ -543,12 +563,12 @@ export default function AddFoodManually() {
               <Tooltip
                 isVisible={showTooltip}
                 content={
-                  <ThemedText style={[styles.toolTipText, { color: color.text }]}>
+                  <ThemedText style={[styles.toolTipText, { color: colors.text }]}>
                     {i18n.t("variantExplanationTip")}
                   </ThemedText>
                 }
                 placement="top"
-                contentStyle={{ backgroundColor: color.surface, borderRadius: 8 }}
+                contentStyle={{ backgroundColor: colors.surface, borderRadius: 8 }}
                 tooltipStyle={{ marginTop: responsiveSize.vertical(-28) }}
                 style={{ maxWidth: responsiveSize.horizontal(270) }}
                 backgroundColor="rgba(0,0,0,0.2)"
@@ -563,7 +583,7 @@ export default function AddFoodManually() {
                     <IconSymbol
                       size={responsiveSize.moderate(20)}
                       name={"info.circle"}
-                      color={color.inputIcon}
+                      color={colors.inputIcon}
                     />
                   </ThemedView>
                 </TouchableOpacity>
@@ -620,16 +640,25 @@ export default function AddFoodManually() {
             </View>
           </Pressable>
           {/* barcode pouze pro zobrazeni */}
-          {inputText?.barcode && (
+          {(inputText?.barcode || selectedCatalog) && (
             <ThemedView>
               <Pressable
-                onPress={() => setTemporaryError(setErrors, "barcode", i18n.t("barcodeImmutable"))}
+                onPress={() => {
+                  setTemporaryError(
+                    setErrors,
+                    "barcode",
+                    inputText?.barcode
+                      ? i18n.t("errors.barcode.BARCODE_CAN_NOT_BE_CHANGED")
+                      : i18n.t("errors.barcode.BARCODE_EMPTY_CAN_NOT_BE_CHANGED"),
+                  );
+                }}
               >
                 <View pointerEvents="none">
                   <UniversalTextInput
                     value={inputText?.barcode || ""}
+                    onChange={(barcode) => updateFormValues(setInputText, "barcode", barcode)}
                     label={i18n.t("barcode")}
-                    editable={false}
+                    editable={barcode && !initialData}
                     error={!!errors.barcode}
                     outlineStyle={styles.inputOutlineStyle}
                     style={styles.input}
@@ -700,7 +729,7 @@ const styles = StyleSheet.create({
   },
   contentWrapper: {
     flex: 1,
-    paddingHorizontal: responsiveSize.horizontal(22),
+    paddingHorizontal: responsiveSize.horizontal(14),
     paddingTop: responsiveSize.vertical(14),
     width: "100%",
   },

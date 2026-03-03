@@ -4,24 +4,51 @@ import {
   ThemeProvider as NavigationThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
+import * as Network from "expo-network";
 import { router, SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import { ThemeProvider, useTheme } from "@/contexts/ThemeContext";
 import { StrictMode, useEffect, useState } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  focusManager,
+  onlineManager,
+} from "@tanstack/react-query";
 import { UserProvider } from "@/contexts/UserContext";
 import { useUser } from "@/hooks/useUser";
-import { View } from "react-native";
+import { View, AppState, Platform } from "react-native";
 import { Provider } from "react-native-paper";
 import { Toasts } from "@backpackapp-io/react-native-toast";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useSystemNavigationBarTheme } from "@/hooks/colors/useSystemNavigationBarTheme";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
+
+const ONE_DAY = 1000 * 60 * 60 * 24
 
 //vytvoreni instance TanStack Query
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 3,
+      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
+      gcTime: ONE_DAY,
+    },
+  },
+});
+
+// propojeni TanStack Query s diskem telefonu
+const asyncStoragePersister = createAsyncStoragePersister({
+  storage: AsyncStorage,
+  key: 'FOOD_SYSTEM_OFFLINE_CACHE',
+  throttleTime: 1000, // uklada na disk max jednou za sekundu 
+});
+
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -45,8 +72,18 @@ export default function RootLayout() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      {/* <StrictMode> */}
+    <PersistQueryClientProvider 
+      client={queryClient} 
+      persistOptions={{ 
+        persister: asyncStoragePersister,
+        maxAge: ONE_DAY,
+      }}
+      onSuccess={() => {
+        // queryClient.resumePausedMutations();  //jakmile se data z disku nactou do pameti, odesleme mutace, ktere selhyly v offline
+        //TODO rozhodnou se jestli pouzit
+        
+      }}
+    >
       <GestureHandlerRootView style={{ flex: 1 }}>
         <UserProvider>
           <LanguageWrapper>
@@ -58,8 +95,7 @@ export default function RootLayout() {
           </LanguageWrapper>
         </UserProvider>
       </GestureHandlerRootView>
-      {/* </StrictMode> */}
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   );
 }
 
@@ -79,6 +115,32 @@ function RootLayoutContent({ CustomDarkTheme }) {
   const [isAppReady, setIsAppReady] = useState(false);
   const { colorScheme, isThemeLoaded } = useTheme();
   useSystemNavigationBarTheme();
+
+  //pokud se aplikace minimalizuje pak to oznami quary
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (status) => {
+      if (Platform.OS !== "web") {
+        focusManager.setFocused(status === "active");
+      }
+    });
+    return () => subscription.remove();
+  }, []);
+
+  // pokud se aplikace pripoji v wifi oznami to quary
+  useEffect(() => {
+    onlineManager.setEventListener((setOnline) => {
+      const checkNetwork = async () => {
+        const state = await Network.getNetworkStateAsync();
+        setOnline(!!state.isConnected);
+      };
+      checkNetwork();
+
+      const subscription = Network.addNetworkStateListener((state) => {
+        setOnline(!!state.isConnected);
+      });
+      return () => subscription.remove();
+    });
+  }, []);
 
   useEffect(() => {
     if (!isLoading && isLanguageLoaded && isThemeLoaded) {
@@ -113,9 +175,7 @@ function RootLayoutContent({ CustomDarkTheme }) {
       <Toasts key={colorScheme} />
       <View style={{ flex: 1, backgroundColor: backgroundColor }}>
         {isAppReady ? (
-          <NavigationThemeProvider
-            value={colorScheme === "dark" ? CustomDarkTheme : DefaultTheme}
-          >
+          <NavigationThemeProvider value={colorScheme === "dark" ? CustomDarkTheme : DefaultTheme}>
             <Stack screenOptions={{ headerShown: false }}>
               {isAuthenticated ? (
                 <Stack.Protected guard={isAuthenticated}>

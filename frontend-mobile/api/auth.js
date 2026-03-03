@@ -1,6 +1,6 @@
 import apiClient from "@/utils/api-client";
 import i18n from "@/constants/translations";
-import { EmailError,  } from "@/errors/CustomError";
+import { EmailError } from "@/errors/CustomError";
 
 export const loginApi = async (loginData) => {
   try {

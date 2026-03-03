@@ -73,7 +73,7 @@ export const addFoodToInventoryService = async (userId, foodData, isAdmin) => {
     let priceFields = {};
     if (parsedPrice > 0) {
       const priceData = await resolvePriceExchangeData(parsedPrice, finalData.currency, userId);
-      priceFields = { ...priceData };
+      priceFields = priceData ? { ...priceData } : null;
     }
 
     const preparedData = {

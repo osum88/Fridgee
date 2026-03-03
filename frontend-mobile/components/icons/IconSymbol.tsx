@@ -109,17 +109,87 @@ const MAPPING = {
   //sipka v kruhu outline
   "arrow.left.circle": { name: "arrow-left-thin", source: "MaterialCommunityIcons" },
   //inventare outline
-  "archivebox": { name: "archive-outline", source: "MaterialCommunityIcons" },
+  archivebox: { name: "archive-outline", source: "MaterialCommunityIcons" },
   //globus
-  "globe": { name: "earth", source: "MaterialCommunityIcons" },
+  globe: { name: "earth", source: "MaterialCommunityIcons" },
   //plus
-  "plus": { name: "plus", source: "MaterialCommunityIcons" },
+  plus: { name: "plus", source: "MaterialCommunityIcons" },
   //minus
-  "minus": { name: "minus", source: "MaterialCommunityIcons" },
+  minus: { name: "minus", source: "MaterialCommunityIcons" },
   // tuzka
-  "pencil": { name: "lead-pencil", source: "MaterialCommunityIcons" },
+  pencil: { name: "lead-pencil", source: "MaterialCommunityIcons" },
+  //sipka v levo
+  "arrow.left": { name: "arrow-left", source: "MaterialCommunityIcons" },
+  //barcode
+  barcode: { name: "barcode", source: "MaterialCommunityIcons" },
+  //sipka v pravo
+  "arrow.right": { name: "arrow-right", source: "MaterialCommunityIcons" },
+  //barcode-scan
+  "barcode.viewfinder": { name: "barcode-scan", source: "MaterialCommunityIcons" },
+  //kniha
+  "book.fill": { name: "book-open-variant", source: "MaterialCommunityIcons" },
+  //zvedla ruka
+  "hand.raised.fill": { name: "hand-back-right", source: "MaterialCommunityIcons" },
+  //palec nahoru
+  "hand.thumbsup.fill": { name: "thumb-up", source: "MaterialCommunityIcons" },
+  //srdce
+  "heart.fill": { name: "cards-heart", source: "MaterialCommunityIcons" },
+  //termostat minus
+  "thermometer.snowflake": { name: "thermometer-minus", source: "MaterialCommunityIcons" },
+  //vlocka
+  snow: { name: "snowflake", source: "MaterialCommunityIcons" },
+  //taska
+  "bag.fill": { name: "bag-personal", source: "MaterialCommunityIcons" },
+  //kladivo
+  "hammer.fill": { name: "hammer", source: "MaterialCommunityIcons" },
+  //plamen
+  "flame.fill": { name: "fire", source: "MaterialCommunityIcons" },
+  //darek
+  "gift.fill": { name: "gift", source: "MaterialCommunityIcons" },
+  //auto
+  "car.fill": { name: "car", source: "MaterialCommunityIcons" },
+  //destnik
+  "umbrella.fill": { name: "umbrella", source: "MaterialCommunityIcons" },
+  //kolo
+  "bicycle": { name: "bicycle", source: "MaterialCommunityIcons" },
+  // kosik
+  "basket.fill": { name: "basket", source: "MaterialCommunityIcons" },
+  //postel
+  "bed.double.fill": { name: "bed-double", source: "MaterialCommunityIcons" },
+  //mrkev
+  "carrot.fill": { name: "carrot", source: "MaterialCommunityIcons" },
+  //mikrovlnka
+  "microwave.fill": { name: "microwave", source: "MaterialCommunityIcons" },
+  //hrnek
+  "mug.fill": { name: "glass-mug", source: "MaterialCommunityIcons" },
+  //pec
+  "oven.fill": { name: "toaster-oven", source: "MaterialCommunityIcons" },
+  //popcorn
+  "popcorn.fill": { name: "popcorn", source: "MaterialCommunityIcons" },
+  //gauc
+  "sofa.fill": { name: "sofa-single", source: "MaterialCommunityIcons" },
+  //stul
+  "table.furniture.fill": { name: "table-furniture", source: "MaterialCommunityIcons" },
+  //stan
+  "tent.fill": { name: "tent", source: "MaterialCommunityIcons" },
+  //penezenka
+  "wallet.bifold.fill": { name: "wallet", source: "MaterialCommunityIcons" },
+  //medved
+  "teddybear.fill": { name: "teddy-bear", source: "MaterialCommunityIcons" },
+  //boty
+  "shoe.fill": { name: "shoe-sneaker", source: "MaterialCommunityIcons" },
+  //basketovy mic
+  "basketball.fill": { name: "basketball", source: "MaterialCommunityIcons" },
+  //sluchatka
+  "beats.headphones": { name: "headphones", source: "MaterialCommunityIcons" },
+  //schody
+  stairs: { name: "stairs", source: "MaterialCommunityIcons" },
+  //svetlo
+  "lightbulb.fill": { name: "lightbulb", source: "MaterialCommunityIcons" },
+  //pes
+  "dog.fill": { name: "dog", source: "MaterialCommunityIcons" },
 
-
+  //coat.fill
 } as IconMapping;
 
 /**

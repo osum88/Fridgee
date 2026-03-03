@@ -79,3 +79,13 @@ export const normalizeText = (str) => {
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
 };
+
+//velke pismeno velkym a zbytek malym
+export const capitalizeFirst = (text) => {
+  if (!text || typeof text !== "string") return "";
+
+  const trimmed = text.trim();
+  if (trimmed.length === 0) return "";
+
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+};

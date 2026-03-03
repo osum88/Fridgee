@@ -26,23 +26,32 @@ export const handleApiError = (error, setFieldErrors, fieldErrors = null, defaul
       setFieldErrors(errorMessage);
     }
   };
+  console.log("--ssssss>");
 
   // konkretni validacni chyby
   if ((status === 400 || status === 409) && type && code) {
     const specificKey = `errors.${type}.${code}`;
     const defaultKey = `errors.${type}.default`;
+    console.log("-->", specificKey);
+
+    if (specificKey === "errors.inventoryId.NUMBER_BASE") {
+      setter(i18n.t("errors.inventoryId.NUMBER_BASE"), defaultType);
+      return;
+    }
 
     const specificTranslation = getTranslation(specificKey);
     if (specificTranslation) {
       setter(i18n.t(specificKey), type);
       return;
     }
+    console.log("-->", specificKey);
 
     const defaultTranslation = getTranslation(defaultKey);
     if (defaultTranslation) {
       setter(i18n.t(defaultKey), type);
       return;
     }
+    console.log("-->", specificKey);
   }
 
   let finalMsg = i18n.t("errorDefault");

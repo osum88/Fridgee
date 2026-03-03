@@ -1,7 +1,6 @@
 import i18n from "@/constants/translations";
 import apiClient from "@/utils/api-client";
 
-
 //vrati uzivatele podle id
 export const getUserByIdApi = async (userData) => {
   try {

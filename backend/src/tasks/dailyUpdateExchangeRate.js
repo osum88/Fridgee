@@ -9,6 +9,10 @@ import {
 export const dailyUpdateExchangeRate = async () => {
   try {
     const euroRateData = await getEuroRate();
+    if (!euroRateData) {
+      console.log("Skipping update: No valid Euro rate data received.");
+      return;
+    }
     const currentRate = await getExchangeRateRepository("EUR", "CZK");
     if (!currentRate) {
       await createExchangeRateService(euroRateData);

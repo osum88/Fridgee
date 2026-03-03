@@ -166,6 +166,17 @@
   "foodPhotoTitle": "Food photo",
   "profilePhotoTitle": "Profile photo",
   "add": "Add",
+  "selectInventory": "Select inventory",
+  "screenNotFound": "Oops! This page doesn't exist.",
+  "goHome": "Go to Home",
+  "goLogin": "Go to Login",
+  "addInventory": "Add inventory",
+  "inventoryName": "Inventory name",
+  "enterInventoryNameExample": "e.g. My home",
+  "selectIcon": "Select an icon",
+  "enterManually": "Enter manually…",
+  "cancelScanning": "Cancel scanning",
+  "uncategorized": "Uncategorized",
 
   "errors": {
     "bankNumber": {
@@ -222,16 +233,35 @@
     },
     "amount": {
       "QUANTITY_UNIT_REQUIRED": "When entering a quantity, a unit must also be selected.",
-
-      "NUMBER_MAX": "Množství je mimo povolený rozsah.",
-      "default": "Množství musí být platné číslo (max. 2 desetinná místa)."
+      "NUMBER_MAX": "Quantity is outside the allowed range.",
+      "default": "Quantity must be a valid number (maximum 2 decimal places)."
     },
     "labelTitle": {
-      "STRING_EMPTY": "Název potraviny nemůže bý prázný"
+      "STRING_EMPTY": "Food name cannot be empty.",
+      "default": "Food name can be up to 100 characters long."
     },
     "price": {
-      "NUMBER_MAX": "Cena je mimo povolený rozsah.",
-      "default": "Cena musí být platné číslo (max. 2 desetinná místa)."
+      "NUMBER_MAX": "Price is outside the allowed range.",
+      "default": "Price must be a valid number (maximum 2 decimal places)."
+    },
+    "variantTitle": {
+      "STRING_MAX": "Variant can be up to 40 characters long."
+    },
+    "description": {
+      "STRING_MAX": "Description can be up to 250 characters long."
+    },
+    "expirationDate": {
+      "default": "Expiration date must be a valid date in the format DD.MM.YYYY."
+    },
+    "barcode": {
+      "BARCODE_EMPTY_CAN_NOT_BE_CHANGED": "For an existing food item without a barcode, the barcode cannot be changed.",
+      "BARCODE_CAN_NOT_BE_CHANGED": "The barcode of an existing food item cannot be changed."
+    },
+    "inventoryTitle": {
+      "STRING_EMPTY": "Inventory name cannot be empty."
+    },
+    "inventoryId": {
+      "NUMBER_BASE": "Please select an inventory first."
     }
   }
 }

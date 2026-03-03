@@ -5,7 +5,7 @@ import { Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import { useCallback, useMemo, useState } from "react";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
-import { useProfilePlaceHolder } from "@/hooks/useProfilePlaceHolder";
+import { useProfilePlaceHolder } from "@/hooks/image/useProfilePlaceHolder";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { useGetUserQuery } from "@/hooks/queries/user/useUserQuery";
 import { useImageUpload } from "@/hooks/image/useImageUpload";
@@ -337,12 +337,12 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     alignItems: "center",
     gap: responsiveSize.vertical(18),
-    paddingHorizontal: responsiveSize.horizontal(20),
+    paddingHorizontal: responsiveSize.horizontal(16),
     paddingTop: responsiveSize.vertical(18),
     width: "100%",
   },
   tap: {
-    //pak smazat
+    //TODO pak smazat
     padding: 16,
     textAlign: "center",
     borderRadius: 8,

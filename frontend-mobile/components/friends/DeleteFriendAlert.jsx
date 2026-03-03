@@ -3,13 +3,10 @@ import { Image, StyleSheet, TouchableOpacity } from "react-native";
 import { Dialog, Portal } from "react-native-paper";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
-import {
-  responsiveFont,
-  responsiveSize,
-  responsiveVertical,
-} from "@/utils/scale";
+import { responsiveFont, responsiveSize, responsiveVertical } from "@/utils/scale";
+import { memo } from "react";
 
-export function DeleteFriendAlert({
+function DeleteFriendAlertComponent({
   visible,
   setVisible,
   imageSource,
@@ -43,10 +40,7 @@ export function DeleteFriendAlert({
 
         <Dialog.Actions style={styles.actions}>
           <TouchableOpacity
-            style={[
-              styles.actionButton,
-              { borderColor: color.outlineButton, marginRight: 10 },
-            ]}
+            style={[styles.actionButton, { borderColor: color.outlineButton, marginRight: 10 }]}
             onPress={() => handleClose()}
           >
             <ThemedText
@@ -84,6 +78,8 @@ export function DeleteFriendAlert({
     </Portal>
   );
 }
+
+export const DeleteFriendAlert = memo(DeleteFriendAlertComponent);
 
 const styles = StyleSheet.create({
   dialogContainer: {

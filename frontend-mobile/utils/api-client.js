@@ -22,7 +22,7 @@ export const setTokensCallback = (callback) => {
 
 //instance axiosu
 const apiClient = axios.create({
-  baseURL: API_BASE_URL, 
+  baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -42,7 +42,7 @@ apiClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 apiClient.interceptors.response.use(
@@ -74,11 +74,7 @@ apiClient.interceptors.response.use(
         const { data } = await apiClient.post(
           "/auth/refresh",
           { refreshToken },
-          {
-            headers: {
-              "X-Client-Type": "mobile",
-            },
-          }
+          { headers: { "X-Client-Type": "mobile" } },
         );
         const accessToken = data?.data?.accessToken;
         await storeTokens(accessToken, data?.data?.refreshToken);
@@ -105,7 +101,7 @@ apiClient.interceptors.response.use(
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default apiClient;

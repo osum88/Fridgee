@@ -1,4 +1,3 @@
-import i18n from "@/constants/translations";
 import { responsiveSize } from "@/utils/scale";
 import { memo } from "react";
 import { ActivityIndicator } from "react-native-paper";
@@ -16,7 +15,7 @@ const SaveButtonContentComponent = ({ isSubmitting, color, text }) => {
         fontWeight: "600",
       }}
     >
-      {i18n.t(text)}
+      {text}
     </ThemedText>
   );
 };

@@ -20,27 +20,46 @@ export const getEuroRate = async (date = null) => {
     ? `https://api.cnb.cz/cnbapi/exrates/daily?date=${iso}`
     : "https://api.cnb.cz/cnbapi/exrates/daily";
 
-  const response = await axios.get(url);
-  const rates = response.data.rates;
-  const euro = rates.find((rate) => rate.currencyCode === "EUR");
+  try {
+    const response = await axios.get(url, {
+      timeout: 10000,
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "FridgeeApp/1.0",
+      },
+    });
 
-  //Pokud euro neni a nemame datum (selhalo aktualni API)
-  if (!euro && !iso) {
-    throw new NotFoundError("Failed to fetch current Euro exchange rate from CNB");
+    const rates = response.data?.rates;
+    if (!rates) throw new Error("Invalid response structure from CNB");
+
+    const euro = rates.find((rate) => rate.currencyCode === "EUR");
+
+    if (!euro) {
+      //Pokud euro neni a nemame datum (selhalo aktualni API)
+      if (!iso) {
+        throw new NotFoundError("Failed to fetch current Euro exchange rate from CNB");
+      }
+      // pokud euro neni pro dane datum, zkusime aktualni
+      console.log(`Rate for ${iso} not found, returning null for fallback.`);
+      return null;
+    }
+
+    return {
+      amount: euro.amount,
+      country: euro.country,
+      currencyCode: euro.currencyCode,
+      convertedCurrencyCode: "CZK",
+      rate: euro.rate,
+      exchangeRateDate: new Date(euro.validFor),
+    };
+  } catch (error) {
+    if (error.code === "ECONNRESET" || error.code === "ETIMEDOUT") {
+      console.error(`Network issue with CNB API (${error.code}). Request failed.`);
+    } else {
+      console.error(`Exchange Rate Error: ${error.message}`);
+    }
+    throw error;
   }
-  // pokud euro neni pro dane datum, zkusime aktualni (REKURZE)
-  if (!euro && iso) {
-    console.log(`Rate for ${iso} not found, fetching current rate instead.`);
-    return null;
-  }
-  return {
-    amount: euro.amount,
-    country: euro.country,
-    currencyCode: euro.currencyCode,
-    convertedCurrencyCode: "CZK",
-    rate: euro.rate,
-    exchangeRateDate: new Date(euro.validFor),
-  };
 };
 
 // vytvori novy exchange rate

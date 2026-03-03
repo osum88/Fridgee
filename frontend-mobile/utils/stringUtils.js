@@ -211,7 +211,7 @@ export const formatNumberInput = (text) => {
 
 // validuje format cisla a nastavuje error
 export const validateNumericInput = (value, fieldName, setErrors, maxLimit = 999999) => {
-  if (!value) {
+  if (!value || value === "0" || value === 0) {
     setErrors((prev) => ({ ...prev, [fieldName]: "" }));
     return true;
   }

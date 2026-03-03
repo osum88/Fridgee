@@ -22,7 +22,7 @@ import useUpdateProfile from "@/hooks/queries/user/useUpdateProfile";
 import { DoubleInputRow } from "@/components/input/DoubleInputRow";
 import { GET_INPUT_THEME_NATIVE_PAPER } from "@/constants/colors";
 import { handleApiError } from "@/utils/handleApiError";
-import { SaveButtonContent } from "../../../components/button/SaveContentButton";
+import { SaveButtonContent } from "@/components/button/SaveButtonContent";
 
 export default function EditProfile() {
   const color = useThemeColor();
@@ -160,9 +160,11 @@ export default function EditProfile() {
           }}
         >
           <SaveButtonContent
+            key={`header-save-${color.background}`}
+
             isSubmitting={isSubmitting}
             color={color}
-            text={"save"}
+            text={i18n.t("save")}
           ></SaveButtonContent>
         </TouchableOpacity>
       ),
@@ -378,7 +380,7 @@ const styles = StyleSheet.create({
   },
   contentWrapper: {
     flex: 1,
-    paddingHorizontal: responsiveSize.horizontal(22),
+    paddingHorizontal: responsiveSize.horizontal(16),
     paddingTop: responsiveSize.vertical(14),
     width: "100%",
   },

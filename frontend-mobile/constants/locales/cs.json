@@ -165,6 +165,17 @@
   "foodPhotoTitle": "Fotka potraviny",
   "profilePhotoTitle": "Profilová fotka",
   "add": "Přidat",
+  "selectInventory": "Vyberte inventář",
+  "screenNotFound": "Jejda! Tato stránka neexistuje.",
+  "goHome": "Přejít na domovskou stránku",
+  "goLogin": "Přejít na přihlášení",
+  "addInventory": "Přidat inventář",
+  "inventoryName": "Název inventáře",
+  "enterInventoryNameExample": "Např. Můj dům",
+  "selectIcon": "Vyberte ikonu",
+   "enterManually": "Zadat ručně…",
+    "cancelScanning": "Zrušit skenování",
+     "uncategorized": "Bez kategorie",
 
   "errors": {
     "bankNumber": {
@@ -223,7 +234,7 @@
       "default": "Množství musí být platné číslo (max. 2 desetinná místa)."
     },
     "labelTitle": {
-      "STRING_EMPTY": "Název potraviny nemůže bý prázný",
+      "STRING_EMPTY": "Název potraviny nemůže bý prázný.",
       "default": "Název potraviny může mít maximálně 100 znaků."
     },
     "price": {
@@ -238,6 +249,16 @@
     },
     "expirationDate": {
       "default": "Datum trvanlivosti musí být platné datum ve formátu DD.MM.YYYY."
+    },
+    "barcode": {
+      "BARCODE_EMPTY_CAN_NOT_BE_CHANGED": "U existující potraviny bez čárového kódu nelze čárový kód změnit.",
+      "BARCODE_CAN_NOT_BE_CHANGED": "U existující potraviny nelze čárový kód změnit."
+    },
+    "inventoryTitle": {
+      "STRING_EMPTY": "Název inventáře nemůže bý prázný."
+    },
+    "inventoryId": {
+      "NUMBER_BASE": "Nejprve vyberte inventář."
     }
   }
 }
