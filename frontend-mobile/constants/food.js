@@ -30,7 +30,7 @@ export const Currency = {
 };
 
 // mapovani symbolu
-const CURRENCY_SYMBOLS = {
+export const CURRENCY_SYMBOLS = {
   [Currency.CZK]: "Kč",
   [Currency.EUR]: "€",
 };

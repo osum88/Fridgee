@@ -15,7 +15,6 @@ export default function TabLayout() {
   const colorCurrent = useThemeColor();
   const navigation = useNavigation();
   useLanguage();
-  const activeInventoryId = useInventoryStore((state) => state.activeInventoryId);
   const activeInventory = useInventoryStore((state) => state.activeInventory);
   const clearActiveInventory = useInventoryStore((state) => state.clearActiveInventory);
 
@@ -52,7 +51,7 @@ export default function TabLayout() {
           <ThemedView
             style={{ flexDirection: "row", backgroundColor: colorCurrent.tabsBackground }}
           >
-            {activeInventoryId && (
+            {activeInventory.id && (
               <Pressable style={styles.icon} onPress={() => clearActiveInventory()}>
                 <BadgedIcon
                   icons={["archivebox", "arrow.left.circle"]}

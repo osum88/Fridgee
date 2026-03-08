@@ -35,3 +35,4 @@ export const updateFoodSchema = Joi.object({
   foodImageCloudId: Joi.string().allow("").optional(),
   minimalQuantity: Joi.number().min(0).max(9999),
 });
+

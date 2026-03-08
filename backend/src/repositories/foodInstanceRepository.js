@@ -266,8 +266,6 @@ export const updateFoodInstancesRepository = async (userId, updatePayload, foodI
           await tx.$executeRaw`SELECT id FROM foods WHERE id = ${newFoodId} FOR UPDATE`;
 
           let finalPriceId = item.oldData.priceId;
-          console.log(item.oldData)
-          console.log(item?.priceData)
 
           // logika price
           if (item.priceData === null) {

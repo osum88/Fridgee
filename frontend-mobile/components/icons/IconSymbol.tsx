@@ -191,6 +191,14 @@ const MAPPING = {
   "lightbulb.fill": { name: "lightbulb", source: "MaterialCommunityIcons" },
   //pes
   "dog.fill": { name: "dog", source: "MaterialCommunityIcons" },
+  //kosik s plus
+  "cart.badge.plus": { name: "cart-plus", source: "MaterialCommunityIcons" },
+  //vidlicka a nuz
+  "fork.knife": { name: "silverware-variant", source: "MaterialCommunityIcons" },
+  //kategorie
+  "list.bullet": { name: "format-list-bulleted", source: "MaterialCommunityIcons" },
+  //fajfka s koleckem
+  "checkmark.circle": { name: "check-circle-outline", source: "MaterialCommunityIcons" },
 
   //coat.fill
 } as IconMapping;

@@ -17,7 +17,7 @@ export const Colors = {
     tabIconDefault: "#687076",
     tabIconSelected: tintColorLight,
     outline: "#dadee0ff",
-    error: "#df4b31ff",
+    error: "#df4b31",
     primary: "#1d9bc5",
     onPrimary: "#fff",
     input: "#F5F5F5",
@@ -44,6 +44,8 @@ export const Colors = {
     validCount: "#4bba4f",
     expiringSoonCount: "#fbbf0a",
     expiredCount: "#F44336",
+    primaryBackground: "#1d9bc525",
+    orange: "#f4970a",
   },
   dark: {
     text: "#e0e0e0",
@@ -55,8 +57,8 @@ export const Colors = {
     tabIconDefault: "#9BA1A6",
     tabIconSelected: tintColorDark,
     outline: "#535353",
-    error: "#f32525ff",
-    primary: "#22b2e2ff",
+    error: "#f32525",
+    primary: "#22b2e2",
     onPrimary: "#11181C",
     input: "#252527",
     inputText: "#787683",
@@ -79,9 +81,12 @@ export const Colors = {
     stepperButton: "#22b2e2",
     secondButton: "#d7d7d7",
     cardBackground: "#1e1e1e",
-      validCount: "#388E3C",
+    validCount: "#3b9e40",
     expiringSoonCount: "#FBC02D",
     expiredCount: "#D32F2F",
+    primaryBackground: "#bcdee9",
+    orange:  "#ad7013",
+
   },
 };
 

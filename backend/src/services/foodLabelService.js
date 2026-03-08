@@ -230,7 +230,7 @@ export const getLabelSuggestionsService = async (
   }
 
   const result = await getLabelSuggestionsRepository(userId, inventoryId, searchString, limit);
-  console.log(result);
+  
   if (!result || result.length === 0) return [];
 
   // serazeni labelu

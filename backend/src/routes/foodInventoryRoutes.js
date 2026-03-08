@@ -3,13 +3,14 @@ import { authenticateToken, authorizeUser } from "../middlewares/authMiddleware.
 import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, deleteOtherFoodInventoryUser, getAllFoodInventory, getInventoryContent, getInventoryDetailsWithUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
 import { acceptInventoryInvitation, rejectInventoryInvitation, sendInventoryInvitation } from "../controllers/inventoryInvitationController.js";
 import validate from "../middlewares/validator.js";
-import { inventoryIdSchema, changeRoleSchema, changeSettingSchema, createFoodInventorySchema, deleteOtherSchema, deleteSchema, getInventoryUsersSchema, updateFoodInventorySchema, searchInventoryLabelSchema, getHistorySchema, inventoryIdBarcodeSchema } from "../validation/foodInventoryValidation.js";
+import { inventoryIdSchema, changeRoleSchema, changeSettingSchema, createFoodInventorySchema, deleteOtherSchema, deleteSchema, getInventoryUsersSchema, updateFoodInventorySchema, searchInventoryLabelSchema, getHistorySchema, inventoryIdBarcodeSchema, foodIdInventoryIdSchema, foodCatalogIdInventoryIdSchema } from "../validation/foodInventoryValidation.js";
 import { invitationIdSchema, sendInvitationSchema } from "../validation/inventoryInvitationValidation.js";
 import { sanitize } from "../middlewares/sanitize.js";
 import { getFoodCategoriesByInventory } from "../controllers/foodCategoryController.js";
 import { getLabelSuggestions } from "../controllers/foodLabelController.js";
 import { getHistory } from "../controllers/foodHistoryController.js";
-import { getFoodByBarcode } from "../controllers/foodController.js";
+import { getFoodByBarcode, getFoodDetail } from "../controllers/foodController.js";
+import { getActiveFoodVariants } from "../controllers/foodVariantController.js";
 
 const router = express.Router();
 
@@ -57,8 +58,14 @@ router.patch("/:inventoryId", validate(updateFoodInventorySchema), updateFoodInv
 // vrati vsechny kategorie z inventare
 router.get("/:inventoryId/food-category", validate(inventoryIdSchema), getFoodCategoriesByInventory);
 
+//vrati detail jidla
+router.get("/:inventoryId/food/:foodId/detail", validate(foodIdInventoryIdSchema), getFoodDetail);
+
 // vrati vsechny jidla s kategoriemi, intancemi a labely
 router.get("/:inventoryId/content", validate(inventoryIdSchema), getInventoryContent);
+
+//vrati vsechny varianty v invenatri pro dane food
+router.get("/:inventoryId/catalog/:foodCatalogId", validate(foodCatalogIdInventoryIdSchema), getActiveFoodVariants);
 
 // vrati vsechny instance food podle barcodu
 router.get("/:inventoryId/barcode/:barcode", validate(inventoryIdBarcodeSchema), getFoodByBarcode);

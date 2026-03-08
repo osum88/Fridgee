@@ -1,15 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addFoodToInventoryApi } from "@/api/food";
 
-const useAddFoodMutation = () => {
+const useAddFoodMutation = (inventoryId) => {
   const queryClient = useQueryClient();
 
   const addFood = useMutation({
     mutationFn: ({ foodData, imageFormData }) => addFoodToInventoryApi(foodData, imageFormData),
-    onSuccess: (data, variables) => {
-      //   queryClient.invalidateQueries({
-      //     queryKey: ["inventory-food", variables.foodData.inventoryId],
-      //   });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["inventory-content", parseInt(inventoryId)] });
+      queryClient.invalidateQueries({ queryKey: ["food-detail", parseInt(inventoryId)] });
       console.log("Food added successfully");
     },
     onError: (error) => {

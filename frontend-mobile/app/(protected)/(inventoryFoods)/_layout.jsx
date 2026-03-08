@@ -27,6 +27,22 @@ export default function InventoryFoodsLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="foodDetail"
+        options={{
+          animation: "fade",
+          title: i18n.t("food"),
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
+        name="editInstance"
+        options={{
+          animation: "fade",
+          title: i18n.t("editItem"),
+          headerShown: true,
+        }}
+      />
     </Stack>
   );
 }

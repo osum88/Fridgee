@@ -676,3 +676,35 @@ export const getFoodByBarcodeRepository = async (barcode, inventoryId, userId) =
     throw error;
   }
 };
+
+//vrati detail jidla
+export const getFoodDetailRepository = async (foodId, userId) => {
+  try {
+    const food = await prisma.food.findFirst({
+      where: {
+        id: foodId,
+        instances: { some: {} },
+      },
+      include: {
+        category: true,
+        catalog: {
+          include: {
+            labels: {
+              where: { userId: userId, isDeleted: false },
+            },
+          },
+        },
+        variant: true,
+        label: true,
+        instances: {
+          include: { price: true },
+          orderBy: { expirationDate: "asc" },
+        },
+      },
+    });
+    return food;
+  } catch (error) {
+    console.error(`Error fetching food detail for foodId ${foodId}:`, error);
+    throw error;
+  }
+};

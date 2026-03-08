@@ -9,9 +9,14 @@ import {
 import {
   getFoodVariantByIdRepository,
   getAllFoodVariantsCatalogRepository,
+  getActiveFoodVariantsRepository,
 } from "../repositories/foodVariantRepository.js";
 import { getVariantByFoodIdRepository } from "../repositories/foodRepository.js";
 import { determineUpdateValue, formatTitleCase } from "../utils/stringUtils.js";
+import {
+  getFoodInventoryRepository,
+  getFoodInventoryUserRepository,
+} from "../repositories/foodInventoryRepository.js";
 
 // vraci food variant podle id
 export const getFoodVariantByIdService = async (variantId) => {
@@ -67,7 +72,8 @@ export const resolveVariantUpdateData = async (
       }
     }
   }
-
+console.log("variantId", variantId,
+variantTitle)
   let inputVariantTitle = undefined;
   if (inputVariantId === undefined && variantTitle !== undefined) {
     inputVariantTitle = formatTitleCase(variantTitle);
@@ -89,6 +95,14 @@ export const resolveVariantUpdateData = async (
       },
     };
   }
-
   return null;
+};
+
+//vrati vsechny varianty v invenatri pro dane food
+export const getActiveFoodVariantsService = async (inventoryId, catalogId, userId, isAdmin) => {
+  // kontrola jestli je uzivatel v inventari
+  if (!isAdmin) {
+    await getFoodInventoryUserRepository(userId, inventoryId);
+  }
+  return getActiveFoodVariantsRepository(catalogId, inventoryId);
 };

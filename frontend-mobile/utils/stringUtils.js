@@ -1,8 +1,21 @@
 import i18n from "@/constants/translations";
-import { Unit } from "@/constants/food";
+import { Unit, CURRENCY_SYMBOLS } from "@/constants/food";
+
+const dateFormatter = new Intl.DateTimeFormat("cs-CZ", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+// prevadi date na DD.MM.YYYY pomoci dateFormatter
+export const formatDate = (isoString) => {
+  if (!isoString) return "";
+  return dateFormatter.format(new Date(isoString)).replace(/\s/g, "");
+};
 
 // prevede date do DD.MM.YYYY
-export const formatDate = (isoString) => {
+export const handleFormatDate = (isoString) => {
   if (!isoString) return "";
   const date = new Date(isoString);
   const day = String(date.getUTCDate()).padStart(2, "0");
@@ -333,4 +346,49 @@ export const normalizeText = (str) => {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
+};
+
+//formatuje amount
+export const formatAmount = (amount, unit) => {
+  if (!amount) return null;
+  const formatedUnit = getUnitLabel(unit, parseFloat(amount));
+  return `${amount} ${formatedUnit ?? ""}`.trim();
+};
+
+//formatuje price
+export const formatPrice = (price, currency) => {
+  if (!price) return null;
+  const formatedCurrency = getCurrencySymbol(currency);
+  return `${price} ${formatedCurrency ?? ""}`.trim();
+};
+
+//vraci label
+export const getUnitLabel = (unit, amount) => {
+  if (!unit) return i18n.t("noUnit");
+  if (unit === "MULTIPACK") {
+    if (amount === 1) {
+      return i18n.t("piecesPerPackage_one").toLowerCase();
+    }
+    if (amount >= 2 && amount <= 4) {
+      return i18n.t("piecesPerPackage_few").toLowerCase();
+    }
+    if (amount > 4) {
+      return i18n.t("piecesPerPackage_other").toLowerCase();
+    }
+  }
+  return unit.toLowerCase();
+};
+
+//vraci menu
+export const getCurrencySymbol = (currency) => {
+  if (!currency) return "";
+  return CURRENCY_SYMBOLS[currency] ?? currency;
+};
+
+// Vycisteni variant
+export const getVariant = (variantId, variantTitle) => {
+  if (variantId && variantId !== "undefined") return { variantId, variantTitle };
+  if (variantTitle) return { variantTitle };
+  if (variantId === null && variantTitle === "") return { variantTitle };
+  return {};
 };

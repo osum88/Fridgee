@@ -1,4 +1,5 @@
 import apiClient from "@/utils/api-client";
+import { isCancel } from "axios";
 
 // prida food do invenatre, pripadne vytvori label,catalog, history, variant
 export const addFoodToInventoryApi = async (foodData, imageFormData = null) => {
@@ -37,6 +38,41 @@ export const addFoodToInventoryApi = async (foodData, imageFormData = null) => {
   } catch (error) {
     console.error(
       `Error in addFoodToInventoryApi: ${error} -> ${error.response?.data?.message || error.message}`,
+    );
+    throw error;
+  }
+};
+
+// ziska detail food
+export const getFoodDetailApi = async (inventoryId, foodId, signal) => {
+  try {
+    console.log("www")
+    const response = await apiClient.get(`/inventory/${inventoryId}/food/${foodId}/detail`, { signal });
+    return response.data;
+  } catch (error) {
+    if (isCancel(error)) {
+      console.log("Request cancelled (getFoodDetailApi).");
+      return null;
+    }
+    console.error(
+      `Error in getFoodDetailApi: ${error.response?.data?.message || error.message}`,
+    );
+    throw error;
+  }
+};
+
+//vrati vsechny varianty v invenatri pro dane food
+export const getFoodVariantsApi = async (inventoryId, catalogId, signal) => {
+  try {
+    const response = await apiClient.get(`/inventory/${inventoryId}/catalog/${catalogId}`, { signal });
+    return response.data;
+  } catch (error) {
+    if (isCancel(error)) {
+      console.log("Request cancelled (getFoodVariantsApi).");
+      return null;
+    }
+    console.error(
+      `Error in getFoodVariantsApi: ${error.response?.data?.message || error.message}`,
     );
     throw error;
   }

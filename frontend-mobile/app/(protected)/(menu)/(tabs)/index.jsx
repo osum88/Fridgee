@@ -4,26 +4,16 @@ import {
   ScrollView,
   StyleSheet,
   View,
-  SectionList,
   LayoutAnimation,
-  Platform,
 } from "react-native";
-import { Link, router, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import i18n from "@/constants/translations";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Card } from "@/components/Card/Card";
-import { CardItem } from "@/components/Card/CardItem";
-import { ThemedLine } from "@/components/themed/ThemedLine";
 import { useCameraNavigation } from "@/hooks/image/useCameraNavigation";
-import {
-  responsiveFont,
-  responsiveSize,
-  responsiveVertical,
-  responsivePadding,
-} from "@/utils/scale";
+import { responsiveSize } from "@/utils/scale";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { BadgedIcon } from "@/components/icons/BadgedIcon";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -35,11 +25,11 @@ import {
 } from "@/hooks/queries/inventory/useInventoryQuary";
 import { InventorySkeleton } from "@/components/animated/InventorySkeleton";
 import { useInventoryStore } from "@/hooks/store/useInventoryStore";
-import { INVENTORY_THEMES } from "@/constants/colors";
-import { INVENTORY } from "@/constants/inventory";
 import { InventoryFoodList } from "@/components/food/InventoryFoodList";
 import { Search } from "@/components/input/Search";
 import { normalizeText } from "@/utils/stringUtils";
+import { useTheme } from "@/contexts/ThemeContext";
+import { LIST_ITEM_TYPE } from "@/constants/general";
 
 //hlavni tlacitko (prida inventar nebo presmeruje na sken)
 const MainFab = ({ onPress, color, inventoryId }) => (
@@ -95,6 +85,7 @@ export default function InventoryScreen() {
   const colors = useThemeColor();
   const { navigateToScanner } = useCameraNavigation();
   useLanguage();
+  const { colorScheme } = useTheme();
 
   const activeInventory = useInventoryStore((state) => state.activeInventory);
   const setActiveInventory = useInventoryStore((state) => state.setActiveInventory);
@@ -103,11 +94,10 @@ export default function InventoryScreen() {
   const { data: inventories, isLoading: isLoadingInventory } = useFoodInventories(
     !activeInventory.id,
   );
-  const {
-    data: foodContent,
-    refetch,
-    isRefetching,
-  } = useInventoryContent(activeInventory.id, activeInventory.memberCount);
+  const { data: foodContent, refetch } = useInventoryContent(
+    activeInventory.id,
+    activeInventory.memberCount,
+  );
 
   // synchronizace pokud se data na serveru zmenila
   useEffect(() => {
@@ -127,7 +117,7 @@ export default function InventoryScreen() {
   //vyber inventare
   const handlePress = useCallback(
     (item) => {
-      setSearchTitle("")
+      setSearchTitle("");
       setActiveInventory(item.id, item.title, item.role, item.memberCount);
     },
     [setActiveInventory],
@@ -138,6 +128,21 @@ export default function InventoryScreen() {
       router.push("/addFoodManually");
     });
   }, [router]);
+
+  const handleNavigateAddInventory = useCallback(() => {
+    router.push("/addInventory");
+  }, [router]);
+
+  // FAB tlačítka — stabilní callbacky, žádné inline funkce
+  const handleScannerPress = useCallback(() => navigateToScanner(), [navigateToScanner]);
+
+  // otvira sekce
+  const toggleSection = useCallback((id) => {
+    setExpandedSections((prev) => {
+      const isCurrentlyExpanded = prev[id] !== false;
+      return { ...prev, [id]: !isCurrentlyExpanded };
+    });
+  }, []);
 
   //vyber inventare
   const RenderInventories = useMemo(() => {
@@ -158,7 +163,7 @@ export default function InventoryScreen() {
           <>
             {/* tlacitko pro odebrani food skenem */}
             <SecondaryFab
-              onPress={() => navigateToScanner()}
+              onPress={handleScannerPress}
               color={colors}
               badgeIcons={["barcode.viewfinder", "minus"]}
               style={styles.fabMinusPosition}
@@ -173,7 +178,7 @@ export default function InventoryScreen() {
               />
               {/* tlacitko pro pridani food skenem */}
               <MainFab
-                onPress={() => navigateToScanner()}
+                onPress={handleScannerPress}
                 color={colors}
                 inventoryId={activeInventory.id}
               />
@@ -182,50 +187,72 @@ export default function InventoryScreen() {
         ) : (
           <MainFab
             // tlacitko pro pridani invenatare
-            onPress={() => router.push("/addInventory")}
+            onPress={handleNavigateAddInventory}
             color={colors}
             inventoryId={activeInventory.id}
           />
         )}
       </View>
     );
-  }, [activeInventory.id, colors, router, navigateToScanner, handleAddManually]);
+  }, [
+    activeInventory.id,
+    colors,
+    handleAddManually,
+    handleScannerPress,
+    handleNavigateAddInventory,
+  ]);
 
   //sekce
   const sections = useMemo(() => {
     if (!activeInventory.id || !foodContent) return [];
+    return foodContent;
+  }, [activeInventory.id, foodContent]);
 
-    return foodContent.map((cat) => {
-      const isExpanded = expandedSections[cat.categoryId] !== false;
-      return {
-        ...cat,
-        data: isExpanded ? cat.foods : [],
-        isExpanded: isExpanded,
-      };
-    });
-  }, [activeInventory.id, expandedSections, foodContent]);
+  // Flat array pro FlashList
+  const flatData = useMemo(() => {
+    if (!sections.length) return [];
 
-  // otvira sekce
-  const toggleSection = useCallback((id) => {
-    setExpandedSections((prev) => {
-      const isCurrentlyExpanded = prev[id] !== false;
+    const query = searchTitle ? normalizeText(searchTitle).toLowerCase() : null;
+    const result = [];
 
-      return { ...prev, [id]: !isCurrentlyExpanded };
-    });
-  }, []);
+    for (const section of sections) {
+      const isExpanded = expandedSections[section.categoryId] !== false;
 
-  //filtrace foods pri vyhledavani
-  const filteredSections = useMemo(() => {
-    if (!searchTitle) return sections;
-    return sections
-      .map((section) => {
-        const filteredData = section.data.filter((item) =>
-          item?.normalizedTitle?.toLowerCase().includes(normalizeText(searchTitle)),
-        );
-        return filteredData.length > 0 ? { ...section, data: filteredData } : null;
-      })
-      .filter((section) => section !== null);
-  }, [searchTitle, sections]);
+      const foods = query
+        ? section.foods.filter((item) => item?.normalizedTitle?.toLowerCase().includes(query))
+        : section.foods;
+
+      if (query && foods.length === 0) continue;
+
+      // Header — kategorie
+      result.push({
+        type: LIST_ITEM_TYPE.HEADER,
+        categoryId: section.categoryId,
+        categoryTitle: section.categoryTitle,
+        isExpanded,
+      });
+
+      if (isExpanded && foods.length > 0) {
+        // Items
+        foods.forEach((food) => {
+          result.push({ type: LIST_ITEM_TYPE.ITEM, ...food });
+        });
+
+        // Section end — zaoblene rohy dole
+        result.push({
+          type: LIST_ITEM_TYPE.SECTION_END,
+          categoryId: section.categoryId,
+        });
+      }
+
+      // Footer — spacer mezi sekcemi
+      result.push({
+        type: LIST_ITEM_TYPE.FOOTER,
+        categoryId: section.categoryId,
+      });
+    }
+    return result;
+  }, [sections, expandedSections, searchTitle]);
 
   if (!activeInventory.id) {
     return (
@@ -250,21 +277,18 @@ export default function InventoryScreen() {
               value={searchTitle}
               onChangeText={setSearchTitle}
               style={[styles.searchBar, { backgroundColor: colors.cardBackground }]}
-              outlineStyle={[styles.outlineSearchBar, { backgroundColor: colors.cardBackground }]}
+              outlineStyle={[
+                styles.outlineSearchBar,
+                colorScheme === "light" && styles.shadow,
+                { backgroundColor: colors.cardBackground },
+              ]}
             />
           </ThemedView>
-          <InventoryFoodList
-            sections={filteredSections}
-            toggleSection={toggleSection}
-            colors={colors}
-            refetch={refetch}
-            isRefetching={isRefetching}
-          />
+          <InventoryFoodList data={flatData} toggleSection={toggleSection} refetch={refetch} />
         </ThemedView>
       ) : (
         <EmptyInventory colors={colors} />
       )}
-
       {FoodActionsFab}
     </ThemedView>
   );
@@ -345,19 +369,22 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     paddingHorizontal: responsiveSize.horizontal(1),
-    marginVertical:  responsiveSize.vertical(11),
+    marginVertical: responsiveSize.vertical(11),
     flexDirection: "row",
     alignItems: "center",
   },
   searchBar: {
     flex: 1,
-    height: responsiveSize.vertical(40),
+    height: responsiveSize.vertical(44),
   },
   outlineSearchBar: {
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    borderRadius: responsiveSize.moderate(8),
+    borderWidth: 1,
+    borderColor: "rgba(0, 0, 0, 0.17)",
+    // elevation: 4,
+    // shadowColor: "#000",
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.1,
+    // shadowRadius: 4,
   },
 });

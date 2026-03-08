@@ -1,6 +1,7 @@
 import {
   addFoodToInventoryService,
   getFoodByBarcodeService,
+  getFoodDetailService,
   updateFoodService,
 } from "../services/foodService.js";
 import handleResponse from "../utils/responseHandler.js";
@@ -11,11 +12,6 @@ export const addFoodToInventory = async (req, res, next) => {
     const userId = req.userId;
     const isAdmin = req.adminRoute;
     const image = req.file && req.file.size > 0 ? req.file : undefined;
-
-    console.log("image", image);
-    console.log("file", req.file);
-    console.log("params", req.params);
-    console.log("body", req.body);
 
     const food = await addFoodToInventoryService(userId, { ...req.body, image }, isAdmin);
     handleResponse(res, 201, "Food created successfully", food);
@@ -47,6 +43,20 @@ export const getFoodByBarcode = async (req, res, next) => {
 
     const foodData = await getFoodByBarcodeService(barcode, inventoryId, userId, isAdmin);
     handleResponse(res, 200, "Food by barcode fetched successfully", foodData);
+  } catch (err) {
+    next(err);
+  }
+};
+
+//vrati detail jidla
+export const getFoodDetail = async (req, res, next) => {
+  try {
+    const { inventoryId, foodId } = req.params;
+    const userId = req.userId;
+    const isAdmin = req.adminRoute;
+
+    const food = await getFoodDetailService(inventoryId, foodId, userId, isAdmin);
+    handleResponse(res, 200, "Food detail fetched successfully", food);
   } catch (err) {
     next(err);
   }

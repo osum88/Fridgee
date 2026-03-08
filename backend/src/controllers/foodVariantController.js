@@ -1,6 +1,7 @@
 import {
   getFoodVariantByIdService,
   getAllFoodVariantsCatalogService,
+  getActiveFoodVariantsService,
 } from "../services/foodVariantService.js";
 import handleResponse from "../utils/responseHandler.js";
 
@@ -16,13 +17,32 @@ export const getFoodVariantById = async (req, res, next) => {
   }
 };
 
-// vraci vsechny varianty katalogu podle kontextu (admin vs user)
+// vraci vsechny varianty katalogu podle kontextu
 export const getAllFoodVariantsCatalog = async (req, res, next) => {
   try {
     const { foodCatalogId } = req.params;
     const isAdmin = req.adminRoute;
 
     const variants = await getAllFoodVariantsCatalogService(Number(foodCatalogId), isAdmin);
+    handleResponse(res, 200, "All food variants fetched successfully", variants);
+  } catch (err) {
+    next(err);
+  }
+};
+
+//vrati vsechny varianty v invenatri pro dane food
+export const getActiveFoodVariants = async (req, res, next) => {
+  try {
+    const { foodCatalogId, inventoryId } = req.params;
+    const isAdmin = req.adminRoute;
+    const userId = req.userId;
+
+    const variants = await getActiveFoodVariantsService(
+      Number(inventoryId),
+      Number(foodCatalogId),
+      userId,
+      isAdmin,
+    );
     handleResponse(res, 200, "All food variants fetched successfully", variants);
   } catch (err) {
     next(err);

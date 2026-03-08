@@ -59,7 +59,6 @@ export const getAllFoodInventoriesApi = async (signal) => {
 export const getInventoryDetailsApi = async (inventoryId, signal) => {
   try {
     const response = await apiClient.get(`/inventory/${inventoryId}`, { signal });
-    console.log(response.data);
     return response.data;
   } catch (error) {
     if (isCancel(error)) {
@@ -76,7 +75,6 @@ export const getInventoryDetailsApi = async (inventoryId, signal) => {
 // vytvori inventar
 export const createFoodInventoryApi = async (data) => {
   try {
-    console.log("Polo", data);
     const response = await apiClient.post("/inventory", data);
     return response.data;
   } catch (error) {
@@ -94,7 +92,7 @@ export const createFoodInventoryApi = async (data) => {
 // ziska obsah konkretniho inventare
 export const getInventoryContentApi = async (inventoryId, signal) => {
   try {
-    console.log("1")
+    console.log("1");
     const response = await apiClient.get(`/inventory/${inventoryId}/content`, { signal });
     return response.data;
   } catch (error) {

@@ -143,3 +143,13 @@ export const inventoryIdBarcodeSchema = Joi.object({
   inventoryId: Joi.number().integer().positive().required(),
   barcode: Joi.string().max(150).required(),
 });
+
+export const foodIdInventoryIdSchema = Joi.object({
+  foodId: Joi.number().integer().positive().required(),
+  inventoryId: Joi.number().integer().positive().required(),
+});
+
+export const foodCatalogIdInventoryIdSchema = Joi.object({
+  foodCatalogId: Joi.number().integer().positive().required(),
+  inventoryId: Joi.number().integer().positive().required(),
+});

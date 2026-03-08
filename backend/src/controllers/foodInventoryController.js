@@ -233,3 +233,4 @@ export const getInventoryContent = async (req, res, next) => {
     next(err);
   }
 };
+

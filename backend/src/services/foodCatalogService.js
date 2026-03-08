@@ -31,7 +31,7 @@ export const getFoodCatalogWithLabelByBarcodeService = async (
     currentInventoryId,
     userId,
   );
-  console.log("catalogWithLabel",catalogWithLabel)
+  
   if (!catalogWithLabel) return null;
 
   const existingFoods = catalogWithLabel?.foods || [];

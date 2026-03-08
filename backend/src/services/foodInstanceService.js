@@ -49,7 +49,7 @@ export const updateFoodInstanceService = async (userId, data, isAdmin) => {
   const foodInstancesIds = Array.isArray(data.foodInstanceId)
     ? data.foodInstanceId
     : [data.foodInstanceId];
-
+  console.log("data", data);
   const MAX_BULK_UPDATE = 50;
   if (!isAdmin && foodInstancesIds.length > MAX_BULK_UPDATE) {
     throw new BadRequestError(

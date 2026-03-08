@@ -21,6 +21,7 @@ import {
   updateFormValues,
   getCategoryIdByVariant,
   setTemporaryError,
+  getVariant,
   resetErrors,
 } from "@/utils/stringUtils";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
@@ -70,23 +71,16 @@ export const validateForm = (errors, setErrors, inputText) => {
     });
     return false;
   }
-console.log(inputText?.amount , "4")
+  console.log(inputText?.amount, "4");
   if (!validateNumericInput(inputText?.amount, "amount", setErrors, 9999)) {
     return false;
   }
-console.log("5")
+  console.log("5");
 
   if (inputText?.price && !validateNumericInput(inputText?.price, "price", setErrors, 999999)) {
     return false;
   }
   return true;
-};
-
-// Vycisteni variant
-export const getVariant = (variantId, variantTitle) => {
-  if (variantId && variantId !== "undefined") return { variantId, variantTitle };
-  if (variantTitle) return { variantTitle };
-  return {};
 };
 
 // Vycisteni obrázků
@@ -119,7 +113,7 @@ export default function AddFoodManually() {
   const { userId } = useUser();
   const colors = useThemeColor();
   const { pickImage, takePhoto, uploadImage } = useImageUpload("back");
-  const { addFood, isSubmitting } = useAddFoodMutation();
+  const { addFood, isSubmitting } = useAddFoodMutation(activeInventory.id);
   const { data: userData } = useGetUserQuery(userId);
   const { data: inventoryCategories } = useGetInventoryCategoriesQuery(activeInventory.id);
 
@@ -316,7 +310,7 @@ export default function AddFoodManually() {
 
     const getCatalogId = catalogId ? { catalogId } : {};
     const getCategoryId = !categoryId || categoryId === "null" ? {} : { categoryId };
-    const formattedPrice = price?.replace(",", ".")
+    const formattedPrice = price?.replace(",", ".");
 
     return {
       ...rest,
@@ -694,7 +688,7 @@ export default function AddFoodManually() {
             value={inputText?.description || ""}
             onChangeText={(text) => {
               updateFormValues(setInputText, "description", text);
-              if (text.length <= 250) {
+              if (text.length <= 200) {
                 updateFormValues(setErrors, "description", "");
               } else {
                 updateFormValues(setErrors, "description", i18n.t("descriptionTooLong"));
@@ -705,7 +699,7 @@ export default function AddFoodManually() {
             error={errors.description}
             multiline={true}
             numberOfLines={Math.round(responsiveSize.vertical(7))}
-            maxLength={250}
+            maxLength={200}
             outlineStyle={styles.inputOutlineStyle}
             style={[styles.input, { minHeight: responsiveSize.vertical(110) }]}
             contentStyle={styles.descriptionContentStyle}

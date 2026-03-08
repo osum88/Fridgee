@@ -5,7 +5,7 @@ import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
 import { responsiveSize } from "@/utils/scale";
 import { TextInput, HelperText } from "react-native-paper";
-import { formatDate, formatDateInput, parseDateMidnight } from "@/utils/stringUtils";
+import { handleFormatDate, formatDateInput, parseDateMidnight } from "@/utils/stringUtils";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { GET_INPUT_THEME_NATIVE_PAPER } from "@/constants/colors";
 
@@ -47,7 +47,7 @@ function DateInputComponent({
     const dateObj = value instanceof Date ? value : new Date(value);
 
     if (!isNaN(dateObj.getTime())) {
-      const formattedValue = formatDate(dateObj);
+      const formattedValue = handleFormatDate(dateObj);
       if (formattedValue !== dateText) {
         setDateText(formattedValue);
         setPrevDate(formattedValue);
@@ -142,7 +142,7 @@ function DateInputComponent({
         setError("");
       }
       onChange(selectedDate);
-      setDateText(formatDate(selectedDate));
+      setDateText(handleFormatDate(selectedDate));
     }
   };
 

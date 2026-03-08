@@ -2,7 +2,7 @@ import express from "express";
 import { authenticateToken, authorizeUser } from "../middlewares/authMiddleware.js";
 import validate from "../middlewares/validator.js";
 import { sanitize } from "../middlewares/sanitize.js";
-import { addFoodToInventory, updateFood } from "../controllers/foodController.js";
+import { addFoodToInventory,  updateFood } from "../controllers/foodController.js";
 import { addFoodToInventoryFoodSchema, updateFoodSchema } from "../validation/foodValidation.js";
 import multer from "multer";
 
@@ -17,7 +17,6 @@ router.post("/",  upload.single("file"), sanitize, validate(addFoodToInventoryFo
 
 // updatuje food, categorii a label food
 router.patch("/", upload.single("file"), sanitize, validate(updateFoodSchema), updateFood);
-
 
 
 export default router;

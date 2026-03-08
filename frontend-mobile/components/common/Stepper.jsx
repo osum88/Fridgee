@@ -1,4 +1,4 @@
-import React, { memo, useRef } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
@@ -9,19 +9,33 @@ import { HelperText } from "react-native-paper";
 // zvysuje a snizuje hodnotu, ktera je mezi min a max, a zobrazuje ji s tlacitky plus a minus
 const StepperComponent = ({ value, onChange, min = 1, max = 99, label, containerStyle }) => {
   const color = useThemeColor();
-
   const intervalRef = useRef(null);
   const timeoutRef = useRef(null);
-  const valueRef = useRef(value);
+  const internalRef = useRef(value);
+  const [displayValue, setDisplayValue] = useState(value);
 
-  valueRef.current = value;
+  // synchronizuje hodnotu pokud se zmeni z venku
+  const isInternalUpdate = useRef(false);
+  useEffect(() => {
+    if (!isInternalUpdate.current) {
+      internalRef.current = value;
+      setDisplayValue(value);
+    }
+    isInternalUpdate.current = false;
+  }, [value]);
 
   const updateValue = (type) => {
-    const currentValue = valueRef.current;
-    if (type === "inc" && currentValue < max) {
-      onChange(currentValue + 1);
-    } else if (type === "dec" && currentValue > min) {
-      onChange(currentValue - 1);
+    const curr = internalRef.current;
+    if (type === "inc" && curr < max) {
+      internalRef.current = curr + 1;
+      isInternalUpdate.current = true;
+      setDisplayValue(curr + 1);
+      onChange(curr + 1);
+    } else if (type === "dec" && curr > min) {
+      internalRef.current = curr - 1;
+      isInternalUpdate.current = true;
+      setDisplayValue(curr - 1);
+      onChange(curr - 1);
     }
   };
 
@@ -31,8 +45,8 @@ const StepperComponent = ({ value, onChange, min = 1, max = 99, label, container
 
     timeoutRef.current = setTimeout(() => {
       intervalRef.current = setInterval(() => {
-        if (type === "inc" && valueRef.current >= max) stopAction();
-        else if (type === "dec" && valueRef.current <= min) stopAction();
+        if (type === "inc" && internalRef.current >= max) stopAction();
+        else if (type === "dec" && internalRef.current <= min) stopAction();
         else updateValue(type);
       }, 100);
     }, 500);
@@ -63,17 +77,31 @@ const StepperComponent = ({ value, onChange, min = 1, max = 99, label, container
         <TouchableOpacity
           onPressIn={() => startAction("dec")}
           onPressOut={stopAction}
-          style={[styles.button, { backgroundColor: color.stepperButton }]}
+          disabled={displayValue === min}
+          style={[
+            styles.button,
+            {
+              backgroundColor:
+                displayValue === min ? color.stepperButton + "33" : color.stepperButton,
+            },
+          ]}
         >
           <IconSymbol name={"minus"} size={responsiveSize.moderate(24)} color={color.onPrimary} />
         </TouchableOpacity>
 
-        <ThemedText style={styles.valueText}>{value}</ThemedText>
+        <ThemedText style={styles.valueText}>{displayValue}</ThemedText>
 
         <TouchableOpacity
           onPressIn={() => startAction("inc")}
           onPressOut={stopAction}
-          style={[styles.button, { backgroundColor: color.stepperButton }]}
+          disabled={displayValue === max}
+          style={[
+            styles.button,
+            {
+              backgroundColor:
+                displayValue === max ? color.stepperButton + "33" : color.stepperButton,
+            },
+          ]}
         >
           <IconSymbol name={"plus"} size={responsiveSize.moderate(24)} color={color.onPrimary} />
         </TouchableOpacity>

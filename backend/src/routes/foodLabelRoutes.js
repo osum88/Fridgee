@@ -21,13 +21,7 @@ router.use(authenticateToken);
 router.use(authorizeUser);
 
 // updatuje uzivateluv food label
-router.patch(
-  "/",
-  upload.single("file"),
-  sanitize,
-  validate(updateFoodLabelSchema),
-  updateFoodLabel,
-);
+router.patch("/", upload.single("file"), sanitize, validate(updateFoodLabelSchema), updateFoodLabel,);
 
 // smaze label (SOFT/HARD delete) a pokud je catalog bez barkodu tak ten taky (SOFT/HARD delete)
 router.delete("/:foodLabelId", sanitize, validate(foodLabelIdSchema), deleteFoodLabel);

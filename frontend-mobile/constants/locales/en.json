@@ -180,7 +180,22 @@
   "noFoodTitle": "No food",
   "noFoodSubtitle": "Add your first food using the buttons below.",
   "searchFoodPlaceholder": "Search food",
-  
+  "food": "Food",
+  "noExpirationDate": "No expiration date",
+  "instances": "Instances",
+  "minQuantity": "Minimum quantity",
+  "consume": "Consume",
+  "total": "Total",
+  "remainingAmount": "Remaining: {{remainingAmount}} {{unit}}",
+  "amountExceeds": "The entered amount exceeds the available quantity ({{max}} {{unit}})",
+  "piecesPerPackage_one": "Piece per package",
+  "piecesPerPackage_few": "Pieces per package",
+  "piecesPerPackage_other": "Pieces per package",
+   "pcs": "pcs",
+   "foodItem": "Food item",
+"foodPieceCount": "Number of pieces",
+"editItem": "Edit item",
+
   "errors": {
     "bankNumber": {
       "STRING_EMPTY": "If you enter a bank account number or IBAN, you must also select the bank account country.",

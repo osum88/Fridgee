@@ -16,6 +16,7 @@ import {
   addFoodToInventoryRepository,
   getFoodByBarcodeRepository,
   getFoodByIdRepository,
+  getFoodDetailRepository,
   updateFoodRepository,
 } from "../repositories/foodRepository.js";
 import { cleanEmptyStrings } from "../utils/cleanEmptyStrings.js";
@@ -57,7 +58,6 @@ export const addFoodToInventoryService = async (userId, foodData, isAdmin) => {
       foodData?.foodImageCloudId,
     );
     console.log("imageData:", imageData);
-
 
     // vyfiltruje null/undefined
     const { title, barcode, expirationDate, image, ...filteredUpdateData } = Object.fromEntries(
@@ -280,5 +280,95 @@ export const getFoodByBarcodeService = async (barcode, inventoryId, userId, isAd
     labelTitle: activeLabelTitle,
     barcode: finalBarcode,
     variants: variantsArray,
+  };
+};
+
+//vrati detail jidla
+export const getFoodDetailService = async (inventoryId, foodId, userId, isAdmin) => {
+  const food = await getFoodDetailRepository(foodId, userId);
+  console.log("food", food);
+  if (!food) {
+    throw new NotFoundError("Food not found");
+  }
+
+  if (!isAdmin) {
+    await getFoodInventoryUserRepository(userId, inventoryId);
+  }
+
+  const currency = await createBaseCurrency(userId, null);
+
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const nextWeek = new Date(today);
+  nextWeek.setDate(today.getDate() + 7);
+
+  const userCustomLabel = food.catalog.labels[0];
+  const activeLabel = userCustomLabel || food.label;
+
+  let expiredCount = 0;
+  let expiringSoonCount = 0;
+  let validCount = 0;
+
+  const aggregatedMap = food.instances.reduce((iAcc, inst) => {
+    if (!inst.expirationDate) {
+      validCount += 1;
+    } else if (inst.expirationDate < today) {
+      expiredCount += 1;
+    } else if (inst.expirationDate <= nextWeek) {
+      expiringSoonCount += 1;
+    } else {
+      validCount += 1;
+    }
+
+    const convertedPrice = inst.priceId
+      ? convertPrice(
+          inst?.price?.price,
+          inst?.price?.exchangeRate,
+          inst?.price?.exchangeAmount,
+          inst?.price?.baseCurrency,
+          currency,
+        )
+      : null;
+
+    const priceKey = convertedPrice !== null ? convertedPrice.toFixed(2) : "no-price";
+    const dateKey = inst.expirationDate
+      ? inst.expirationDate.toISOString().split("T")[0]
+      : "no-date";
+    const amountUnitKey = inst?.amount > 0 ? `${inst.amount}_${inst.unit}` : "no-amount-unit";
+
+    const groupKey = `${dateKey}_${priceKey}_${amountUnitKey}`;
+
+    if (!iAcc[groupKey]) {
+      iAcc[groupKey] = {
+        expirationDate: inst?.expirationDate,
+        price: convertedPrice ? Number(convertedPrice.toFixed(2)) : null,
+        currency: currency,
+        amount: inst?.amount || 0,
+        unit: inst?.amount > 0 ? inst.unit : null,
+        count: 0,
+        instanceIds: [],
+      };
+    }
+    iAcc[groupKey].count += 1;
+    iAcc[groupKey].instanceIds.push(inst.id);
+    return iAcc;
+  }, {});
+
+  return {
+    foodId: food.id,
+    catalogId: food.catalogId,
+    labelTitle: activeLabel?.title,
+    normalizedTitle: activeLabel?.normalizedTitle,
+    labelDescription: activeLabel?.description,
+    labelFoodImageUrl: activeLabel?.foodImageUrl,
+    foodImageCloudId: activeLabel?.foodImageCloudId,
+    variantTitle: food.variant?.title || "",
+    variantId: food.variant?.id || null,
+    barcode: food?.catalog?.barcode,
+    minimalQuantity: food.minimalQuantity,
+    expiredCount,
+    expiringSoonCount,
+    validCount,
+    instances: Object.values(aggregatedMap),
   };
 };

@@ -428,6 +428,7 @@ export const getInventoryContentService = async (inventoryId, userId, isAdmin) =
     const labelTitle = activeLabel?.title;
     const normalizedTitle = activeLabel?.normalizedTitle;
     const labelFoodImageUrl = activeLabel?.foodImageUrl;
+    const foodImageCloudId = activeLabel?.foodImageCloudId;
     const labelDescription = activeLabel?.description;
 
     let expiredCount = 0;
@@ -484,11 +485,14 @@ export const getInventoryContentService = async (inventoryId, userId, isAdmin) =
 
     acc[categoryId].foods.push({
       foodId: food.id,
+      catalogId: food.catalogId,
       labelTitle: labelTitle,
       normalizedTitle: normalizedTitle,
       labelDescription: labelDescription,
       labelFoodImageUrl: labelFoodImageUrl,
-      variantTitle: food.variant?.title || null,
+      foodImageCloudId: foodImageCloudId,
+      variantTitle: food.variant?.title || "",
+      variantId: food.variant?.id || null,
       barcode: food?.catalog?.barcode,
       minimalQuantity: food.minimalQuantity,
       expiredCount,

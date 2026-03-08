@@ -13,7 +13,7 @@ import { INVENTORY_THEMES } from "@/constants/colors";
 export const useGetInventoryCategoriesQuery = (inventoryId, enabled = true) => {
   const ONE_HOUR = 1000 * 60 * 60;
   return useQuery({
-    queryKey: ["foodCategories", inventoryId],
+    queryKey: ["foodCategories", parseInt(inventoryId)],
     queryFn: ({ signal }) => getInventoryFoodCategoriesApi(inventoryId, signal),
     enabled: enabled && !!inventoryId,
     staleTime: ONE_HOUR,
@@ -42,7 +42,7 @@ export const useFoodInventories = (enabled = true) => {
   useEffect(() => {
     if (query.data && query.isSuccess) {
       query.data.forEach((inventory) => {
-        queryClient.setQueryData(["food-inventory", inventory.id], {
+        queryClient.setQueryData(["food-inventory", parseInt(inventory.id)], {
           data: inventory,
           message: "Pre-seeded from list",
           status: 200,
@@ -61,7 +61,7 @@ export const useInventoryDetail = (inventoryId, enabled = true) => {
   const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
 
   return useQuery({
-    queryKey: ["food-inventory", inventoryId],
+    queryKey: ["food-inventory", parseInt(inventoryId)],
     queryFn: ({ signal }) => getInventoryDetailsApi(inventoryId, signal),
     enabled: !!inventoryId && isFocused && enabled,
     //pokud inventory ma vic jak 1 membera pak cache je validovana
@@ -69,13 +69,13 @@ export const useInventoryDetail = (inventoryId, enabled = true) => {
       return query.state.data?.memberCount > 1 ? TWO_MINUTES : ONE_WEEK;
     },
     refetchOnReconnect: "always",
-    // automaticky refetch na
     refetchInterval: (query) => {
       return query.state.data?.memberCount > 1 ? TWO_MINUTES : false;
     },
   });
 };
 
+//vrati content inventare
 export const useInventoryContent = (inventoryId, memberCount = 1, enabled = true) => {
   const isFocused = useIsFocused();
   const ONE_HOUR = 1000 * 60 * 60;
@@ -84,7 +84,7 @@ export const useInventoryContent = (inventoryId, memberCount = 1, enabled = true
   const ONE_MIN = 60 * 1000;
 
   return useQuery({
-    queryKey: ["inventory-content", inventoryId],
+    queryKey: ["inventory-content", parseInt(inventoryId)],
     queryFn: ({ signal }) => getInventoryContentApi(inventoryId, signal),
     enabled: !!inventoryId && isFocused && enabled,
     staleTime: () => {
