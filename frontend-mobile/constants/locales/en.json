@@ -22,7 +22,7 @@
   "resetPasswordLink": "Send Reset Link",
   "backToLogin": "Back to Login",
   "resendIn": "Resend in",
-  "errorNetwork": "Network Error. Please check your connection and try again.",
+  "errorNetwork":  "Something went wrong. Please check your internet connection and try again.",
   "errorPassword": "Wrong password.",
   "errorDefault": "An unexpected error occurred. Please try again later.",
   "errorValidEmail": "Email must be a valid email address.",
@@ -126,6 +126,10 @@
   "discardChange": "Discard",
   "save": "Save",
   "errorBankNumberNeedCountry": "If you enter a bank account number or IBAN, you must also select the bank account country.",
+  "sessionExpired": "Your session has expired. Please log in again.",
+   "newCategory": "New category",
+  "confirm": "Confirm",
+   "createCategory": "Create a category",
 
   "errorBirthDateInFuture": "Date of birth cannot be in the future.",
   "inventory": "Inventory",
@@ -161,7 +165,10 @@
   "errorCategoryChangeNotAllowed": "This food item (including its variant) already exists in the inventory. The category cannot be changed when adding the food.",
   "variant": "Variant",
   "variantPlaceholder": "Enter variant",
-  "variantExplanationTip": "The variant is used to distinguish food items with the same barcode (e.g. different flavors or types).",
+  "variantExplanationTip": "The variant is used to distinguish foods with the same barcode (e.g. different flavors or types).",
+  "variantExplanationTip2": "A variant is used to distinguish foods with the same barcode (e.g. different flavors or types). When the variant is changed, the items will be moved under an existing food with that variant, or a new one will be created if it does not exist.",
+  "variantExplanationTip3": "A variant is used to distinguish foods with the same barcode (e.g. different flavors or types). If a food with the selected variant already exists, the items will be merged.",
+
   "quantity": "Food quantity",
   "foodPhotoTitle": "Food photo",
   "profilePhotoTitle": "Profile photo",
@@ -191,10 +198,16 @@
   "piecesPerPackage_one": "Piece per package",
   "piecesPerPackage_few": "Pieces per package",
   "piecesPerPackage_other": "Pieces per package",
-   "pcs": "pcs",
-   "foodItem": "Food item",
-"foodPieceCount": "Number of pieces",
-"editItem": "Edit item",
+  "pcs": "pcs",
+  "foodItem": "Food item",
+  "foodPieceCount": "Number of pieces",
+  "editItem": "Edit item",
+  "addItem": "Add item",
+  "editFood": "Edit food",
+  "minimalQuantity": "Minimum quantity",
+  "invalidIntegerFormat": "The value must be an integer.",
+  "noInventoryTitle": "No inventories",
+  "noInventorySubtitle": "Add your first inventory using the button below.",
 
   "errors": {
     "bankNumber": {
@@ -266,7 +279,7 @@
       "STRING_MAX": "Variant can be up to 40 characters long."
     },
     "description": {
-      "STRING_MAX": "Description can be up to 250 characters long."
+      "STRING_MAX": "Description can be up to 200 characters long."
     },
     "expirationDate": {
       "default": "Expiration date must be a valid date in the format DD.MM.YYYY."
@@ -280,6 +293,20 @@
     },
     "inventoryId": {
       "NUMBER_BASE": "Please select an inventory first."
+    },
+    "minimalQuantity": {
+      "STRING_MAX": "The entered minimum quantity is out of the allowed range.",
+      "STRING_MIN": "The entered minimum quantity is out of the allowed range.",
+      "OWNER_EDITOR_ONLY": "Only the inventory owner or editor can change the minimum quantity.",
+      "default": "The value must be an integer."
+    },
+    "variant": {
+      "OWNER_EDITOR_ONLY": "Only the inventory owner or editor can change the variant of the entire food. Other users can change the variant only for individual food items.",
+      "STRING_MAX":"Variant can be up to 40 characters long."
+    },
+     "category": {
+      "OWNER_EDITOR_ONLY": "Only the inventory owner or editor can change the category.",
+      "default": "Category name cannot be longer than 40 characters."
     }
   }
 }

@@ -201,7 +201,10 @@ export const getCurrency = (countryCode) => {
 };
 
 // formatuje vstup pro cislo (1 tecka nebo carka, maximalne 2 desetinna mista)
-export const formatNumberInput = (text) => {
+export const formatNumberInput = (text, allowDecimal = true) => {
+  if (!allowDecimal) {
+    return text.replace(/[^0-9]/g, "");
+  }
   let cleaned = text.replace(/[^0-9.,]/g, "");
 
   // kontrola by tam byla bud 1 carka nebo 1 tecka
@@ -223,29 +226,34 @@ export const formatNumberInput = (text) => {
 };
 
 // validuje format cisla a nastavuje error
-export const validateNumericInput = (value, fieldName, setErrors, maxLimit = 999999) => {
+export const validateNumericInput = (
+  value,
+  fieldName,
+  setErrors,
+  maxLimit = 999999,
+  allowDecimal = true,
+) => {
   if (!value || value === "0" || value === 0) {
     setErrors((prev) => ({ ...prev, [fieldName]: "" }));
     return true;
   }
 
-  if (value.endsWith(".") || value.endsWith(",")) {
+  if (allowDecimal && (value.endsWith(".") || value.endsWith(","))) {
     setErrors((prev) => ({ ...prev, [fieldName]: "" }));
     return null;
   }
 
-  // max 2 desetinná místa
-  const numericRegex = /^\d+([.,]\d{1,2})?$/;
+  const numericRegex = allowDecimal ? /^\d+([.,]\d{1,2})?$/ : /^\d+$/;
   if (!numericRegex.test(value)) {
     setErrors((prev) => ({
       ...prev,
-      [fieldName]: i18n.t("invalidNumberFormat"),
+      [fieldName]: i18n.t(allowDecimal ? "invalidNumberFormat" : "invalidIntegerFormat"),
     }));
     return null;
   }
 
-  // kontrola rozsahu
-  const numericValue = parseFloat(value.replace(",", "."));
+  const numericValue = allowDecimal ? parseFloat(value.replace(",", ".")) : parseInt(value);
+
   if (numericValue < 0 || numericValue > maxLimit) {
     setErrors((prev) => ({
       ...prev,
@@ -391,4 +399,24 @@ export const getVariant = (variantId, variantTitle) => {
   if (variantTitle) return { variantTitle };
   if (variantId === null && variantTitle === "") return { variantTitle };
   return {};
+};
+
+//validuje instance
+export const validateInstance = (errors, setErrors, inputText) => {
+  if (errors?.expirationDate && errors?.expirationDate !== " ") return false;
+
+  const amount = parseFloat(inputText?.amount || "0");
+  if (amount > 0 && (inputText?.unit === "null" || !inputText?.unit)) {
+    updateFormValues(setErrors, {
+      amount: i18n.t("errors.amount.QUANTITY_UNIT_REQUIRED"),
+      unit: " ",
+    });
+    return false;
+  }
+
+  if (!validateNumericInput(inputText?.amount, "amount", setErrors, 9999)) return false;
+  if (inputText?.price && !validateNumericInput(inputText?.price, "price", setErrors, 999999))
+    return false;
+
+  return true;
 };

@@ -61,7 +61,7 @@ export const signUpService = async ({ username, email, password, preferredLangua
 
   // vytvoreni a ulozeni tokenu
   const accessToken = generateAccessToken(newUser);
-  const { fullToken: refreshToken, tokenId, tokenHash } = await generateRefreshToken(newUser.id);
+  const { fullToken: refreshToken, tokenId, tokenHash } = await generateRefreshToken();
   await createRefreshTokenRepository(tokenId, tokenHash, newUser.id);
 
   return {
@@ -110,7 +110,7 @@ export const loginService = async ({ email, password }) => {
 
   // vytvoreni a ulozeni tokenu
   const accessToken = generateAccessToken(user);
-  const { fullToken: refreshToken, tokenId, tokenHash } = await generateRefreshToken(user.id);
+  const { fullToken: refreshToken, tokenId, tokenHash } = await generateRefreshToken();
   await createRefreshTokenRepository(tokenId, tokenHash, user.id);
 
   const { passwordHash, ...userWithoutPassword } = user;
@@ -169,7 +169,7 @@ export const refreshService = async (refreshToken) => {
     fullToken: newRefreshToken,
     tokenId: newTokenId,
     tokenHash: newTokenHash,
-  } = await generateRefreshToken(foundToken.userId);
+  } = await generateRefreshToken();
   await createRefreshTokenRepository(newTokenId, newTokenHash, foundToken.userId);
 
   return { newAccessToken, newRefreshToken };

@@ -13,10 +13,11 @@ import * as Haptics from "expo-haptics";
 import { useTheme } from "@/contexts/ThemeContext";
 import { LIST_ITEM_TYPE } from "@/constants/general";
 import { RefreshableFlashList } from "@/components/common/RefreshableFlashList";
+import Animated, { FadeIn,  } from "react-native-reanimated";
 
 const ITEM_HEIGHT = responsiveSize.vertical(60);
 const SECTION_FOOTER_HEIGHT = responsiveSize.vertical(13);
-const BORDER_RADIUS = responsiveSize.moderate(8);
+const BORDER_RADIUS = responsiveSize.moderate(6);
 const BORDER_WIDTH = 1;
 
 //leva akce komponenty
@@ -86,7 +87,9 @@ const SectionHeader = React.memo(SectionHeaderComponent);
 
 //konec sekce
 const SectionEndComponent = ({ surface, borderColor }) => (
-  <ThemedView style={[styles.sectionEndCap, { borderColor }]} darkColor={surface} />
+  <Animated.View entering={FadeIn.duration(200)}>
+    <ThemedView style={[styles.sectionEndCap, { borderColor }]} darkColor={surface} />
+  </Animated.View>
 );
 const SectionEnd = React.memo(SectionEndComponent);
 
@@ -153,6 +156,11 @@ const FoodItemContent = React.memo(
     prev.item.validCount === next.item.validCount &&
     prev.item.expiredCount === next.item.expiredCount &&
     prev.item.expiringSoonCount === next.item.expiringSoonCount &&
+    prev.item.labelDescription === next.item.labelDescription &&
+    prev.item.labelTitle === next.item.labelTitle &&
+    prev.item.normalizedTitle === next.item.normalizedTitle &&
+    prev.item.variantTitle === next.item.variantTitle &&
+    prev.item.variantId === next.item.variantId &&
     prev.surfaceColor === next.surfaceColor &&
     prev.validCountColor === next.validCountColor &&
     prev.expiringSoonCountColor === next.expiringSoonCountColor &&
@@ -199,9 +207,10 @@ const FoodItemComponent = ({
   );
 
   return (
-    <ThemedView style={[styles.itemWrapper, { borderColor }]} darkColor={surface}>
-      <ThemedLine style={styles.foodDivider} />
-      <ReanimatedSwipeable
+    <Animated.View entering={FadeIn.duration(200)}>
+      <ThemedView style={[styles.itemWrapper, { borderColor }]} darkColor={surface}>
+        <ThemedLine style={styles.foodDivider} />
+        {/* <ReanimatedSwipeable
         ref={swipeableRef}
         renderLeftActions={renderLeft}
         renderRightActions={renderRight}
@@ -209,7 +218,7 @@ const FoodItemComponent = ({
         friction={2}
         leftThreshold={40}
         rightThreshold={40}
-      >
+      > */}
         <FoodItemContent
           item={item}
           surfaceColor={surfaceColor}
@@ -217,8 +226,9 @@ const FoodItemComponent = ({
           expiringSoonCountColor={expiringSoonCountColor}
           expiredCountColor={expiredCountColor}
         />
-      </ReanimatedSwipeable>
-    </ThemedView>
+        {/* </ReanimatedSwipeable> */}
+      </ThemedView>
+    </Animated.View>
   );
 };
 
@@ -229,6 +239,11 @@ const FoodItem = React.memo(
     prev.item.validCount === next.item.validCount &&
     prev.item.expiredCount === next.item.expiredCount &&
     prev.item.expiringSoonCount === next.item.expiringSoonCount &&
+    prev.item.labelDescription === next.item.labelDescription &&
+    prev.item.labelTitle === next.item.labelTitle &&
+    prev.item.normalizedTitle === next.item.normalizedTitle &&
+    prev.item.variantTitle === next.item.variantTitle &&
+    prev.item.variantId === next.item.variantId &&
     prev.primaryColor === next.primaryColor &&
     prev.errorColor === next.errorColor &&
     prev.surfaceColor === next.surfaceColor &&
@@ -261,6 +276,8 @@ const InventoryFoodListComponent = ({ data, toggleSection, refetch }) => {
           return <SectionEnd surface={colors.surface} borderColor={borderColor} />;
         case LIST_ITEM_TYPE.FOOTER:
           return <SectionFooter />;
+        case LIST_ITEM_TYPE.BOTTOM_SPACER:
+          return <View style={{ height: responsiveSize.vertical(100) }} />;
         default:
           return (
             <FoodItem
@@ -286,6 +303,7 @@ const InventoryFoodListComponent = ({ data, toggleSection, refetch }) => {
     if (item.type === LIST_ITEM_TYPE.HEADER) return `header-${item.categoryId}`;
     if (item.type === LIST_ITEM_TYPE.SECTION_END) return `end-${item.categoryId}`;
     if (item.type === LIST_ITEM_TYPE.FOOTER) return `footer-${item.categoryId}`;
+    if (item.type === LIST_ITEM_TYPE.BOTTOM_SPACER) return "bottom-spacer";
     return `item-${item.foodId}`;
   }, []);
 
@@ -331,7 +349,7 @@ const styles = StyleSheet.create({
     borderRightWidth: BORDER_WIDTH,
   },
   sectionEndCap: {
-    height: responsiveSize.vertical(8),
+    height: responsiveSize.vertical(4),
     borderLeftWidth: BORDER_WIDTH,
     borderRightWidth: BORDER_WIDTH,
     borderBottomWidth: BORDER_WIDTH,

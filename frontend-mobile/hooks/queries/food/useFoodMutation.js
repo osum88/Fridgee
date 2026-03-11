@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { addFoodToInventoryApi } from "@/api/food";
+import { addFoodToInventoryApi, updateFoodApi } from "@/api/food";
 
-const useAddFoodMutation = (inventoryId) => {
+export const useAddFoodMutation = (inventoryId) => {
   const queryClient = useQueryClient();
 
   const addFood = useMutation({
@@ -19,4 +19,14 @@ const useAddFoodMutation = (inventoryId) => {
   return { addFood, isSubmitting: addFood.isPending };
 };
 
-export default useAddFoodMutation;
+export const useUpdateFoodMutation = () => {
+  const mutation = useMutation({
+    mutationFn: ({ foodData, imageFormData }) => updateFoodApi(foodData, imageFormData),
+    onSuccess: () => {
+      console.log("Food added successfully");
+    },
+    onError: (error) => {console.error("useUpdateFoodMutation error:", error)},
+  });
+
+  return { updateFood: mutation, isSubmitting: mutation.isPending };
+};

@@ -48,8 +48,6 @@ export const addFoodToInventoryService = async (userId, foodData, isAdmin) => {
       await getFoodInventoryUserRepository(userId, foodData?.inventoryId);
     }
 
-    console.log("foodData:", foodData);
-
     //uploaduje food image na cloud
     imageData = await uploadFoodLabelImageService(
       userId,
@@ -57,7 +55,6 @@ export const addFoodToInventoryService = async (userId, foodData, isAdmin) => {
       foodData?.image,
       foodData?.foodImageCloudId,
     );
-    console.log("imageData:", imageData);
 
     // vyfiltruje null/undefined
     const { title, barcode, expirationDate, image, ...filteredUpdateData } = Object.fromEntries(
@@ -150,7 +147,10 @@ export const updateFoodService = async (userId, data, isAdmin) => {
       // pokud se hodnota lisy
       if (newMinimalQuantity !== undefined) {
         if (!isAdmin && !["OWNER", "EDITOR"].includes(inventoryUser?.role)) {
-          throw new ForbiddenError("Only OWNER or EDITOR can change minimal quantity.");
+          throw new ForbiddenError("Only OWNER or EDITOR can change minimal quantity.", {
+            type: "minimalQuantity",
+            code: "OWNER_EDITOR_ONLY",
+          });
         }
         minimalQuantityData = {
           new: { minimalQuantity: newMinimalQuantity },
@@ -286,7 +286,7 @@ export const getFoodByBarcodeService = async (barcode, inventoryId, userId, isAd
 //vrati detail jidla
 export const getFoodDetailService = async (inventoryId, foodId, userId, isAdmin) => {
   const food = await getFoodDetailRepository(foodId, userId);
-  console.log("food", food);
+
   if (!food) {
     throw new NotFoundError("Food not found");
   }
@@ -356,6 +356,7 @@ export const getFoodDetailService = async (inventoryId, foodId, userId, isAdmin)
 
   return {
     foodId: food.id,
+    categoryId: food.categoryId || "no-category",
     catalogId: food.catalogId,
     labelTitle: activeLabel?.title,
     normalizedTitle: activeLabel?.normalizedTitle,

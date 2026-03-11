@@ -20,12 +20,11 @@ export const generateAccessToken = (user) => {
     return jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
 };
 
-export const generateRefreshToken = async (userId) => {
+export const generateRefreshToken = async () => {
     const tokenId = uuidv4();
     const tokenSecret = crypto.randomBytes(32).toString("hex");
     const fullToken = `${tokenId}.${tokenSecret}`;
     const tokenHash = await bcrypt.hash(tokenSecret, 11);
-
     return { fullToken, tokenId, tokenHash };
 };
 

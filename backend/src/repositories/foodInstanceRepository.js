@@ -12,7 +12,7 @@ import {
   resolveTargetFoodEntityRepository,
   softDeleteOrphanedVariantRepository,
 } from "./foodVariantRepository.js";
-import { findOrCreatePriceIdRepository } from "./priceRepository.js";
+import { createPriceRepository, findOrCreatePriceIdRepository } from "./priceRepository.js";
 
 // smaze vice foodinstance pokud je spotrebovana nebo upravi amount pokud je jen castecna konzumace
 export const consumeMultipleFoodInstancesRepository = async (
@@ -514,6 +514,78 @@ export const deleteFoodInstancesRepository = async (instanceIds, userId) => {
     );
   } catch (error) {
     console.error("Error in deleteFoodInstancesRepository:", error);
+    throw error;
+  }
+};
+
+// prida insatnci
+export const addFoodInstanceRepository = async (userId, data) => {
+  const { quantity, foodId, ...rest } = data;
+  const count = parseInt(quantity) || 1;
+
+  try {
+    return await prisma.$transaction(
+      async (tx) => {
+        // overi ze food existuje a ziska inventoryId a catalogId pro historii
+        const food = await tx.food.findUnique({
+          where: { id: foodId },
+          select: { id: true, inventoryId: true, catalogId: true },
+        });
+
+        if (!food) {
+          throw new NotFoundError("Food not found.");
+        }
+
+        // zamkne food radek pro ostatni zapisy dokud neskonci transakce
+        await tx.$executeRaw`SELECT id FROM foods WHERE id = ${food.id} FOR UPDATE`;
+
+        // vrati pocet instanci foodu v inventari
+        const currentCountInstances = await getFoodInstancesCountRepository(food.id, tx);
+
+        // vytvori novou cenu
+        const priceRecord = await createPriceRepository(rest, tx);
+        const newPriceId = priceRecord ? priceRecord.id : null;
+
+        const batchItem = count > 1 ? { batchItem: true } : {};
+
+        // vytvori instance
+        const instances = [];
+        for (let i = 0; i < count; i++) {
+          const newInstance = await tx.foodInstance.create({
+            data: {
+              foodId: food.id,
+              priceId: newPriceId || null,
+              expirationDate: rest?.expirationDate || null,
+              addedBy: userId,
+              amount: rest?.amount || 0,
+              unit: rest?.unit || null,
+            },
+          });
+          instances.push(newInstance);
+
+          await tx.foodHistory.create({
+            data: {
+              inventoryId: food.inventoryId || null,
+              catalogId: food.catalogId || null,
+              foodId: food.id || null,
+              foodInstanceId: newInstance.id || null,
+              priceId: newPriceId || null,
+              action: "ADD",
+              changedBy: userId || null,
+              snapshotAmount: rest?.amount || null,
+              snapshotUnit: rest?.unit || null,
+              quantityBefore: currentCountInstances + i,
+              quantityAfter: currentCountInstances + i + 1,
+              metadata: batchItem,
+            },
+          });
+        }
+        return instances;
+      },
+      { timeout: 10000 },
+    );
+  } catch (error) {
+    console.error("Error adding food instance:", error);
     throw error;
   }
 };

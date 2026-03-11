@@ -16,6 +16,7 @@ import { jwtDecode } from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useLogoutMutation from "@/hooks/queries/auth/useLogoutMutation";
 import { useQueryClient } from "@tanstack/react-query";
+import { showGlobalError } from "@/utils/showGlobalError";
 
 export const UserContext = createContext();
 
@@ -39,7 +40,10 @@ export function UserProvider({ children }) {
   const handleNewTokens = (newAccessToken) => {
     setAccessToken(newAccessToken);
     setUserId(getUserIdFromToken(newAccessToken));
-    console.log("Tokens updated from interceptor, new accessToken:", newAccessToken);
+    console.log(
+      "Tokens updated from interceptor, new accessToken:",
+      newAccessToken.substring(0, 10),
+    );
   };
 
   // prihlaseni
@@ -114,7 +118,14 @@ export function UserProvider({ children }) {
         setAccessToken(data.accessToken);
         return data.accessToken;
       } catch (refreshError) {
+        // sitova chyba -> neodhlasovat
+        if (!refreshError?.response) {
+          console.log("Network error during proactive refresh, skipping sign out.");
+          return;
+        }
+        // auth chyba -> odhlasit
         console.error("Failed to refresh token:", refreshError);
+        showGlobalError({ response: { status: 401, _isAuthExpired: true } });
         await signOut();
       } finally {
         refreshingPromiseRef.current = null;

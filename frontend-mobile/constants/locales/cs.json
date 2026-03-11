@@ -22,7 +22,7 @@
   "resetPasswordLink": "Odeslat odkaz",
   "backToLogin": "Zpět na přihlášení",
   "resendIn": "Znovu odeslat za",
-  "errorNetwork": "Chyba sítě. Zkontrolujte připojení a zkuste to znovu.",
+  "errorNetwork": "Něco se nepovedlo. Zkontrolujte připojení k internetu a zkuste to znovu.",
   "errorPassword": "Špatné heslo.",
   "errorDefault": "Vyskytla se neočekávaná chyba. Zkuste to prosím později.",
   "errorValidEmail": "Email musí být platná e-mailová adresa",
@@ -161,6 +161,8 @@
   "variant": "Varianta",
   "variantPlaceholder": "Zadejte variantu",
   "variantExplanationTip": "Varianta slouží k rozlišení potravin se stejným čárovým kódem (např. různé příchutě nebo typy).",
+  "variantExplanationTip2": "Varianta slouží k rozlišení potravin se stejným čárovým kódem (např. různé příchutě nebo typy). Při změně varianty se položky přesunou pod již existující potravinu s touto variantou, nebo se vytvoří nová, pokud ještě neexistuje.",
+  "variantExplanationTip3": "Varianta slouží k rozlišení potravin se stejným čárovým kódem (např. různé příchutě nebo typy). Pokud při změně varianty již existuje potravina se stejnou variantou, položky se sloučí.",
   "quantity": "Množství potraviny",
   "foodPhotoTitle": "Fotka potraviny",
   "profilePhotoTitle": "Profilová fotka",
@@ -193,7 +195,17 @@
   "pcs": "ks",
   "foodItem": "Položka potraviny",
   "foodPieceCount": "Počet kusů",
-"editItem": "Upravit položku",
+  "editItem": "Upravit položku",
+  "addItem": "Přidat položku",
+  "editFood": "Upravit potravinu",
+  "minimalQuantity": "Minimální množství",
+  "invalidIntegerFormat": "Hodnota musí být celé číslo.",
+  "noInventoryTitle": "Žádné inventáře",
+  "noInventorySubtitle": "Přidejte svůj první inventář pomocí tlačítka níže.",
+  "sessionExpired": "Vaše relace vypršela. Přihlaste se prosím znovu.",
+  "newCategory": "Nová kategorie",
+  "confirm": "Potvrdit",
+  "createCategory": "Vytvořte kategorii",
 
   "errors": {
     "bankNumber": {
@@ -263,7 +275,7 @@
       "STRING_MAX": "Varianta může mít maximálně 40 znaků."
     },
     "description": {
-      "STRING_MAX": "Popisek může mít maximálně 250 znaků."
+      "STRING_MAX": "Popisek může mít maximálně 200 znaků."
     },
     "expirationDate": {
       "default": "Datum trvanlivosti musí být platné datum ve formátu DD.MM.YYYY."
@@ -277,6 +289,20 @@
     },
     "inventoryId": {
       "NUMBER_BASE": "Nejprve vyberte inventář."
+    },
+    "minimalQuantity": {
+      "STRING_MAX": "Zadaná hodnota minimálního množství je mimo povolený rozsah.",
+      "STRING_MIN": "Zadaná hodnota minimálního množství je mimo povolený rozsah.",
+      "OWNER_EDITOR_ONLY": "Pouze vlastník nebo editor inventáře může změnit minimální množství.",
+      "default": "Hodnota musí být celé číslo."
+    },
+    "variant": {
+      "OWNER_EDITOR_ONLY": "Pouze vlastník nebo editor inventáře může změnit variantu celého jídla. Ostatní uživatelé mohou změnit variantu pouze u jednotlivých položek jídla.",
+      "STRING_MAX": "Varianta může mít maximálně 40 znaků."
+    },
+     "category": {
+      "OWNER_EDITOR_ONLY": "Pouze vlastník inventáře nebo editor může změnit kategorii.",
+      "default": "Název kategorie nesmí být delší než 40 znaků."
     }
   }
 }

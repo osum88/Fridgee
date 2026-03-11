@@ -3,21 +3,20 @@ import {
   Platform,
   StyleSheet,
   ScrollView,
-  View,
   TouchableOpacity,
 } from "react-native";
 import { ThemedView } from "@/components/themed/ThemedView";
 import i18n from "@/constants/translations";
-import { responsiveSize, responsiveFont, responsiveVertical } from "@/utils/scale";
+import { responsiveSize } from "@/utils/scale";
 import {
   getDaysUntil,
   getDateFromDays,
   getAmountTexts,
   formatNumberInput,
   validateNumericInput,
+  resetErrors,
   updateFormValues,
-  getVariant,
-  resetErrors,validateInstance
+  validateInstance,
 } from "@/utils/stringUtils";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { useCallback, useState, useLayoutEffect, useMemo, useRef } from "react";
@@ -25,8 +24,6 @@ import { DateInput } from "@/components/input/DateInput";
 import { DropdownMenu } from "@/components/input/DropdownMenu";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { GET_INPUT_THEME_NATIVE_PAPER } from "@/constants/colors";
-import { ThemedText } from "@/components/themed/ThemedText";
-import { SearchableDropdown } from "@/components/input/SearchableDropdown";
 import {
   UNIT_OPTIONS,
   CURRENCY_OPTIONS,
@@ -36,68 +33,34 @@ import {
 import { DoubleInputRow } from "@/components/input/DoubleInputRow";
 import { UniversalTextInput } from "@/components/input/UniversalTextInput";
 import { Stepper } from "@/components/common/Stepper";
-import Tooltip from "react-native-walkthrough-tooltip";
-import { IconSymbol } from "@/components/icons/IconSymbol";
 import { SaveButtonContent } from "@/components/button/SaveButtonContent";
 import { useInventoryStore } from "@/hooks/store/useInventoryStore";
-import { useGetFoodVariants } from "@/hooks/queries/food/useGetFoodQuary";
-import { useUpdateFoodInstanceMutation } from "@/hooks/queries/instance/useFoodInstanceMutation";
+import { useAddFoodInstanceMutation } from "@/hooks/queries/instance/useFoodInstanceMutation";
 import { handleApiError } from "@/utils/handleApiError";
 import { useQueryClient } from "@tanstack/react-query";
 
-
-
-export default function EditInstanceScreen() {
-  const [scrollSpace, setScrollSpace] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
+export default function AddInstanceScreen() {
   const scrollRef = useRef(null);
   const queryClient = useQueryClient();
-  const updating = useRef(false);
+  const adding = useRef(false);
 
   const params = useLocalSearchParams();
-  const { initialData, catalogId, foodId, variantId, variantTitle } = params;
+  const { foodId, catalogId } = params;
 
   const activeInventory = useInventoryStore((state) => state.activeInventory);
   const navigation = useNavigation();
   const colors = useThemeColor();
 
-  const { updateInstance, isSubmitting } = useUpdateFoodInstanceMutation(
-    activeInventory.id,
-    catalogId,
-  );
-
-  const { data: variants = [] } = useGetFoodVariants(activeInventory.id, catalogId);
-
-  const variantOptions = useMemo(
-    () =>
-      variants.map((v) => ({
-        label: v.variantTitle,
-        value: v.variantId.toString(),
-      })),
-    [variants],
-  );
-
-  // parsovani initialData z params
-  const parsedItem = useMemo(() => {
-    try {
-      return JSON.parse(initialData);
-    } catch {
-      return {};
-    }
-  }, [initialData]);
+  const { addInstance, isSubmitting } = useAddFoodInstanceMutation();
 
   const [inputText, setInputText] = useState({
-    quantity: String(parsedItem?.count ?? 1),
-    expirationDate: parsedItem?.expirationDate ? new Date(parsedItem.expirationDate) : "",
-    days: parsedItem?.expirationDate
-      ? String(getDaysUntil(new Date(parsedItem.expirationDate), 50))
-      : "",
-    amount: parsedItem?.amount ? String(parsedItem.amount) : "",
-    unit: parsedItem?.unit ?? "null",
-    price: parsedItem?.price ? String(parsedItem.price) : "",
-    currency: parsedItem?.currency ?? "CZK",
-    variantId: variantId ?? "undefined",
-    variantTitle: variantTitle ?? "",
+    quantity: "1",
+    expirationDate: "",
+    days: "",
+    amount: "",
+    unit: "null",
+    price: "",
+    currency: "CZK",
   });
 
   const [errors, setErrors] = useState({
@@ -105,7 +68,6 @@ export default function EditInstanceScreen() {
     unit: "",
     price: "",
     expirationDate: "",
-    variant: "",
   });
 
   const inputDataRef = useRef(inputText);
@@ -115,29 +77,24 @@ export default function EditInstanceScreen() {
 
   const handleSave = useCallback(() => {
     const { current } = inputDataRef;
-    if (updating.current || isSubmitting || !validateInstance(errors, setErrors, current)) return;
+    if (adding.current || isSubmitting || !validateInstance(errors, setErrors, current)) return;
     resetErrors(setErrors, errors);
-
-    updating.current = true;
-    updateInstance.mutate(
+    adding.current = true;
+    addInstance.mutate(
       {
-        foodInstanceId: parsedItem?.instanceIds.slice(
-          parsedItem.instanceIds.length - current?.quantity,
-        ),
+        foodId: parseInt(foodId),
+        quantity: parseInt(current.quantity) || 1,
         expirationDate: current.expirationDate || "",
         amount: parseFloat(current.amount) || 0,
         unit: current.unit === "null" ? "" : (current.unit ?? ""),
         price: parseFloat(current.price?.replace(",", ".")) || 0,
         currency: current.currency,
-        ...getVariant(current.variantId, current.variantTitle),
       },
       {
         onSuccess: async () => {
+          resetErrors(setErrors, errors);
           queryClient.invalidateQueries({
             queryKey: ["inventory-content", parseInt(activeInventory.id)],
-          });
-          queryClient.invalidateQueries({
-            queryKey: ["food-detail", parseInt(activeInventory.id), parseInt(catalogId)],
           });
           queryClient.refetchQueries({
             queryKey: [
@@ -146,21 +103,21 @@ export default function EditInstanceScreen() {
               parseInt(catalogId),
               parseInt(foodId),
             ],
+            exact: true,
           });
-          updating.current = false;
+          adding.current = false;
           navigation.goBack();
         },
         onError: (error) => {
-          updating.current = false;
-          handleApiError(error, setErrors, errors, "variant");
+          adding.current = false;
+          handleApiError(error, setErrors, errors, "price");
         },
       },
     );
   }, [
     isSubmitting,
     errors,
-    parsedItem?.instanceIds,
-    updateInstance,
+    addInstance,
     navigation,
     activeInventory.id,
     queryClient,
@@ -171,12 +128,12 @@ export default function EditInstanceScreen() {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity disabled={isSubmitting || updating.current} onPress={handleSave}>
+        <TouchableOpacity disabled={isSubmitting || adding.current} onPress={handleSave}>
           <SaveButtonContent
             key={`header-save-${colors.background}`}
-            isSubmitting={isSubmitting || updating.current}
+            isSubmitting={isSubmitting || adding.current}
             color={colors}
-            text={i18n.t("save")}
+            text={i18n.t("add")}
           />
         </TouchableOpacity>
       ),
@@ -184,9 +141,8 @@ export default function EditInstanceScreen() {
   }, [navigation, colors, isSubmitting, handleSave]);
 
   const handleQuantityChange = useCallback((val) => {
-  updateFormValues(setInputText, "quantity", String(val));
-}, []);
-
+    updateFormValues(setInputText, "quantity", String(val));
+  }, []);
 
   return (
     <KeyboardAvoidingView
@@ -204,9 +160,9 @@ export default function EditInstanceScreen() {
           <Stepper
             label={i18n.t("foodPieceCount")}
             value={Number(inputText.quantity) || 1}
-             onChange={handleQuantityChange}
+            onChange={handleQuantityChange}
             min={1}
-            max={parsedItem?.instanceIds.length}
+            max={99}
             containerStyle={{ marginTop: responsiveSize.vertical(9) }}
           />
 
@@ -243,7 +199,7 @@ export default function EditInstanceScreen() {
                       numericDays = numericDays.slice(0, maxLength);
                     }
                   }
-                  updateFormValues(setErrors, "expirationDate", "")
+                  updateFormValues(setErrors, "expirationDate", "");
                   updateFormValues(setInputText, {
                     days: numericDays,
                     expirationDate: getDateFromDays(numericDays),
@@ -335,63 +291,6 @@ export default function EditInstanceScreen() {
               />
             }
           />
-
-          {/* Varianta a tooltip */}
-          <View style={styles.toolTipVariatContainer}>
-            <View style={styles.toolTipContainer}>
-              <Tooltip
-                isVisible={showTooltip}
-                content={
-                  <ThemedText style={[styles.toolTipText, { color: colors.text }]}>
-                    {i18n.t("variantExplanationTip2")}
-                  </ThemedText>
-                }
-                placement="top"
-                contentStyle={{ backgroundColor: colors.surface, borderRadius: 8 }}
-                tooltipStyle={{ marginTop: responsiveSize.vertical(-28) }}
-                style={{ maxWidth: responsiveSize.horizontal(270) }}
-                backgroundColor="rgba(0,0,0,0.2)"
-                onClose={() => setShowTooltip(false)}
-                showChildInTooltip={false}
-              >
-                <TouchableOpacity
-                  onPress={() => setShowTooltip(true)}
-                  hitSlop={styles.toolTipHitSlop}
-                >
-                  <ThemedView>
-                    <IconSymbol
-                      size={responsiveSize.moderate(20)}
-                      name={"info.circle"}
-                      color={colors.inputIcon}
-                    />
-                  </ThemedView>
-                </TouchableOpacity>
-              </Tooltip>
-            </View>
-
-            <SearchableDropdown
-              value={inputText.variantId || ""}
-              onChange={(variantId) => updateFormValues(setInputText, "variantId", variantId)}
-              searchTerm={inputText.variantTitle || ""}
-              onChangeSearchTerm={(text) => {updateFormValues(setInputText, "variantTitle", text)
-              updateFormValues(setErrors, "variant", "");}}
-              label={i18n.t("variant")}
-              isSubmitting={false}
-              items={variantOptions}
-              placeholder={i18n.t("variantPlaceholder")}
-              disableFiltering={false}
-              showDropdownIcon={variantOptions.length !== 0}
-              showNoResult={false}
-              disableAutoSelect={false}
-              paddingRightIcon={responsiveSize.horizontal(-8)}
-              error={errors.variant}
-              setError={(value) => updateFormValues(setErrors, "variant", value)}
-              scrollViewRef={scrollRef}
-              maxLength={40}
-              setScrollSpace={setScrollSpace}
-            />
-          </View>
-          {scrollSpace && <View style={{ height: responsiveSize.vertical(300) }} />}
         </ThemedView>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -418,27 +317,5 @@ const styles = StyleSheet.create({
   },
   inputOutlineStyle: {
     borderRadius: responsiveSize.moderate(7),
-  },
-  toolTipVariatContainer: {
-    position: "relative",
-    width: "100%",
-    zIndex: 10,
-  },
-  toolTipContainer: {
-    position: "absolute",
-    top: responsiveSize.vertical(-3),
-    left: responsiveSize.horizontal(-6),
-    zIndex: 11,
-  },
-  toolTipText: {
-    fontSize: responsiveFont(13),
-    maxWidth: responsiveSize.horizontal(270),
-    lineHeight: responsiveVertical(21),
-  },
-  toolTipHitSlop: {
-    top: 15,
-    bottom: 20,
-    left: 15,
-    right: 20,
   },
 });

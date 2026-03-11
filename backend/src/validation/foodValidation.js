@@ -3,8 +3,8 @@ import Joi from "joi";
 export const addFoodToInventoryFoodSchema = Joi.object({
   inventoryId: Joi.number().integer().required(),
   barcode: Joi.string().allow("").max(150),
-  variantId: Joi.number().integer().allow(null).optional(),
-  variantTitle: Joi.string().trim().max(40).allow("").optional(),
+  variantId: Joi.number().integer().allow(null).label("variant").optional(),
+  variantTitle: Joi.string().trim().max(40).allow("").label("variant").optional(),
   title: Joi.string().max(100).optional().label("labelTitle"),
   description: Joi.string().allow("").max(250).optional(),
   foodImageUrl: Joi.string().allow("").optional(),
@@ -25,10 +25,10 @@ export const addFoodToInventoryFoodSchema = Joi.object({
 
 export const updateFoodSchema = Joi.object({
   foodId: Joi.number().integer().required(),
-  categoryId: Joi.number().integer().positive().allow(null).optional(),
-  categoryTitle: Joi.string().max(50).allow("").optional(),
-  variantId: Joi.number().integer().positive().allow(null).optional(),
-  variantTitle: Joi.string().max(40).allow("").optional(),
+  categoryId: Joi.number().integer().positive().allow(null).label("category").optional(),
+  categoryTitle: Joi.string().max(50).allow("").label("category").optional(),
+  variantId: Joi.number().integer().positive().label("variant").allow(null).optional(),
+  variantTitle: Joi.string().max(40).allow("").label("variant").optional(),
   labelTitle: Joi.string().max(100).optional(),
   description: Joi.string().allow("").max(250).optional(),
   foodImageUrl: Joi.string().allow("").optional(),

@@ -1,3 +1,4 @@
+import { addFoodInstanceService } from "../services/foodInstanceService.js";
 import {
   addFoodToInventoryService,
   getFoodByBarcodeService,
@@ -57,6 +58,19 @@ export const getFoodDetail = async (req, res, next) => {
 
     const food = await getFoodDetailService(inventoryId, foodId, userId, isAdmin);
     handleResponse(res, 200, "Food detail fetched successfully", food);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// prida instanci
+export const addFoodInstance = async (req, res, next) => {
+  try {
+    const userId = req.userId;
+    const isAdmin = req.adminRoute;
+
+    const instances = await addFoodInstanceService(userId, req.body, isAdmin);
+    handleResponse(res, 201, "Food instance created successfully", instances);
   } catch (err) {
     next(err);
   }

@@ -20,7 +20,7 @@ const UniversalTextInputComponent = ({
 
   return (
     <ThemedView>
-      <TextInput mode={mode} error={!!error} theme={theme || inputColor} {...rest} />
+      <TextInput mode={mode} error={!!error} theme={theme || inputColor} {...rest}  />
       {showError && (
         <HelperText
           type={typeError}

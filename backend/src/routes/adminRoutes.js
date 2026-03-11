@@ -14,10 +14,10 @@ import { getFoodCatalogWithLabelByBarcode } from "../controllers/foodCatalogCont
 import { categoryIdSchema, createFoodCategorySchema, updateFoodCategorySchema } from "../validation/foodCategoryValidation.js";
 import { createFoodCategory, deleteFoodCategory, getFoodCategoriesByInventory, getFoodCategoryById, updateFoodCategory } from "../controllers/foodCategoryController.js";
 import { getActiveFoodVariants, getAllFoodVariantsCatalog } from "../controllers/foodVariantController.js";
-import { addFoodToInventory,  getFoodByBarcode,  updateFood } from "../controllers/foodController.js";
+import { addFoodInstance, addFoodToInventory,  getFoodByBarcode,  updateFood } from "../controllers/foodController.js";
 import { addFoodToInventoryFoodSchema, updateFoodSchema } from "../validation/foodValidation.js";
 import { consumeMultipleFoodInstances, deleteFoodInstances, duplicateFoodInstances, updateFoodInstance } from "../controllers/foodInstanceController.js";
-import { consumeFoodInstanceSchema, deleteFoodInstancesSchema, duplicateInstancesSchema, updateFoodInstanceSchema } from "../validation/foodInstanceValidation.js";
+import { addFoodInstanceSchema, consumeFoodInstanceSchema, deleteFoodInstancesSchema, duplicateInstancesSchema, updateFoodInstanceSchema } from "../validation/foodInstanceValidation.js";
 import { deleteFoodLabel, getLabelSuggestions, updateFoodLabel } from "../controllers/foodLabelController.js";
 import { foodLabelIdSchema, updateFoodLabelSchema } from "../validation/foodLabelValidation.js";
 import { getHistory } from "../controllers/foodHistoryController.js";
@@ -153,6 +153,8 @@ router.post("/food-instance/duplicate", validate(duplicateInstancesSchema), auth
 //smaze jednu nebo vice instanci
 router.delete("/food-instance", validate(deleteFoodInstancesSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, deleteFoodInstances);
 
+// prida instanci food
+router.post("/food-instance", validate(addFoodInstanceSchema),  authenticateToken, sanitize, authorizeAdminWithoutUserId, addFoodInstance);
 
 //                          FOOD LABEL
 

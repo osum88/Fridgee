@@ -13,6 +13,8 @@ import i18n from "@/constants/translations";
 import { useUser } from "@/hooks/useUser";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { useCameraNavigation } from "@/hooks/image/useCameraNavigation";
+import { showGlobalError } from "@/utils/showGlobalError";
+
 
 export default function TabTwoScreen() {
   const { signOut } = useUser();
@@ -156,6 +158,7 @@ export default function TabTwoScreen() {
             Scanner
           </ThemedText>
         </Pressable>
+       
       </ThemedView>
     </ParallaxScrollView>
   );

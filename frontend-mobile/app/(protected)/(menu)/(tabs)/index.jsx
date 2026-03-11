@@ -78,6 +78,19 @@ const EmptyInventory = ({ colors }) => (
   </View>
 );
 
+const EmptyInventoryList = ({ colors }) => (
+  <View style={[styles.emptyContainer]}>
+    <IconSymbol
+      name="archivebox"
+      size={responsiveSize.moderate(80)}
+      color={colors.text}
+      style={{ opacity: 0.2 }}
+    />
+    <ThemedText style={styles.emptyTitle}>{i18n.t("noInventoryTitle")}</ThemedText>
+    <ThemedText style={styles.emptySubtitle}>{i18n.t("noInventorySubtitle")}</ThemedText>
+  </View>
+);
+
 export default function InventoryScreen() {
   const [expandedSections, setExpandedSections] = useState({});
   const [searchTitle, setSearchTitle] = useState("");
@@ -150,10 +163,12 @@ export default function InventoryScreen() {
     if (isLoadingInventory) {
       return [1, 2, 3, 4, 5].map((key) => <InventorySkeleton key={key} />);
     }
+
     return inventories?.map((item) => (
       <InventoryCard key={item.id} item={item} onPress={() => handlePress(item)} />
     ));
-  }, [activeInventory.id, isLoadingInventory, inventories, handlePress]);
+  }, [activeInventory.id, isLoadingInventory, inventories, handlePress, ]);
+
 
   //tlacitka
   const FoodActionsFab = useMemo(() => {
@@ -251,15 +266,25 @@ export default function InventoryScreen() {
         categoryId: section.categoryId,
       });
     }
+    if (result.length > 0) {
+      result.push({
+        type: LIST_ITEM_TYPE.BOTTOM_SPACER,
+        categoryId: "bottom-spacer",
+      });
+    }
     return result;
   }, [sections, expandedSections, searchTitle]);
 
   if (!activeInventory.id) {
     return (
       <ThemedView style={styles.contentWrapper}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          <View style={styles.inventoryList}>{RenderInventories}</View>
-        </ScrollView>
+        {!isLoadingInventory && (!inventories || inventories.length === 0) ? (
+          <EmptyInventoryList colors={colors} />
+        ) : (
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            <View style={styles.inventoryList}>{RenderInventories}</View>
+          </ScrollView>
+        )}
         {FoodActionsFab}
       </ThemedView>
     );
@@ -267,9 +292,7 @@ export default function InventoryScreen() {
 
   return (
     <ThemedView style={styles.contentWrapper}>
-      {isLoadingInventory ? (
-        <InventorySkeleton />
-      ) : sections && sections.length > 0 ? (
+      {sections && sections.length > 0 ? (
         <ThemedView style={{ flex: 1 }}>
           <ThemedView style={styles.searchContainer}>
             <Search

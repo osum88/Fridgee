@@ -4,6 +4,7 @@ import {
   consumeFoodInstanceApi,
   deleteFoodInstanceApi,
   duplicateFoodInstanceApi,
+  addFoodInstanceApi,
 } from "@/api/instance";
 
 //updatuje food instance
@@ -86,4 +87,18 @@ export const useDeleteFoodInstanceMutation = (inventoryId, catalogId, foodId) =>
     },
   });
   return { deleteInstance: mutation, isSubmitting: mutation.isPending };
+};
+
+//prida instance
+export const useAddFoodInstanceMutation = () => {
+  const mutation = useMutation({
+    mutationFn: (data) => addFoodInstanceApi(data),
+    onSuccess: () => {
+      console.log("useAddFoodInstanceMutation add succes");
+    },
+    onError: (error) => {
+      console.error("addFoodInstanceMutation error:", error);
+    },
+  });
+  return { addInstance: mutation, isSubmitting: mutation.isPending };
 };

@@ -13,7 +13,7 @@ import { INVENTORY_THEMES } from "@/constants/colors";
 export const useGetInventoryCategoriesQuery = (inventoryId, enabled = true) => {
   const ONE_HOUR = 1000 * 60 * 60;
   return useQuery({
-    queryKey: ["foodCategories", parseInt(inventoryId)],
+    queryKey: ["food-categories", parseInt(inventoryId)],
     queryFn: ({ signal }) => getInventoryFoodCategoriesApi(inventoryId, signal),
     enabled: enabled && !!inventoryId,
     staleTime: ONE_HOUR,

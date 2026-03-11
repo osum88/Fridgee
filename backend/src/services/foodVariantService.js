@@ -60,7 +60,10 @@ export const resolveVariantUpdateData = async (
     ["OWNER", "EDITOR"].includes(inventoryUser?.role);
 
   if (!hasPermission) {
-    throw new ForbiddenError("You do not have permission to modify the variant of this food.");
+    throw new ForbiddenError("You do not have permission to modify the variant of this food.", {
+      type: "variant",
+      code: "OWNER_EDITOR_ONLY",
+    });
   }
 
   let inputVariantId = requestedVariant?.id;
@@ -72,8 +75,7 @@ export const resolveVariantUpdateData = async (
       }
     }
   }
-console.log("variantId", variantId,
-variantTitle)
+  
   let inputVariantTitle = undefined;
   if (inputVariantId === undefined && variantTitle !== undefined) {
     inputVariantTitle = formatTitleCase(variantTitle);

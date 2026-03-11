@@ -77,7 +77,7 @@ const StepperComponent = ({ value, onChange, min = 1, max = 99, label, container
         <TouchableOpacity
           onPressIn={() => startAction("dec")}
           onPressOut={stopAction}
-          disabled={displayValue === min}
+            disabled={internalRef.current <= min}
           style={[
             styles.button,
             {
@@ -94,7 +94,7 @@ const StepperComponent = ({ value, onChange, min = 1, max = 99, label, container
         <TouchableOpacity
           onPressIn={() => startAction("inc")}
           onPressOut={stopAction}
-          disabled={displayValue === max}
+           disabled={internalRef.current >= max}
           style={[
             styles.button,
             {

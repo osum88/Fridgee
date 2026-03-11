@@ -70,8 +70,10 @@ const FoodDetailHeaderComponent = ({ food, colors, colorScheme, onAction, isLoad
       {HEADER_ACTIONS.map((action) => (
         <Pressable
           key={action.key}
-          style={styles.actionButton}
-          onPress={() => onAction?.(action.key)}
+          style={({ pressed }) => [styles.actionButton, { opacity: pressed ? 0.5 : 1 }]}
+          onPress={() => {
+            onAction(action.key);
+          }}
           hitSlop={8}
         >
           <IconSymbol
@@ -137,13 +139,11 @@ const styles = StyleSheet.create({
   minQty: {
     fontSize: responsiveSize.moderate(11),
   },
-
   // delici cara
   divider: {
     height: StyleSheet.hairlineWidth,
     marginHorizontal: responsiveSize.horizontal(14),
   },
-
   // spodni akce
   actionsRow: {
     flexDirection: "row",

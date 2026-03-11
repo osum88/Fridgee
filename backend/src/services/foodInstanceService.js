@@ -7,6 +7,7 @@ import {
   UnauthorizedError,
 } from "../errors/errors.js";
 import {
+  addFoodInstanceRepository,
   consumeMultipleFoodInstancesRepository,
   deleteFoodInstancesRepository,
   duplicateFoodInstancesRepository,
@@ -16,6 +17,7 @@ import {
   updateFoodInstancesRepository,
 } from "../repositories/foodInstanceRepository.js";
 import { getFoodInventoryUserRepository } from "../repositories/foodInventoryRepository.js";
+import { getFoodByIdRepository } from "../repositories/foodRepository.js";
 import { determineUpdateValue, formatToISODate, normalizeDate } from "../utils/stringUtils.js";
 import { resolveVariantUpdateData } from "./foodVariantService.js";
 import { resolvePriceExchangeData } from "./priceService.js";
@@ -190,7 +192,7 @@ export const duplicateFoodInstancesService = async (userId, instanceIds, count =
         expirationDate: instance?.expirationDate || null,
         addedBy: userId,
         unit: instance?.unit || null,
-        amount: instance?.amount || null,
+        amount: instance?.amount || 0,
         priceId: instance?.priceId || null,
       });
     }
@@ -235,4 +237,33 @@ export const deleteFoodInstancesService = async (instanceIds, userId, isAdmin) =
     throw new BadRequestError("Bulk update is only allowed for the same type of food.");
   }
   return await deleteFoodInstancesRepository(foodInstanceIds, userId);
+};
+
+//prida instanci
+export const addFoodInstanceService = async (userId, data, isAdmin) => {
+  // overi existenci foodu a ziska inventoryId
+  const food = await getFoodByIdRepository(data.foodId);
+
+  // overi ze uzivatel je v inventari
+  if (!isAdmin) {
+    await getFoodInventoryUserRepository(userId, food.inventoryId);
+  }
+
+  const parsedPrice = parseFloat(data?.price) || 0;
+
+  let priceFields = {};
+  if (parsedPrice > 0) {
+    const priceData = await resolvePriceExchangeData(parsedPrice, data.currency, userId);
+    priceFields = priceData ? { ...priceData } : null;
+  }
+
+  const preparedData = {
+    ...data,
+    ...priceFields,
+    quantity: parseInt(data?.quantity) || 1,
+    expirationDate: normalizeDate(data?.expirationDate),
+    amount: data?.amount ? parseFloat(data.amount) : null,
+  };
+
+  return await addFoodInstanceRepository(userId, preparedData);
 };

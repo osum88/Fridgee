@@ -19,7 +19,10 @@ import {
   useDuplicateFoodInstanceMutation,
   useDeleteFoodInstanceMutation,
 } from "@/hooks/queries/instance/useFoodInstanceMutation";
-import { RefreshableFlashList } from "../../../components/common/RefreshableFlashList";
+import { RefreshableFlashList } from "@/components/common/RefreshableFlashList";
+import { CategoryModal } from "@/components/modals/CategoryModal";
+import { useGetInventoryCategoriesQuery } from "@/hooks/queries/inventory/useInventoryQuary";
+import { showGlobalError } from "@/utils/showGlobalError";
 
 const ITEM_HEIGHT = responsiveSize.vertical(60);
 
@@ -28,11 +31,14 @@ export default function FoodDetailScreen() {
   const { colorScheme } = useTheme();
   const [selectedItem, setSelectedItem] = useState(null);
   const [sheetVisible, setSheetVisible] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [counterModal, setCounterModal] = useState({ visible: false, action: null });
   const [consumeModal, setConsumeModal] = useState({ visible: false, item: null });
 
   const { foodId, catalogId } = useLocalSearchParams();
   const activeInventory = useInventoryStore((state) => state.activeInventory);
+  const INVENTORY_PERMISSION =
+    activeInventory?.role === "OWNER" || activeInventory?.role === "EDITOR";
 
   //vraci food detail
   const {
@@ -51,6 +57,11 @@ export default function FoodDetailScreen() {
   );
   //smaze instanci
   const { deleteInstance } = useDeleteFoodInstanceMutation(activeInventory.id, catalogId, foodId);
+  //vrati kategorie
+  const { data: inventoryCategories } = useGetInventoryCategoriesQuery(
+    activeInventory.id,
+    showCategoryModal,
+  );
 
   const borderColor = colorScheme === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.16)";
 
@@ -59,11 +70,13 @@ export default function FoodDetailScreen() {
     setSheetVisible(true);
   }, []);
 
+  //zavre modal footer
   const handleSheetClose = useCallback(() => {
     setSheetVisible(false);
   }, []);
 
-  const handleAction = useCallback(
+  //reakce na akce u instanci
+  const handleActionInstance = useCallback(
     (action, item) => {
       if (action === "remove1" || action === "add") {
         setCounterModal({ visible: true, action, item });
@@ -89,9 +102,42 @@ export default function FoodDetailScreen() {
     [activeInventory.id, catalogId, foodData?.variantId, foodData?.variantTitle, foodData?.foodId],
   );
 
-  const handleEditPress = useCallback(() => {
-    router.push({ pathname: "/editFood", params: { id: foodData?.foodId } });
-  }, [foodData?.foodId]);
+  //reakce na akce v headeru
+  const handleActionHeader = useCallback(
+    (action) => {
+      if (action === "add") {
+        router.push({
+          pathname: "/addInstance",
+          params: { catalogId: catalogId, foodId: foodData?.foodId },
+        });
+      } else if (action === "edit") {
+        router.push({
+          pathname: "../editFood",
+          params: {
+            initialData: JSON.stringify({
+              foodId: foodData.foodId,
+              catalogId: foodData.catalogId,
+              labelTitle: foodData.labelTitle,
+              description: foodData.labelDescription,
+              variantId: foodData.variantId,
+              variantTitle: foodData.variantTitle,
+              foodImageUrl: foodData.labelFoodImageUrl,
+              foodImageCloudId: foodData.foodImageCloudId,
+              minimalQuantity: foodData.minimalQuantity,
+              barcode: foodData.barcode,
+            }),
+          },
+        });
+      } else if (action === "category") {
+        if (!INVENTORY_PERMISSION) {
+          showGlobalError({ response: { status: 403, _isPermission: true, code: "category" } });
+          return;
+        }
+        setShowCategoryModal(true);
+      }
+    },
+    [foodData, catalogId, INVENTORY_PERMISSION],
+  );
 
   const renderItem = useCallback(
     ({ item }) => (
@@ -127,7 +173,7 @@ export default function FoodDetailScreen() {
         food={foodData}
         colors={colors}
         colorScheme={colorScheme}
-        onEditPress={handleEditPress}
+        onAction={handleActionHeader}
         isLoading={isLoading}
       />
       <RefreshableFlashList
@@ -164,12 +210,22 @@ export default function FoodDetailScreen() {
           consumeInstance.mutate(data);
         }}
       />
+      <CategoryModal
+        visible={showCategoryModal}
+        onClose={() => setShowCategoryModal(false)}
+        categories={inventoryCategories?.data ?? []}
+        currentCategoryId={foodData?.categoryId}
+        colors={colors}
+        inventoryId={activeInventory.id}
+        catalogId={foodData.catalogId}
+        foodId={foodData.foodId}
+      />
       <InstanceBottomSheet
         visible={sheetVisible}
         item={selectedItem}
         colors={colors}
         onClose={handleSheetClose}
-        onAction={handleAction}
+        onAction={handleActionInstance}
       />
     </ThemedView>
   );

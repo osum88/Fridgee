@@ -25,8 +25,9 @@ import { useGetFoodByBarcodeQuary } from "@/hooks/queries/food/useGetFoodQuary";
 import { ActivityIndicator } from "react-native-paper";
 import { useInventoryStore } from "@/hooks/store/useInventoryStore";
 import i18n from "@/constants/translations";
+import * as Haptics from "expo-haptics";
 
-export default function ScannerAdd() {
+export default function ScannerAddScreen() {
   const [scanned, setScanned] = useState(false);
   const [lastScannedData, setLastScannedData] = useState(null);
   const [countSameScannedData, setCountSameScannedData] = useState(0);
@@ -131,6 +132,7 @@ export default function ScannerAdd() {
           setCountSameScannedData(0);
           setScanned(true);
           setManualCode(data);
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
         }
         return newCount;
       });

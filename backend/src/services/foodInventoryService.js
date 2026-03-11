@@ -470,7 +470,7 @@ export const getInventoryContentService = async (inventoryId, userId, isAdmin) =
       if (!iAcc[groupKey]) {
         iAcc[groupKey] = {
           expirationDate: inst?.expirationDate,
-          price: convertedPrice ? Number(convertedPrice.toFixed(2)) : null,
+          price: convertedPrice ? Number(convertedPrice.toFixed(2)) : 0,
           currency: currency,
           amount: inst?.amount || 0,
           unit: inst?.amount > 0 ? inst.unit : null,
@@ -493,11 +493,11 @@ export const getInventoryContentService = async (inventoryId, userId, isAdmin) =
       foodImageCloudId: foodImageCloudId,
       variantTitle: food.variant?.title || "",
       variantId: food.variant?.id || null,
-      barcode: food?.catalog?.barcode,
-      minimalQuantity: food.minimalQuantity,
-      expiredCount,
-      expiringSoonCount,
-      validCount,
+      barcode: food?.catalog?.barcode || "",
+      minimalQuantity: food.minimalQuantity || 0,
+      expiredCount: expiredCount || 0,
+      expiringSoonCount: expiringSoonCount || 0,
+      validCount: validCount || 0,
       instances: Object.values(aggregatedMap),
     });
     return acc;

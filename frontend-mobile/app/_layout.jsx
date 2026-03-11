@@ -10,13 +10,8 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import { ThemeProvider, useTheme } from "@/contexts/ThemeContext";
-import { StrictMode, useEffect, useState } from "react";
-import {
-  QueryClient,
-  QueryClientProvider,
-  focusManager,
-  onlineManager,
-} from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { QueryClient, focusManager, onlineManager } from "@tanstack/react-query";
 import { UserProvider } from "@/contexts/UserContext";
 import { useUser } from "@/hooks/useUser";
 import { View, AppState, Platform } from "react-native";
@@ -25,18 +20,23 @@ import { Toasts } from "@backpackapp-io/react-native-toast";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useSystemNavigationBarTheme } from "@/hooks/colors/useSystemNavigationBarTheme";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
-import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
+import { SnackbarProvider, useSnackbar } from "@/contexts/SnackbarContext";
+import { setSnackbarCallback } from "@/utils/showGlobalError";
 
-const ONE_DAY = 1000 * 60 * 60 * 24
+const ONE_DAY = 1000 * 60 * 60 * 24;
+const ONE_SEC = 1000;
+const TWO_SEC = 1000 * 2;
+const THIRTY_SEC = 1000 * 30;
 
 //vytvoreni instance TanStack Query
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 3,
-      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
+      retryDelay: (attempt) => Math.min(TWO_SEC ** attempt, THIRTY_SEC),
       gcTime: ONE_DAY,
     },
   },
@@ -45,8 +45,8 @@ const queryClient = new QueryClient({
 // propojeni TanStack Query s diskem telefonu
 const asyncStoragePersister = createAsyncStoragePersister({
   storage: AsyncStorage,
-  key: 'FOOD_SYSTEM_OFFLINE_CACHE',
-  throttleTime: 1000, // uklada na disk max jednou za sekundu 
+  key: "FOOD_SYSTEM_OFFLINE_CACHE",
+  throttleTime: ONE_SEC, // uklada na disk max jednou za sekundu
 });
 
 SplashScreen.preventAutoHideAsync();
@@ -72,25 +72,26 @@ export default function RootLayout() {
   }
 
   return (
-    <PersistQueryClientProvider 
-      client={queryClient} 
-      persistOptions={{ 
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{
         persister: asyncStoragePersister,
         maxAge: ONE_DAY,
       }}
       onSuccess={() => {
         // queryClient.resumePausedMutations();  //jakmile se data z disku nactou do pameti, odesleme mutace, ktere selhyly v offline
         //TODO rozhodnou se jestli pouzit
-        
       }}
     >
       <GestureHandlerRootView style={{ flex: 1 }}>
         <UserProvider>
           <LanguageWrapper>
             <ThemeProvider>
-              <Provider>
-                <RootLayoutContent CustomDarkTheme={CustomDarkTheme} />
-              </Provider>
+              <SnackbarProvider>
+                <Provider>
+                  <RootLayoutContent CustomDarkTheme={CustomDarkTheme} />
+                </Provider>
+              </SnackbarProvider>
             </ThemeProvider>
           </LanguageWrapper>
         </UserProvider>
@@ -115,6 +116,11 @@ function RootLayoutContent({ CustomDarkTheme }) {
   const [isAppReady, setIsAppReady] = useState(false);
   const { colorScheme, isThemeLoaded } = useTheme();
   useSystemNavigationBarTheme();
+  const { showSnackbar } = useSnackbar();
+
+  useEffect(() => {
+    setSnackbarCallback(showSnackbar);
+  }, [showSnackbar]);
 
   //pokud se aplikace minimalizuje pak to oznami quary
   useEffect(() => {
@@ -126,7 +132,7 @@ function RootLayoutContent({ CustomDarkTheme }) {
     return () => subscription.remove();
   }, []);
 
-  // pokud se aplikace pripoji v wifi oznami to quary
+  // pokud se aplikace pripoji k wifi oznami to quary
   useEffect(() => {
     onlineManager.setEventListener((setOnline) => {
       const checkNetwork = async () => {

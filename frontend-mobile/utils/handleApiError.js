@@ -26,10 +26,9 @@ export const handleApiError = (error, setFieldErrors, fieldErrors = null, defaul
       setFieldErrors(errorMessage);
     }
   };
-  console.log("--ssssss>");
 
   // konkretni validacni chyby
-  if ((status === 400 || status === 409) && type && code) {
+  if ((status === 400 || status === 409 || status === 403) && type && code) {
     const specificKey = `errors.${type}.${code}`;
     const defaultKey = `errors.${type}.default`;
     console.log("-->", specificKey);

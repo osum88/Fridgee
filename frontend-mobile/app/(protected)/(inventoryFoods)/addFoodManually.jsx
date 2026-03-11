@@ -50,7 +50,7 @@ import Tooltip from "react-native-walkthrough-tooltip";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { FoodImagePicker } from "@/components/food/FoodImagePicker";
 import { useImageUpload } from "@/hooks/image/useImageUpload";
-import useAddFoodMutation from "@/hooks/queries/food/useAddFoodMutation";
+import { useAddFoodMutation } from "@/hooks/queries/food/useFoodMutation";
 import { handleApiError } from "@/utils/handleApiError";
 import { IMAGEKIT_URL_ENDPOINT } from "@/config/config";
 import { SaveButtonContent } from "@/components/button/SaveButtonContent";
@@ -61,7 +61,7 @@ export const validateForm = (errors, setErrors, inputText) => {
     updateFormValues(setErrors, "labelTitle", i18n.t("errors.labelTitle.STRING_EMPTY"));
     return false;
   }
-  if (errors?.expirationDate) return false;
+  if (errors?.expirationDate && errors?.expirationDate !== " ") return false;
 
   const amount = parseFloat(inputText?.amount || "0");
   if (amount > 0 && (inputText?.unit === "null" || !inputText?.unit)) {
@@ -90,7 +90,7 @@ export const getImage = (foodImageCloudId, foodImageUrl) => {
   return {};
 };
 
-export default function AddFoodManually() {
+export default function AddFoodManuallyScreen() {
   const [categories, setCategories] = useState([{ label: i18n.t("noCategory"), value: "null" }]);
   const [variants, setVariants] = useState([]);
   const [selectedCatalog, setSelectedCatalog] = useState(null);
@@ -101,7 +101,6 @@ export default function AddFoodManually() {
   const [formData, setFormData] = useState(null);
   const [visible, setVisible] = useState(false);
   const scrollRef = useRef(null);
-  const isSaving = useRef(false);
 
   const PADDING_FOR_DROPDOWN_MENU = 300;
 
@@ -340,7 +339,6 @@ export default function AddFoodManually() {
               { foodData: foodData, imageFormData: formData },
               {
                 onSuccess: () => {
-                  isSaving.current = true;
                   resetErrors(setErrors, errors);
                   navigation.goBack();
                 },
@@ -371,6 +369,10 @@ export default function AddFoodManually() {
   // console.log("variant", variants);
   // console.log("textinput", inputText);
 
+  const handleQuantityChange = useCallback((val) => {
+    updateFormValues(setInputText, "quantity", String(val));
+  }, []);
+
   return (
     <KeyboardAvoidingView
       style={styles.keyboardContainer}
@@ -382,7 +384,6 @@ export default function AddFoodManually() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* TODO  vyresit jak udelat aby to mohl prepsat*/}
         <ThemedView safe={true} style={[styles.contentWrapper]}>
           {/* nazev potraviny (pokud data jsou ze skenu pak se pouzije normalni input jinat)*/}
 
@@ -419,7 +420,7 @@ export default function AddFoodManually() {
           <Stepper
             label={i18n.t("quantity") || "1"}
             value={Number(inputText.quantity) || 1}
-            onChange={(val) => updateFormValues(setInputText, "quantity", val)}
+            onChange={handleQuantityChange}
             min={1}
             containerStyle={{ marginTop: responsiveSize.vertical(9) }}
           />
@@ -458,6 +459,7 @@ export default function AddFoodManually() {
                       numericDays = numericDays.slice(0, maxLength);
                     }
                   }
+                  updateFormValues(setErrors, "expirationDate", "");
                   updateFormValues(setInputText, {
                     days: numericDays,
                     expirationDate: getDateFromDays(numericDays),
@@ -588,6 +590,7 @@ export default function AddFoodManually() {
               value={inputText.variantId || ""}
               onChange={(variantId) => {
                 updateFormValues(setInputText, "variantId", variantId);
+                updateFormValues(setErrors, "variant", "");
               }}
               searchTerm={inputText.variantTitle || ""}
               onChangeSearchTerm={(text) => {
@@ -688,11 +691,11 @@ export default function AddFoodManually() {
             value={inputText?.description || ""}
             onChangeText={(text) => {
               updateFormValues(setInputText, "description", text);
-              if (text.length <= 200) {
-                updateFormValues(setErrors, "description", "");
-              } else {
-                updateFormValues(setErrors, "description", i18n.t("descriptionTooLong"));
-              }
+              updateFormValues(
+                setErrors,
+                "description",
+                text.length > 200 ? i18n.t("descriptionTooLong") : "",
+              );
             }}
             label={i18n.t("description")}
             placeholder={i18n.t("descriptionPlaceholder")}

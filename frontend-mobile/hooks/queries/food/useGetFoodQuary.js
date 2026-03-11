@@ -53,7 +53,7 @@ export const useFoodDetail = (inventoryId, catalogId, foodId, memberCount = 1, e
         if (!Array.isArray(categories)) continue;
         for (const category of categories) {
           const found = category.foods?.find((f) => f.foodId === parseInt(foodId));
-          if (found) return { data: found };
+          if (found) return { data: { ...found, categoryId: category.categoryId || "no-category" } };
         }
       }
       return undefined;
@@ -83,7 +83,7 @@ export const useGetFoodVariants = (inventoryId, catalogId, enabled = true) => {
     queryKey: ["food-variants", parseInt(inventoryId), parseInt(catalogId)],
     queryFn: ({ signal }) => getFoodVariantsApi(inventoryId, catalogId, signal),
     enabled: !!inventoryId && !!catalogId && !!enabled,
-    staleTime: 1000 * 60,
+    staleTime: 1000 * 10,
     gcTime: 1000 * 60 * 60,
     select: (data) => data?.data,
   });

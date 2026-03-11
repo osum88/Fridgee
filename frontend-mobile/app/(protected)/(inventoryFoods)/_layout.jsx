@@ -43,6 +43,22 @@ export default function InventoryFoodsLayout() {
           headerShown: true,
         }}
       />
+      <Stack.Screen
+        name="addInstance"
+        options={{
+          animation: "fade",
+          title: i18n.t("addItem"),
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
+        name="editFood"
+        options={{
+          animation: "fade",
+          title: i18n.t("editFood"),
+          headerShown: true,
+        }}
+      />
     </Stack>
   );
 }
