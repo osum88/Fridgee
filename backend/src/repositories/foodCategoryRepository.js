@@ -24,30 +24,32 @@ export const createFoodCategoryRepository = async (inventoryId, title, tx = pris
 };
 
 //vytvori categorii a zapise se to do historie
-export const createFoodCategoryWithHistoryRepository = async (inventoryId, title, userId) => {
-  try {
-    return await prisma.$transaction(async (tx) => {
-      const newCategory = await tx.foodCategory.create({
-        data: {
-          inventoryId,
-          title,
-        },
-      });
-
-      await tx.foodHistory.create({
-        data: {
-          inventoryId: newCategory.inventoryId,
-          action: "CATEGORY_CREATE",
-          changedBy: userId,
-          metadata: {
-            foodCategory: {
-              after: title,
-            },
-          },
-        },
-      });
-      return newCategory;
+export const createFoodCategoryWithHistoryRepository = async (
+  inventoryId,
+  title,
+  userId,
+  tx = prisma,
+) => {
+  const run = async (tx) => {
+    const newCategory = await tx.foodCategory.create({
+      data: { inventoryId, title },
     });
+
+    await tx.foodHistory.create({
+      data: {
+        inventoryId: newCategory.inventoryId,
+        action: "CATEGORY_CREATE",
+        changedBy: userId,
+        metadata: {
+          foodCategory: { after: title, before: null },
+        },
+      },
+    });
+    return newCategory;
+  };
+
+  try {
+    return tx ? await run(tx) : await prisma.$transaction(run);
   } catch (error) {
     console.error("Error creating food category with inventory history:", error);
     throw error;
@@ -201,6 +203,7 @@ export const getFoodCategoryByTitleRepository = async (inventoryId, title, tx = 
 //presune jidlo do jine kategorie nebo ji odebere
 export const moveFoodsToCategoryRepository = async (
   inventoryId,
+  userId,
   foodIds,
   categoryId,
   categoryTitle,
@@ -222,7 +225,12 @@ export const moveFoodsToCategoryRepository = async (
       if (!category) {
         console.log("3.2");
 
-        category = await createFoodCategoryRepository(inventoryId, categoryTitle, tx);
+        category = await createFoodCategoryWithHistoryRepository(
+          inventoryId,
+          categoryTitle,
+          userId,
+          tx,
+        );
       }
       finalCategoryId = category.id;
     }

@@ -1,7 +1,7 @@
 export const LIST_ITEM_TYPE = {
-  HEADER: "header",
-  ITEM: "item",
-  FOOTER: "footer",
-  SECTION_END: "section_end",
+  HEADER: "HEADER",
+  ITEM: "ITEM",
+  FOOTER: "FOOTER",
+  SECTION_END: "SECTION_END",
   BOTTOM_SPACER: "BOTTOM_SPACER",
 };

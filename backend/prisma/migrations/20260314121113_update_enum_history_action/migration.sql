@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "FoodAction" ADD VALUE 'CONSUME_PARTIAL';

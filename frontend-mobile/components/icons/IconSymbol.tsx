@@ -199,6 +199,12 @@ const MAPPING = {
   "list.bullet": { name: "format-list-bulleted", source: "MaterialCommunityIcons" },
   //fajfka s koleckem
   "checkmark.circle": { name: "check-circle-outline", source: "MaterialCommunityIcons" },
+  //historie
+  "clock.arrow.trianglehead.counterclockwise.rotate.90": { name: "history", source: "MaterialCommunityIcons" },
+  // vrstvy
+  "square.3.layers.3d": { name: "layers-outline", source: "MaterialCommunityIcons" },
+  //filtry
+  "line.3.horizontal.decrease": { name: "filter-variant", source: "MaterialCommunityIcons" },
 
   //coat.fill
 } as IconMapping;

@@ -13,7 +13,7 @@ import { ThemedView } from "@/components/themed/ThemedView";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { responsiveSize, responsiveFont } from "@/utils/scale";
 import i18n from "@/constants/translations";
-import { useTheme } from "@react-navigation/native";
+import { useTheme } from "@/contexts/ThemeContext";
 import { UniversalTextInput } from "@/components/input/UniversalTextInput";
 import { useUpdateFoodMutation } from "@/hooks/queries/food/useFoodMutation";
 import { handleApiError } from "@/utils/handleApiError";
@@ -34,8 +34,8 @@ const CategoryModalComponent = ({
   const [selectedId, setSelectedId] = useState(currentCategoryId ?? "no-category");
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [error, setError] = useState("");
-  const { colorScheme } = useTheme();
-  const { updateFood, isSubmitting } = useUpdateFoodMutation();
+  const { isDarkTheme } = useTheme();
+  const { updateFood, isSubmitting } = useUpdateFoodMutation(inventoryId);
   const queryClient = useQueryClient();
   const updating = useRef(false);
 
@@ -104,8 +104,6 @@ const CategoryModalComponent = ({
   const canConfirm =
     newCategory.trim().length > 0 || (selectedId && selectedId !== currentCategoryId);
 
-  const borderColor = colorScheme === "dark" ? "rgba(255,255,255,0)" : "rgba(0,0,0,0.17)";
-
   return (
     <Modal
       transparent
@@ -114,7 +112,10 @@ const CategoryModalComponent = ({
       onRequestClose={handleClose}
       statusBarTranslucent
     >
-      <Pressable style={styles.backdrop} onPress={Keyboard.dismiss} />
+      <Pressable
+        style={[styles.backdrop, !isDarkTheme && { backgroundColor: "rgba(0,0,0,0.35)" }]}
+        onPress={Keyboard.dismiss}
+      />
       <View style={styles.centered}>
         <ThemedView style={[styles.modal, { backgroundColor: colors.background }]}>
           {/* header */}
@@ -152,7 +153,7 @@ const CategoryModalComponent = ({
                     onPress={() => handleSelectCategory(cat.id)}
                     style={[
                       styles.categoryItem,
-                      { backgroundColor: colors.background, borderColor: borderColor },
+                      { backgroundColor: colors.cardBackground, borderColor: colors.borderCard },
                       isSelected && {
                         borderColor: colors.primary,
                         paddingRight: responsiveSize.horizontal(30),
@@ -187,7 +188,7 @@ const CategoryModalComponent = ({
                 disabled={isSubmitting || updating.current}
                 style={[
                   styles.categoryItem,
-                  { backgroundColor: colors.background, borderColor: borderColor },
+                  { backgroundColor: colors.cardBackground, borderColor: colors.borderCard },
                 ]}
               >
                 <View style={styles.addRow}>
@@ -231,7 +232,7 @@ export const CategoryModal = React.memo(CategoryModalComponent);
 const styles = StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.45)",
+    // backgroundColor: "rgba(0,0,0,0.35)",
   },
   centered: {
     flex: 1,

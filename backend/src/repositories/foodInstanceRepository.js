@@ -81,9 +81,10 @@ export const consumeMultipleFoodInstancesRepository = async (
             foodInstanceId: newAmount === 0 ? null : instance.id,
             catalogId: instance.food.catalogId,
             priceId: instance.priceId,
-            action: "CONSUME",
-            snapshotUnit: instance.unit,
+            action: isFullConsumption ? "CONSUME" : "CONSUME_PARTIAL",
+            snapshotUnit: instance?.unit,
             snapshotAmount: amountToConsume || instance.amount,
+            snapshotExpirationDate: instance?.expirationDate,
             quantityBefore: currentCount + (isFullConsumption ? 1 : 0),
             quantityAfter: currentCount,
             changedBy: userId,
@@ -347,6 +348,7 @@ export const updateFoodInstancesRepository = async (userId, updatePayload, foodI
               action: action,
               snapshotUnit: updatedInstance?.unit,
               snapshotAmount: updatedInstance?.amount,
+              snapshotExpirationDate: updatedInstance?.expirationDate,
               quantityBefore: quantityBefore,
               quantityAfter: currentCount,
               changedBy: userId,
@@ -399,6 +401,7 @@ export const duplicateFoodInstancesRepository = async (
   userId,
   foodInstancesIds,
   countPerSource,
+  foodInstances,
 ) => {
   try {
     return await prisma.$transaction(
@@ -407,15 +410,16 @@ export const duplicateFoodInstancesRepository = async (
 
         let rollingQuantity = await getFoodInstancesCountRepository(foodId, tx);
 
-        const created = await tx.foodInstance.createMany({
-          data: instances,
-        });
+        const created = await tx.foodInstance.createMany({ data: instances });
 
         const batchItem = countPerSource > 1 ? { batchItem: true } : {};
 
         // vytvoreni historie
         const historyEntries = [];
-        for (const sourceId of foodInstancesIds) {
+        for (let i = 0; i < foodInstancesIds.length; i++) {
+          const sourceId = foodInstancesIds[i];
+          const sourceInstance = foodInstances[i];
+
           historyEntries.push({
             inventoryId: inventoryId,
             foodId: foodId,
@@ -430,9 +434,10 @@ export const duplicateFoodInstancesRepository = async (
               ...batchItem,
             },
             foodInstanceId: null,
-            priceId: null,
-            snapshotUnit: null,
-            snapshotAmount: null,
+            priceId: sourceInstance?.priceId ?? null,
+            snapshotUnit: sourceInstance?.unit ?? null,
+            snapshotAmount: sourceInstance?.amount ?? 0,
+            snapshotExpirationDate: sourceInstance?.expirationDate ?? null,
           });
           rollingQuantity += countPerSource;
         }
@@ -490,6 +495,8 @@ export const deleteFoodInstancesRepository = async (instanceIds, userId) => {
             catalogId: instance.food.catalogId,
             priceId: instance?.priceId,
             snapshotAmount: instance?.amount,
+            snapshotExpirationDate: instance?.expirationDate,
+
             snapshotUnit: instance?.unit,
             quantityBefore: currentQuantity,
             quantityAfter: currentQuantity - 1,
@@ -574,6 +581,7 @@ export const addFoodInstanceRepository = async (userId, data) => {
               changedBy: userId || null,
               snapshotAmount: rest?.amount || null,
               snapshotUnit: rest?.unit || null,
+              snapshotExpirationDate: rest?.expirationDate || null,
               quantityBefore: currentCountInstances + i,
               quantityAfter: currentCountInstances + i + 1,
               metadata: batchItem,

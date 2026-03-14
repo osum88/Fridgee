@@ -22,7 +22,7 @@ export const getHistory = async (req, res, next) => {
       }
     }
     const data = {
-      limit: limit ? parseInt(limit, 10) : 20,
+      limit: limit ? parseInt(limit, 10) : 40,
       cursorId: cursor ? parseInt(cursor, 10) : undefined,
       type: type ? (Array.isArray(type) ? type : [type]) : undefined,
       fromDate: normalizeDate(fromDate),

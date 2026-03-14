@@ -9,8 +9,11 @@ const dateFormatter = new Intl.DateTimeFormat("cs-CZ", {
 });
 
 // prevadi date na DD.MM.YYYY pomoci dateFormatter
-export const formatDate = (isoString) => {
+export const formatDate = (isoString, space = false) => {
   if (!isoString) return "";
+  if (space) {
+    return dateFormatter.format(new Date(isoString));
+  }
   return dateFormatter.format(new Date(isoString)).replace(/\s/g, "");
 };
 

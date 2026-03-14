@@ -283,20 +283,21 @@ enum Currency {
 
 //historie vsech operaci nad jidlem
 model FoodHistory {
-  id             Int        @id @default(autoincrement())
-  inventoryId    Int        @map("inventory_id")
-  foodId         Int?       @map("food_id")
-  foodInstanceId Int?       @map("food_instance_id")
-  catalogId      Int?       @map("catalog_id")
-  priceId        Int?       @map("price_id")
-  action         FoodAction @default(ADD)
-  snapshotUnit   Unit?      @map("snapshot_unit")
-  snapshotAmount Float?     @map("snapshot_amount")
-  quantityBefore Int?       @map("quantity_before")
-  quantityAfter  Int?       @map("quantity_after")
-  changedBy      Int?       @map("changed_by")
-  changedAt      DateTime   @default(now()) @map("changed_at")
-  metadata       Json       @default("{}") @map("metadata")
+  id                     Int        @id @default(autoincrement())
+  inventoryId            Int        @map("inventory_id")
+  foodId                 Int?       @map("food_id")
+  foodInstanceId         Int?       @map("food_instance_id")
+  catalogId              Int?       @map("catalog_id")
+  priceId                Int?       @map("price_id")
+  action                 FoodAction @default(ADD)
+  snapshotUnit           Unit?      @map("snapshot_unit")
+  snapshotAmount         Float?     @map("snapshot_amount")
+  snapshotExpirationDate DateTime?  @map("snapshot_expiration_date")
+  quantityBefore         Int?       @map("quantity_before")
+  quantityAfter          Int?       @map("quantity_after")
+  changedBy              Int?       @map("changed_by")
+  changedAt              DateTime   @default(now()) @map("changed_at")
+  metadata               Json       @default("{}") @map("metadata")
 
   user      User?         @relation(fields: [changedBy], references: [id], onDelete: SetNull)
   catalog   FoodCatalog?  @relation(fields: [catalogId], references: [id])
@@ -316,6 +317,7 @@ model FoodHistory {
 enum FoodAction {
   ADD
   CONSUME
+  CONSUME_PARTIAL
   UPDATE
   EXPIRE
   REMOVE

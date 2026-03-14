@@ -5,7 +5,7 @@ import { authenticateToken, authorizeAdmin, authorizeAdminWithoutUserId } from "
 import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFriends, getReceivedFriendRequests, getSentFriendRequests } from "../controllers/friendController.js";
 import { createUser, deleteUser, deleteUserProfileImage, getAllUsersAdmin, getUserById, updateUser, updateUserProfileImage } from "../controllers/userController.js";
 import { createUserSchema, updateUserAdminSchema, userIdAdminSchema } from "../validation/userValidation.js";
-import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, getAllFoodInventory, getInventoryContent, getInventoryDetailsWithUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
+import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, getAllFoodInventory, getInventoryContent, getInventoryDetailsWithUser, getUsersByInventoryId, getUsersByInventoryIdByRole, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
 import { inventoryIdAdminSchema, changeRoleAdminSchema, changeSettingAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema, inventoryIdSchema, searchInventoryLabelAdminSchema, getHistorySchema, inventoryIdBarcodeSchema, foodCatalogIdInventoryIdSchema } from "../validation/foodInventoryValidation.js";
 import { getFriendsAdminSchema } from "../validation/friendValidation.js";
 import { sanitize } from "../middlewares/sanitize.js";
@@ -65,17 +65,20 @@ router.patch("/users/:id/inventory/:inventoryId/users/:targetUserId", validate(c
 //smaze uzivatele z inventare
 router.delete("/users/:id/inventory/:inventoryId/users/", validate(deleteAdminSchema), authenticateToken, authorizeAdmin, deleteFoodInventoryUser);
 
+//vrati vsechny uzivatele 
+router.get("/inventory/:inventoryId/users/all", validate(inventoryIdSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getUsersByInventoryId);
+
 //vrati uzivatele podle role
-router.get("/users/inventory/:inventoryId/users", validate(getInventoryUsersSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getUsersByInventoryId);
+router.get("/inventory/:inventoryId/users", validate(getInventoryUsersSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getUsersByInventoryIdByRole);
 
 //archivuje inventar
-router.patch("/users/:id/inventory/:inventoryId/archive", validate(inventoryIdAdminSchema), authenticateToken, authorizeAdmin, archiveFoodInventory);
+router.patch("/inventory/:inventoryId/archive", validate(inventoryIdSchema), authenticateToken, authorizeAdminWithoutUserId, archiveFoodInventory);
 
 //zrusi archivaci inventare
-router.patch("/users/:id/inventory/:inventoryId/unarchive", validate(inventoryIdAdminSchema), authenticateToken, authorizeAdmin, unarchiveFoodInventory);
+router.patch("/inventory/:inventoryId/unarchive", validate(inventoryIdSchema), authenticateToken, authorizeAdminWithoutUserId, unarchiveFoodInventory);
 
 //zmena title a label
-router.patch("/users/inventory/:inventoryId", validate(updateFoodInventorySchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, updateFoodInventory);
+router.patch("/inventory/:inventoryId", validate(updateFoodInventorySchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, updateFoodInventory);
 
 // vrati vsechny kategorie z inventare
 router.get("/inventory/:inventoryId/food-category", validate(inventoryIdSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getFoodCategoriesByInventory);

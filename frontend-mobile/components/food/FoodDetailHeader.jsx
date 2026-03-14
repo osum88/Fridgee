@@ -57,7 +57,7 @@ const FoodDetailHeaderComponent = ({ food, colors, colorScheme, onAction, isLoad
         ) : null}
         {food?.minimalQuantity ? (
           <ThemedText style={[styles.minQty, { color: colors.text + "55" }]}>
-            {i18n.t("minQuantity")}: {food.minimalQuantity}
+            {i18n.t("minimalQuantity")}: {food.minimalQuantity}
           </ThemedText>
         ) : null}
       </View>

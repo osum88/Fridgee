@@ -45,13 +45,16 @@ export const logLabelUpdateHistoryRepository = async (
           quantityBefore: null,
           quantityAfter: null,
           metadata: {
-            before: oldTitle || null,
-            after: newTitle || null,
+            defaultLabel: {
+              before: oldTitle || null,
+              after: newTitle || null,
+            },
           },
           foodInstanceId: null,
           priceId: null,
           snapshotUnit: null,
           snapshotAmount: null,
+          snapshotExpirationDate: null,
         });
       }
     }
@@ -126,6 +129,7 @@ export const getHistoryRepository = async (inventoryId, userId, data) => {
       action: true,
       snapshotUnit: true,
       snapshotAmount: true,
+      snapshotExpirationDate: true,
       quantityBefore: true,
       quantityAfter: true,
       changedBy: true,

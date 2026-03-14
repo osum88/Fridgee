@@ -106,3 +106,60 @@ export const getInventoryContentApi = async (inventoryId, signal) => {
     throw error;
   }
 };
+
+//vraci historii
+export const getInventoryHistoryApi = async (inventoryId, filters = {}, signal) => {
+  try {
+    const { limit = 20, cursor, type, fromDate, toDate, search, changedBy } = filters;
+
+    const params = { limit };
+    if (cursor) params.cursor = cursor;
+    if (type?.length) params.type = type;
+    if (fromDate) params.fromDate = new Date(fromDate).toISOString();
+    if (toDate) params.toDate = new Date(toDate).toISOString();
+    if (search) params.search = search;
+    if (changedBy?.length) params.changedBy = changedBy;
+
+    const response = await apiClient.get(`/inventory/${inventoryId}/history`, {
+      params,
+      signal,
+      paramsSerializer: (params) => {
+        return Object.entries(params)
+          .flatMap(([key, value]) =>
+            Array.isArray(value)
+              ? value.map((v) => `${key}=${encodeURIComponent(v)}`)
+              : [`${key}=${encodeURIComponent(value)}`],
+          )
+          .join("&");
+      },
+    });
+    return response.data;
+  } catch (error) {
+    if (isCancel(error)) {
+      console.log("Request cancelled (getInventoryHistoryApi).");
+      return null;
+    }
+    console.error(
+      `Error in getInventoryHistoryApi: ${error.response?.data?.message || error.message}`,
+    );
+    throw error;
+  }
+};
+
+//vrati vsechny usery inventare
+export const getUsersByInventoryIdApi = async (inventoryId, signal) => {
+  try {
+    console.log("usrs");
+    const response = await apiClient.get(`/inventory/${inventoryId}/users/all`, { signal });
+    return response.data;
+  } catch (error) {
+    if (isCancel(error)) {
+      console.log("Request cancelled (getUsersByInventoryIdApi).");
+      return null;
+    }
+    console.error(
+      `Error in getUsersByInventoryIdApi: ${error.response?.data?.message || error.message}`,
+    );
+    throw error;
+  }
+};

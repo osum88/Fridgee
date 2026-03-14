@@ -14,7 +14,7 @@ export default function SettingLayout() {
   return (
     <Stack
       screenOptions={{
-        headerTitleAlign: "center",
+        // headerTitleAlign: "center",
         headerTitleStyle: {
           fontSize: Math.round(responsiveFont(19)),
         },

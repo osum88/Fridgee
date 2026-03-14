@@ -11,9 +11,9 @@ import { useFoodDetail } from "@/hooks/queries/food/useGetFoodQuary";
 import { useInventoryStore } from "@/hooks/store/useInventoryStore";
 import { FoodDetailHeader } from "@/components/food/FoodDetailHeader";
 import { InstanceItem } from "@/components/food/InstanceItem";
-import { InstanceBottomSheet } from "@/components/animated/InstanceBottomSheet";
-import { CounterModal } from "@/components/modals/CounterModal";
-import { ConsumeModal } from "@/components/modals/ConsumeModal";
+import { InstanceBottomSheet } from "@/components/bottomSheet/InstanceBottomSheet";
+import { CounterModal } from "@/components/bottomSheet/CounterBottomSheet";
+import { ConsumeModal } from "@/components/bottomSheet/ConsumeBottomSheet";
 import {
   useConsumeFoodInstanceMutation,
   useDuplicateFoodInstanceMutation,
@@ -62,8 +62,6 @@ export default function FoodDetailScreen() {
     activeInventory.id,
     showCategoryModal,
   );
-
-  const borderColor = colorScheme === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.16)";
 
   const handleItemPress = useCallback((item) => {
     setSelectedItem(item);
@@ -144,11 +142,11 @@ export default function FoodDetailScreen() {
       <InstanceItem
         item={item}
         colors={colors}
-        borderColor={borderColor}
+        borderColor={colors.borderCard}
         onPress={handleItemPress}
       />
     ),
-    [colors, borderColor, handleItemPress],
+    [colors, handleItemPress],
   );
 
   const keyExtractor = useCallback((item) => String(item.instanceIds[0]), []);

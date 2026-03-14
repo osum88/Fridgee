@@ -9,6 +9,7 @@ import {
   getAllFoodInventoryService,
   getInventoryContentService,
   getInventoryDetailsWithUserService,
+  getUsersByInventoryIdByRoleService,
   getUsersByInventoryIdService,
   updateFoodInventoryService,
 } from "../services/foodInventoryService.js";
@@ -103,15 +104,15 @@ export const deleteOtherFoodInventoryUser = async (req, res, next) => {
   }
 };
 
-//vrati usera z inventare podle id
-export const getUsersByInventoryId = async (req, res, next) => {
+//vrati usera z inventare podle id a role
+export const getUsersByInventoryIdByRole = async (req, res, next) => {
   try {
     const inventoryId = parseInt(req.params.inventoryId, 10);
     const userId = req.userId;
     const rolesToFilter = req.query.role;
     const isAdmin = req.adminRoute;
 
-    const inventoryUser = await getUsersByInventoryIdService(
+    const inventoryUser = await getUsersByInventoryIdByRoleService(
       userId,
       inventoryId,
       rolesToFilter,
@@ -123,10 +124,28 @@ export const getUsersByInventoryId = async (req, res, next) => {
   }
 };
 
+//vrati usera z inventare podle inventory id
+export const getUsersByInventoryId = async (req, res, next) => {
+  try {
+    const inventoryId = parseInt(req.params?.inventoryId, 10);
+    const userId = req.userId;
+    const isAdmin = req.adminRoute;
+
+    const inventoryUser = await getUsersByInventoryIdService(
+      userId,
+      inventoryId,
+      isAdmin,
+    );
+    handleResponse(res, 200, "Inventory users fetched successfully", inventoryUser);
+  } catch (err) {
+    next(err);
+  }
+};
+
 //archivace invenatre
 export const archiveFoodInventory = async (req, res, next) => {
   try {
-    const inventoryId = parseInt(req.params.inventoryId, 10);
+    const inventoryId = parseInt(req.params?.inventoryId, 10);
     const userId = req.userId;
     const isAdmin = req.adminRoute;
 
@@ -233,4 +252,3 @@ export const getInventoryContent = async (req, res, next) => {
     next(err);
   }
 };
-

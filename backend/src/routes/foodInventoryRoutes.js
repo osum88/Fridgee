@@ -1,6 +1,6 @@
 import express from "express";
 import { authenticateToken, authorizeUser } from "../middlewares/authMiddleware.js";
-import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, deleteOtherFoodInventoryUser, getAllFoodInventory, getInventoryContent, getInventoryDetailsWithUser, getUsersByInventoryId, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
+import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, deleteOtherFoodInventoryUser, getAllFoodInventory, getInventoryContent, getInventoryDetailsWithUser, getUsersByInventoryId, getUsersByInventoryIdByRole, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
 import { acceptInventoryInvitation, rejectInventoryInvitation, sendInventoryInvitation } from "../controllers/inventoryInvitationController.js";
 import validate from "../middlewares/validator.js";
 import { inventoryIdSchema, changeRoleSchema, changeSettingSchema, createFoodInventorySchema, deleteOtherSchema, deleteSchema, getInventoryUsersSchema, updateFoodInventorySchema, searchInventoryLabelSchema, getHistorySchema, inventoryIdBarcodeSchema, foodIdInventoryIdSchema, foodCatalogIdInventoryIdSchema } from "../validation/foodInventoryValidation.js";
@@ -42,8 +42,11 @@ router.delete("/:inventoryId/users/:targetUserId", validate(deleteOtherSchema), 
 //smaze me z inventare
 router.delete("/:inventoryId/users", validate(deleteSchema), deleteFoodInventoryUser);
 
+//vrati vsechny uzivatele 
+router.get("/:inventoryId/users/all", validate(inventoryIdSchema), getUsersByInventoryId);
+
 //vrati uzivatele podle role
-router.get("/:inventoryId/users", validate(getInventoryUsersSchema), getUsersByInventoryId);
+router.get("/:inventoryId/users", validate(getInventoryUsersSchema), getUsersByInventoryIdByRole);
 //http://localhost:3001/api/inventory/3/users?role=OWNER&role=EDITOR
 
 //archivuje inventar

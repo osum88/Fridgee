@@ -93,7 +93,7 @@ export default function EditFoodScreen() {
   // pouze OWNER a EDITOR mohou menit minimalQuantity a variantu
   const canEdit = activeInventory.role === "OWNER" || activeInventory.role === "EDITOR";
 
-  const { updateFood, isSubmitting } = useUpdateFoodMutation();
+  const { updateFood, isSubmitting } = useUpdateFoodMutation(activeInventory.id);
   const { data: variants = [] } = useGetFoodVariants(activeInventory.id, catalogId);
 
   const variantOptions = useMemo(

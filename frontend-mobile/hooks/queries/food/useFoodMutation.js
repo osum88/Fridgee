@@ -9,6 +9,7 @@ export const useAddFoodMutation = (inventoryId) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inventory-content", parseInt(inventoryId)] });
       queryClient.invalidateQueries({ queryKey: ["food-detail", parseInt(inventoryId)] });
+      queryClient.resetQueries({ queryKey: ["inventory-history", parseInt(inventoryId)] });
       console.log("Food added successfully");
     },
     onError: (error) => {
@@ -19,13 +20,19 @@ export const useAddFoodMutation = (inventoryId) => {
   return { addFood, isSubmitting: addFood.isPending };
 };
 
-export const useUpdateFoodMutation = () => {
+export const useUpdateFoodMutation = (inventoryId) => {
+  const queryClient = useQueryClient();
+
   const mutation = useMutation({
     mutationFn: ({ foodData, imageFormData }) => updateFoodApi(foodData, imageFormData),
     onSuccess: () => {
+      queryClient.resetQueries({ queryKey: ["inventory-history", parseInt(inventoryId)] });
+
       console.log("Food added successfully");
     },
-    onError: (error) => {console.error("useUpdateFoodMutation error:", error)},
+    onError: (error) => {
+      console.error("useUpdateFoodMutation error:", error);
+    },
   });
 
   return { updateFood: mutation, isSubmitting: mutation.isPending };

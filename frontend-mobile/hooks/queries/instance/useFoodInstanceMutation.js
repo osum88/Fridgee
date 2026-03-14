@@ -18,6 +18,7 @@ export const useUpdateFoodInstanceMutation = (inventoryId, catalogId) => {
       queryClient.invalidateQueries({
         queryKey: ["food-variants", parseInt(inventoryId), parseInt(catalogId)],
       });
+      queryClient.resetQueries({ queryKey: ["inventory-history", parseInt(inventoryId)] });
     },
     onError: (error) => {
       console.error("updateFoodInstanceMutation error:", error);
@@ -35,6 +36,9 @@ const invalidateAfterMutation = (queryClient, inventoryId, catalogId, foodId) =>
   });
   queryClient.refetchQueries({
     queryKey: ["food-detail", parseInt(inventoryId), parseInt(catalogId), parseInt(foodId)],
+  });
+  queryClient.resetQueries({
+    queryKey: ["inventory-history", parseInt(inventoryId)],
   });
 };
 
@@ -90,10 +94,13 @@ export const useDeleteFoodInstanceMutation = (inventoryId, catalogId, foodId) =>
 };
 
 //prida instance
-export const useAddFoodInstanceMutation = () => {
+export const useAddFoodInstanceMutation = (inventoryId) => {
+  const queryClient = useQueryClient();
+
   const mutation = useMutation({
     mutationFn: (data) => addFoodInstanceApi(data),
     onSuccess: () => {
+      queryClient.resetQueries({ queryKey: ["inventory-history", parseInt(inventoryId)] });
       console.log("useAddFoodInstanceMutation add succes");
     },
     onError: (error) => {

@@ -102,7 +102,7 @@ export const searchInventoryLabelAdminSchema = searchInventoryLabelSchema.keys({
 
 export const getHistorySchema = Joi.object({
   inventoryId: Joi.number().integer().positive().required(),
-  limit: Joi.number().integer().min(1).max(100).default(20),
+  limit: Joi.number().integer().min(1).max(100).default(40),
   cursor: Joi.number().integer().min(1).optional(),
   type: Joi.alternatives()
     .try(
@@ -111,6 +111,7 @@ export const getHistorySchema = Joi.object({
           Joi.string().valid(
             "ADD",
             "CONSUME",
+            "CONSUME_PARTIAL",
             "UPDATE",
             "EXPIRE",
             "REMOVE",

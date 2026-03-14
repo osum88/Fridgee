@@ -309,6 +309,7 @@ export const addFoodToInventoryRepository = async (userId, data) => {
               changedBy: userId,
               snapshotAmount: data?.amount,
               snapshotUnit: data?.unit,
+              snapshotExpirationDate: data?.expirationDate,
               quantityBefore: currentCountInstances + i,
               quantityAfter: currentCountInstances + i + 1,
               metadata: batchItem,
@@ -474,6 +475,7 @@ export const updateFoodRepository = async (
 
           const categoryResult = await moveFoodsToCategoryRepository(
             food.inventoryId,
+            userId,
             currentFoodId === foodId ? foodId : [currentFoodId, foodId],
             categoryData?.new?.categoryId,
             categoryData?.new?.categoryTitle,
@@ -576,6 +578,7 @@ export const updateFoodRepository = async (
               priceId: null,
               snapshotUnit: null,
               snapshotAmount: null,
+              snapshotExpirationDate: null,
               quantityBefore: currentCount,
               quantityAfter: newCount,
             })),

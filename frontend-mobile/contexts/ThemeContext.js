@@ -49,7 +49,8 @@ export function ThemeProvider({ children }) {
   }, [theme, isThemeLoaded]);
 
   const colorScheme = theme === "system" ? systemColorScheme : theme;
-  const value = { theme, setTheme, colorScheme, isThemeLoaded };
+  const isDarkTheme = colorScheme === "dark"
+  const value = { theme, setTheme, colorScheme, isThemeLoaded, isDarkTheme };
 
   return (
     <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>

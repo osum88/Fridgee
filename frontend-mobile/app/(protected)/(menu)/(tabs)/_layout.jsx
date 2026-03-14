@@ -47,6 +47,15 @@ export default function TabLayout() {
           },
           default: {},
         }),
+        headerLeft: () => (
+          <Pressable style={styles.menuIcon} onPress={() => navigation.openDrawer()}>
+            <IconSymbol
+              name="line.horizontal.3"
+              size={responsiveSize.moderate(24)}
+              color={colorCurrent.text}
+            />
+          </Pressable>
+        ),
         headerRight: () => (
           <ThemedView
             style={{ flexDirection: "row", backgroundColor: colorCurrent.tabsBackground }}
@@ -71,7 +80,7 @@ export default function TabLayout() {
             </Pressable>
             <Pressable
               style={[styles.icon, styles.paddingEnd]}
-              onPress={() => router.push("../profile")}
+              onPress={() => router.push("/(protected)/(profile)/profile")}
             >
               <IconSymbol
                 name="person"
@@ -89,18 +98,23 @@ export default function TabLayout() {
           headerTitle: activeInventory.title || i18n.t("inventories"),
           tabBarLabel: i18n.t("inventories"),
           headerShown: true,
-          headerLeft: () => (
-            <Pressable style={styles.menuIcon} onPress={() => navigation.openDrawer()}>
-              <IconSymbol
-                name="line.horizontal.3"
-                size={responsiveSize.moderate(25)}
-                color={colorCurrent.text}
-              />
-            </Pressable>
-          ),
-
           tabBarIcon: ({ color }) => (
             <IconSymbol size={responsiveSize.moderate(24)} name="archivebox.fill" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="inventoryHistory"
+        options={{
+          headerTitle: i18n.t("history"),
+          tabBarLabel: i18n.t("history"),
+          headerShown: true,
+          tabBarIcon: ({ color }) => (
+            <IconSymbol
+              size={responsiveSize.moderate(24)}
+              name="clock.arrow.trianglehead.counterclockwise.rotate.90"
+              color={color}
+            />
           ),
         }}
       />
@@ -109,15 +123,6 @@ export default function TabLayout() {
         options={{
           title: "Explore",
           headerShown: true,
-          headerLeft: () => (
-            <Pressable style={styles.menuIcon} onPress={() => navigation.openDrawer()}>
-              <IconSymbol
-                name="line.horizontal.3"
-                size={responsiveSize.moderate(24)}
-                color={colorCurrent.text}
-              />
-            </Pressable>
-          ),
           tabBarIcon: ({ color }) => (
             <IconSymbol size={responsiveSize.moderate(22)} name="paperplane.fill" color={color} />
           ),

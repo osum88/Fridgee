@@ -184,7 +184,7 @@ export const deleteFoodInventoryRepository = async (inventoryId) => {
 };
 
 //vrati user podle role
-export const getUsersByInventoryIdRepository = async (inventoryId, rolesToFilter) => {
+export const getUsersByInventoryIdByRoleRepository = async (inventoryId, rolesToFilter) => {
   try {
     return await prisma.inventoryUser.findMany({
       where: {
@@ -197,12 +197,11 @@ export const getUsersByInventoryIdRepository = async (inventoryId, rolesToFilter
       },
       orderBy: [
         { user: { name: "asc" } },
-        { user: { surname: "asc" } },
         { user: { username: "asc" } },
+        { user: { surname: "asc" } },
       ],
       select: {
         id: true,
-        userId: true,
         inventoryId: true,
         role: true,
         notificationSettings: true,

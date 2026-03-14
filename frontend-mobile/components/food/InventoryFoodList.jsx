@@ -10,10 +10,9 @@ import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
-import { useTheme } from "@/contexts/ThemeContext";
 import { LIST_ITEM_TYPE } from "@/constants/general";
 import { RefreshableFlashList } from "@/components/common/RefreshableFlashList";
-import Animated, { FadeIn,  } from "react-native-reanimated";
+import Animated, { FadeIn } from "react-native-reanimated";
 
 const ITEM_HEIGHT = responsiveSize.vertical(60);
 const SECTION_FOOTER_HEIGHT = responsiveSize.vertical(13);
@@ -207,10 +206,10 @@ const FoodItemComponent = ({
   );
 
   return (
-    <Animated.View entering={FadeIn.duration(200)}>
-      <ThemedView style={[styles.itemWrapper, { borderColor }]} darkColor={surface}>
-        <ThemedLine style={styles.foodDivider} />
-        {/* <ReanimatedSwipeable
+    // <Animated.View entering={FadeIn.duration(200)}>
+    <ThemedView style={[styles.itemWrapper, { borderColor }]} darkColor={surface}>
+      <ThemedLine style={styles.foodDivider} />
+      {/* <ReanimatedSwipeable
         ref={swipeableRef}
         renderLeftActions={renderLeft}
         renderRightActions={renderRight}
@@ -219,16 +218,16 @@ const FoodItemComponent = ({
         leftThreshold={40}
         rightThreshold={40}
       > */}
-        <FoodItemContent
-          item={item}
-          surfaceColor={surfaceColor}
-          validCountColor={validCountColor}
-          expiringSoonCountColor={expiringSoonCountColor}
-          expiredCountColor={expiredCountColor}
-        />
-        {/* </ReanimatedSwipeable> */}
-      </ThemedView>
-    </Animated.View>
+      <FoodItemContent
+        item={item}
+        surfaceColor={surfaceColor}
+        validCountColor={validCountColor}
+        expiringSoonCountColor={expiringSoonCountColor}
+        expiredCountColor={expiredCountColor}
+      />
+      {/* </ReanimatedSwipeable> */}
+    </ThemedView>
+    // </Animated.View>
   );
 };
 
@@ -256,9 +255,6 @@ const FoodItem = React.memo(
 
 const InventoryFoodListComponent = ({ data, toggleSection, refetch }) => {
   const colors = useThemeColor();
-  const { colorScheme } = useTheme();
-
-  const borderColor = colorScheme === "dark" ? "rgba(255,255,255,0)" : "rgba(0,0,0,0.17)";
 
   const renderItem = useCallback(
     ({ item }) => {
@@ -269,11 +265,11 @@ const InventoryFoodListComponent = ({ data, toggleSection, refetch }) => {
               item={item}
               toggleSection={toggleSection}
               colors={colors}
-              borderColor={borderColor}
+              borderColor={colors.borderCard}
             />
           );
         case LIST_ITEM_TYPE.SECTION_END:
-          return <SectionEnd surface={colors.surface} borderColor={borderColor} />;
+          return <SectionEnd surface={colors.surface} borderColor={colors.borderCard} />;
         case LIST_ITEM_TYPE.FOOTER:
           return <SectionFooter />;
         case LIST_ITEM_TYPE.BOTTOM_SPACER:
@@ -289,12 +285,12 @@ const InventoryFoodListComponent = ({ data, toggleSection, refetch }) => {
               expiringSoonCountColor={colors.expiringSoonCount}
               expiredCountColor={colors.expiredCount}
               surface={colors.surface}
-              borderColor={borderColor}
+              borderColor={colors.borderCard}
             />
           );
       }
     },
-    [colors, toggleSection, borderColor],
+    [colors, toggleSection],
   );
 
   const overrideItemType = useCallback((item) => item.type, []);

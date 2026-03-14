@@ -15,7 +15,7 @@ import {
   getFoodInventoryUserRoleRepository,
   deleteUserFoodInventoryRepository,
   deleteFoodInventoryRepository,
-  getUsersByInventoryIdRepository,
+  getUsersByInventoryIdByRoleRepository,
   archiveFoodInventoryRepository,
   unarchiveFoodInventoryRepository,
   updateFoodInventoryRepository,
@@ -24,6 +24,7 @@ import {
   getInventoryContentRepository,
 } from "../repositories/foodInventoryRepository.js";
 import { getUserByIdRepository } from "../repositories/userRepository.js";
+import { capitalizeFirst } from "../utils/stringUtils.js";
 import { convertPrice, createBaseCurrency } from "./priceService.js";
 
 // vytvari inventar s jidlem
@@ -240,48 +241,69 @@ export const deleteOtherFoodInventoryUserService = async (removerId, inventoryId
 };
 
 //vrati uzivatele podle id a role
-export const getUsersByInventoryIdService = async (userId, inventoryId, rolesToFilter, isAdmin) => {
-  if (isNaN(inventoryId)) {
-    throw new BadRequestError("Invalid inventory ID provided.");
-  }
+export const getUsersByInventoryIdByRoleService = async (
+  userId,
+  inventoryId,
+  rolesToFilter,
+  isAdmin,
+) => {
   await getFoodInventoryRepository(inventoryId);
 
   // kontrola existence uzivatele v inventari
   if (!isAdmin) {
-    const removerInventoryUser = await getFoodInventoryUserRepository(userId, inventoryId);
-    if (!removerInventoryUser) {
+    const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId);
+    if (!inventoryUser) {
       throw new ForbiddenError("You do not have permission to view users in this inventory.");
     }
   }
 
   // vrati uzivatele z inventare
-  return await getUsersByInventoryIdRepository(inventoryId, rolesToFilter);
+  return await getUsersByInventoryIdByRoleRepository(inventoryId, rolesToFilter);
+};
+
+//vrati uzivatele podle id a role
+export const getUsersByInventoryIdService = async (userId, inventoryId, isAdmin) => {
+  await getFoodInventoryRepository(inventoryId);
+
+  // kontrola existence uzivatele v inventari
+  if (!isAdmin) {
+    const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId);
+    if (!inventoryUser) {
+      throw new ForbiddenError("You do not have permission to view users in this inventory.");
+    }
+  }
+  // vrati uzivatele z inventare
+  const result = await getUsersByInventoryIdByRoleRepository(inventoryId, null);
+  return result
+    .map((data) => ({
+      userId: data.user.id,
+      name:
+        data.user.name && data.user.surname
+          ? `${capitalizeFirst(data.user.name)} ${capitalizeFirst(data.user.surname)}`
+          : capitalizeFirst(data.user.username),
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name, ["cs", "en"], { sensitivity: "base" }));
 };
 
 //archivace inventare
 export const archiveFoodInventoryService = async (userId, inventoryId, isArchived, isAdmin) => {
-  if (isNaN(inventoryId)) {
-    throw new BadRequestError("Invalid inventory ID provided.");
-  }
-  if (isAdmin) {
-    await getUserByIdRepository(userId);
-  }
   const inventory = await getFoodInventoryRepository(inventoryId);
   if (inventory.isArchived === isArchived) {
     return inventory;
   }
 
   // kontrola existence cilového uzivatele v inventari
-  const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId);
-  if (!inventoryUser) {
-    throw new NotFoundError("User is not a member of this inventory.");
-  }
+  if (!isAdmin) {
+    const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId);
+    if (!inventoryUser) {
+      throw new NotFoundError("User is not a member of this inventory.");
+    }
 
-  // pouze owner muze archivocat inventar
-  if (inventoryUser.role !== "OWNER") {
-    throw new ForbiddenError("Only the owner of the inventory can un/archive inventary.");
+    // pouze owner muze archivocat inventar
+    if (inventoryUser.role !== "OWNER") {
+      throw new ForbiddenError("Only the owner of the inventory can un/archive inventary.");
+    }
   }
-
   // archivace inventare
   let updatedInventory;
   if (isArchived) {

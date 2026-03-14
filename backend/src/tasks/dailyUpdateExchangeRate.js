@@ -33,6 +33,5 @@ export const dailyUpdateExchangeRate = async () => {
     }
   } catch (error) {
     console.error("Error during daily exchange rate update:", error);
-    throw error;
   }
 };

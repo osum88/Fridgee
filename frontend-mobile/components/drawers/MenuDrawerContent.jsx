@@ -89,7 +89,7 @@ export default function MenuDrawerContent(props) {
               // textShadowRadius: 10,
             }}
           >
-            Fridgee{"  "}
+            Fridgee
           </ThemedText>
         </ThemedView>
 

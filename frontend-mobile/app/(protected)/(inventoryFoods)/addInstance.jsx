@@ -51,7 +51,7 @@ export default function AddInstanceScreen() {
   const navigation = useNavigation();
   const colors = useThemeColor();
 
-  const { addInstance, isSubmitting } = useAddFoodInstanceMutation();
+  const { addInstance, isSubmitting } = useAddFoodInstanceMutation(activeInventory.id);
 
   const [inputText, setInputText] = useState({
     quantity: "1",

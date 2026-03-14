@@ -46,6 +46,7 @@ export const Colors = {
     expiredCount: "#F44336",
     primaryBackground: "#1d9bc525",
     orange: "#f4970a",
+    borderCard: "rgba(0,0,0,0.17)",
   },
   dark: {
     text: "#e0e0e0",
@@ -85,8 +86,8 @@ export const Colors = {
     expiringSoonCount: "#FBC02D",
     expiredCount: "#D32F2F",
     primaryBackground: "#bcdee9",
-    orange:  "#ad7013",
-
+    orange: "#ad7013",
+    borderCard: "rgba(255,255,255,0)",
   },
 };
 
@@ -135,4 +136,39 @@ export const INVENTORY_THEMES = {
   stairs: { light: "#546E7A", dark: "#90A4AE" },
   "lightbulb.fill": { light: "#FBC02D", dark: "#FFF176" },
   "dog.fill": { light: "#6D4C41", dark: "#A1887F" },
+};
+
+export const ACTION_COLORS = {
+  light: {
+    ADD: "#2da533",
+    CONSUME: "#1d9bc5",
+    CONSUME_PARTIAL: "#1d9bc5",
+    REMOVE: "#dc3131",
+    UPDATE: "#f4970a",
+    MERGE: "#9C27B0",
+    UPDATE_MERGE: "#9C27B0",
+    EXPIRE: "#BF360C",
+    CATEGORY_MOVE: "#00695C",
+    CATEGORY_CREATE: "#1565C0",
+    CATEGORY_REMOVE: "#C62828",
+    CATEGORY_RENAME: "#1770f5",
+    LABEL_UPDATE: "#00BCD4",
+    MIN_QUANTITY_UPDATE: "#E91E63",
+  },
+  dark: {
+    ADD: "#65cb6a",
+    CONSUME: "#22b2e2",
+    CONSUME_PARTIAL: "#22b2e2",
+    REMOVE: "#f12421",
+    UPDATE: "#e49622",
+    MERGE: "#af47c1",
+    UPDATE_MERGE: "#af47c1",
+    EXPIRE: "#FF7043",
+    CATEGORY_MOVE: "#26A69A",
+    CATEGORY_CREATE: "#42A5F5",
+    CATEGORY_REMOVE: "#EF5350",
+    CATEGORY_RENAME: "#FFCA28",
+    LABEL_UPDATE: "#26C6DA",
+    MIN_QUANTITY_UPDATE: "#F48FB1",
+  },
 };

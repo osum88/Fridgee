@@ -1,13 +1,5 @@
-import {
-  InteractionManager,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-  LayoutAnimation,
-} from "react-native";
+import { InteractionManager, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
-import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import i18n from "@/constants/translations";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
@@ -28,8 +20,8 @@ import { useInventoryStore } from "@/hooks/store/useInventoryStore";
 import { InventoryFoodList } from "@/components/food/InventoryFoodList";
 import { Search } from "@/components/input/Search";
 import { normalizeText } from "@/utils/stringUtils";
-import { useTheme } from "@/contexts/ThemeContext";
 import { LIST_ITEM_TYPE } from "@/constants/general";
+import { EmptyState } from "@/components/common/EmptyState";
 
 //hlavni tlacitko (prida inventar nebo presmeruje na sken)
 const MainFab = ({ onPress, color, inventoryId }) => (
@@ -64,33 +56,6 @@ const SecondaryFab = ({ onPress, color, badgeIcons, style }) => (
   </Pressable>
 );
 
-//prazdny inventar
-const EmptyInventory = ({ colors }) => (
-  <View style={styles.emptyContainer}>
-    <IconSymbol
-      name="basket"
-      size={responsiveSize.moderate(80)}
-      color={colors.text}
-      style={{ opacity: 0.2 }}
-    />
-    <ThemedText style={styles.emptyTitle}>{i18n.t("noFoodTitle")}</ThemedText>
-    <ThemedText style={styles.emptySubtitle}>{i18n.t("noFoodSubtitle")}</ThemedText>
-  </View>
-);
-
-const EmptyInventoryList = ({ colors }) => (
-  <View style={[styles.emptyContainer]}>
-    <IconSymbol
-      name="archivebox"
-      size={responsiveSize.moderate(80)}
-      color={colors.text}
-      style={{ opacity: 0.2 }}
-    />
-    <ThemedText style={styles.emptyTitle}>{i18n.t("noInventoryTitle")}</ThemedText>
-    <ThemedText style={styles.emptySubtitle}>{i18n.t("noInventorySubtitle")}</ThemedText>
-  </View>
-);
-
 export default function InventoryScreen() {
   const [expandedSections, setExpandedSections] = useState({});
   const [searchTitle, setSearchTitle] = useState("");
@@ -98,7 +63,6 @@ export default function InventoryScreen() {
   const colors = useThemeColor();
   const { navigateToScanner } = useCameraNavigation();
   useLanguage();
-  const { colorScheme } = useTheme();
 
   const activeInventory = useInventoryStore((state) => state.activeInventory);
   const setActiveInventory = useInventoryStore((state) => state.setActiveInventory);
@@ -163,12 +127,10 @@ export default function InventoryScreen() {
     if (isLoadingInventory) {
       return [1, 2, 3, 4, 5].map((key) => <InventorySkeleton key={key} />);
     }
-
     return inventories?.map((item) => (
       <InventoryCard key={item.id} item={item} onPress={() => handlePress(item)} />
     ));
-  }, [activeInventory.id, isLoadingInventory, inventories, handlePress, ]);
-
+  }, [activeInventory.id, isLoadingInventory, inventories, handlePress]);
 
   //tlacitka
   const FoodActionsFab = useMemo(() => {
@@ -279,7 +241,11 @@ export default function InventoryScreen() {
     return (
       <ThemedView style={styles.contentWrapper}>
         {!isLoadingInventory && (!inventories || inventories.length === 0) ? (
-          <EmptyInventoryList colors={colors} />
+          <EmptyState
+            icon={"archivebox"}
+            title={i18n.t("noInventoryTitle")}
+            subtitle={i18n.t("noInventorySubtitle")}
+          />
         ) : (
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <View style={styles.inventoryList}>{RenderInventories}</View>
@@ -300,17 +266,27 @@ export default function InventoryScreen() {
               value={searchTitle}
               onChangeText={setSearchTitle}
               style={[styles.searchBar, { backgroundColor: colors.cardBackground }]}
-              outlineStyle={[
-                styles.outlineSearchBar,
-                colorScheme === "light" && styles.shadow,
-                { backgroundColor: colors.cardBackground },
-              ]}
+              outlineStyle={[styles.outlineSearchBar, { backgroundColor: colors.cardBackground }]}
             />
+            <Pressable
+              // onPress={() => setFilterVisible(true)}
+              style={[styles.filterBtn, { backgroundColor: colors.cardBackground }]}
+            >
+              <IconSymbol
+                name="line.3.horizontal.decrease"
+                size={responsiveSize.moderate(26)}
+                color={colors.text}
+              />
+            </Pressable>
           </ThemedView>
           <InventoryFoodList data={flatData} toggleSection={toggleSection} refetch={refetch} />
         </ThemedView>
       ) : (
-        <EmptyInventory colors={colors} />
+        <EmptyState
+          icon={"basket"}
+          title={i18n.t("noFoodTitle")}
+          subtitle={i18n.t("noFoodSubtitle")}
+        />
       )}
       {FoodActionsFab}
     </ThemedView>
@@ -370,44 +346,30 @@ const styles = StyleSheet.create({
   fabPlusManuallyPosition: {
     marginBottom: responsiveSize.vertical(2),
   },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: responsiveSize.horizontal(40),
-    marginBottom: responsiveSize.vertical(60),
-  },
-  emptyTitle: {
-    fontSize: responsiveSize.moderate(20),
-    fontWeight: "600",
-    marginTop: responsiveSize.vertical(20),
-    textAlign: "center",
-  },
-  emptySubtitle: {
-    fontSize: responsiveSize.moderate(14),
-    opacity: 0.6,
-    marginTop: responsiveSize.vertical(10),
-    textAlign: "center",
-    lineHeight: responsiveSize.moderate(20),
-  },
   searchContainer: {
-    paddingHorizontal: responsiveSize.horizontal(1),
+    marginHorizontal: responsiveSize.horizontal(10),
     marginVertical: responsiveSize.vertical(11),
     flexDirection: "row",
     alignItems: "center",
+    gap: responsiveSize.horizontal(10),
   },
   searchBar: {
     flex: 1,
-    height: responsiveSize.vertical(44),
+    height: responsiveSize.vertical(42),
   },
   outlineSearchBar: {
-    borderRadius: responsiveSize.moderate(8),
+    borderRadius: responsiveSize.moderate(6),
     borderWidth: 1,
     borderColor: "rgba(0, 0, 0, 0.17)",
-    // elevation: 4,
-    // shadowColor: "#000",
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.1,
-    // shadowRadius: 4,
+    marginHorizontal: 0,
+  },
+  filterBtn: {
+    width: responsiveSize.vertical(44),
+    height: responsiveSize.vertical(44),
+    borderRadius: responsiveSize.moderate(6),
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(0, 0, 0, 0.17)",
   },
 });

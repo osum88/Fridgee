@@ -22,7 +22,7 @@
   "resetPasswordLink": "Send Reset Link",
   "backToLogin": "Back to Login",
   "resendIn": "Resend in",
-  "errorNetwork":  "Something went wrong. Please check your internet connection and try again.",
+  "errorNetwork": "Something went wrong. Please check your internet connection and try again.",
   "errorPassword": "Wrong password.",
   "errorDefault": "An unexpected error occurred. Please try again later.",
   "errorValidEmail": "Email must be a valid email address.",
@@ -127,9 +127,9 @@
   "save": "Save",
   "errorBankNumberNeedCountry": "If you enter a bank account number or IBAN, you must also select the bank account country.",
   "sessionExpired": "Your session has expired. Please log in again.",
-   "newCategory": "New category",
+  "newCategory": "New category",
   "confirm": "Confirm",
-   "createCategory": "Create a category",
+  "createCategory": "Create a category",
 
   "errorBirthDateInFuture": "Date of birth cannot be in the future.",
   "inventory": "Inventory",
@@ -190,7 +190,6 @@
   "food": "Food",
   "noExpirationDate": "No expiration date",
   "instances": "Instances",
-  "minQuantity": "Minimum quantity",
   "consume": "Consume",
   "total": "Total",
   "remainingAmount": "Remaining: {{remainingAmount}} {{unit}}",
@@ -208,6 +207,53 @@
   "invalidIntegerFormat": "The value must be an integer.",
   "noInventoryTitle": "No inventories",
   "noInventorySubtitle": "Add your first inventory using the button below.",
+  "history": "History",
+  "noHistory": "No history found",
+  "noInventorySelected": "No inventory selected",
+  "selectInventoryForHistory": "Please select an inventory first to view the history.",
+
+  "historyAction": {
+    "ADD": "Food added",
+    "CONSUME": "Food consumed",
+    "CONSUME_PARTIAL": "Food partially consumed",
+    "UPDATE": "Food updated",
+    "EXPIRE": "Food expired",
+    "REMOVE": "Food removed",
+    "MERGE": "Food variants merged",
+    "UPDATE_MERGE": "Food updated or variants merged",
+    "CATEGORY_MOVE": "Food moved to another category",
+    "LABEL_UPDATE": "Food name changed",
+    "MIN_QUANTITY_UPDATE": "Minimum quantity changed",
+    "CATEGORY_RENAME": "Category renamed",
+    "CATEGORY_CREATE": "Category created",
+    "CATEGORY_REMOVE": "Category removed"
+  },
+    "historyActionChips": {
+    "ADD": "Added",
+    "CONSUME": "Consumed",
+    "CONSUME_PARTIAL": "Partially consumed",
+    "UPDATE": "Updated",
+    "EXPIRE": "Expired",
+    "REMOVE": "Removed",
+    "MERGE": "Variants merged",
+    "UPDATE_MERGE": "Update/merge variants",
+    "CATEGORY_MOVE": "Moved to category",
+    "LABEL_UPDATE": "Name changed",
+    "MIN_QUANTITY_UPDATE": "Min. quantity changed",
+    "CATEGORY_RENAME": "Renamed",
+    "CATEGORY_CREATE": "Created",
+    "CATEGORY_REMOVE": "Removed"
+  },
+  "itemCount": "Item count",
+  "defaultFoodLabel": "Default food label",
+  "filters": "Filters",
+  "clearAllFilters": "Clear all",
+  "users": "Users",
+  "foodActions": "Food actions",
+  "categoryActions": "Category actions",
+    "dateRange": "Date range (from - to)",
+  "from": "From",
+  "to": "To",
 
   "errors": {
     "bankNumber": {
@@ -302,9 +348,9 @@
     },
     "variant": {
       "OWNER_EDITOR_ONLY": "Only the inventory owner or editor can change the variant of the entire food. Other users can change the variant only for individual food items.",
-      "STRING_MAX":"Variant can be up to 40 characters long."
+      "STRING_MAX": "Variant can be up to 40 characters long."
     },
-     "category": {
+    "category": {
       "OWNER_EDITOR_ONLY": "Only the inventory owner or editor can change the category.",
       "default": "Category name cannot be longer than 40 characters."
     }

@@ -205,6 +205,7 @@ export const duplicateFoodInstancesService = async (userId, instanceIds, count =
     userId,
     foodInstancesIds,
     count,
+    foodInstances
   );
 };
 

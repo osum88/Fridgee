@@ -72,7 +72,6 @@ export const isAnyValueDefined = (obj) => {
 // převede řetězec na mala pismena a odstraní diakritiku
 export const normalizeText = (str) => {
   if (!str || typeof str !== "string") return str;
-
   return str
     .trim()
     .normalize("NFD")

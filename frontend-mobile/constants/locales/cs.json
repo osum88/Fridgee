@@ -184,7 +184,6 @@
   "food": "Jídlo",
   "noExpirationDate": "Bez data trvanlivosti",
   "instances": "Kusy",
-  "minQuantity": "Minimální množství",
   "consume": "Spotřebovat",
   "total": "Celkem",
   "remainingAmount": "Zbývá: {{remainingAmount}} {{unit}}",
@@ -206,6 +205,62 @@
   "newCategory": "Nová kategorie",
   "confirm": "Potvrdit",
   "createCategory": "Vytvořte kategorii",
+  "history": "Historie",
+  "noHistory": "Nebyla nalezena žádná historie",
+  "noInventorySelected": "Není vybrán inventář",
+  "selectInventoryForHistory": "Nejprve vyberte inventář pro zobrazení historie.",
+
+  "historyAction": {
+    "ADD": "Přidání potraviny",
+    "CONSUME": "Konzumace potraviny",
+    "CONSUME_PARTIAL": "Částečná konzumace potraviny",
+    "UPDATE": "Úprava potraviny",
+    "EXPIRE": "Potravina expirovala",
+    "REMOVE": "Odstranění potraviny",
+    "MERGE": "Sloučení variant potraviny",
+    "UPDATE_MERGE": "Úprava nebo sloučení varianty potraviny",
+    "CATEGORY_MOVE": "Přesunutí potraviny do jiné kategorie",
+    "LABEL_UPDATE": "Změna názvu potraviny",
+    "MIN_QUANTITY_UPDATE": "Změna minimálního množství",
+    "CATEGORY_RENAME": "Přejmenování kategorie",
+    "CATEGORY_CREATE": "Vytvoření kategorie",
+    "CATEGORY_REMOVE": "Odstranění kategorie"
+  },
+
+  "historyActionChips": {
+    "ADD": "Přidání",
+    "CONSUME": "Konzumace",
+    "CONSUME_PARTIAL": "Částečná konzumace",
+    "UPDATE": "Úprava",
+    "EXPIRE": "Expirace",
+    "REMOVE": "Odstranění",
+    "MERGE": "Sloučení variant",
+    "UPDATE_MERGE": "Úprava/sloučení variant",
+    "CATEGORY_MOVE": "Přesun do kategorie",
+    "LABEL_UPDATE": "Změna názvu",
+    "MIN_QUANTITY_UPDATE": "Změna min. množství",
+    "CATEGORY_RENAME": "Přejmenování",
+    "CATEGORY_CREATE": "Vytvoření",
+    "CATEGORY_REMOVE": "Odstranění",
+    "CATEGORY_REMOVE1": "Odstranění",
+    "CATEGORY_REMOVE2": "Akce kategorií",
+    "CATEGORY_REMOVE3": "Změna min. množství",
+    "CATEGORY_REMOVE4": "Rozsah dat (od - do)",
+    "CATEGORY_REMOVE5": "Odstranění",
+    "CATEGORY_REMOVE6": "Výchozí název jídla",
+    "CATEGORY_REMOVE7": "Vymazat vše"
+  },
+
+  "itemCount": "Počet položek",
+  "defaultFoodLabel": "Výchozí název jídla",
+  "filters": "Filtry",
+  "clearAllFilters": "Vymazat vše",
+  "users": "Uživatelé",
+  "foodActions": "Akce potravin",
+  "categoryActions": "Akce kategorií",
+   "dateRange": "Rozsah dat (od - do)",
+  "from": "Od",
+  "to": "Do",
 
   "errors": {
     "bankNumber": {
@@ -300,7 +355,7 @@
       "OWNER_EDITOR_ONLY": "Pouze vlastník nebo editor inventáře může změnit variantu celého jídla. Ostatní uživatelé mohou změnit variantu pouze u jednotlivých položek jídla.",
       "STRING_MAX": "Varianta může mít maximálně 40 znaků."
     },
-     "category": {
+    "category": {
       "OWNER_EDITOR_ONLY": "Pouze vlastník inventáře nebo editor může změnit kategorii.",
       "default": "Název kategorie nesmí být delší než 40 znaků."
     }

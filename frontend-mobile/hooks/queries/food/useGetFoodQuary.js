@@ -5,13 +5,18 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 
+const TEN_SEC = 1000 * 60 * 10;
+const TWENTY_SEC = 20 * 1000;
+const ONE_HOUR = 1000 * 60 * 60;
+const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
+
 //hleda jidlo podle stringu
 export const useGetLabelSuggestionsQuary = (labelTitle, inventoryId, enabled = true) => {
   return useQuery({
     queryKey: ["labelSuggestions", labelTitle, parseInt(inventoryId)],
     queryFn: ({ signal }) => getInventorySuggestionsApi(inventoryId, labelTitle, 6, signal),
     enabled: enabled && !!labelTitle && !!inventoryId,
-    staleTime: 1000 * 20,
+    staleTime: TWENTY_SEC,
     placeholderData: (previousData) => previousData,
   });
 };
@@ -29,9 +34,6 @@ export const useGetFoodByBarcodeQuary = (barcode, inventoryId, enabled = true) =
 export const useFoodDetail = (inventoryId, catalogId, foodId, memberCount = 1, enabled = true) => {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const ONE_HOUR = 1000 * 60 * 60;
-  const TWENTY_SEC = 20 * 1000;
-  const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
 
   const query = useQuery({
     queryKey: ["food-detail", parseInt(inventoryId), parseInt(catalogId), parseInt(foodId)],
@@ -53,7 +55,8 @@ export const useFoodDetail = (inventoryId, catalogId, foodId, memberCount = 1, e
         if (!Array.isArray(categories)) continue;
         for (const category of categories) {
           const found = category.foods?.find((f) => f.foodId === parseInt(foodId));
-          if (found) return { data: { ...found, categoryId: category.categoryId || "no-category" } };
+          if (found)
+            return { data: { ...found, categoryId: category.categoryId || "no-category" } };
         }
       }
       return undefined;
@@ -83,8 +86,8 @@ export const useGetFoodVariants = (inventoryId, catalogId, enabled = true) => {
     queryKey: ["food-variants", parseInt(inventoryId), parseInt(catalogId)],
     queryFn: ({ signal }) => getFoodVariantsApi(inventoryId, catalogId, signal),
     enabled: !!inventoryId && !!catalogId && !!enabled,
-    staleTime: 1000 * 10,
-    gcTime: 1000 * 60 * 60,
+    staleTime: TEN_SEC,
+    gcTime: ONE_HOUR,
     select: (data) => data?.data,
   });
 };
