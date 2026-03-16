@@ -55,7 +55,7 @@ router.patch("/:inventoryId/archive", validate(inventoryIdSchema), archiveFoodIn
 //zrusi archivaci inventare
 router.patch("/:inventoryId/unarchive", validate(inventoryIdSchema), unarchiveFoodInventory);
 
-//zmena title a label
+//zmena title a icon
 router.patch("/:inventoryId", validate(updateFoodInventorySchema), updateFoodInventory);
 
 // vrati vsechny kategorie z inventare

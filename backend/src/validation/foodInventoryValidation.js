@@ -3,7 +3,6 @@ import { InventoryRole } from "@prisma/client";
 
 export const createFoodInventorySchema = Joi.object({
   title: Joi.string().min(3).max(50).required().label("inventoryTitle"),
-  label: Joi.string().max(150).allow(null, "").optional().label("inventoryLabel"),
   icon: Joi.string().max(50).allow("").optional(),
 });
 
@@ -68,9 +67,8 @@ export const inventoryIdAdminSchema = inventoryIdSchema.keys({
 export const updateFoodInventorySchema = Joi.object({
   inventoryId: Joi.number().integer().positive().required(),
   title: Joi.string().min(3).max(50).optional().label("inventoryTitle"),
-  label: Joi.string().max(150).allow(null, "").optional().label("inventoryLabel"),
   icon: Joi.string().max(50).allow("").optional(),
-}).or("title", "label");
+})
 
 export const changeSettingSchema = Joi.object({
   inventoryId: Joi.number().integer().positive().required(),

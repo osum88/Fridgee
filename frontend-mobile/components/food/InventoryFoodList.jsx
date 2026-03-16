@@ -62,7 +62,7 @@ const SectionHeaderComponent = ({ item, toggleSection, colors, borderColor }) =>
     <Pressable
       onPress={() => toggleSection(item.categoryId)}
       style={[
-        styles.categoryHeader,
+        styles.categoryHeaderContainer,
         item.isExpanded
           ? {
               paddingTop: responsiveSize.vertical(20),
@@ -71,9 +71,12 @@ const SectionHeaderComponent = ({ item, toggleSection, colors, borderColor }) =>
           : { paddingVertical: responsiveSize.vertical(20) },
       ]}
     >
-      <ThemedText style={styles.categoryTitle}>
-        {item.categoryTitle === "unknow" ? i18n.t("uncategorized") : item.categoryTitle}
-      </ThemedText>
+      <View style={styles.categoryHeader}>
+        <IconSymbol name={"folder"} size={responsiveSize.moderate(20)} color={colors.text} />
+        <ThemedText style={styles.categoryTitle}>
+          {item.categoryTitle === "unknow" ? i18n.t("uncategorized") : item.categoryTitle}
+        </ThemedText>
+      </View>
       <IconSymbol
         name={item.isExpanded ? "chevron.up" : "chevron.down"}
         size={responsiveSize.moderate(20)}
@@ -325,7 +328,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: responsiveSize.horizontal(10),
   },
   headerWrapper: {
-    paddingHorizontal: responsiveSize.horizontal(15),
+    paddingLeft: responsiveSize.horizontal(12),
+    paddingRight: responsiveSize.horizontal(15),
     marginTop: responsiveSize.vertical(1),
     borderTopWidth: BORDER_WIDTH,
     borderLeftWidth: BORDER_WIDTH,
@@ -352,15 +356,23 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: BORDER_RADIUS,
     borderBottomRightRadius: BORDER_RADIUS,
   },
-  categoryHeader: {
+  categoryHeaderContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  categoryTitle: {
-    fontSize: responsiveSize.moderate(18),
-    fontWeight: "500",
-  },
+ categoryHeader: {
+  flexDirection: "row",
+  alignItems: "center",
+  gap: responsiveSize.horizontal(7),
+  flex: 1,
+  marginRight: responsiveSize.horizontal(8),
+},
+categoryTitle: {
+  fontSize: responsiveSize.moderate(18),
+  fontWeight: "500",
+  flexShrink: 1,
+},
   foodRow: {
     flexDirection: "row",
     justifyContent: "space-between",

@@ -176,23 +176,22 @@ const renderDetails = (item, colors) => {
 const DetailRow = ({ label, before, after, colors }) => (
   <View style={styles.detailRow}>
     <ThemedText style={[styles.detailLabel, { color: colors.text + "88" }]}>{label}</ThemedText>
-    <View style={styles.detailValues}>
+
+    <ThemedText style={[styles.detailValue, { color: colors.text }]}>
       {before !== null && before !== undefined && (
-        <>
-          <ThemedText style={[styles.detailValue, { color: colors.text + "77" }]}>
-            {String(before)}
-          </ThemedText>
+        <ThemedText style={[styles.detailValue, { color: colors.text + "77" }]}>
+          {String(before)}
+          {"  "}
           <IconSymbol
             name="arrow.right"
             size={responsiveSize.moderate(10)}
             color={colors.text + "77"}
           />
-        </>
+          {"  "}
+        </ThemedText>
       )}
-      <ThemedText style={[styles.detailValue, { color: colors.text }]}>
-        {after !== null && after !== undefined ? String(after) : "—"}
-      </ThemedText>
-    </View>
+      {after !== null && after !== undefined ? String(after) : "—"}
+    </ThemedText>
   </View>
 );
 
@@ -256,7 +255,6 @@ const HistoryItemComponent = ({ item, colors, colorScheme }) => {
 
         {/* detail */}
         {renderDetails(item, colors)}
-
         {/* uzivatel */}
         <ThemedText style={[styles.user, { color: colors.text + "55" }]} numberOfLines={1}>
           {item.user}
@@ -300,6 +298,7 @@ const styles = StyleSheet.create({
   action: {
     fontSize: responsiveFont(12),
     fontWeight: "700",
+    flexShrink: 1,
   },
   badge: {
     paddingHorizontal: responsiveSize.horizontal(6),
@@ -331,21 +330,23 @@ const styles = StyleSheet.create({
   detailContainer: {
     marginTop: responsiveSize.vertical(6),
     gap: responsiveSize.vertical(3),
+    flexShrink: 1,
   },
   detailRow: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "space-between",
+    gap: responsiveSize.horizontal(10),
   },
   detailLabel: {
     fontSize: responsiveFont(12),
-  },
-  detailValues: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: responsiveSize.horizontal(4),
+    flexShrink: 0,
+    maxWidth: "40%",
   },
   detailValue: {
     fontSize: responsiveFont(12),
+    flexShrink: 1,
+    flex: 1,
+    textAlign: "right",
   },
 });

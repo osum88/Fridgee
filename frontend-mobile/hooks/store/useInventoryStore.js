@@ -8,8 +8,10 @@ export const useInventoryStore = create(
     (set) => ({
       activeInventory: { id: null, title: "", role: null, memberCount: 1 },
 
-      setActiveInventory: (id, title, role, memberCount) =>
-        set({ activeInventory: { id, title, role, memberCount } }),
+      setActiveInventory: (updates) =>
+        set((state) => ({
+          activeInventory: { ...state.activeInventory, ...updates },
+        })),
       clearActiveInventory: () =>
         set({ activeInventory: { id: null, title: "", role: null, memberCount: 1 } }),
     }),

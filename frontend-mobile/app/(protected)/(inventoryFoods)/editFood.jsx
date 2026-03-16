@@ -59,7 +59,7 @@ export default function EditFoodScreen() {
   const [formData, setFormData] = useState(null);
   const [visible, setVisible] = useState(false);
   const scrollRef = useRef(null);
-  const updating = useRef(false);
+  const isUpdating = useRef(false);
   const queryClient = useQueryClient();
 
   const { initialData } = useLocalSearchParams();
@@ -171,9 +171,9 @@ export default function EditFoodScreen() {
 
   const handleSave = useCallback(() => {
     const { current } = inputDataRef;
-    if (updating.current || isSubmitting || !validateForm(setErrors, current)) return;
+    if (isUpdating.current || isSubmitting || !validateForm(setErrors, current)) return;
 
-    updating.current = true;
+    isUpdating.current = true;
     const foodData = {
       foodId: parseInt(foodId),
       labelTitle: current.labelTitle,
@@ -202,11 +202,11 @@ export default function EditFoodScreen() {
               parseInt(foodId),
             ],
           });
-          updating.current = false;
+          isUpdating.current = false;
           navigation.goBack();
         },
         onError: (error) => {
-          updating.current = false;
+          isUpdating.current = false;
           handleApiError(error, setErrors, errors, "labelTitle");
         },
       },
@@ -226,10 +226,10 @@ export default function EditFoodScreen() {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity disabled={isSubmitting || updating.current} onPress={handleSave}>
+        <TouchableOpacity disabled={isSubmitting || isUpdating.current} onPress={handleSave}>
           <SaveButtonContent
             key={`header-save-${colors.background}`}
-            isSubmitting={isSubmitting || updating.current}
+            isSubmitting={isSubmitting || isUpdating.current}
             color={colors}
             text={i18n.t("save")}
           />

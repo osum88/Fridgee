@@ -70,6 +70,16 @@ export const getHistoryService = async (inventoryId, data, userId, isAdmin) => {
         };
       }
     }
+    //prepocet ceny hlavni ceny
+    const convertedPrice = log.price
+      ? convertPrice(
+          log?.price?.price,
+          log?.price?.exchangeRate,
+          log?.price?.exchangeAmount,
+          log?.price?.baseCurrency,
+          currency,
+        )
+      : 0;
 
     //unikatni klic pro identicke zaznami
     const changeContext = [
@@ -84,21 +94,18 @@ export const getHistoryService = async (inventoryId, data, userId, isAdmin) => {
       .filter(Boolean)
       .join("|");
 
-    const batchKey = `${log?.action}_${log?.changedBy}_${log.foodId || "no-food"}_${log.catalogId || "no-cat"}_${changeContext}`;
+    const priceKey = `${convertedPrice || "no-price"}`;
+    const catKey = `${log.catalogId || "no-cat"}`;
+    const foodKey = `${log.foodId || "no-food"}`;
+    const unitKey = `${log.snapshotUnit || "no-unit"}`;
+    const amountKey = `${log.snapshotAmount || "no-amount"}`;
+    const dateObj = log.snapshotExpirationDate ? new Date(log.snapshotExpirationDate) : null;
+    const expKey = dateObj ? dateObj.toISOString().split("T")[0] : "no-expt";
+
+    const batchKey = `${log?.action}_${log?.changedBy}_${changeContext}_${priceKey}_${catKey}_${foodKey}_${unitKey}_${amountKey}_${expKey}`;
 
     const logTime = new Date(log.changedAt).getTime();
     let wasAddedToBatch = false;
-
-    //prepocet ceny hlavni ceny
-    const convertedPrice = log.price
-      ? convertPrice(
-          log?.price?.price,
-          log?.price?.exchangeRate,
-          log?.price?.exchangeAmount,
-          log?.price?.baseCurrency,
-          currency,
-        )
-      : 0;
 
     // pokus o pridani do skupiny stejnych zaznamu
     if (batchItem && currentBatch && currentBatchKey === batchKey) {

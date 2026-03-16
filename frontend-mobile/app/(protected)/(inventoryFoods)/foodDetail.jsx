@@ -60,6 +60,7 @@ export default function FoodDetailScreen() {
   //vrati kategorie
   const { data: inventoryCategories } = useGetInventoryCategoriesQuery(
     activeInventory.id,
+    activeInventory.memberCount,
     showCategoryModal,
   );
 

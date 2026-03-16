@@ -28,7 +28,7 @@ import { capitalizeFirst } from "../utils/stringUtils.js";
 import { convertPrice, createBaseCurrency } from "./priceService.js";
 
 // vytvari inventar s jidlem
-export const createFoodInventoryService = async (userId, title, label, icon, isAdmin) => {
+export const createFoodInventoryService = async (userId, title, icon, isAdmin) => {
   if (isAdmin) {
     await getUserByIdRepository(userId);
   }
@@ -38,13 +38,7 @@ export const createFoodInventoryService = async (userId, title, label, icon, isA
       code: "STRING_EMPTY",
     });
   }
-
-  const newFoodInventory = await createFoodInventoryRepository(userId, title, label, icon);
-
-  if (!newFoodInventory) {
-    throw new InternalServerError("Failed to create food inventory.");
-  }
-  return newFoodInventory;
+  return await createFoodInventoryRepository(userId, title, icon);
 };
 
 export const createInventoryUserService = async (userId, inventoryId, role, isAdmin) => {
@@ -135,14 +129,10 @@ export const deleteFoodInventoryUserService = async (
   newOwnerId = null,
   isAdmin,
 ) => {
-  if (isNaN(inventoryId)) {
-    throw new BadRequestError("Invalid inventory ID provided.");
-  }
+
   if (isAdmin) {
     getUserByIdRepository(userId);
   }
-
-  await getFoodInventoryRepository(inventoryId);
 
   // kontrola existence uzivatele v inventari
   const userInventory = await getFoodInventoryUserRepository(userId, inventoryId);
@@ -201,20 +191,10 @@ export const deleteFoodInventoryUserService = async (
 
 //owner smaze jineho uzivatele z inventare
 export const deleteOtherFoodInventoryUserService = async (removerId, inventoryId, targetUserId) => {
-  if (isNaN(inventoryId)) {
-    throw new BadRequestError("Invalid inventory ID provided.");
-  }
-  if (isNaN(targetUserId)) {
-    throw new BadRequestError("Invalid target user ID provided.");
-  }
-
   // kontrola ze neodstranuje sam sebe
   if (removerId === targetUserId) {
     throw new BadRequestError("You cannot remove yourself. Please use the self-removal function.");
   }
-  await getUserByIdRepository(targetUserId);
-  await getFoodInventoryRepository(inventoryId);
-
   // kontrola existence odstranujiciho uzivatele v inventari
   const removerInventoryUser = await getFoodInventoryUserRepository(removerId, inventoryId);
   if (!removerInventoryUser) {
@@ -318,32 +298,19 @@ export const archiveFoodInventoryService = async (userId, inventoryId, isArchive
   return updatedInventory;
 };
 
-//updatuje nazev a label inventare
-export const updateFoodInventoryService = async (
-  userId,
-  inventoryId,
-  title,
-  label,
-  icon,
-  isAdmin,
-) => {
-  if (isNaN(inventoryId)) {
-    throw new BadRequestError("Invalid inventory ID provided.");
-  }
-  await getFoodInventoryRepository(inventoryId);
-
+//updatuje nazev a icon inventare
+export const updateFoodInventoryService = async (userId, inventoryId, title, icon, isAdmin) => {
   // kontrola existence uzivatele v inventari
   if (!isAdmin) {
     const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId);
-
     // pouze owner muze updatovat inventar
     if (!inventoryUser || inventoryUser.role !== "OWNER") {
       throw new ForbiddenError("Only the owner of the inventory can update inventory.");
     }
   }
 
-  // updatuje title a label inventare
-  return await updateFoodInventoryRepository(inventoryId, title, label, icon);
+  // updatuje title a icon inventare
+  return await updateFoodInventoryRepository(inventoryId, title, icon);
 };
 
 //vrati vsechny inventare uzivatele
@@ -385,7 +352,6 @@ export const getInventoryDetailsWithUserService = async (userId, inventoryId, is
   return {
     id: inventory?.id || null,
     title: inventory?.title || null,
-    label: inventory?.label || null,
     icon: inventory?.icon || null,
     role: inventoryUser?.role || null,
     joinedAt: inventoryUser?.joinedAt || null,

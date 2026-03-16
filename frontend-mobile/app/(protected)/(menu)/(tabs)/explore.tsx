@@ -14,12 +14,13 @@ import { useUser } from "@/hooks/useUser";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { useCameraNavigation } from "@/hooks/image/useCameraNavigation";
 import { showGlobalError } from "@/utils/showGlobalError";
-
+import { DeleteAlert } from "@/components/modals/DeleteAlert";
+import { useState } from "react";
 
 export default function TabTwoScreen() {
   const { signOut } = useUser();
   const { navigateToScanner } = useCameraNavigation();
-
+  const [visible, setVisible] = useState(false);
   useLanguage();
   const currentColors = useThemeColor();
   return (
@@ -145,7 +146,7 @@ export default function TabTwoScreen() {
           </ThemedText>
         </Link>
         <Pressable
-          onPress={() => navigateToScanner()}
+          onPress={() => setVisible(true)}
           style={({ pressed }) => [
             styles.tap,
             {
@@ -158,7 +159,15 @@ export default function TabTwoScreen() {
             Scanner
           </ThemedText>
         </Pressable>
-       
+        <DeleteAlert
+          visible={visible}
+          setVisible={setVisible}
+          title={i18n.t("removeCategory")}
+          description={i18n.t("removeCategoryConfirm", {categoryTitle: "Ada"})}
+          confirmLabel={i18n.t("remove1")}
+          onConfirm={false}
+        />
+
       </ThemedView>
     </ParallaxScrollView>
   );

@@ -413,7 +413,7 @@ export const uploadFoodLabelImageService = async (
 //vrati vsechny userovi labely a vsechny co se pouzivaji v neajkem inventari
 export const getAvailableFoodLabelsService = async (userId, page = 1, limit = 20) => {
   const pageIndex = Math.max(0, page - 1);
-  const safeLimit = Math.max(1, Math.min(limit, 500));
+  const safeLimit = Math.max(1, Math.min(limit, 300));
 
   const labels = await getAvailableFoodLabelsRepository(userId, pageIndex, safeLimit);
 

@@ -1,4 +1,11 @@
-import { InteractionManager, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  InteractionManager,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { ThemedView } from "@/components/themed/ThemedView";
 import i18n from "@/constants/translations";
@@ -67,7 +74,7 @@ export default function InventoryScreen() {
   const activeInventory = useInventoryStore((state) => state.activeInventory);
   const setActiveInventory = useInventoryStore((state) => state.setActiveInventory);
 
-  const { data: inventory } = useInventoryDetail(activeInventory.id);
+  const { data: inventory, isLoading: isLoadingFood } = useInventoryDetail(activeInventory.id);
   const { data: inventories, isLoading: isLoadingInventory } = useFoodInventories(
     !activeInventory.id,
   );
@@ -85,7 +92,7 @@ export default function InventoryScreen() {
         role !== activeInventory.role ||
         memberCount !== activeInventory.memberCount
       ) {
-        setActiveInventory(id, title, role, memberCount);
+        setActiveInventory({ id, title, role, memberCount });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -95,7 +102,12 @@ export default function InventoryScreen() {
   const handlePress = useCallback(
     (item) => {
       setSearchTitle("");
-      setActiveInventory(item.id, item.title, item.role, item.memberCount);
+      setActiveInventory({
+        id: item.id,
+        title: item.title,
+        role: item.role,
+        memberCount: item.memberCount,
+      });
     },
     [setActiveInventory],
   );
@@ -258,36 +270,36 @@ export default function InventoryScreen() {
 
   return (
     <ThemedView style={styles.contentWrapper}>
-      {sections && sections.length > 0 ? (
-        <ThemedView style={{ flex: 1 }}>
-          <ThemedView style={styles.searchContainer}>
-            <Search
-              placeholder={i18n.t("searchFoodPlaceholder")}
-              value={searchTitle}
-              onChangeText={setSearchTitle}
-              style={[styles.searchBar, { backgroundColor: colors.cardBackground }]}
-              outlineStyle={[styles.outlineSearchBar, { backgroundColor: colors.cardBackground }]}
-            />
-            <Pressable
-              // onPress={() => setFilterVisible(true)}
-              style={[styles.filterBtn, { backgroundColor: colors.cardBackground }]}
-            >
-              <IconSymbol
-                name="line.3.horizontal.decrease"
-                size={responsiveSize.moderate(26)}
-                color={colors.text}
-              />
-            </Pressable>
-          </ThemedView>
-          <InventoryFoodList data={flatData} toggleSection={toggleSection} refetch={refetch} />
+      <ThemedView style={{ flex: 1 }}>
+        <ThemedView style={styles.searchContainer}>
+          <Search
+            placeholder={i18n.t("searchFoodPlaceholder")}
+            value={searchTitle}
+            onChangeText={setSearchTitle}
+            style={[styles.searchBar, { backgroundColor: colors.cardBackground }]}
+            outlineStyle={[styles.outlineSearchBar, { backgroundColor: colors.cardBackground }]}
+          />
+          <Pressable
+            onPress={() => router.push("/(protected)/(inventory)/inventorySettings")}
+            style={[styles.filterBtn, { backgroundColor: colors.cardBackground }]}
+          >
+            <IconSymbol name="gearshape" size={responsiveSize.moderate(26)} color={colors.icon} />
+          </Pressable>
         </ThemedView>
-      ) : (
-        <EmptyState
-          icon={"basket"}
-          title={i18n.t("noFoodTitle")}
-          subtitle={i18n.t("noFoodSubtitle")}
-        />
-      )}
+        {isLoadingFood ? (
+          <ThemedView style={styles.center}>
+            <ActivityIndicator />
+          </ThemedView>
+        ) : sections && sections.length === 0 ? (
+          <EmptyState
+            icon={"basket"}
+            title={i18n.t("noFoodTitle")}
+            subtitle={i18n.t("noFoodSubtitle")}
+          />
+        ) : (
+          <InventoryFoodList data={flatData} toggleSection={toggleSection} refetch={refetch} />
+        )}
+      </ThemedView>
       {FoodActionsFab}
     </ThemedView>
   );

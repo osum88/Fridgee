@@ -1,13 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createFoodInventoryApi } from "@/api/inventory";
+import { createInventoryApi, updateInventoryApi } from "@/api/inventory";
 
 // vytvori inventar
-const useCreateInventory = () => {
+export const useCreateInventory = () => {
   const queryClient = useQueryClient();
 
   const createInventory = useMutation({
     mutationFn: (data) => {
-      return createFoodInventoryApi(data);
+      return createInventoryApi(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inventories"] });
@@ -20,4 +20,10 @@ const useCreateInventory = () => {
   return { createInventory, isSubmitting: createInventory.isPending };
 };
 
-export default useCreateInventory;
+// updatuje inventory
+export const useUpdateInventory = (inventoryId) => {
+  const updateInventory = useMutation({
+    mutationFn: (data) => updateInventoryApi(inventoryId, data),
+  });
+  return { updateInventory, isSubmitting: updateInventory.isPending };
+};

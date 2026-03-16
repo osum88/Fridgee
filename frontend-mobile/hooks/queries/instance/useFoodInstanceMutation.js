@@ -31,15 +31,11 @@ export const useUpdateFoodInstanceMutation = (inventoryId, catalogId) => {
 };
 
 const invalidateAfterMutation = (queryClient, inventoryId, catalogId, foodId) => {
-  queryClient.invalidateQueries({
-    queryKey: ["inventory-content", parseInt(inventoryId)],
-  });
+  queryClient.invalidateQueries({ queryKey: ["inventory-content", parseInt(inventoryId)] });
   queryClient.refetchQueries({
     queryKey: ["food-detail", parseInt(inventoryId), parseInt(catalogId), parseInt(foodId)],
   });
-  queryClient.resetQueries({
-    queryKey: ["inventory-history", parseInt(inventoryId)],
-  });
+  queryClient.resetQueries({ queryKey: ["inventory-history", parseInt(inventoryId)] });
 };
 
 // zkonzumuje foodinstance pokud je spotrebovana nebo upravi amount pokud je jen castecna konzumace

@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect, useRef, useCallback } from "react";
+import React, { useState, useLayoutEffect, useRef, useEffect, useCallback } from "react";
 import { StyleSheet, View, TouchableOpacity, ScrollView } from "react-native";
 import { useRouter, useNavigation } from "expo-router";
 import { ThemedView } from "@/components/themed/ThemedView";
@@ -9,10 +9,13 @@ import { UniversalTextInput } from "@/components/input/UniversalTextInput";
 import { responsiveSize } from "@/utils/scale";
 import { handleApiError } from "@/utils/handleApiError";
 import { SaveButtonContent } from "@/components/button/SaveButtonContent";
-import { useCreateInventory } from "@/hooks/queries/inventory/useInventoryMutation";
+import { useUpdateInventory } from "@/hooks/queries/inventory/useInventoryMutation";
+import { useInventoryDetail } from "@/hooks/queries/inventory/useInventoryQuary";
+import { useInventoryStore } from "@/hooks/store/useInventoryStore";
+import { useQueryClient } from "@tanstack/react-query";
 import { InventoryIconGrid } from "../../../components/common/InventoryIconGrid";
 
-export default function AddInventoryScreen() {
+export default function EditInventoryScreen() {
   const [title, setTitle] = useState("");
   const [error, setError] = useState("");
   const [selectedIcon, setSelectedIcon] = useState("refrigerator");
@@ -21,10 +24,24 @@ export default function AddInventoryScreen() {
   const router = useRouter();
   const colors = useThemeColor();
   const navigation = useNavigation();
-  const { createInventory, isSubmitting } = useCreateInventory();
+  const queryClient = useQueryClient();
+
+  const activeInventory = useInventoryStore((state) => state.activeInventory);
+  const setActiveInventory = useInventoryStore((state) => state.setActiveInventory);
+
+  const { data: inventory } = useInventoryDetail(activeInventory.id);
+  const { updateInventory, isPending: isSubmitting } = useUpdateInventory(activeInventory.id);
+
+  // naplneni dat z inventare
+  useEffect(() => {
+    if (inventory?.data) {
+      setTitle(inventory.data.title ?? "");
+      setSelectedIcon(inventory.data.icon ?? "refrigerator");
+    }
+  }, [inventory]);
 
   // ulozeni
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     if (isSubmitting || isSaving.current) return;
     if (!title) {
       setError(i18n.t("errors.inventoryTitle.STRING_EMPTY"));
@@ -32,22 +49,39 @@ export default function AddInventoryScreen() {
     }
     setError("");
 
-    createInventory.mutate(
+    updateInventory.mutate(
       { title, icon: selectedIcon },
       {
-        onSuccess: () => {
+        onSuccess: async (data) => {
           isSaving.current = true;
           setError("");
+          queryClient.invalidateQueries({
+            queryKey: ["food-inventory", parseInt(activeInventory.id)],
+          });
+          queryClient.invalidateQueries({ queryKey: ["inventories"] });
+          if (data?.data) {
+            const { title, memberCount } = data.data;
+            setActiveInventory({ title: title, memberCount: memberCount });
+          }
           router.back();
         },
-        onError: (err) => {
-          handleApiError(err, setError);
+        onError: (error) => {
+          handleApiError(error, setError);
         },
       },
     );
-  }, [isSubmitting, title, selectedIcon, createInventory, router]);
+  }, [
+    activeInventory.id,
+    isSubmitting,
+    queryClient,
+    router,
+    selectedIcon,
+    setActiveInventory,
+    title,
+    updateInventory,
+  ]);
 
-  // tlacitko ulozit v headeru
+  //tlacitko ulozeni
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -56,12 +90,12 @@ export default function AddInventoryScreen() {
             key={`header-save-${colors.background}`}
             isSubmitting={isSubmitting || isSaving.current}
             color={colors}
-            text={i18n.t("add")}
+            text={i18n.t("save")}
           />
         </TouchableOpacity>
       ),
     });
-  }, [navigation, colors, isSubmitting, handleSave]);
+  }, [navigation, title, selectedIcon, colors, updateInventory, isSubmitting, router, handleSave]);
 
   return (
     <ThemedView style={{ flex: 1 }}>
@@ -70,7 +104,7 @@ export default function AddInventoryScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <ThemedView safe={true} style={[styles.contentWrapper]}>
+        <ThemedView safe={true} style={styles.contentWrapper}>
           <View style={{ flex: 1, marginBottom: responsiveSize.vertical(30) }}>
             <ThemedText style={[styles.label, { marginTop: responsiveSize.vertical(14) }]}>
               {i18n.t("inventoryName")}
@@ -89,9 +123,11 @@ export default function AddInventoryScreen() {
               error={error}
               setError={(value) => setError(value)}
             />
+
             <ThemedText style={[styles.label, { marginTop: responsiveSize.vertical(3) }]}>
               {i18n.t("selectIcon")}
             </ThemedText>
+
             <InventoryIconGrid
               numColumns={4}
               selectedIcon={selectedIcon}

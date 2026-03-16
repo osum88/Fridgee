@@ -316,7 +316,7 @@ export default function Profile() {
             style={styles.actionButton}
             onPress={() => queryClient.invalidateQueries({ queryKey: ["user", userId] })}
           >
-            <IconSymbol name="gear" size={20} color={"#007AFF"} />
+            <IconSymbol name="gearshape.fill" size={20} color={"#007AFF"} />
             <ThemedText style={styles.actionButtonText}>{i18n.t("changePassword")}</ThemedText>
             <IconSymbol name="chevron.right" size={16} color={"#6C757D"} />
           </TouchableOpacity>

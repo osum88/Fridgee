@@ -114,7 +114,10 @@ export default function AddFoodManuallyScreen() {
   const { pickImage, takePhoto, uploadImage } = useImageUpload("back");
   const { addFood, isSubmitting } = useAddFoodMutation(activeInventory.id);
   const { data: userData } = useGetUserQuery(userId);
-  const { data: inventoryCategories } = useGetInventoryCategoriesQuery(activeInventory.id);
+  const { data: inventoryCategories } = useGetInventoryCategoriesQuery(
+    activeInventory.id,
+    activeInventory.memberCount,
+  );
 
   const inputDataRef = useRef(inputText);
 

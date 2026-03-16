@@ -73,7 +73,7 @@ export const getInventoryDetailsApi = async (inventoryId, signal) => {
 };
 
 // vytvori inventar
-export const createFoodInventoryApi = async (data) => {
+export const createInventoryApi = async (data) => {
   try {
     const response = await apiClient.post("/inventory", data);
     return response.data;
@@ -149,7 +149,6 @@ export const getInventoryHistoryApi = async (inventoryId, filters = {}, signal) 
 //vrati vsechny usery inventare
 export const getUsersByInventoryIdApi = async (inventoryId, signal) => {
   try {
-    console.log("usrs");
     const response = await apiClient.get(`/inventory/${inventoryId}/users/all`, { signal });
     return response.data;
   } catch (error) {
@@ -159,6 +158,24 @@ export const getUsersByInventoryIdApi = async (inventoryId, signal) => {
     }
     console.error(
       `Error in getUsersByInventoryIdApi: ${error.response?.data?.message || error.message}`,
+    );
+    throw error;
+  }
+};
+
+//updatuje api
+export const updateInventoryApi = async (inventoryId, data) => {
+  try {
+    console.log("ad",data)
+    const response = await apiClient.patch(`/inventory/${inventoryId}`, data);
+    return response.data;
+  } catch (error) {
+    if (isCancel(error)) {
+      console.log("Request cancelled (updateFoodInventoryApi).");
+      return null;
+    }
+    console.error(
+      `Error in updateFoodInventoryApi: ${error.response?.data?.message || error.message}`,
     );
     throw error;
   }

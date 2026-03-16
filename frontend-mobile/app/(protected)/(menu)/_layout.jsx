@@ -39,7 +39,7 @@ export default function MenuLayout() {
         options={{
           drawerLabel: i18n.t("settings"),
           headerShown: false,
-          drawerIconName: "gear",
+          drawerIconName: "gearshape.fill",
         }}
       />
     </Drawer>

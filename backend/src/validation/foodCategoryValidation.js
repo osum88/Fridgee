@@ -6,11 +6,10 @@ export const categoryIdSchema = Joi.object({
 
 export const createFoodCategorySchema = Joi.object({
   inventoryId: Joi.number().integer().positive().required().strict(),
-  title: Joi.string().max(50).required().label("categoryTitle"),
+  title: Joi.string().max(50).required().label("category"),
 });
 
 export const updateFoodCategorySchema = Joi.object({
-  inventoryId: Joi.number().integer().positive().optional(),
-  title: Joi.string().max(50).required().label("categoryTitle"),
   categoryId: Joi.number().integer().positive().required(),
+  title: Joi.string().max(50).required().label("category"),
 });

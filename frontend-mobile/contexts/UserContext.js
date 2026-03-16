@@ -17,6 +17,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import useLogoutMutation from "@/hooks/queries/auth/useLogoutMutation";
 import { useQueryClient } from "@tanstack/react-query";
 import { showGlobalError } from "@/utils/showGlobalError";
+import { useInventoryStore } from "@/hooks/store/useInventoryStore";
 
 export const UserContext = createContext();
 
@@ -27,8 +28,7 @@ export function UserProvider({ children }) {
   const [userId, setUserId] = useState(null);
   const [canFetchUser, setCanFetchUser] = useState(false);
   const queryClient = useQueryClient();
-
-  // const { data: userData, isError } = useGetUserQuery(userId, canFetchUser);
+  const clearActiveInventory = useInventoryStore((state) => state.clearActiveInventory);
 
   const { logoutMutation } = useLogoutMutation();
 
@@ -74,6 +74,7 @@ export function UserProvider({ children }) {
       setCanFetchUser(false);
       const refreshToken = await getRefreshToken();
       logoutMutation.mutate({ refreshToken });
+      clearActiveInventory();
       await removeTokens();
       await removeRememberMe();
       setAccessToken(null);
@@ -89,7 +90,7 @@ export function UserProvider({ children }) {
       SplashScreen.hideAsync();
       isSigningOutRef.current = false;
     }
-  }, [logoutMutation, queryClient]);
+  }, [logoutMutation, queryClient, clearActiveInventory]);
 
   const getAccessToken = useCallback(() => accessToken, [accessToken]);
 

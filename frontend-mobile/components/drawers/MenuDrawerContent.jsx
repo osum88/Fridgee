@@ -14,7 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemedText } from "@/components/themed/ThemedText";
 
 const drawerItems = [
-  { key: "feedback", label: "Setting", icon: "gear", action: () => {} },
+  { key: "feedback", label: "Setting", icon: "gearshape.fill", action: () => {} },
   { key: "w2ebsfite", label: "Theme", icon: "sun.max", action: () => {} },
   { key: "websgifte", label: "Camera", icon: "camera", action: () => {} },
   { key: "websfdfite", label: "Trash", icon: "trash", action: () => {} },

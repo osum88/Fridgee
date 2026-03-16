@@ -228,7 +228,7 @@
     "CATEGORY_CREATE": "Category created",
     "CATEGORY_REMOVE": "Category removed"
   },
-    "historyActionChips": {
+  "historyActionChips": {
     "ADD": "Added",
     "CONSUME": "Consumed",
     "CONSUME_PARTIAL": "Partially consumed",
@@ -251,9 +251,23 @@
   "users": "Users",
   "foodActions": "Food actions",
   "categoryActions": "Category actions",
-    "dateRange": "Date range (from - to)",
+  "dateRange": "Date range (from - to)",
   "from": "From",
   "to": "To",
+
+  "editInventory": "Edit inventory",
+  "editingInventory": "Editing  inventory",
+  "inventoryCategories": "Categories",
+  "inventoryUsers": "Inventory users",
+  "inventoryNotificationSettings": "Notification settings",
+  "leaveInventory": "Leave inventory",
+  "inviteUser": "Invite user",
+  "inventorySettings": "Inventory settings",
+  "removeCategory": "Remove category",
+  "removeCategoryConfirm": "Are you sure you want to remove the category {{categoryTitle}}? This action cannot be undone.",
+  "editingCategory": "Editing category",
+  "categoryPlaceholder": "Enter category name",
+  "addingCategory": "Adding category",
 
   "errors": {
     "bankNumber": {
@@ -352,7 +366,9 @@
     },
     "category": {
       "OWNER_EDITOR_ONLY": "Only the inventory owner or editor can change the category.",
-      "default": "Category name cannot be longer than 40 characters."
+      "CATEGORY_ALREADY_EXISTS": "Category with this name already exists.",
+      "STRING_EMPTY": "Category name cannot be empty.",
+      "default": "Category name cannot be longer than 50 characters."
     }
   }
 }

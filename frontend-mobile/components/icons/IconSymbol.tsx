@@ -76,7 +76,9 @@ const MAPPING = {
   //otaznik
   "questionmark.circle": { name: "help", source: "MaterialIcons" },
   //setting
-  gear: { name: "settings", source: "MaterialIcons" },
+  "gearshape.fill": { name: "settings", source: "MaterialIcons" },
+  //setting outline
+  "gearshape": { name: "cog-outline", source: "MaterialCommunityIcons" },
   //lednice
   refrigerator: { name: "fridge", source: "MaterialCommunityIcons" },
   //email
@@ -205,6 +207,14 @@ const MAPPING = {
   "square.3.layers.3d": { name: "layers-outline", source: "MaterialCommunityIcons" },
   //filtry
   "line.3.horizontal.decrease": { name: "filter-variant", source: "MaterialCommunityIcons" },
+  //3 tecky
+  "ellipsis": { name: "dots-horizontal", source: "MaterialCommunityIcons" },
+  //3 kateforie
+  "folder": { name: "folder-outline", source: "MaterialCommunityIcons" },
+  // pridat uzivatele
+  "person.badge.plus": { name: "account-plus-outline", source: "MaterialCommunityIcons" },
+  // opustit inventar
+  "rectangle.portrait.and.arrow.right": { name: "exit-to-app", source: "MaterialCommunityIcons" },
 
   //coat.fill
 } as IconMapping;

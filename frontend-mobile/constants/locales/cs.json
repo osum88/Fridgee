@@ -209,6 +209,8 @@
   "noHistory": "Nebyla nalezena žádná historie",
   "noInventorySelected": "Není vybrán inventář",
   "selectInventoryForHistory": "Nejprve vyberte inventář pro zobrazení historie.",
+ "categoryPlaceholder": "Zadejte název kategorie",
+  "addingCategory": "Přidání kategorie",
 
   "historyAction": {
     "ADD": "Přidání potraviny",
@@ -258,9 +260,21 @@
   "users": "Uživatelé",
   "foodActions": "Akce potravin",
   "categoryActions": "Akce kategorií",
-   "dateRange": "Rozsah dat (od - do)",
+  "dateRange": "Rozsah dat (od - do)",
   "from": "Od",
   "to": "Do",
+
+  "editInventory": "Upravit inventář",
+  "editingInventory": "Úprava inventáře",
+  "inventoryCategories": "Kategorie",
+  "inventoryUsers": "Uživatelé inventáře",
+  "inventoryNotificationSettings": "Nastavení notifikací",
+  "leaveInventory": "Opustit inventář",
+  "inviteUser": "Pozvat uživatele",
+  "inventorySettings": "Nastavení inventáře",
+  "removeCategory": "Odstranit kategorii",
+  "removeCategoryConfirm": "Opravdu chcete odstranit kategorii {{categoryTitle}}? Tato akce je nevratná.",
+  "editingCategory": "Úprava kategorie",
 
   "errors": {
     "bankNumber": {
@@ -357,7 +371,9 @@
     },
     "category": {
       "OWNER_EDITOR_ONLY": "Pouze vlastník inventáře nebo editor může změnit kategorii.",
-      "default": "Název kategorie nesmí být delší než 40 znaků."
+      "CATEGORY_ALREADY_EXISTS": "Kategorie s tímto názvem již existuje.",
+      "STRING_EMPTY": "Název kategorie nemůže být prázdný.",
+      "default": "Název kategorie nesmí být delší než 50 znaků."
     }
   }
 }

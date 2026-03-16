@@ -21,12 +21,14 @@ const ONE_HOUR = 1000 * 60 * 60;
 const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
 
 // vrati vsechny kategorie z inventare
-export const useGetInventoryCategoriesQuery = (inventoryId, enabled = true) => {
+export const useGetInventoryCategoriesQuery = (inventoryId, memberCount = 1, enabled = true) => {
   return useQuery({
     queryKey: ["food-categories", parseInt(inventoryId)],
     queryFn: ({ signal }) => getInventoryFoodCategoriesApi(inventoryId, signal),
     enabled: enabled && !!inventoryId,
-    staleTime: ONE_HOUR,
+    staleTime: () => {
+      return memberCount > 1 ? ONE_MIN : ONE_HOUR;
+    },
   });
 };
 
@@ -37,7 +39,7 @@ export const useFoodInventories = (enabled = true) => {
   const query = useQuery({
     queryKey: ["inventories"],
     queryFn: ({ signal }) => getAllFoodInventoriesApi(signal),
-    staleTime: FIVE_MIN,
+    staleTime: TWO_MIN,
     enabled: enabled,
     select: (res) => {
       return res.data.map((item) => ({
@@ -70,7 +72,6 @@ export const useInventoryDetail = (inventoryId, enabled = true) => {
     queryKey: ["food-inventory", parseInt(inventoryId)],
     queryFn: ({ signal }) => getInventoryDetailsApi(inventoryId, signal),
     enabled: !!inventoryId && isFocused && enabled,
-    //pokud inventory ma vic jak 1 membera pak cache je validovana
     staleTime: (query) => {
       return query.state.data?.memberCount > 1 ? TWO_MIN : FIVE_MIN;
     },
@@ -106,7 +107,7 @@ export const useInventoryContent = (inventoryId, memberCount = 1, enabled = true
   });
 };
 
-//vraci hisotrii
+//vraci historii
 export const useInventoryHistory = (inventoryId, filters = {}, memberCount = 1, enabled = true) => {
   const isFocused = useIsFocused();
 

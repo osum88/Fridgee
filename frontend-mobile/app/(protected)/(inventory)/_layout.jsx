@@ -20,7 +20,30 @@ export default function InventoryLayout() {
           headerShown: true,
         }}
       />
-      
+      <Stack.Screen
+        name="inventorySettings"
+        options={{
+          animation: "fade",
+          title: i18n.t("inventorySettings"),
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
+        name="editInventory"
+        options={{
+          animation: "fade",
+          title: i18n.t("editingInventory"),
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
+        name="inventoryCategories"
+        options={{
+          animation: "fade",
+          title: i18n.t("inventoryCategories"),
+          headerShown: true,
+        }}
+      />
     </Stack>
   );
 }

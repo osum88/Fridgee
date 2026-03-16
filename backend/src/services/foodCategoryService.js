@@ -24,11 +24,10 @@ import { determineUpdateValue, formatTitleCase } from "../utils/stringUtils.js";
 
 // vytvorti novou kategorii food
 export const createFoodCategoryService = async (userId, inventoryId, title, isAdmin) => {
-  await getFoodInventoryRepository(inventoryId);
   const titleIsExisting = await getFoodCategoryByTitleRepository(inventoryId, title);
   if (titleIsExisting) {
     throw new BadRequestError("Category title already exists in this inventory.", {
-      type: "categoryTitle",
+      type: "category",
       code: "CATEGORY_ALREADY_EXISTS",
     });
   }
@@ -76,7 +75,7 @@ export const updateFoodCategoryService = async (userId, categoryId, title, isAdm
   const titleIsExisting = await getFoodCategoryByTitleRepository(category.inventoryId, title);
   if (titleIsExisting && titleIsExisting.id !== categoryId) {
     throw new BadRequestError("Category title already exists in this inventory.", {
-      type: "categoryTitle",
+      type: "category",
       code: "CATEGORY_ALREADY_EXISTS",
     });
   }

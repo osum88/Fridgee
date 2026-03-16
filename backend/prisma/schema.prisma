@@ -95,7 +95,6 @@ enum FriendshipStatus {
 model FoodInventory {
   id              Int                   @id @default(autoincrement())
   title           String                @db.VarChar(50)
-  label           String?               @db.VarChar(100)
   icon            String?               @db.VarChar(50)
   isArchived      Boolean               @default(false) @map("is_archived")
   memberCount     Int                   @default(0) @map("member_count")
