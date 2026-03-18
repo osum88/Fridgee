@@ -15,7 +15,7 @@ export const useGetLabelSuggestionsQuary = (labelTitle, inventoryId, enabled = t
   return useQuery({
     queryKey: ["labelSuggestions", labelTitle, parseInt(inventoryId)],
     queryFn: ({ signal }) => getInventorySuggestionsApi(inventoryId, labelTitle, 6, signal),
-    enabled: enabled && !!labelTitle && !!inventoryId,
+    enabled: !!enabled && !!labelTitle && !!inventoryId,
     staleTime: TWENTY_SEC,
     placeholderData: (previousData) => previousData,
   });
@@ -26,7 +26,7 @@ export const useGetFoodByBarcodeQuary = (barcode, inventoryId, enabled = true) =
   return useQuery({
     queryKey: ["barcode-food", barcode, parseInt(inventoryId)],
     queryFn: ({ signal }) => getFoodByBarcodeApi(barcode, inventoryId, signal),
-    enabled: enabled && !!barcode && !!inventoryId,
+    enabled: !!enabled && !!barcode && !!inventoryId,
   });
 };
 

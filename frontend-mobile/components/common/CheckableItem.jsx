@@ -5,18 +5,33 @@ import { responsiveSize } from "@/utils/scale";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 
-
-export function CheckableItem({ label, value, selected, onPress, iconName, iconColor, ...props }) {
+export function CheckableItem({
+  label,
+  value,
+  selected,
+  onPress,
+  iconName,
+  iconColor,
+  outlineStyle,
+  ...props
+}) {
   const color = useThemeColor().tint;
 
   return (
     <TouchableOpacity
-      style={styles.checkableItemContainer}
+      style={[styles.checkableItemContainer, outlineStyle]}
       onPress={() => onPress(value)}
     >
-      {iconName && <IconSymbol style={styles.icon} size={responsiveSize.moderate(26)} name={iconName} color={iconColor} />}
+      {iconName && (
+        <IconSymbol
+          style={styles.icon}
+          size={responsiveSize.moderate(20)}
+          name={iconName}
+          color={iconColor}
+        />
+      )}
       <ThemedView style={styles.itemContainer}>
-        <ThemedText type="checkableItem" style={styles.text}>{label}</ThemedText>
+        <ThemedText style={styles.text}>{label}</ThemedText>
         {selected && (
           <IconSymbol
             size={responsiveSize.moderate(24)}
@@ -34,6 +49,7 @@ const styles = StyleSheet.create({
   checkableItemContainer: {
     flexDirection: "row",
     alignItems: "center",
+    minHeight: responsiveSize.vertical(58),
   },
   itemContainer: {
     justifyContent: "space-between",
@@ -43,11 +59,15 @@ const styles = StyleSheet.create({
   },
   iconCheck: {
     fontWeight: "bold",
+    marginRight: responsiveSize.horizontal(4),
+    alignSelf: "center",
   },
   icon: {
-    marginEnd: responsiveSize.vertical(9),
+    marginRight: responsiveSize.horizontal(14),
   },
-  text:{
-    paddingVertical: responsiveSize.vertical(4),
-  }
+  text: {
+    flex: 1,
+    fontSize: responsiveSize.moderate(15),
+    fontWeight: "500",
+  },
 });

@@ -16,8 +16,7 @@ import {
   responsiveVertical,
   responsivePadding,
 } from "@/utils/scale";
-import { ActivityIndicator, Snackbar } from "react-native-paper";
-import { toast, ToastPosition, ToastProvider } from "@backpackapp-io/react-native-toast";
+import { ActivityIndicator } from "react-native-paper";
 import useUpdateUserProfileImageMutation from "@/hooks/queries/user/useUpdateUserProfileImageMutation";
 import useDeleteUserProfileImageMutation from "@/hooks/queries/user/useDeleteUserProfileImageMutation";
 import { IMAGEKIT_URL_ENDPOINT } from "@/config/config";
@@ -56,18 +55,7 @@ export default function Profile() {
   //nacteni profilovky z cache
   const { cacheProfileImage } = useCachedProfileImage(userId, isLoading, userData?.data);
 
-  // useEffect(() => {
-  //   toast("Zprávaaax praahkkgjao uživatele", {
-  //     position: ToastPosition.BOTTOM,
-  //     isSwipeable: true,
-  //     onPress: () => {
-  //       toast.remove();
-  //     },
-  //   });
-  // }, []);
-
   //vyber moznosti pri zmene profilovky
-
   const handleImagePick = useCallback(
     async (type) => {
       const actions = {

@@ -11,6 +11,7 @@ import {
   getInventoryDetailsWithUserService,
   getUsersByInventoryIdByRoleService,
   getUsersByInventoryIdService,
+  searchUsersForInventoryService,
   updateFoodInventoryService,
 } from "../services/foodInventoryService.js";
 import handleResponse from "../utils/responseHandler.js";
@@ -22,7 +23,7 @@ export const createFoodInventory = async (req, res, next) => {
     const userId = req.userId;
     const isAdmin = req.adminRoute;
 
-    const foodInventory = await createFoodInventoryService(userId, title,  icon, isAdmin);
+    const foodInventory = await createFoodInventoryService(userId, title, icon, isAdmin);
     handleResponse(res, 201, "Food inventory created successfully", foodInventory);
   } catch (err) {
     next(err);
@@ -128,14 +129,11 @@ export const getUsersByInventoryIdByRole = async (req, res, next) => {
 export const getUsersByInventoryId = async (req, res, next) => {
   try {
     const inventoryId = parseInt(req.params?.inventoryId, 10);
+    const { sortBy } = req.query;
     const userId = req.userId;
     const isAdmin = req.adminRoute;
 
-    const inventoryUser = await getUsersByInventoryIdService(
-      userId,
-      inventoryId,
-      isAdmin,
-    );
+    const inventoryUser = await getUsersByInventoryIdService(userId, inventoryId, isAdmin, sortBy);
     handleResponse(res, 200, "Inventory users fetched successfully", inventoryUser);
   } catch (err) {
     next(err);
@@ -247,6 +245,27 @@ export const getInventoryContent = async (req, res, next) => {
 
     const inventoryData = await getInventoryContentService(inventoryId, userId, isAdmin);
     handleResponse(res, 200, "Inventory data fetched successfully", inventoryData);
+  } catch (err) {
+    next(err);
+  }
+};
+
+//vyhleda usery pro pridani do inventare
+export const searchUsersForInventory = async (req, res, next) => {
+  try {
+    const userId = req.userId;
+    const { username, limit = 10 } = req.query;
+    const { inventoryId } = req.params;
+    const isAdmin = req.adminRoute;
+
+    const users = await searchUsersForInventoryService(
+      userId,
+      isAdmin,
+      Number(inventoryId),
+      username,
+      Number(limit),
+    );
+    return handleResponse(res, 200, "Search users successfully", users);
   } catch (err) {
     next(err);
   }

@@ -22,6 +22,7 @@ import {
   getAllFoodInventoryRepository,
   changeSettingFoodInventoryUserRepository,
   getInventoryContentRepository,
+  searchUsersForInventoryRepository,
 } from "../repositories/foodInventoryRepository.js";
 import { getUserByIdRepository } from "../repositories/userRepository.js";
 import { capitalizeFirst } from "../utils/stringUtils.js";
@@ -129,7 +130,6 @@ export const deleteFoodInventoryUserService = async (
   newOwnerId = null,
   isAdmin,
 ) => {
-
   if (isAdmin) {
     getUserByIdRepository(userId);
   }
@@ -242,7 +242,12 @@ export const getUsersByInventoryIdByRoleService = async (
 };
 
 //vrati uzivatele podle id a role
-export const getUsersByInventoryIdService = async (userId, inventoryId, isAdmin) => {
+export const getUsersByInventoryIdService = async (
+  userId,
+  inventoryId,
+  isAdmin,
+  sortBy = "resultName",
+) => {
   await getFoodInventoryRepository(inventoryId);
 
   // kontrola existence uzivatele v inventari
@@ -257,12 +262,19 @@ export const getUsersByInventoryIdService = async (userId, inventoryId, isAdmin)
   return result
     .map((data) => ({
       userId: data.user.id,
-      name:
+      name: data.user?.name || "",
+      username: data.user?.username || "",
+      surname: data.user?.surname || "",
+      profilePictureUrl: data.user?.profilePictureUrl || "",
+      resultName:
         data.user.name && data.user.surname
           ? `${capitalizeFirst(data.user.name)} ${capitalizeFirst(data.user.surname)}`
           : capitalizeFirst(data.user.username),
     }))
-    .sort((a, b) => a.name.localeCompare(b.name, ["cs", "en"], { sensitivity: "base" }));
+    .sort((a, b) => {
+      const key = sortBy === "username" ? "username" : "resultName";
+      return a[key].localeCompare(b[key], ["cs", "en"], { sensitivity: "base" });
+    });
 };
 
 //archivace inventare
@@ -519,4 +531,24 @@ export const getInventoryContentService = async (inventoryId, userId, isAdmin) =
     if (b.categoryTitle === "unknow") return 1;
     return a.categoryTitle.localeCompare(b.categoryTitle, ["cs", "en"], { sensitivity: "base" });
   });
+};
+
+//vyhleda usery pro pridani do inventare
+export const searchUsersForInventoryService = async (
+  userId,
+  isAdmin,
+  inventoryId,
+  username,
+  limit = 10,
+) => {
+  if (!isAdmin) {
+    await getFoodInventoryUserRepository(userId, inventoryId);
+  }
+  const resultLimit = Math.max(1, Math.min(limit, 100));
+  return await searchUsersForInventoryRepository(
+    userId,
+    inventoryId,
+    username?.toLowerCase(),
+    resultLimit,
+  );
 };

@@ -209,6 +209,43 @@ export const deleteUserRepository = async (id) => {
           },
         });
 
+        // najde vsechny inventare kde je uzivatel clenem
+        const userInventories = await tx.inventoryUser.findMany({
+          where: { userId: userId },
+          select: { inventoryId: true },
+        });
+
+        const inventoryIds = userInventories.map((i) => i.inventoryId);
+
+        // snizi memberCount u kazdeho inventare
+        if (inventoryIds.length > 0) {
+          await tx.foodInventory.updateMany({
+            where: { id: { in: inventoryIds } },
+            data: { memberCount: { decrement: 1 } },
+          });
+        }
+
+        // najde uzivatele pro metadata
+        const user = await tx.user.findUnique({
+          where: { id: userId },
+          select: { name: true, surname: true, username: true },
+        });
+
+        const userDisplayName =
+          user?.name && user?.surname ? `${user.name} ${user.surname}` : user?.username;
+
+        // zaznam do historie ze uzivatel opustil inventar
+        if (inventoryIds.length > 0) {
+          await tx.foodHistory.createMany({
+            data: inventoryIds.map((inventoryId) => ({
+              inventoryId,
+              changedBy: userId,
+              action: "MEMBER_LEFT",
+              metadata: { user: { name: userDisplayName } },
+            })),
+          });
+        }
+
         // smazeme uživatele
         const deletedUser = await tx.user.delete({
           where: { id: userId },
@@ -497,14 +534,10 @@ export const searchUsersRepository = async (userId, username, limit) => {
           contains: username,
           mode: "insensitive",
         },
-        id: {
-          not: userId,
-        },
+        id: { not: userId },
       },
       take: parsedLimit,
-      orderBy: {
-        username: "asc",
-      },
+      orderBy: { username: "asc" },
       select: {
         id: true,
         username: true,
@@ -615,5 +648,34 @@ export const getUserCountryByIdRepository = async (id) => {
   } catch (error) {
     console.error("Error fetching user country by ID:", error);
     throw error;
+  }
+};
+
+// ziska users z metadat z history
+export const getUsersMapFromHistoryRepository = async (historyRaw) => {
+  try {
+    const userIds = new Set();
+    const usersMap = new Map();
+
+    historyRaw.forEach((log) => {
+      if (log.metadata?.user?.userId) userIds.add(log.metadata.user.userId);
+    });
+
+    if (userIds.size > 0) {
+      const users = await prisma.user.findMany({
+        where: { id: { in: Array.from(userIds) } },
+        select: {
+          id: true,
+          name: true,
+          surname: true,
+          username: true,
+        },
+      });
+      users.forEach((u) => usersMap.set(u.id, u));
+    }
+    return usersMap;
+  } catch (error) {
+    console.error("Error fetching users map for history:", error);
+    return new Map();
   }
 };

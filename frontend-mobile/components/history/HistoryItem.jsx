@@ -169,6 +169,24 @@ const renderDetails = (item, colors) => {
       />,
     );
   }
+
+  if (metadata.user) {
+    if (action === "USER_JOINED") {
+      const { name, role } = metadata.user;
+      rows.push(<DetailRow key="userJoin" label={i18n.t("user")} after={name} colors={colors} />);
+      rows.push(
+        <DetailRow
+          key="userRole"
+          label={i18n.t("role")}
+          after={i18n.t(role?.toLowerCase())}
+          colors={colors}
+        />,
+      );
+    } else if (action === "MEMBER_LEFT") {
+      const { name } = metadata.user;
+      rows.push(<DetailRow key="userLeft" label={i18n.t("user")} after={name} colors={colors} />);
+    }
+  }
   return rows.length > 0 ? <View style={styles.detailContainer}>{rows}</View> : null;
 };
 
@@ -256,9 +274,11 @@ const HistoryItemComponent = ({ item, colors, colorScheme }) => {
         {/* detail */}
         {renderDetails(item, colors)}
         {/* uzivatel */}
-        <ThemedText style={[styles.user, { color: colors.text + "55" }]} numberOfLines={1}>
-          {item.user}
-        </ThemedText>
+        {item.user && (
+          <ThemedText style={[styles.user, { color: colors.text + "55" }]} numberOfLines={1}>
+            {item.user}
+          </ThemedText>
+        )}
       </View>
     </View>
   );

@@ -3,7 +3,7 @@ import prisma from "../utils/prisma.js";
 import { capitalizeFirst } from "../utils/stringUtils.js";
 
 //vytvari inventar jidla s prvnim jeho uzivatelem (owner)
-export const createFoodInventoryRepository = async (userId, title,  icon) => {
+export const createFoodInventoryRepository = async (userId, title, icon) => {
   try {
     return await prisma.foodInventory.create({
       data: {
@@ -23,24 +23,37 @@ export const createFoodInventoryRepository = async (userId, title,  icon) => {
 };
 
 // vytvori usera food inventare
-export const createInventoryUserRepository = async (userId, foodInventoryId, role) => {
+export const createInventoryUserRepository = async (userId, invitation) => {
   try {
-    const [newInventoryUser, updatedFoodInventory] = await prisma.$transaction([
+    const [newInventoryUser, updatedFoodInventory, historyRecord] = await prisma.$transaction([
       prisma.inventoryUser.create({
         data: {
           userId: userId,
-          inventoryId: foodInventoryId,
-          role: role,
+          inventoryId: invitation?.inventoryId,
+          role: invitation?.role,
         },
       }),
       prisma.foodInventory.update({
-        where: { id: foodInventoryId },
+        where: { id: invitation?.inventoryId },
         data: {
           memberCount: { increment: 1 },
         },
       }),
+      prisma.foodHistory.create({
+        data: {
+          inventoryId: invitation?.inventoryId,
+          action: "USER_JOINED",
+          changedBy: invitation?.senderId,
+          metadata: {
+            user: {
+              userId: userId,
+              role: invitation?.role,
+            },
+          },
+        },
+      }),
     ]);
-    return { newInventoryUser, updatedFoodInventory };
+    return { newInventoryUser, updatedFoodInventory, historyRecord };
   } catch (error) {
     console.error("Error creating new inventory user:", error);
     throw error;
@@ -194,9 +207,7 @@ export const getUsersByInventoryIdByRoleRepository = async (inventoryId, rolesTo
         }),
       },
       orderBy: [
-        { user: { name: "asc" } },
         { user: { username: "asc" } },
-        { user: { surname: "asc" } },
       ],
       select: {
         id: true,
@@ -209,10 +220,7 @@ export const getUsersByInventoryIdByRoleRepository = async (inventoryId, rolesTo
             name: true,
             surname: true,
             username: true,
-            birthDate: true,
-            email: true,
             profilePictureUrl: true,
-            preferredLanguage: true,
           },
         },
       },
@@ -250,7 +258,7 @@ export const unarchiveFoodInventoryRepository = async (inventoryId) => {
 };
 
 //update title a label inventare
-export const updateFoodInventoryRepository = async (inventoryId, title,  icon) => {
+export const updateFoodInventoryRepository = async (inventoryId, title, icon) => {
   try {
     return await prisma.foodInventory.update({
       where: { id: inventoryId },
@@ -382,6 +390,50 @@ export const getInventoryContentRepository = async (inventoryId, userId) => {
     return content;
   } catch (error) {
     console.error(`Error fetching inventory content for inventoryId ${inventoryId}:`, error);
+    throw error;
+  }
+};
+
+//vyhleda usery pro pridani do inventare
+export const searchUsersForInventoryRepository = async (userId, inventoryId, username, limit) => {
+  try {
+    const users = await prisma.user.findMany({
+      where: {
+        username: {
+          contains: username,
+          mode: "insensitive",
+        },
+        id: { not: userId },
+        NOT: {
+          userInventory: {
+            some: { inventoryId: parseInt(inventoryId) },
+          },
+        },
+      },
+      take: limit,
+      orderBy: { username: "asc" },
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        surname: true,
+        profilePictureUrl: true,
+        receivedInventoryInvitations: {
+          where: {
+            inventoryId: parseInt(inventoryId),
+            status: "PENDING",
+          },
+          select: { id: true },
+        },
+      },
+    });
+    return users.map(({ receivedInventoryInvitations, ...user }) => ({
+      ...user,
+      hasPendingInvitation: receivedInventoryInvitations?.length > 0,
+      invitationId: receivedInventoryInvitations?.[0]?.id ?? null,
+    }));
+  } catch (error) {
+    console.error("Error searching users for inventory:", error);
     throw error;
   }
 };

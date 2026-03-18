@@ -3,7 +3,6 @@ import { ThemedView } from "@/components/themed/ThemedView";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import {
   FlatList,
-  Image,
   Pressable,
   StyleSheet,
   TouchableOpacity,
@@ -23,7 +22,6 @@ import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useUser } from "@/hooks/useUser";
 import useFriendManager from "@/hooks/friends/useFriendManager";
-import { DeleteFriendAlert } from "@/components/friends/DeleteFriendAlert";
 import {
   responsiveFont,
   responsiveSize,
@@ -31,13 +29,12 @@ import {
   responsivePadding,
 } from "@/utils/scale";
 import { IMAGEKIT_URL_ENDPOINT } from "@/config/config";
+import { ImageViewer } from "../../../components/image/ImageViewer";
+import { DeleteAlert } from "@/components/modals/DeleteAlert";
 
 const FriendItem = React.memo(
   ({
     item,
-    profilePlaceHolder,
-    errorMap,
-    setErrorMap,
     debouncedUsername,
     limit,
     userId,
@@ -64,23 +61,10 @@ const FriendItem = React.memo(
       });
     }, [item]);
 
-    const imageSource = useMemo(() => {
-      return errorMap[item.id]
-        ? profilePlaceHolder
-        : {
-            uri: `${IMAGEKIT_URL_ENDPOINT}/users/${item.id}/profile/profile_${item.id}_150x150.webp`,
-          };
-    }, [errorMap, item.id, profilePlaceHolder]);
-
-    const onErrorImage = useCallback(() => {
-      setErrorMap((prev) => ({ ...prev, [item.id]: true }));
-    }, [item.id, setErrorMap]);
-
     const onPressAction = useCallback(() => {
       if (item.friendships?.status === "ACCEPTED") {
         setSelectedFriend({
           ...item,
-          imageSource,
         });
         setVisible(true);
       } else {
@@ -93,26 +77,19 @@ const FriendItem = React.memo(
           item.friendships?.receiverId,
         );
       }
-    }, [
-      item,
-      debouncedUsername,
-      limit,
-      friendshipManager,
-      setSelectedFriend,
-      setVisible,
-      imageSource,
-    ]);
+    }, [item, debouncedUsername, limit, friendshipManager, setSelectedFriend, setVisible]);
 
     return (
       <Pressable onPress={onPressItem}>
         <ThemedView style={styles.itemContainer}>
           <ThemedView style={styles.userItem}>
-            <Image
-              source={imageSource}
-              defaultSource={imageSource}
-              onError={onErrorImage}
-              style={styles.profileImage}
+            <ImageViewer
+              imageUrl={`${IMAGEKIT_URL_ENDPOINT}/users/${item.id}/profile/profile_${item.id}_150x150.webp`}
+              isLoading={false}
+              isImagePlaceholder={true}
+              imageStyle={styles.profileImage}
             />
+
             <ThemedView style={styles.textContainer}>
               <ThemedText style={styles.username} numberOfLines={1} ellipsizeMode="tail">
                 {item.username}
@@ -150,7 +127,6 @@ export default function SearchFriends() {
   const [limit, setLimit] = useState(Math.ceil(height / 100));
   const [debouncedUsername, setDebouncedUsername] = useState("");
   const profilePlaceHolder = useProfilePlaceHolder();
-  const [errorMap, setErrorMap] = useState({});
   const insets = useSafeAreaInsets();
   const { userId } = useUser();
   const [selectedFriend, setSelectedFriend] = useState(null);
@@ -220,12 +196,14 @@ export default function SearchFriends() {
         <ThemedLine style={styles.line} />
 
         {selectedFriend && (
-          <DeleteFriendAlert
+          <DeleteAlert
             visible={visible}
             setVisible={setVisible}
-            imageSource={selectedFriend?.imageSource}
-            username={selectedFriend.username}
-            onPress={() => {
+            description={[i18n.t("removeFromFriends1"), i18n.t("removeFromFriends2")]}
+            deleteItem={selectedFriend?.username}
+            confirmLabel={i18n.t("remove")}
+            imageSource={`${IMAGEKIT_URL_ENDPOINT}/users/${selectedFriend.id}/profile/profile_${selectedFriend.id}_150x150.webp`}
+            onConfirm={() => {
               friendshipManager(
                 selectedFriend.id,
                 debouncedUsername,
@@ -252,8 +230,6 @@ export default function SearchFriends() {
               <FriendItem
                 item={item}
                 profilePlaceHolder={profilePlaceHolder}
-                errorMap={errorMap}
-                setErrorMap={setErrorMap}
                 debouncedUsername={debouncedUsername}
                 limit={limit}
                 userId={userId}

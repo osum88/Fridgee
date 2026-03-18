@@ -5,7 +5,7 @@ export const useGetUserQuery = (userId, enabled) => {
   return useQuery({
     queryKey: ["user", userId],
     queryFn: () => getUserByIdApi(userId),
-    enabled: enabled && !!userId,
+    enabled: !!enabled && !!userId,
     staleTime: Infinity,    
   });
 };

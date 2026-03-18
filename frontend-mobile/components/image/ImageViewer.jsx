@@ -4,13 +4,32 @@ import { IconSymbol } from "@/components/icons/IconSymbol";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { responsiveSize } from "@/utils/scale";
 import { ActivityIndicator } from "react-native-paper";
+import { useProfilePlaceHolder } from "@/hooks/image/useProfilePlaceHolder";
 
-const FoodImageComponent = ({ imageUrl, isLoading }) => {
+const ImageViewerComponent = ({ imageUrl, isLoading, isImagePlaceholder = false, imageStyle }) => {
   const color = useThemeColor();
+  const profilePlaceHolder = useProfilePlaceHolder();
 
   return (
-    <View style={[styles.imageWrapper, { backgroundColor: color.primaryBackground }]}>
-      <IconSymbol name="fork.knife" size={responsiveSize.moderate(28)} color={color.primary} />
+    <View
+      style={[
+        styles.imageWrapper,
+        !isImagePlaceholder && { backgroundColor: color.primaryBackground },
+        {
+          borderRadius: responsiveSize.moderate(isImagePlaceholder ? 60 : 14),
+        },
+        imageStyle,
+      ]}
+    >
+      {isImagePlaceholder ? (
+        <Image
+          source={profilePlaceHolder}
+          style={[styles.image, styles.imageAbsolute]}
+          resizeMode="cover"
+        />
+      ) : (
+        <IconSymbol name="fork.knife" size={responsiveSize.moderate(28)} color={color.primary} />
+      )}
       {imageUrl && (
         <Image
           source={{ uri: imageUrl }}
@@ -27,13 +46,12 @@ const FoodImageComponent = ({ imageUrl, isLoading }) => {
   );
 };
 
-export const FoodImage = memo(FoodImageComponent);
+export const ImageViewer = memo(ImageViewerComponent);
 
 const styles = StyleSheet.create({
   imageWrapper: {
     width: responsiveSize.moderate(64),
     height: responsiveSize.moderate(64),
-    borderRadius: responsiveSize.moderate(14),
     justifyContent: "center",
     alignItems: "center",
     overflow: "hidden",

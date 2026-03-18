@@ -1,6 +1,8 @@
 import { getHistoryRepository } from "../repositories/foodHistoryRepository.js";
 import { getFoodInventoryUserRepository } from "../repositories/foodInventoryRepository.js";
 import { getPricesMapFromHistoryRepository } from "../repositories/priceRepository.js";
+import { getUsersMapFromHistoryRepository } from "../repositories/userRepository.js";
+import { capitalizeFirst } from "../utils/stringUtils.js";
 import { convertPrice, createBaseCurrency } from "./priceService.js";
 
 // vraci historii
@@ -20,6 +22,8 @@ export const getHistoryService = async (inventoryId, data, userId, isAdmin) => {
 
   // ziska vsechny price z history
   const pricesMap = await getPricesMapFromHistoryRepository(historyRaw);
+  //ziska users z metadat
+  const userMap = await getUsersMapFromHistoryRepository(historyRaw);
 
   const groupedHistory = [];
   let currentBatch = null;
@@ -81,6 +85,24 @@ export const getHistoryService = async (inventoryId, data, userId, isAdmin) => {
         )
       : 0;
 
+    if (cleanMetadata?.user?.userId) {
+      const userData = userMap.get(cleanMetadata.user.userId);
+      const name =
+        userData?.name && userData?.surname
+          ? `${capitalizeFirst(userData.name)} ${capitalizeFirst(userData.surname)}`
+          : (userData?.username ?? null);
+
+      if (!name) continue;
+
+      cleanMetadata = {
+        ...cleanMetadata,
+        user: {
+          ...cleanMetadata.user,
+          name: name,
+        },
+      };
+    }
+
     //unikatni klic pro identicke zaznami
     const changeContext = [
       meta.variant ? `v:${meta.variant.before}-${meta.variant.after}` : "",
@@ -90,6 +112,7 @@ export const getHistoryService = async (inventoryId, data, userId, isAdmin) => {
       meta.expirationDate ? `e:${meta.expirationDate.before}-${meta.expirationDate.after}` : "",
       meta.fullConsumption ? `fc:${meta.fullConsumption}` : "",
       meta.duplicatedFrom ? `orig:${meta.duplicatedFrom}` : "",
+      meta.user ? `u:${meta.user.userId}-${meta.user.role}` : "",
     ]
       .filter(Boolean)
       .join("|");
@@ -133,7 +156,10 @@ export const getHistoryService = async (inventoryId, data, userId, isAdmin) => {
 
       const name = log?.user?.name;
       const surname = log?.user?.surname;
-      const user = name && surname ? `${name} ${surname}` : log?.user?.username;
+      const user =
+        name && surname
+          ? `${capitalizeFirst(name)} ${capitalizeFirst(surname)}`
+          : log?.user?.username;
 
       currentBatch = {
         id: log.id,

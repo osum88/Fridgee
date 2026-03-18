@@ -71,11 +71,9 @@ export const validateForm = (errors, setErrors, inputText) => {
     });
     return false;
   }
-  console.log(inputText?.amount, "4");
   if (!validateNumericInput(inputText?.amount, "amount", setErrors, 9999)) {
     return false;
   }
-  console.log("5");
 
   if (inputText?.price && !validateNumericInput(inputText?.price, "price", setErrors, 999999)) {
     return false;
@@ -114,6 +112,7 @@ export default function AddFoodManuallyScreen() {
   const { pickImage, takePhoto, uploadImage } = useImageUpload("back");
   const { addFood, isSubmitting } = useAddFoodMutation(activeInventory.id);
   const { data: userData } = useGetUserQuery(userId);
+  
   const { data: inventoryCategories } = useGetInventoryCategoriesQuery(
     activeInventory.id,
     activeInventory.memberCount,

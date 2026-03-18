@@ -162,10 +162,10 @@ export default function TabTwoScreen() {
         <DeleteAlert
           visible={visible}
           setVisible={setVisible}
-          title={i18n.t("removeCategory")}
-          description={i18n.t("removeCategoryConfirm", {categoryTitle: "Ada"})}
+          description={[i18n.t("removeFromFriends1"), i18n.t("removeFromFriends2")]}
           confirmLabel={i18n.t("remove1")}
           onConfirm={false}
+          deleteItem={"Ananas"}
         />
 
       </ThemedView>

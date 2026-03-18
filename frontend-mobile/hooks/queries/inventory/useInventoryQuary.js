@@ -6,11 +6,14 @@ import {
   getInventoryContentApi,
   getInventoryHistoryApi,
   getUsersByInventoryIdApi,
+  searchUsersForInventoryApi,
+  getInventoryInvitationsByUserApi,
 } from "@/api/inventory";
 import { useIsFocused } from "@react-navigation/native";
 import { useEffect } from "react";
 import { INVENTORY_THEMES } from "@/constants/colors";
 
+const TEN_SEC = 1000 * 10;
 const TWENTY_SEC = 1000 * 20;
 const THIRTY_SEC = 1000 * 30;
 const ONE_MIN = 60 * 1000;
@@ -25,7 +28,7 @@ export const useGetInventoryCategoriesQuery = (inventoryId, memberCount = 1, ena
   return useQuery({
     queryKey: ["food-categories", parseInt(inventoryId)],
     queryFn: ({ signal }) => getInventoryFoodCategoriesApi(inventoryId, signal),
-    enabled: enabled && !!inventoryId,
+    enabled: !!enabled && !!inventoryId,
     staleTime: () => {
       return memberCount > 1 ? ONE_MIN : ONE_HOUR;
     },
@@ -40,7 +43,7 @@ export const useFoodInventories = (enabled = true) => {
     queryKey: ["inventories"],
     queryFn: ({ signal }) => getAllFoodInventoriesApi(signal),
     staleTime: TWO_MIN,
-    enabled: enabled,
+    enabled: !!enabled,
     select: (res) => {
       return res.data.map((item) => ({
         ...item,
@@ -71,7 +74,7 @@ export const useInventoryDetail = (inventoryId, enabled = true) => {
   return useQuery({
     queryKey: ["food-inventory", parseInt(inventoryId)],
     queryFn: ({ signal }) => getInventoryDetailsApi(inventoryId, signal),
-    enabled: !!inventoryId && isFocused && enabled,
+    enabled: !!inventoryId && isFocused && !!enabled,
     staleTime: (query) => {
       return query.state.data?.memberCount > 1 ? TWO_MIN : FIVE_MIN;
     },
@@ -89,7 +92,7 @@ export const useInventoryContent = (inventoryId, memberCount = 1, enabled = true
   return useQuery({
     queryKey: ["inventory-content", parseInt(inventoryId)],
     queryFn: ({ signal }) => getInventoryContentApi(inventoryId, signal),
-    enabled: !!inventoryId && isFocused && enabled,
+    enabled: !!inventoryId && isFocused && !!enabled,
     staleTime: () => {
       return memberCount > 1 ? THIRTY_SEC : ONE_WEEK;
     },
@@ -126,17 +129,22 @@ export const useInventoryHistory = (inventoryId, filters = {}, memberCount = 1, 
       const isShared = (memberCount ?? 0) > 1;
       return isShared && isFocused ? ONE_MIN : false;
     },
-    enabled: !!inventoryId && isFocused && enabled,
+    enabled: !!inventoryId && isFocused && !!enabled,
     placeholderData: (previousData) => previousData,
   });
 };
 
 //vrati vsechny usery inventare
-export const useGetUsersByInventoryId = (inventoryId, memberCount = 1, enabled = true) => {
+export const useGetUsersByInventoryId = (
+  inventoryId,
+  memberCount = 1,
+  sortBy = "resultName",
+  enabled = true,
+) => {
   return useQuery({
-    queryKey: ["inventorysignal-users", inventoryId],
-    queryFn: ({ signal }) => getUsersByInventoryIdApi(inventoryId, signal),
-    enabled: !!inventoryId && enabled,
+    queryKey: ["inventory-users", inventoryId],
+    queryFn: ({ signal }) => getUsersByInventoryIdApi(inventoryId, signal, sortBy),
+    enabled: !!inventoryId && !!enabled,
     staleTime: () => {
       return memberCount > 1 ? TWENTY_SEC : ONE_WEEK;
     },
@@ -144,5 +152,31 @@ export const useGetUsersByInventoryId = (inventoryId, memberCount = 1, enabled =
       if (!data) return [];
       return data?.data;
     },
+  });
+};
+
+//vyhleda usery pro pridani do inventare
+export const useSearchUsersForInventory = (inventoryId, username, limit = 10, enabled = true) => {
+  return useQuery({
+    queryKey: ["inventory-search-users", inventoryId, username, limit],
+    queryFn: ({ signal }) => searchUsersForInventoryApi(inventoryId, username, limit, signal),
+    enabled: !!inventoryId && !!username?.trim() && !!enabled,
+    staleTime: TEN_SEC,
+    gcTime: TWENTY_MIN,
+    select: (data) => {
+      if (!data) return [];
+      return data?.data;
+    },
+  });
+};
+
+//vrati vsechny pozvanky pro usera
+export const useGetInventoryInvitations = (enabled = true) => {
+  return useQuery({
+    queryKey: ["inventory-invitations"],
+    queryFn: ({ signal }) => getInventoryInvitationsByUserApi(signal),
+    enabled: !!enabled,
+    staleTime: ONE_MIN,
+    select: (data) => data?.data ?? [],
   });
 };

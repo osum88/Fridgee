@@ -33,9 +33,7 @@ const useLoginMutation = ({ setError, rememberMe }) => {
       }
     },
     onError: (error) => {
-      console.log("sad")
       handleApiError(error, setError)
-      // setError(error.message);
     },
   });
 

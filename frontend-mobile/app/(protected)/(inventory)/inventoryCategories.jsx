@@ -251,7 +251,9 @@ export default function InventoryCategoriesScreen() {
         visible={deleteVisible}
         setVisible={setDeleteVisible}
         title={i18n.t("removeCategory")}
-        description={i18n.t("removeCategoryConfirm", { categoryTitle: selectedCategory?.title })}
+        description={[i18n.t("removeCategoryConfirmPart1"), i18n.t("removeCategoryConfirmPart2")]}
+        deleteItem={selectedCategory?.title}
+        questionMark={true}
         confirmLabel={i18n.t("remove1")}
         onConfirm={handleDelete}
       />

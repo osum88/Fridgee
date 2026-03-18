@@ -215,6 +215,8 @@ const MAPPING = {
   "person.badge.plus": { name: "account-plus-outline", source: "MaterialCommunityIcons" },
   // opustit inventar
   "rectangle.portrait.and.arrow.right": { name: "exit-to-app", source: "MaterialCommunityIcons" },
+  // pozvanky do invenatre
+  "envelope.badge.fill": { name: "email-plus", source: "MaterialCommunityIcons" },
 
   //coat.fill
 } as IconMapping;

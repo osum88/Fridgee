@@ -33,7 +33,6 @@ export const updateFoodApi = async (foodData, imageFormData = null) => {
 // ziska detail food
 export const getFoodDetailApi = async (inventoryId, foodId, signal) => {
   try {
-    console.log("www");
     const response = await apiClient.get(`/inventory/${inventoryId}/food/${foodId}/detail`, {
       signal,
     });

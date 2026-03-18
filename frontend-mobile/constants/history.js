@@ -17,4 +17,8 @@ export const ACTION_GROUPS = [
     labelKey: "categoryActions",
     actions: ["CATEGORY_RENAME", "CATEGORY_CREATE", "CATEGORY_REMOVE"],
   },
+  {
+    labelKey: "userActions",
+    actions: ["USER_JOINED", "MEMBER_LEFT"],
+  },
 ];

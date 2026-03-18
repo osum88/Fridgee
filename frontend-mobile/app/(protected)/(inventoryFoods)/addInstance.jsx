@@ -17,6 +17,7 @@ import {
   resetErrors,
   updateFormValues,
   validateInstance,
+  getCurrency,
 } from "@/utils/stringUtils";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { useCallback, useState, useLayoutEffect, useMemo, useRef } from "react";
@@ -38,6 +39,8 @@ import { useInventoryStore } from "@/hooks/store/useInventoryStore";
 import { useAddFoodInstanceMutation } from "@/hooks/queries/instance/useFoodInstanceMutation";
 import { handleApiError } from "@/utils/handleApiError";
 import { useQueryClient } from "@tanstack/react-query";
+import { useGetUserQuery } from "@/hooks/queries/user/useUserQuery";
+import { useUser } from "@/hooks/useUser";
 
 export default function AddInstanceScreen() {
   const scrollRef = useRef(null);
@@ -50,8 +53,13 @@ export default function AddInstanceScreen() {
   const activeInventory = useInventoryStore((state) => state.activeInventory);
   const navigation = useNavigation();
   const colors = useThemeColor();
+  const { userId } = useUser();
 
   const { addInstance, isSubmitting } = useAddFoodInstanceMutation(activeInventory.id);
+  const { data: userData } = useGetUserQuery(userId);
+
+  // nastaveni defaultni meny podle zeme uzivatele
+  const defaultCurrency = userData?.data?.country ? getCurrency(userData.data.country) : "CZK";
 
   const [inputText, setInputText] = useState({
     quantity: "1",
@@ -60,7 +68,7 @@ export default function AddInstanceScreen() {
     amount: "",
     unit: "null",
     price: "",
-    currency: "CZK",
+    currency: defaultCurrency,
   });
 
   const [errors, setErrors] = useState({

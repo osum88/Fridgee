@@ -178,10 +178,12 @@ export default function EditFoodScreen() {
       foodId: parseInt(foodId),
       labelTitle: current.labelTitle,
       description: current.description || "",
-      minimalQuantity: current.minimalQuantity || 0,
       foodImageUrl: current.foodImageUrl,
       foodImageCloudId: current.foodImageCloudId,
-      ...getVariant(current.variantId, current.variantTitle),
+      ...(canEdit && {
+        minimalQuantity: current.minimalQuantity || 0,
+        ...getVariant(current.variantId, current.variantTitle),
+      }),
     };
 
     updateFood.mutate(
@@ -221,6 +223,7 @@ export default function EditFoodScreen() {
     queryClient,
     catalogId,
     activeInventory.id,
+    canEdit,
   ]);
 
   useLayoutEffect(() => {

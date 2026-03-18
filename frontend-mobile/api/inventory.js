@@ -147,9 +147,12 @@ export const getInventoryHistoryApi = async (inventoryId, filters = {}, signal) 
 };
 
 //vrati vsechny usery inventare
-export const getUsersByInventoryIdApi = async (inventoryId, signal) => {
+export const getUsersByInventoryIdApi = async (inventoryId, signal, sortBy) => {
   try {
-    const response = await apiClient.get(`/inventory/${inventoryId}/users/all`, { signal });
+    const response = await apiClient.get(`/inventory/${inventoryId}/users/all`, {
+      signal,
+      params: { sortBy },
+    });
     return response.data;
   } catch (error) {
     if (isCancel(error)) {
@@ -166,7 +169,6 @@ export const getUsersByInventoryIdApi = async (inventoryId, signal) => {
 //updatuje api
 export const updateInventoryApi = async (inventoryId, data) => {
   try {
-    console.log("ad",data)
     const response = await apiClient.patch(`/inventory/${inventoryId}`, data);
     return response.data;
   } catch (error) {
@@ -176,6 +178,75 @@ export const updateInventoryApi = async (inventoryId, data) => {
     }
     console.error(
       `Error in updateFoodInventoryApi: ${error.response?.data?.message || error.message}`,
+    );
+    throw error;
+  }
+};
+
+//vyhleda usery pro pridani do inventare
+export const searchUsersForInventoryApi = async (inventoryId, username, limit = 10, signal) => {
+  try {
+    const response = await apiClient.get(`/inventory/${inventoryId}/search-users`, {
+      params: { username, limit },
+      signal,
+    });
+    return response.data;
+  } catch (error) {
+    if (isCancel(error)) return null;
+    console.error(
+      `Error in searchUsersForInventoryApi: ${error.response?.data?.message || error.message}`,
+    );
+    throw error;
+  }
+};
+
+//odesle pozvanku nebo ji zrusi pokud existuje
+export const sendInventoryInvitationApi = async (inventoryId, receiverId) => {
+  try {
+    const response = await apiClient.post(`/inventory/${inventoryId}/invitations`, { receiverId });
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Error in sendInventoryInvitationApi: ${error.response?.data?.message || error.message}`,
+    );
+    throw error;
+  }
+};
+
+//vrati vsechny pozvanky pro usera
+export const getInventoryInvitationsByUserApi = async (signal) => {
+  try {
+    const response = await apiClient.get(`/inventory/invitations`, { signal });
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Error in getInventoryInvitationsByUserApi: ${error.response?.data?.message || error.message}`,
+    );
+    throw error;
+  }
+};
+
+//prijme zadost
+export const acceptInventoryInvitationApi = async (invitationId) => {
+  try {
+    const response = await apiClient.post(`/inventory/invitations/${invitationId}/accept`);
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Error in acceptInventoryInvitationApi: ${error.response?.data?.message || error.message}`,
+    );
+    throw error;
+  }
+};
+
+//odmitne zadost
+export const rejectInventoryInvitationApi = async (invitationId) => {
+  try {
+    const response = await apiClient.post(`/inventory/invitations/${invitationId}/reject`);
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Error in rejectInventoryInvitationApi: ${error.response?.data?.message || error.message}`,
     );
     throw error;
   }

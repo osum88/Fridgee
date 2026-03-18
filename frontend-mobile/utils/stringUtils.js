@@ -113,7 +113,6 @@ export const ibanToBban = (iban) => {
 
 //validuje date
 export const validateDate = (inputDate) => {
-  console.log(inputDate);
   if (!inputDate) return false;
   let date;
 
@@ -124,15 +123,11 @@ export const validateDate = (inputDate) => {
   }
 
   if (isNaN(date.getTime())) {
-    console.log(date.getTime());
     return false;
   }
   const minDate = new Date("1920-01-01T00:00:00Z");
 
   if (date.getTime() < minDate.getTime()) {
-    console.log(date.getTime());
-    console.log(minDate.getTime());
-
     return false;
   }
   const today = new Date();
@@ -140,11 +135,8 @@ export const validateDate = (inputDate) => {
 
   const normalizedDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
   if (normalizedDate.getTime() > today.getTime()) {
-    console.log(normalizedDate.getTime());
-    console.log(today.getTime());
     return false;
   }
-  console.log(today.getTime());
   return true;
 };
 
@@ -417,9 +409,36 @@ export const validateInstance = (errors, setErrors, inputText) => {
     return false;
   }
 
-  if (!validateNumericInput(inputText?.amount, "amount", setErrors, 9999)) return false;
-  if (inputText?.price && !validateNumericInput(inputText?.price, "price", setErrors, 999999))
+  if (!validateNumericInput(inputText?.amount, "amount", setErrors, 9999)) {
     return false;
-
+  }
+  if (inputText?.price && !validateNumericInput(inputText?.price, "price", setErrors, 999999)) {
+    return false;
+  }
   return true;
+};
+
+//vraci zkratky casu kolik uplynulo od date
+export const getRelativeTime = (date) => {
+  if (!date) return "";
+  const diff = Math.floor((new Date() - new Date(date)) / 1000);
+
+  if (diff < 60) return i18n.t("secondsShort", { num: diff });
+
+  const minutes = Math.floor(diff / 60);
+  if (minutes < 60) return i18n.t("minutesShort", { num: minutes });
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return i18n.t("hoursShort", { num: hours });
+
+  const days = Math.floor(hours / 24);
+  if (days < 7) return i18n.t("daysShort", { num: days });
+
+  const weeks = Math.floor(days / 7);
+  if (weeks < 4) return i18n.t("weeksShort", { num: weeks });
+
+  const months = Math.floor(days / 30);
+  if (months < 12) return i18n.t("monthsShort", { num: months });
+
+  return i18n.t("yearsShort", { num: Math.floor(days / 365) });
 };

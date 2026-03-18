@@ -23,7 +23,7 @@ const useRegisterMutation = ({ setErrors, errors }) => {
           refreshToken &&
           typeof refreshToken === "string"
         ) {
-          await signIn(accessToken, refreshToken, user);
+          await signIn(accessToken, refreshToken, user, true);
         } else {
           console.error("Tokens not valid.");
         }

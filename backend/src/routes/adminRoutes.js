@@ -5,8 +5,8 @@ import { authenticateToken, authorizeAdmin, authorizeAdminWithoutUserId } from "
 import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFriends, getReceivedFriendRequests, getSentFriendRequests } from "../controllers/friendController.js";
 import { createUser, deleteUser, deleteUserProfileImage, getAllUsersAdmin, getUserById, updateUser, updateUserProfileImage } from "../controllers/userController.js";
 import { createUserSchema, updateUserAdminSchema, userIdAdminSchema } from "../validation/userValidation.js";
-import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, getAllFoodInventory, getInventoryContent, getInventoryDetailsWithUser, getUsersByInventoryId, getUsersByInventoryIdByRole, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
-import { inventoryIdAdminSchema, changeRoleAdminSchema, changeSettingAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema, inventoryIdSchema, searchInventoryLabelAdminSchema, getHistorySchema, inventoryIdBarcodeSchema, foodCatalogIdInventoryIdSchema } from "../validation/foodInventoryValidation.js";
+import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, getAllFoodInventory, getInventoryContent, getInventoryDetailsWithUser, getUsersByInventoryId, getUsersByInventoryIdByRole, searchUsersForInventory, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
+import { inventoryIdAdminSchema, changeRoleAdminSchema, changeSettingAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema, inventoryIdSchema, searchInventoryLabelAdminSchema, getHistorySchema, inventoryIdBarcodeSchema, foodCatalogIdInventoryIdSchema, searchUsersForInventorySchema, gellAllUsersSchema } from "../validation/foodInventoryValidation.js";
 import { getFriendsAdminSchema } from "../validation/friendValidation.js";
 import { sanitize } from "../middlewares/sanitize.js";
 import { foodCatalogIdSchema, foodCatalogWithLabelByBarcodeSchema,  } from "../validation/foodCatalogValidation.js";
@@ -66,10 +66,13 @@ router.patch("/users/:id/inventory/:inventoryId/users/:targetUserId", validate(c
 router.delete("/users/:id/inventory/:inventoryId/users/", validate(deleteAdminSchema), authenticateToken, authorizeAdmin, deleteFoodInventoryUser);
 
 //vrati vsechny uzivatele 
-router.get("/inventory/:inventoryId/users/all", validate(inventoryIdSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getUsersByInventoryId);
+router.get("/inventory/:inventoryId/users/all", validate(gellAllUsersSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getUsersByInventoryId);
 
 //vrati uzivatele podle role
 router.get("/inventory/:inventoryId/users", validate(getInventoryUsersSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getUsersByInventoryIdByRole);
+
+//vyhleda usery pro pridani do inventare
+router.get("/inventory/:inventoryId/search-users", validate(searchUsersForInventorySchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, searchUsersForInventory);
 
 //archivuje inventar
 router.patch("/inventory/:inventoryId/archive", validate(inventoryIdSchema), authenticateToken, authorizeAdminWithoutUserId, archiveFoodInventory);

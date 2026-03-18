@@ -156,6 +156,8 @@ export const ACTION_COLORS = {
     CATEGORY_RENAME: "#8bad35",
     LABEL_UPDATE: "#00BCD4",
     MIN_QUANTITY_UPDATE: "#E91E63",
+    USER_JOINED: "#9a1b83",
+    MEMBER_LEFT: "#6D4C41",
   },
   dark: {
     ADD: "#65cb6a",
@@ -172,5 +174,7 @@ export const ACTION_COLORS = {
     CATEGORY_RENAME: "#b5ea2e",
     LABEL_UPDATE: "#26C6DA",
     MIN_QUANTITY_UPDATE: "#F48FB1",
+    USER_JOINED: "#b8279e",
+    MEMBER_LEFT: "#A1887F",
   },
 };

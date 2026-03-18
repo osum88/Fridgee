@@ -43,14 +43,12 @@ export const handleApiError = (error, setFieldErrors, fieldErrors = null, defaul
       setter(i18n.t(specificKey), type);
       return;
     }
-    console.log("-->", specificKey);
 
     const defaultTranslation = getTranslation(defaultKey);
     if (defaultTranslation) {
       setter(i18n.t(defaultKey), type);
       return;
     }
-    console.log("-->", specificKey);
   }
 
   let finalMsg = i18n.t("errorDefault");

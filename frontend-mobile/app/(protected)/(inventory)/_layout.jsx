@@ -44,6 +44,14 @@ export default function InventoryLayout() {
           headerShown: true,
         }}
       />
+      <Stack.Screen
+        name="inviteUsersInventory"
+        options={{
+          animation: "fade",
+          title: i18n.t("inviteUser"),
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }

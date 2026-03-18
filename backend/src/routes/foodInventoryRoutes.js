@@ -1,9 +1,9 @@
 import express from "express";
 import { authenticateToken, authorizeUser } from "../middlewares/authMiddleware.js";
-import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, deleteOtherFoodInventoryUser, getAllFoodInventory, getInventoryContent, getInventoryDetailsWithUser, getUsersByInventoryId, getUsersByInventoryIdByRole, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
-import { acceptInventoryInvitation, rejectInventoryInvitation, sendInventoryInvitation } from "../controllers/inventoryInvitationController.js";
+import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, deleteOtherFoodInventoryUser, getAllFoodInventory, getInventoryContent, getInventoryDetailsWithUser, getUsersByInventoryId, getUsersByInventoryIdByRole, searchUsersForInventory, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
+import { acceptInventoryInvitation, getInventoryInvitationsByUser, rejectInventoryInvitation, sendInventoryInvitation } from "../controllers/inventoryInvitationController.js";
 import validate from "../middlewares/validator.js";
-import { inventoryIdSchema, changeRoleSchema, changeSettingSchema, createFoodInventorySchema, deleteOtherSchema, deleteSchema, getInventoryUsersSchema, updateFoodInventorySchema, searchInventoryLabelSchema, getHistorySchema, inventoryIdBarcodeSchema, foodIdInventoryIdSchema, foodCatalogIdInventoryIdSchema } from "../validation/foodInventoryValidation.js";
+import { inventoryIdSchema, changeRoleSchema, changeSettingSchema, createFoodInventorySchema, deleteOtherSchema, deleteSchema, getInventoryUsersSchema, updateFoodInventorySchema, searchInventoryLabelSchema, getHistorySchema, inventoryIdBarcodeSchema, foodIdInventoryIdSchema, foodCatalogIdInventoryIdSchema, searchUsersForInventorySchema, gellAllUsersSchema } from "../validation/foodInventoryValidation.js";
 import { invitationIdSchema, sendInvitationSchema } from "../validation/inventoryInvitationValidation.js";
 import { sanitize } from "../middlewares/sanitize.js";
 import { getFoodCategoriesByInventory } from "../controllers/foodCategoryController.js";
@@ -25,10 +25,13 @@ router.post("/", validate(createFoodInventorySchema), createFoodInventory);
 router.post("/:inventoryId/invitations", validate(sendInvitationSchema), sendInventoryInvitation);
 
 //potvrdi pozvanku do inventare
-router.post("/:invitationId/accept", validate(invitationIdSchema), acceptInventoryInvitation);
+router.post("/invitations/:invitationId/accept", validate(invitationIdSchema), acceptInventoryInvitation);
 
 //odmitne pozvanku do inventare
-router.post("/:invitationId/reject", validate(invitationIdSchema), rejectInventoryInvitation);
+router.post("/invitations/:invitationId/reject", validate(invitationIdSchema), rejectInventoryInvitation);
+
+//vrati vsechny pozvanky pro usera
+router.get("/invitations", getInventoryInvitationsByUser);
 
 //zmena settings usera
 router.patch("/:inventoryId/users/settings", validate(changeSettingSchema), changeSettingFoodInventoryUser);
@@ -43,7 +46,10 @@ router.delete("/:inventoryId/users/:targetUserId", validate(deleteOtherSchema), 
 router.delete("/:inventoryId/users", validate(deleteSchema), deleteFoodInventoryUser);
 
 //vrati vsechny uzivatele 
-router.get("/:inventoryId/users/all", validate(inventoryIdSchema), getUsersByInventoryId);
+router.get("/:inventoryId/users/all", validate(gellAllUsersSchema), getUsersByInventoryId);
+
+//vyhleda usery pro pridani do inventare
+router.get("/:inventoryId/search-users", validate(searchUsersForInventorySchema), searchUsersForInventory);
 
 //vrati uzivatele podle role
 router.get("/:inventoryId/users", validate(getInventoryUsersSchema), getUsersByInventoryIdByRole);

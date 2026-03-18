@@ -43,6 +43,7 @@ export default function InventoryHistoryScreen() {
   const { data: users } = useGetUsersByInventoryId(
     activeInventory.id,
     activeInventory.memberCount,
+    "resultName",
     filterVisible,
   );
 
@@ -54,6 +55,7 @@ export default function InventoryHistoryScreen() {
   //pri zmene inventare se resetuje filtr
   useEffect(() => {
     setFilters({});
+    setSearch("");
   }, [activeInventory.id]);
 
   //refresh potahnuti

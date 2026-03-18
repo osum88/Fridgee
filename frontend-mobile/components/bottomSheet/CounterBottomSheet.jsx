@@ -15,7 +15,7 @@ const CounterModalComponent = ({ visible, action, item, colors, onClose, onConfi
   countRef.current = count;
 
   const isRemove = action === "remove1";
-  const maxCount = isRemove ? (item?.count ?? 1) : 99;
+  const maxCount = isRemove ? Math.min(item?.count ?? 1, 50) : 99;
   const accentColor = isRemove ? colors.error : colors.validCount;
 
   //pri zobrazeni se nastavi na 1

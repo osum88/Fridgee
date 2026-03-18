@@ -6,14 +6,18 @@ import i18n from "@/constants/translations";
 import { responsiveFont, responsiveSize, responsiveVertical } from "@/utils/scale";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { memo } from "react";
+import { ImageViewer } from "@/components/image/ImageViewer";
 
 function DeleteAlertComponent({
   visible,
   setVisible,
-  title,
+  title = "",
   description,
+  deleteItem = "",
+  questionMark = false,
   confirmLabel,
   onConfirm,
+  imageSource = null,
   icon = "trash",
   ...otherProps
 }) {
@@ -32,20 +36,45 @@ function DeleteAlertComponent({
         {...otherProps}
       >
         <Dialog.Content style={styles.dialog}>
-          <View style={[styles.iconWrapper, { backgroundColor: color.errorBackground }]}>
-            <IconSymbol
-              name={icon}
-              size={responsiveSize.moderate(28)}
-              color={color.error}
+          {imageSource ? (
+            <ImageViewer
+              imageUrl={imageSource}
+              isLoading={false}
+              isImagePlaceholder={true}
+              imageStyle={styles.alertProfileImage}
             />
-          </View>
-
-          {title && (
-            <ThemedText style={styles.title}>{title}</ThemedText>
+          ) : (
+            <View style={[styles.iconWrapper, { backgroundColor: color.errorBackground }]}>
+              <IconSymbol name={icon} size={responsiveSize.moderate(28)} color={color.error} />
+            </View>
           )}
+
+          {title && <ThemedText style={styles.title}>{title}</ThemedText>}
           {description && (
-            <ThemedText style={[styles.description, { color: color.text + "99" }]}>
-              {description}
+            <ThemedText
+              style={[
+                styles.descriptionContainer,
+                styles.description,
+                { color: color.text + "99" },
+              ]}
+            >
+              {Array.isArray(description) ? (
+                <>
+                  {description[0]}
+                  {deleteItem && (
+                    <ThemedText
+                      style={[styles.description, { color: color.text + "99", fontWeight: "600" }]}
+                    >
+                      {" "}
+                      {deleteItem}
+                    </ThemedText>
+                  )}
+                  {questionMark ? "? " : " "}
+                  {description[1]}
+                </>
+              ) : (
+                description
+              )}
             </ThemedText>
           )}
         </Dialog.Content>
@@ -67,14 +96,8 @@ function DeleteAlertComponent({
               onConfirm?.();
             }}
           >
-            <IconSymbol
-              name={icon}
-              size={responsiveSize.moderate(14)}
-              color="#fff"
-            />
-            <ThemedText style={styles.confirmLabel}>
-              {confirmLabel ?? i18n.t("remove")}
-            </ThemedText>
+            <IconSymbol name={icon} size={responsiveSize.moderate(14)} color="#fff" />
+            <ThemedText style={styles.confirmLabel}>{confirmLabel ?? i18n.t("remove")}</ThemedText>
           </TouchableOpacity>
         </Dialog.Actions>
       </Dialog>
@@ -94,7 +117,7 @@ const styles = StyleSheet.create({
   dialog: {
     alignItems: "center",
     gap: responsiveSize.vertical(10),
-    paddingTop: responsiveSize.vertical(8),
+    paddingTop: responsiveSize.vertical(5),
   },
   iconWrapper: {
     width: responsiveSize.moderate(60),
@@ -109,11 +132,13 @@ const styles = StyleSheet.create({
     fontSize: responsiveFont(16),
     fontWeight: "700",
   },
+  descriptionContainer: {
+    paddingHorizontal: responsiveSize.horizontal(4),
+  },
   description: {
     textAlign: "center",
     fontSize: responsiveFont(13.5),
     lineHeight: responsiveVertical(20),
-    paddingHorizontal: responsiveSize.horizontal(4),
   },
   actions: {
     flexDirection: "row",
@@ -146,5 +171,10 @@ const styles = StyleSheet.create({
     fontSize: responsiveFont(14),
     fontWeight: "600",
     color: "#fff",
+  },
+  alertProfileImage: {
+    width: responsiveSize.moderate(80),
+    height: responsiveSize.moderate(80),
+    borderRadius: responsiveSize.moderate(70),
   },
 });

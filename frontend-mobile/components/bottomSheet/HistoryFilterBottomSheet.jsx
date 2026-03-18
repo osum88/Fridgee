@@ -202,7 +202,7 @@ const HistoryFilterSheetComponent = ({ visible, filters, users, onClose, onApply
                     },
                   ]}
                 >
-                  {user.name}
+                  {user?.resultName}
                 </ThemedText>
               </Pressable>
             ))}

@@ -33,7 +33,6 @@ export const sendVerificationEmail = async (userEmail, verificationLink, languag
         console.log(`Verification email sent to: ${userEmail}`);
     } catch (error) {
         console.error(`Error sending verification email to ${userEmail}:`, error);
-        throw new Error("Failed to send verification email.");
     }
 };
 

@@ -4,7 +4,7 @@ import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedLine } from "@/components/themed/ThemedLine";
 import { IconSymbol } from "@/components/icons/IconSymbol";
-import { FoodImage } from "@/components/food/FoodImage";
+import { ImageViewer } from "@/components/image/ImageViewer";
 import { responsiveSize } from "@/utils/scale";
 import i18n from "@/constants/translations";
 import { IMAGEKIT_URL_ENDPOINT } from "@/config/config";
@@ -23,7 +23,7 @@ const FoodDetailHeaderComponent = ({ food, colors, colorScheme, onAction, isLoad
   >
     {/* obrazek a info */}
     <View style={styles.topRow}>
-      <FoodImage
+      <ImageViewer
         imageUrl={
           food?.labelFoodImageUrl ? `${IMAGEKIT_URL_ENDPOINT}${food.labelFoodImageUrl}` : ""
         }

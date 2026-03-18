@@ -1,12 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import {
-  StyleSheet,
-  View,
-  Pressable,
-  TouchableOpacity,
-  TextInput,
-  Keyboard,
-} from "react-native";
+import { StyleSheet, View, Pressable, TouchableOpacity, TextInput, Keyboard } from "react-native";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { responsiveSize } from "@/utils/scale";
@@ -23,9 +16,9 @@ const ConsumeModalComponent = ({ visible, item, colors, onClose, onConfirm }) =>
   const [amountInput, setAmountInput] = useState("");
 
   const accentColor = colors.primary;
-
+  
   const hasAmount = !!item?.amount && item.amount > 0;
-  const maxCount = item?.count ?? 1;
+  const maxCount = Math.min(item?.count ?? 1, 50);
   const totalAmount = item?.amount ?? 0;
   const unit = item?.unit
     ? item?.unit === "MULTIPACK"

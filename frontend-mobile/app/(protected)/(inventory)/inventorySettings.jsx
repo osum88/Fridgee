@@ -1,14 +1,9 @@
-import { StyleSheet, Pressable } from "react-native";
+import { StyleSheet } from "react-native";
 import { ThemedView } from "@/components/themed/ThemedView";
-import { ThemedLine } from "@/components/themed/ThemedLine";
-import { ThemedText } from "@/components/themed/ThemedText";
-import { IconSymbol } from "@/components/icons/IconSymbol";
 import { useRouter } from "expo-router";
-import i18n from "@/constants/translations";
-import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { responsiveSize } from "@/utils/scale";
 import { useInventoryStore } from "@/hooks/store/useInventoryStore";
-import { Fragment } from "react";
+import { MenuList } from "@/components/common/MenuItem";
 
 const MENU_ITEMS = [
   {
@@ -40,9 +35,9 @@ const MENU_ITEMS = [
   {
     key: "inviteUser",
     icon: "person.badge.plus",
-    route: "invite",
+    route: "inviteUsersInventory",
     color: "text",
-    permissions: ["OWNER"],
+    permissions: ["OWNER", "EDITOR"],
   },
   {
     key: "leaveInventory",
@@ -52,32 +47,7 @@ const MENU_ITEMS = [
   },
 ];
 
-function MenuItem({ item, colors, onPress }) {
-  return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [styles.menuItem, pressed && { opacity: 0.6 }]}
-    >
-      <IconSymbol
-        name={item.icon}
-        size={responsiveSize.moderate(20)}
-        color={colors[item.color]}
-        style={styles.menuIcon}
-      />
-      <ThemedText style={[styles.menuLabel, { color: colors[item.color] }]}>
-        {i18n.t(item.key)}
-      </ThemedText>
-      <IconSymbol
-        name="chevron.right"
-        size={responsiveSize.moderate(16)}
-        color={colors[item.color] + "88"}
-      />
-    </Pressable>
-  );
-}
-
 export default function InventorySettingsScreen() {
-  const colors = useThemeColor();
   const router = useRouter();
   const activeInventory = useInventoryStore((state) => state.activeInventory);
 
@@ -87,15 +57,11 @@ export default function InventorySettingsScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      {MENU_ITEMS.map(
-        (item, index) =>
-          (!item?.permissions || item?.permissions?.includes(activeInventory?.role)) && (
-            <Fragment key={item.key}>
-              <MenuItem item={item} colors={colors} onPress={() => handleNavigate(item.route)} />
-              {index < MENU_ITEMS.length - 1 && <ThemedLine />}
-            </Fragment>
-          ),
-      )}
+      <MenuList
+        items={MENU_ITEMS}
+        onPress={(item) => handleNavigate(item.route)}
+        canShow={(item) => !item?.permissions || item?.permissions?.includes(activeInventory?.role)}
+      />
     </ThemedView>
   );
 }
@@ -105,18 +71,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: responsiveSize.horizontal(24),
     paddingVertical: responsiveSize.vertical(12),
     flex: 1,
-  },
-  menuItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: responsiveSize.vertical(17),
-  },
-  menuIcon: {
-    marginRight: responsiveSize.horizontal(14),
-  },
-  menuLabel: {
-    flex: 1,
-    fontSize: responsiveSize.moderate(15),
-    fontWeight: "500",
   },
 });

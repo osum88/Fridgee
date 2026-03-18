@@ -182,7 +182,11 @@ function RootLayoutContent({ CustomDarkTheme }) {
       <View style={{ flex: 1, backgroundColor: backgroundColor }}>
         {isAppReady ? (
           <NavigationThemeProvider value={colorScheme === "dark" ? CustomDarkTheme : DefaultTheme}>
-            <Stack screenOptions={{ headerShown: false }}>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+              }}
+            >
               {isAuthenticated ? (
                 <Stack.Protected guard={isAuthenticated}>
                   <Stack.Screen name="(protected)" />

@@ -2,8 +2,6 @@ import { Drawer } from "expo-router/drawer";
 import { responsiveFont, responsiveSize } from "@/utils/scale";
 import i18n from "@/constants/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useThemeColor } from "@/hooks/colors/useThemeColor";
-import { IconSymbol } from "@/components/icons/IconSymbol";
 import MenuDrawerContent from "@/components/drawers/MenuDrawerContent";
 
 export default function MenuLayout() {
@@ -24,6 +22,9 @@ export default function MenuLayout() {
         drawerLabelStyle: {
           fontSize: responsiveFont(14),
         },
+        headerStyle: {
+          height: responsiveSize.vertical(78),
+        },
       }}
     >
       <Drawer.Screen
@@ -35,11 +36,27 @@ export default function MenuLayout() {
         }}
       />
       <Drawer.Screen
-        name="(settings)"
+        name="settings"
         options={{
           drawerLabel: i18n.t("settings"),
-          headerShown: false,
+          title: i18n.t("settings"),
+          headerShown: true,
           drawerIconName: "gearshape.fill",
+          headerTitleContainerStyle: {
+            paddingLeft: responsiveSize.horizontal(10),
+          },
+        }}
+      />
+      <Drawer.Screen
+        name="inventoryInvitations"
+        options={{
+          title: i18n.t("inventoryInvitations"),
+          drawerLabel: i18n.t("inventoryInvitations"),
+          headerShown: true,
+          drawerIconName: "envelope.badge.fill",
+          headerTitleContainerStyle: {
+            paddingLeft: responsiveSize.horizontal(10),
+          },
         }}
       />
     </Drawer>

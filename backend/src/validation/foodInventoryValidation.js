@@ -60,6 +60,11 @@ export const inventoryIdSchema = Joi.object({
   inventoryId: Joi.number().integer().positive().required(),
 });
 
+export const gellAllUsersSchema = Joi.object({
+  inventoryId: Joi.number().integer().positive().required(),
+  sortBy: Joi.string().max(20).allow("").optional(),
+});
+
 export const inventoryIdAdminSchema = inventoryIdSchema.keys({
   id: Joi.number().integer().positive().required(),
 });
@@ -68,7 +73,7 @@ export const updateFoodInventorySchema = Joi.object({
   inventoryId: Joi.number().integer().positive().required(),
   title: Joi.string().min(3).max(50).optional().label("inventoryTitle"),
   icon: Joi.string().max(50).allow("").optional(),
-})
+});
 
 export const changeSettingSchema = Joi.object({
   inventoryId: Joi.number().integer().positive().required(),
@@ -121,6 +126,8 @@ export const getHistorySchema = Joi.object({
             "CATEGORY_RENAME",
             "CATEGORY_CREATE",
             "CATEGORY_REMOVE",
+            "USER_JOINED",
+            "MEMBER_LEFT",
           ),
         )
         .single(),
@@ -151,4 +158,10 @@ export const foodIdInventoryIdSchema = Joi.object({
 export const foodCatalogIdInventoryIdSchema = Joi.object({
   foodCatalogId: Joi.number().integer().positive().required(),
   inventoryId: Joi.number().integer().positive().required(),
+});
+
+export const searchUsersForInventorySchema = Joi.object({
+  inventoryId: Joi.number().integer().positive().required(),
+  username: Joi.string().min(1).max(30).required(),
+  limit: Joi.number().integer().min(1).max(100).optional(),
 });

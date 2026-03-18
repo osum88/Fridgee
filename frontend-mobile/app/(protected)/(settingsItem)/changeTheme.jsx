@@ -6,9 +6,9 @@ import { useCallback } from "react";
 import i18n from "@/constants/translations";
 import { Colors } from "@/constants/colors";
 import { useTheme } from "@/contexts/ThemeContext";
-import { responsiveSize, responsivePadding } from "@/utils/scale";
+import { responsiveSize,  } from "@/utils/scale";
 
-export default function ChangeTheme() {
+export default function ChangeThemeScreen() {
   const { theme, setTheme, colorScheme } = useTheme();
   const currentColors = Colors[colorScheme ?? "light"];
 
@@ -16,11 +16,11 @@ export default function ChangeTheme() {
     (changeThema) => {
       setTheme(changeThema);
     },
-    [setTheme]
+    [setTheme],
   );
 
   return (
-    <ThemedView style={styles.checkableItemContainer}>
+    <ThemedView style={styles.container}>
       <CheckableItem
         label={i18n.t("system")}
         value="system"
@@ -53,9 +53,9 @@ export default function ChangeTheme() {
 }
 
 const styles = StyleSheet.create({
-  checkableItemContainer: {
-    ...responsivePadding(28),
+  container: {
+    paddingHorizontal: responsiveSize.horizontal(24),
+    paddingVertical: responsiveSize.vertical(12),
     flex: 1,
-    gap: responsiveSize.vertical(18),
   },
 });
