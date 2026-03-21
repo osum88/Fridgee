@@ -128,6 +128,8 @@ export const getHistorySchema = Joi.object({
             "CATEGORY_REMOVE",
             "USER_JOINED",
             "MEMBER_LEFT",
+            "ROLE_CHANGE",
+            "MEMBER_REMOVED",
           ),
         )
         .single(),

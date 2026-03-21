@@ -251,3 +251,65 @@ export const rejectInventoryInvitationApi = async (invitationId) => {
     throw error;
   }
 };
+
+//zmena rola
+export const changeRoleInventoryUserApi = async (inventoryId, targetUserId, newRole) => {
+  try {
+    const response = await apiClient.patch(`/inventory/${inventoryId}/users/${targetUserId}`, {
+      newRole,
+    });
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Error in changeRoleInventoryUserApi: ${error.response?.data?.message || error.message}`,
+    );
+    throw error;
+  }
+};
+
+//owner odstrani jinyho uzivatele z inventare
+export const deleteInventoryUserApi = async (inventoryId, targetUserId) => {
+  try {
+    const response = await apiClient.delete(`/inventory/${inventoryId}/users/${targetUserId}`);
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Error in deleteInventoryUserApi: ${error.response?.data?.message || error.message}`,
+    );
+    throw error;
+  }
+};
+
+//opusteni inevntare
+export const leaveInventoryApi = async (inventoryId, newOwnerId) => {
+  try {
+    const data = newOwnerId ? { newOwnerId: newOwnerId } : {};
+    console.log("pol", inventoryId, newOwnerId);
+    const response = await apiClient.delete(`/inventory/${inventoryId}/users`, {
+      ...{ data: data },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error in leaveInventoryApi: ${error.response?.data?.message || error.message}`);
+    throw error;
+  }
+};
+
+// vrati vsechny instance food podle barcodu
+export const getFoodInstanceByBarcodeApi = async (inventoryId, barcode, signal) => {
+  try {
+    const response = await apiClient.get(`/inventory/${inventoryId}/barcode/${barcode}`, {
+      signal,
+    });
+    return response.data;
+  } catch (error) {
+    if (isCancel(error)) {
+      console.log("Request cancelled (getFoodInstanceByBarcodeApi).");
+      return null;
+    }
+    console.error(
+      `Error in getFoodInstanceByBarcodeApi: ${error.response?.data?.message || error.message}`,
+    );
+    throw error;
+  }
+};

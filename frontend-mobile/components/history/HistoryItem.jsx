@@ -171,7 +171,7 @@ const renderDetails = (item, colors) => {
   }
 
   if (metadata.user) {
-    if (action === "USER_JOINED") {
+    if (action === "USER_JOINED" || action === "MEMBER_REMOVED" || action === "MEMBER_LEFT") {
       const { name, role } = metadata.user;
       rows.push(<DetailRow key="userJoin" label={i18n.t("user")} after={name} colors={colors} />);
       rows.push(
@@ -182,11 +182,22 @@ const renderDetails = (item, colors) => {
           colors={colors}
         />,
       );
-    } else if (action === "MEMBER_LEFT") {
+    } else if (action === "ROLE_CHANGE") {
+      const { before, after } = metadata.role;
       const { name } = metadata.user;
+      rows.push(
+        <DetailRow
+          key="userRole"
+          label={i18n.t("role")}
+          after={i18n.t(after?.toLowerCase())}
+          before={i18n.t(before?.toLowerCase())}
+          colors={colors}
+        />,
+      );
       rows.push(<DetailRow key="userLeft" label={i18n.t("user")} after={name} colors={colors} />);
     }
   }
+
   return rows.length > 0 ? <View style={styles.detailContainer}>{rows}</View> : null;
 };
 

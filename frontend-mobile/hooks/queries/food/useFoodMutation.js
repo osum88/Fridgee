@@ -10,6 +10,7 @@ export const useAddFoodMutation = (inventoryId) => {
       queryClient.invalidateQueries({ queryKey: ["inventory-content", parseInt(inventoryId)] });
       queryClient.invalidateQueries({ queryKey: ["food-detail", parseInt(inventoryId)] });
       queryClient.resetQueries({ queryKey: ["inventory-history", parseInt(inventoryId)] });
+      queryClient.invalidateQueries({ queryKey: ["food-instance-barcode", parseInt(inventoryId)] });
       console.log("Food added successfully");
     },
     onError: (error) => {

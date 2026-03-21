@@ -52,6 +52,22 @@ export default function InventoryLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="inventoryUsers"
+        options={{
+          animation: "fade",
+          title: i18n.t("users"),
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
+        name="transferOwnership"
+        options={{
+          animation: "fade",
+          title: i18n.t("transferOwnership"),
+          headerShown: true,
+        }}
+      />
     </Stack>
   );
 }

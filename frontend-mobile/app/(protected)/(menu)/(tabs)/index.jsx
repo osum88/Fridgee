@@ -123,7 +123,10 @@ export default function InventoryScreen() {
   }, [router]);
 
   // FAB tlačítka — stabilní callbacky, žádné inline funkce
-  const handleScannerPress = useCallback(() => navigateToScanner(), [navigateToScanner]);
+  const handleScannerPress = useCallback(
+    (type) => () => navigateToScanner(type, "../scannerAdd"),
+    [navigateToScanner],
+  );
 
   // otvira sekce
   const toggleSection = useCallback((id) => {
@@ -152,7 +155,7 @@ export default function InventoryScreen() {
           <>
             {/* tlacitko pro odebrani food skenem */}
             <SecondaryFab
-              onPress={handleScannerPress}
+              onPress={handleScannerPress("consume")}
               color={colors}
               badgeIcons={["barcode.viewfinder", "minus"]}
               style={styles.fabMinusPosition}
@@ -167,7 +170,7 @@ export default function InventoryScreen() {
               />
               {/* tlacitko pro pridani food skenem */}
               <MainFab
-                onPress={handleScannerPress}
+                onPress={handleScannerPress("add")}
                 color={colors}
                 inventoryId={activeInventory.id}
               />

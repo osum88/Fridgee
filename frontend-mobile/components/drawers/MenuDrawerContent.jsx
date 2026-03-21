@@ -22,7 +22,7 @@ export default function MenuDrawerContent(props) {
           colors={["#141414", "#212020"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={[styles.header, { paddingTop: insets.top + responsiveSize.vertical(16) }]}
+          style={[styles.header, { paddingTop: insets.top + responsiveSize.vertical(22) }]}
         >
           <View style={styles.logoRow}>
             <ThemedText style={styles.logoText}>Fridgee</ThemedText>

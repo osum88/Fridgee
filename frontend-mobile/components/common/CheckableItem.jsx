@@ -10,8 +10,10 @@ export function CheckableItem({
   value,
   selected,
   onPress,
+  iconLeftStyle,
   iconName,
   iconColor,
+  iconLeftSize = 20,
   outlineStyle,
   ...props
 }) {
@@ -24,8 +26,8 @@ export function CheckableItem({
     >
       {iconName && (
         <IconSymbol
-          style={styles.icon}
-          size={responsiveSize.moderate(20)}
+          style={[styles.icon, iconLeftStyle]}
+          size={responsiveSize.moderate(iconLeftSize)}
           name={iconName}
           color={iconColor}
         />

@@ -222,8 +222,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   profileImage: {
-    width: responsiveSize.moderate(57),
-    height: responsiveSize.moderate(57),
+    width: responsiveSize.moderate(55),
+    height: responsiveSize.moderate(55),
     borderRadius: responsiveSize.moderate(50),
     marginEnd: responsiveSize.horizontal(12),
   },

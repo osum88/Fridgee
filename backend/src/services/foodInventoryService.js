@@ -6,14 +6,13 @@ import {
   NotFoundError,
 } from "../errors/errors.js";
 import {
-  changeRoleFoodInventoryUserRepository,
+  changeRoleFoodInventoryUserWithHistoryRepository,
   createFoodInventoryRepository,
   createInventoryUserRepository,
   getFoodInventoryRepository,
   getFoodInventoryUserRepository,
-  getFoodInventoryOwnerCountRepository,
   getFoodInventoryUserRoleRepository,
-  deleteUserFoodInventoryRepository,
+  deleteUserFoodInventoryWithHistoryRepository,
   deleteFoodInventoryRepository,
   getUsersByInventoryIdByRoleRepository,
   archiveFoodInventoryRepository,
@@ -23,6 +22,9 @@ import {
   changeSettingFoodInventoryUserRepository,
   getInventoryContentRepository,
   searchUsersForInventoryRepository,
+  transferOwnershipRepository,
+  getInventoryOwnerRepository,
+  leaveInventoryRepository,
 } from "../repositories/foodInventoryRepository.js";
 import { getUserByIdRepository } from "../repositories/userRepository.js";
 import { capitalizeFirst } from "../utils/stringUtils.js";
@@ -74,22 +76,15 @@ export const changeRoleInventoryUserService = async (
   newRole,
   isAdmin,
 ) => {
-  if (isNaN(inventoryId)) {
-    throw new BadRequestError("Invalid inventory ID provided.");
-  }
-  if (isNaN(targetUserId)) {
-    throw new BadRequestError("Invalid user ID in inventory provided.");
-  }
-  if (isAdmin) {
-    await getUserByIdRepository(ownerId);
-  }
-  await getUserByIdRepository(targetUserId);
-  await getFoodInventoryRepository(inventoryId);
-
   //kontrola role odesilatele
-  const ownerRole = await getFoodInventoryUserRoleRepository(ownerId, inventoryId);
-  if (!ownerRole || ownerRole.role !== "OWNER") {
-    throw new ForbiddenError("Only an OWNER can change user roles in this inventory.");
+  if (!isAdmin) {
+    const ownerRole = await getFoodInventoryUserRoleRepository(ownerId, inventoryId);
+    if (!ownerRole || ownerRole.role !== "OWNER") {
+      throw new ForbiddenError("Only an OWNER can change user roles in this inventory.");
+    }
+  } else {
+    const owner = await getInventoryOwnerRepository(inventoryId);
+    ownerId = owner?.userId;
   }
 
   // kontrola existence cilového uzivatele v inventari
@@ -98,12 +93,9 @@ export const changeRoleInventoryUserService = async (
     throw new NotFoundError("Target user is not a member of this inventory.");
   }
 
-  // zabrani ownerovi zmenit vlastni roli na USER, pokud je jediný owner
-  if (ownerId === targetUserId && newRole !== "OWNER") {
-    const ownerCount = await getFoodInventoryOwnerCountRepository(inventoryId);
-    if (ownerCount <= 1) {
-      throw new BadRequestError("Cannot change your own role from OWNER if you are the only one.");
-    }
+  // zabrani ownerovi zmenit vlastni roli
+  if (ownerId === targetUserId) {
+    return false;
   }
 
   // pokud je role stejna, nemusime nic menit
@@ -111,29 +103,22 @@ export const changeRoleInventoryUserService = async (
     return targetUser;
   }
 
+  if (newRole === "OWNER") {
+    return await transferOwnershipRepository(targetUserId, ownerId, inventoryId, targetUser.role);
+  }
+
   // vytvoreni noveho zaznamu
-  const updatedUser = await changeRoleFoodInventoryUserRepository(
+  return await changeRoleFoodInventoryUserWithHistoryRepository(
     targetUserId,
     inventoryId,
     newRole,
+    ownerId,
+    targetUser.role,
   );
-  if (!updatedUser) {
-    throw new InternalServerError("Failed to change user role in inventory.");
-  }
-  return updatedUser;
 };
 
 //smaze uzivatele inventare
-export const deleteFoodInventoryUserService = async (
-  userId,
-  inventoryId,
-  newOwnerId = null,
-  isAdmin,
-) => {
-  if (isAdmin) {
-    getUserByIdRepository(userId);
-  }
-
+export const leaveInventoryService = async (userId, inventoryId, newOwnerId = null) => {
   // kontrola existence uzivatele v inventari
   const userInventory = await getFoodInventoryUserRepository(userId, inventoryId);
   if (!userInventory) {
@@ -142,51 +127,16 @@ export const deleteFoodInventoryUserService = async (
 
   //pokud neni owner tak se jen smaze
   if (userInventory.role !== "OWNER") {
-    const deletedUser = await deleteUserFoodInventoryRepository(userId, inventoryId);
+    const deletedUser = await deleteUserFoodInventoryWithHistoryRepository(
+      userId,
+      inventoryId,
+      userId,
+      userInventory.role,
+      "MEMBER_LEFT",
+    );
     return { message: "User removed successfully.", data: deletedUser };
   }
-
-  //pokud je vic owneru, tak se jen smaze
-  const ownerCount = await getFoodInventoryOwnerCountRepository(inventoryId);
-  if (ownerCount > 1) {
-    const deletedUser = await deleteUserFoodInventoryRepository(userId, inventoryId);
-    return { message: "Owner removed successfully.", data: deletedUser };
-  }
-
-  //pokud je ownerem a je poslednim v invenatri, pak se smaze cely inventar
-  const inventory = await getFoodInventoryRepository(inventoryId);
-  if (inventory.memberCount > 1) {
-    // Musí předat vlastnictví, než odejde.
-    if (!newOwnerId) {
-      throw new BadRequestError("Cannot remove the last owner without transferring ownership.");
-    }
-    if (isNaN(newOwnerId)) {
-      throw new BadRequestError("Invalid new owner ID provided.");
-    }
-    if (userId === newOwnerId) {
-      throw new BadRequestError("Cannot transfer ownership to yourself.");
-    }
-
-    //overeni noveho ownera pro predani vlastnictvi
-    const newOwner = await getFoodInventoryUserRepository(newOwnerId, inventoryId);
-    if (!newOwner) {
-      throw new NotFoundError("New owner not found in this inventory.");
-    }
-    await changeRoleFoodInventoryUserRepository(newOwnerId, inventoryId, "OWNER");
-    const deletedUser = await deleteUserFoodInventoryRepository(userId, inventoryId);
-    return {
-      message: "Ownership transferred and previous owner removed successfully.",
-      data: deletedUser,
-    };
-  } else {
-    //pokud je owner posledni v inventari tak se smaze s nim
-    const deletedUser = await deleteUserFoodInventoryRepository(userId, inventoryId);
-    await deleteFoodInventoryRepository(inventoryId);
-    return {
-      message: "Last owner left, inventory and all its data have been deleted.",
-      data: deletedUser,
-    };
-  }
+  return await leaveInventoryRepository(userId, inventoryId, newOwnerId, userInventory?.role);
 };
 
 //owner smaze jineho uzivatele z inventare
@@ -201,23 +151,24 @@ export const deleteOtherFoodInventoryUserService = async (removerId, inventoryId
     throw new ForbiddenError("You do not have permission to perform this action.");
   }
 
+  // pouze owner muze smazat jineho uzivatele
+  if (removerInventoryUser.role !== "OWNER") {
+    throw new ForbiddenError("Only the owner of the inventory can remove other users.");
+  }
   // kontrola existence cilového uzivatele v inventari
   const targetInventoryUser = await getFoodInventoryUserRepository(targetUserId, inventoryId);
   if (!targetInventoryUser) {
     throw new NotFoundError("Target user is not a member of this inventory.");
   }
 
-  // pouze owner muze smazat jineho uzivatele
-  if (removerInventoryUser.role !== "OWNER") {
-    throw new ForbiddenError("Only the owner of the inventory can remove other users.");
-  }
-
   // smazani ciloveho uzivatele z inventare
-  const deletedUser = await deleteUserFoodInventoryRepository(targetUserId, inventoryId);
-  if (!deletedUser) {
-    throw new InternalServerError("Failed to remove user from inventory.");
-  }
-  return deletedUser;
+  return await deleteUserFoodInventoryWithHistoryRepository(
+    targetUserId,
+    inventoryId,
+    removerId,
+    targetInventoryUser?.role,
+    "MEMBER_REMOVED",
+  );
 };
 
 //vrati uzivatele podle id a role
@@ -266,6 +217,7 @@ export const getUsersByInventoryIdService = async (
       username: data.user?.username || "",
       surname: data.user?.surname || "",
       profilePictureUrl: data.user?.profilePictureUrl || "",
+      role: data?.role || "",
       resultName:
         data.user.name && data.user.surname
           ? `${capitalizeFirst(data.user.name)} ${capitalizeFirst(data.user.surname)}`
@@ -483,6 +435,13 @@ export const getInventoryContentService = async (inventoryId, userId, isAdmin) =
       return iAcc;
     }, {});
 
+    const instanceArray = Object.values(aggregatedMap).sort((a, b) => {
+      if (!a.expirationDate && b.expirationDate) return 1;
+      if (a.expirationDate && !b.expirationDate) return -1;
+      if (!a.expirationDate && !b.expirationDate) return 0;
+      return new Date(a.expirationDate) - new Date(b.expirationDate);
+    });
+
     acc[categoryId].foods.push({
       foodId: food.id,
       catalogId: food.catalogId,
@@ -498,7 +457,7 @@ export const getInventoryContentService = async (inventoryId, userId, isAdmin) =
       expiredCount: expiredCount || 0,
       expiringSoonCount: expiringSoonCount || 0,
       validCount: validCount || 0,
-      instances: Object.values(aggregatedMap),
+      instances: instanceArray,
     });
     return acc;
   }, {});

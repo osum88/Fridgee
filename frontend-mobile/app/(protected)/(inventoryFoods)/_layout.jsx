@@ -59,6 +59,14 @@ export default function InventoryFoodsLayout() {
           headerShown: true,
         }}
       />
+      <Stack.Screen
+        name="consumeBarcode"
+        options={{
+          animation: "fade",
+          title: i18n.t("foodConsumption"),
+          headerShown: true,
+        }}
+      />
     </Stack>
   );
 }

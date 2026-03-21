@@ -88,7 +88,7 @@ export const Colors = {
     validCount: "#3b9e40",
     expiringSoonCount: "#FBC02D",
     expiredCount: "#D32F2F",
-    orange: "#ad7013",
+    orange: "#de972b",
     borderCard: "rgba(255,255,255,0)",
   },
 };
@@ -158,6 +158,8 @@ export const ACTION_COLORS = {
     MIN_QUANTITY_UPDATE: "#E91E63",
     USER_JOINED: "#9a1b83",
     MEMBER_LEFT: "#6D4C41",
+    ROLE_CHANGE: "#24ad97",
+    MEMBER_REMOVED: "#c01e8f",
   },
   dark: {
     ADD: "#65cb6a",
@@ -176,5 +178,7 @@ export const ACTION_COLORS = {
     MIN_QUANTITY_UPDATE: "#F48FB1",
     USER_JOINED: "#b8279e",
     MEMBER_LEFT: "#A1887F",
+    ROLE_CHANGE: "#20d7b8",
+    MEMBER_REMOVED: "#f935be",
   },
 };

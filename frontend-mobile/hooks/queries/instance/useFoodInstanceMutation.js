@@ -18,6 +18,7 @@ export const useUpdateFoodInstanceMutation = (inventoryId, catalogId) => {
       queryClient.invalidateQueries({
         queryKey: ["food-variants", parseInt(inventoryId), parseInt(catalogId)],
       });
+      queryClient.invalidateQueries({ queryKey: ["food-instance-barcode", parseInt(inventoryId)] });
       queryClient.resetQueries({ queryKey: ["inventory-history", parseInt(inventoryId)] });
     },
     onError: (error) => {
@@ -31,11 +32,11 @@ export const useUpdateFoodInstanceMutation = (inventoryId, catalogId) => {
 };
 
 const invalidateAfterMutation = (queryClient, inventoryId, catalogId, foodId) => {
-  queryClient.invalidateQueries({ queryKey: ["inventory-content", parseInt(inventoryId)] });
+  queryClient.invalidateQueries({ queryKey: ["inventory-content", inventoryId] });
   queryClient.refetchQueries({
-    queryKey: ["food-detail", parseInt(inventoryId), parseInt(catalogId), parseInt(foodId)],
+    queryKey: ["food-detail", inventoryId, catalogId, foodId],
   });
-  queryClient.resetQueries({ queryKey: ["inventory-history", parseInt(inventoryId)] });
+  queryClient.resetQueries({ queryKey: ["inventory-history", inventoryId] });
 };
 
 // zkonzumuje foodinstance pokud je spotrebovana nebo upravi amount pokud je jen castecna konzumace
@@ -45,7 +46,12 @@ export const useConsumeFoodInstanceMutation = (inventoryId, catalogId, foodId) =
   const mutation = useMutation({
     mutationFn: (data) => consumeFoodInstanceApi(data),
     onSuccess: () => {
-      invalidateAfterMutation(queryClient, inventoryId, catalogId, foodId);
+      invalidateAfterMutation(
+        queryClient,
+        parseInt(inventoryId),
+        parseInt(catalogId),
+        parseInt(foodId),
+      );
       console.log("useConsumeFoodInstanceMutation consume succes");
     },
     onError: (error) => {
@@ -62,7 +68,13 @@ export const useDuplicateFoodInstanceMutation = (inventoryId, catalogId, foodId)
   const mutation = useMutation({
     mutationFn: (data) => duplicateFoodInstanceApi(data),
     onSuccess: () => {
-      invalidateAfterMutation(queryClient, inventoryId, catalogId, foodId);
+      invalidateAfterMutation(
+        queryClient,
+        parseInt(inventoryId),
+        parseInt(catalogId),
+        parseInt(foodId),
+      );
+      queryClient.invalidateQueries({ queryKey: ["food-instance-barcode", parseInt(inventoryId)] });
       console.log("useDuplicateFoodInstanceMutation duplicate succes");
     },
     onError: (error) => {
@@ -79,7 +91,13 @@ export const useDeleteFoodInstanceMutation = (inventoryId, catalogId, foodId) =>
   const mutation = useMutation({
     mutationFn: (data) => deleteFoodInstanceApi(data),
     onSuccess: () => {
-      invalidateAfterMutation(queryClient, inventoryId, catalogId, foodId);
+      invalidateAfterMutation(
+        queryClient,
+        parseInt(inventoryId),
+        parseInt(catalogId),
+        parseInt(foodId),
+      );
+      queryClient.invalidateQueries({ queryKey: ["food-instance-barcode", parseInt(inventoryId)] });
       console.log("useDeleteFoodInstanceMutation delete succes");
     },
     onError: (error) => {
@@ -97,6 +115,7 @@ export const useAddFoodInstanceMutation = (inventoryId) => {
     mutationFn: (data) => addFoodInstanceApi(data),
     onSuccess: () => {
       queryClient.resetQueries({ queryKey: ["inventory-history", parseInt(inventoryId)] });
+      queryClient.invalidateQueries({ queryKey: ["food-instance-barcode", parseInt(inventoryId)] });
       console.log("useAddFoodInstanceMutation add succes");
     },
     onError: (error) => {

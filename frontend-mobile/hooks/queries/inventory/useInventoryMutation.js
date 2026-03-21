@@ -5,9 +5,15 @@ import {
   sendInventoryInvitationApi,
   acceptInventoryInvitationApi,
   rejectInventoryInvitationApi,
+  changeRoleInventoryUserApi,
+  deleteInventoryUserApi,
+  leaveInventoryApi,
 } from "@/api/inventory";
 import { useCallback, useRef } from "react";
 import debounce from "lodash.debounce";
+import { useInventoryStore } from "@/hooks/store/useInventoryStore";
+import { invalidateQueries } from "@/utils/invalidateQueries";
+import { router } from "expo-router";
 
 // vytvori inventar
 export const useCreateInventory = () => {
@@ -19,10 +25,6 @@ export const useCreateInventory = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inventories"] });
-    },
-    onError: (error) => {
-      const errorMessage = error.response?.data?.message || error.message;
-      console.error("Error adding inventory:", errorMessage);
     },
   });
   return { createInventory, isSubmitting: createInventory.isPending };
@@ -161,6 +163,108 @@ export const useRejectInventoryInvitation = () => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["inventory-invitations"] });
+    },
+  });
+};
+
+//zmeni roli
+export const useChangeRoleInventoryUser = (inventoryId) => {
+  const queryClient = useQueryClient();
+  const setActiveInventory = useInventoryStore((state) => state.setActiveInventory);
+
+  return useMutation({
+    mutationFn: ({ targetUserId, newRole }) =>
+      changeRoleInventoryUserApi(inventoryId, targetUserId, newRole),
+    onMutate: async ({ targetUserId, newRole }) => {
+      await queryClient.cancelQueries({ queryKey: ["inventory-users-username", inventoryId] });
+      const previous = queryClient.getQueryData(["inventory-users-username", inventoryId]);
+
+      queryClient.setQueryData(["inventory-users-username", inventoryId], (old) => {
+        if (!old?.data) return old;
+        return {
+          ...old,
+          data: old.data.map((user) =>
+            user.userId === targetUserId ? { ...user, role: newRole } : user,
+          ),
+        };
+      });
+      if (newRole === "OWNER") {
+        setActiveInventory({ role: "EDITOR" });
+      }
+      return { previous, newRole };
+    },
+    onSuccess: (_, __, context) => {
+      if (context?.newRole === "OWNER") {
+        setActiveInventory({ role: "EDITOR" });
+        invalidateQueries(queryClient, [["inventories"], ["food-inventory", inventoryId]]);
+      }
+      queryClient.invalidateQueries({ queryKey: ["inventory-history", inventoryId] });
+    },
+    onError: (_, __, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(["inventory-users-username", inventoryId], context.previous);
+      }
+
+      if (context?.newRole === "OWNER") {
+        setActiveInventory({ role: "OWNER" });
+        invalidateQueries(queryClient, [["inventories"], ["food-inventory", inventoryId]]);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["inventory-users-username", inventoryId] });
+    },
+  });
+};
+
+//owner odstrani jinyho uzivatele z inventare
+export const useDeleteInventoryUser = (inventoryId) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ targetUserId }) => deleteInventoryUserApi(inventoryId, targetUserId),
+    onMutate: async ({ targetUserId }) => {
+      await queryClient.cancelQueries({ queryKey: ["inventory-users-username", inventoryId] });
+      const previous = queryClient.getQueryData(["inventory-users-username", inventoryId]);
+
+      queryClient.setQueryData(["inventory-users-username", inventoryId], (old) => {
+        if (!old?.data) return old;
+        return {
+          ...old,
+          data: old.data.filter((user) => user.userId !== targetUserId),
+        };
+      });
+      return { previous };
+    },
+    onSuccess: () => {
+      invalidateQueries(queryClient, [
+        ["inventories"],
+        ["food-inventory", inventoryId],
+        ["food-inventory-resultName", inventoryId],
+        ["inventory-history", inventoryId],
+      ]);
+    },
+    onError: (_, __, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(["inventory-users-username", inventoryId], context.previous);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["inventory-users-username", inventoryId] });
+    },
+  });
+};
+
+//opusteni invenare
+export const useLeaveInventory = () => {
+  const queryClient = useQueryClient();
+  const clearActiveInventory = useInventoryStore((state) => state.clearActiveInventory);
+
+  return useMutation({
+    mutationFn: ({ inventoryId, newOwnerId }) => leaveInventoryApi(inventoryId, newOwnerId),
+    onSuccess: (_, { inventoryId }) => {
+      clearActiveInventory();
+      invalidateQueries(queryClient, [["inventories"], ["food-inventory", inventoryId]]);
+      router.replace("/(protected)/(menu)/(tabs)");
     },
   });
 };

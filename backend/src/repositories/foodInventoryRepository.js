@@ -81,9 +81,10 @@ export const getFoodInventoryUserRepository = async (
   userId,
   foodInventoryId,
   throwError = true,
+  tx = prisma,
 ) => {
   try {
-    const user = await prisma.inventoryUser.findUnique({
+    const user = await tx.inventoryUser.findUnique({
       where: {
         userId_inventoryId: {
           userId: userId,
@@ -102,9 +103,16 @@ export const getFoodInventoryUserRepository = async (
 };
 
 // zmena role user v inventari
-export const changeRoleFoodInventoryUserRepository = async (userId, foodInventoryId, role) => {
-  try {
-    return await prisma.inventoryUser.update({
+export const changeRoleFoodInventoryUserWithHistoryRepository = async (
+  userId,
+  foodInventoryId,
+  role,
+  changedBy,
+  previousRole,
+  tx,
+) => {
+  const run = async (client) => {
+    const updatedUser = await client.inventoryUser.update({
       where: {
         userId_inventoryId: {
           userId: userId,
@@ -113,8 +121,94 @@ export const changeRoleFoodInventoryUserRepository = async (userId, foodInventor
       },
       data: { role: role },
     });
+
+    await client.foodHistory.create({
+      data: {
+        inventoryId: foodInventoryId,
+        action: "ROLE_CHANGE",
+        changedBy: changedBy,
+        metadata: {
+          user: { userId: userId },
+          role: {
+            before: previousRole,
+            after: role,
+          },
+        },
+      },
+    });
+    return updatedUser;
+  };
+  try {
+    return tx ? await run(tx) : await prisma.$transaction(run);
   } catch (error) {
     console.error("Error updating user role:", error);
+    throw error;
+  }
+};
+
+// orevede vlastnictvi
+export const transferOwnershipRepository = async (
+  newOwnerId,
+  currentOwnerId,
+  foodInventoryId,
+  previousRole,
+) => {
+  try {
+    const [updatedNewOwner, updatedPreviousOwner] = await prisma.$transaction(async (tx) => {
+      // zmena role noveho ownera
+      const newOwner = await tx.inventoryUser.update({
+        where: {
+          userId_inventoryId: {
+            userId: newOwnerId,
+            inventoryId: foodInventoryId,
+          },
+        },
+        data: { role: "OWNER" },
+      });
+
+      // zmena role stareho ownera na editora
+      const previousOwner = await tx.inventoryUser.update({
+        where: {
+          userId_inventoryId: {
+            userId: currentOwnerId,
+            inventoryId: foodInventoryId,
+          },
+        },
+        data: { role: "EDITOR" },
+      });
+
+      // historie pro noveho ownera
+      await tx.foodHistory.create({
+        data: {
+          inventoryId: foodInventoryId,
+          action: "ROLE_CHANGE",
+          changedBy: currentOwnerId,
+          metadata: {
+            user: { userId: newOwnerId },
+            role: { before: previousRole, after: "OWNER" },
+          },
+        },
+      });
+
+      // historie pro stareho ownera
+      await tx.foodHistory.create({
+        data: {
+          inventoryId: foodInventoryId,
+          action: "ROLE_CHANGE",
+          changedBy: currentOwnerId,
+          metadata: {
+            user: { userId: currentOwnerId },
+            role: { before: "OWNER", after: "EDITOR" },
+          },
+        },
+      });
+
+      return [newOwner, previousOwner];
+    });
+
+    return { updatedNewOwner, updatedPreviousOwner };
+  } catch (error) {
+    console.error("Error transferring ownership:", error);
     throw error;
   }
 };
@@ -141,26 +235,33 @@ export const getFoodInventoryUserRoleRepository = async (userId, foodInventoryId
   }
 };
 
-//vrati pocet owneru
-export const getFoodInventoryOwnerCountRepository = async (inventoryId) => {
+//vrati ownera
+export const getInventoryOwnerRepository = async (inventoryId) => {
   try {
-    return await prisma.inventoryUser.count({
+    return await prisma.inventoryUser.findFirst({
       where: {
         inventoryId: inventoryId,
         role: "OWNER",
       },
     });
   } catch (error) {
-    console.error("Error fetching inventory owner count:", error);
+    console.error("Error fetching inventory owner:", error);
     throw error;
   }
 };
 
 //smaze uzivatele inventare
-export const deleteUserFoodInventoryRepository = async (userId, inventoryId) => {
-  try {
-    const [deletedUser, updatedFoodInventory] = await prisma.$transaction([
-      prisma.inventoryUser.delete({
+export const deleteUserFoodInventoryWithHistoryRepository = async (
+  userId,
+  inventoryId,
+  removedBy,
+  role,
+  action = "MEMBER_REMOVED",
+  tx,
+) => {
+  const run = async (client) => {
+    const [deletedUser, updatedFoodInventory] = await Promise.all([
+      client.inventoryUser.delete({
         where: {
           userId_inventoryId: {
             userId: userId,
@@ -168,14 +269,30 @@ export const deleteUserFoodInventoryRepository = async (userId, inventoryId) => 
           },
         },
       }),
-      prisma.foodInventory.update({
+      client.foodInventory.update({
         where: { id: inventoryId },
         data: {
           memberCount: { decrement: 1 },
         },
       }),
+      client.foodHistory.create({
+        data: {
+          inventoryId: inventoryId,
+          action: action,
+          changedBy: removedBy,
+          metadata: {
+            user: {
+              userId: userId,
+              role: role,
+            },
+          },
+        },
+      }),
     ]);
     return { deletedUser, updatedFoodInventory };
+  };
+  try {
+    return tx ? await run(tx) : await prisma.$transaction(run);
   } catch (error) {
     console.error("Error deleting user in inventory:", error);
     throw error;
@@ -183,13 +300,114 @@ export const deleteUserFoodInventoryRepository = async (userId, inventoryId) => 
 };
 
 //smaze inventar
-export const deleteFoodInventoryRepository = async (inventoryId) => {
+export const deleteFoodInventoryRepository = async (inventoryId, tx = prisma) => {
   try {
-    return await prisma.foodInventory.delete({
+    return await tx.foodInventory.delete({
       where: { id: inventoryId },
     });
   } catch (error) {
     console.error("Error deleting food inventory:", error);
+    throw error;
+  }
+};
+
+//opusteni inventare pro ownera
+export const leaveInventoryRepository = async (userId, inventoryId, newOwnerId, userRole) => {
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const usersCount = await getInventoryUserCountRepository(inventoryId, tx);
+      if (usersCount > 1) {
+        if (userId === newOwnerId) {
+          throw new BadRequestError("Cannot transfer ownership to yourself.");
+        }
+        let newOwner = null;
+        if (newOwnerId) {
+          newOwner = await getFoodInventoryUserRepository(newOwnerId, inventoryId, false, tx);
+        }
+        if (!newOwner) {
+          newOwner = await getFallbackOwnerRepository(inventoryId, userId, tx);
+        }
+
+        await changeRoleFoodInventoryUserWithHistoryRepository(
+          newOwner.userId,
+          inventoryId,
+          "OWNER",
+          userId,
+          newOwner.role,
+          tx,
+        );
+        const deletedUser = await deleteUserFoodInventoryWithHistoryRepository(
+          userId,
+          inventoryId,
+          userId,
+          userRole,
+          "MEMBER_LEFT",
+          tx,
+        );
+        return {
+          message: "Ownership transferred and previous owner removed successfully.",
+          data: deletedUser,
+        };
+      } else {
+        const deletedUser = await deleteUserFoodInventoryWithHistoryRepository(
+          userId,
+          inventoryId,
+          userId,
+          userRole,
+          "MEMBER_LEFT",
+          tx,
+        );
+        await tx.foodInventory.delete({
+          where: { id: inventoryId },
+        });
+        return {
+          message: "Last owner left, inventory and all its data have been deleted.",
+          data: deletedUser,
+        };
+      }
+    });
+  } catch (error) {
+    console.error("Error leaving inventory:", error);
+    throw error;
+  }
+};
+
+//hleda ediotra pokud neni tak usera
+export const getFallbackOwnerRepository = async (inventoryId, excludeUserId, tx = prisma) => {
+  try {
+    const editor = await tx.inventoryUser.findFirst({
+      where: {
+        inventoryId: inventoryId,
+        userId: { not: excludeUserId },
+        role: "EDITOR",
+      },
+    });
+
+    if (editor) return editor;
+
+    return await tx.inventoryUser.findFirst({
+      where: {
+        inventoryId: inventoryId,
+        userId: { not: excludeUserId },
+        role: "USER",
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching fallback owner:", error);
+    throw error;
+  }
+};
+
+//vraci pocet useru v inventari
+export const getInventoryUserCountRepository = async (inventoryId, tx = prisma) => {
+  try {
+    return await tx.inventoryUser.count({
+      where: {
+        inventoryId: inventoryId,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching inventory user count:", error);
     throw error;
   }
 };
@@ -206,9 +424,7 @@ export const getUsersByInventoryIdByRoleRepository = async (inventoryId, rolesTo
           },
         }),
       },
-      orderBy: [
-        { user: { username: "asc" } },
-      ],
+      orderBy: [{ user: { username: "asc" } }],
       select: {
         id: true,
         inventoryId: true,

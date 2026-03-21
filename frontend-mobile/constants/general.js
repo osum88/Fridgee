@@ -5,3 +5,6 @@ export const LIST_ITEM_TYPE = {
   SECTION_END: "SECTION_END",
   BOTTOM_SPACER: "BOTTOM_SPACER",
 };
+
+export const ITEM_TYPE_HEADER = "HEADER";
+export const ITEM_TYPE_INSTANCE = "INSTANCE";

@@ -4,7 +4,7 @@ import {
   changeSettingFoodInventoryUserService,
   createFoodInventoryService,
   createInventoryUserService,
-  deleteFoodInventoryUserService,
+  leaveInventoryService,
   deleteOtherFoodInventoryUserService,
   getAllFoodInventoryService,
   getInventoryContentService,
@@ -68,19 +68,14 @@ export const changeRoleInventoryUser = async (req, res, next) => {
 };
 
 //smaze sam sebe z inventare
-export const deleteFoodInventoryUser = async (req, res, next) => {
+export const leaveInventory = async (req, res, next) => {
   try {
     const inventoryId = parseInt(req.params.inventoryId, 10);
     const userId = req.userId;
-    const newOwnerId = req.body.newOwnerId;
-    const isAdmin = req.adminRoute;
-
-    const deletedUser = await deleteFoodInventoryUserService(
-      userId,
-      inventoryId,
-      newOwnerId,
-      isAdmin,
-    );
+    const newOwnerId = req.body.newOwnerId ? parseInt(req.body.newOwnerId) : null;
+    
+    console.log("inventoryId,userId,newOwnerId", inventoryId, userId, newOwnerId);
+    const deletedUser = await leaveInventoryService(userId, inventoryId, newOwnerId);
     handleResponse(res, 200, deletedUser.message, deletedUser.data);
   } catch (err) {
     next(err);

@@ -19,6 +19,6 @@ export const ACTION_GROUPS = [
   },
   {
     labelKey: "userActions",
-    actions: ["USER_JOINED", "MEMBER_LEFT"],
+    actions: ["USER_JOINED", "MEMBER_LEFT", "ROLE_CHANGE", "MEMBER_REMOVED"],
   },
 ];

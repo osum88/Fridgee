@@ -20,6 +20,7 @@ import i18n from "@/constants/translations";
 import { handleApiError } from "@/utils/handleApiError";
 import { SaveButtonContent } from "@/components/button/SaveButtonContent";
 import { useNavigation } from "expo-router";
+import { EmptyState } from "@/components/common/EmptyState";
 
 const ADD_EDIT_ROLES = ["OWNER", "EDITOR"];
 const DELETE_ROLES = ["OWNER"];
@@ -130,52 +131,60 @@ export default function InventoryCategoriesScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {categories.map((category, index) => (
-          <React.Fragment key={category.id}>
-            <View style={styles.row}>
-              <ThemedText style={styles.categoryTitle}>{category.title}</ThemedText>
-              <View style={styles.actions}>
-                {canAddEdit && (
-                  <Pressable
-                    onPress={() => handleEditOpen(category)}
-                    hitSlop={8}
-                    style={({ pressed }) => [
-                      styles.actionBtn,
-                      { backgroundColor: colors.primaryBackground },
-                      pressed && { opacity: 0.6 },
-                    ]}
-                  >
-                    <IconSymbol
-                      name="pencil"
-                      size={responsiveSize.moderate(18)}
-                      color={colors.primary}
-                    />
-                  </Pressable>
-                )}
-                {canDelete && (
-                  <Pressable
-                    onPress={() => handleDeleteOpen(category)}
-                    hitSlop={8}
-                    style={({ pressed }) => [
-                      styles.actionBtn,
-                      { backgroundColor: colors.errorBackground },
-                      pressed && { opacity: 0.6 },
-                    ]}
-                  >
-                    <IconSymbol
-                      name="trash"
-                      size={responsiveSize.moderate(18)}
-                      color={colors.error}
-                    />
-                  </Pressable>
-                )}
+      {categories.length === 0 ? (
+        <EmptyState
+          icon={"folder"}
+          title={i18n.t("noCategoriesTitle")}
+          subtitle={i18n.t("noCategoriesSubtitle")}
+        />
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {categories.map((category, index) => (
+            <React.Fragment key={category.id}>
+              <View style={styles.row}>
+                <ThemedText style={styles.categoryTitle}>{category.title}</ThemedText>
+                <View style={styles.actions}>
+                  {canAddEdit && (
+                    <Pressable
+                      onPress={() => handleEditOpen(category)}
+                      hitSlop={8}
+                      style={({ pressed }) => [
+                        styles.actionBtn,
+                        { backgroundColor: colors.surface },
+                        pressed && { opacity: 0.6 },
+                      ]}
+                    >
+                      <IconSymbol
+                        name="pencil"
+                        size={responsiveSize.moderate(18)}
+                        color={colors.notFoccusIcon}
+                      />
+                    </Pressable>
+                  )}
+                  {canDelete && (
+                    <Pressable
+                      onPress={() => handleDeleteOpen(category)}
+                      hitSlop={8}
+                      style={({ pressed }) => [
+                        styles.actionBtn,
+                        { backgroundColor: colors.errorBackground },
+                        pressed && { opacity: 0.6 },
+                      ]}
+                    >
+                      <IconSymbol
+                        name="xmark"
+                        size={responsiveSize.moderate(18)}
+                        color={colors.error}
+                      />
+                    </Pressable>
+                  )}
+                </View>
               </View>
-            </View>
-            {index < categories.length - 1 && <ThemedLine />}
-          </React.Fragment>
-        ))}
-      </ScrollView>
+              {index < categories.length - 1 && <ThemedLine />}
+            </React.Fragment>
+          ))}
+        </ScrollView>
+      )}
 
       {/* edit bottom sheet */}
       <BaseBottomSheet

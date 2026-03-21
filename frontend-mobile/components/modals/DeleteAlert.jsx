@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   description: {
     textAlign: "center",
     fontSize: responsiveFont(13.5),
-    lineHeight: responsiveVertical(20),
+    lineHeight: responsiveVertical(17),
   },
   actions: {
     flexDirection: "row",

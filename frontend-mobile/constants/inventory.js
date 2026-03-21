@@ -1,3 +1,5 @@
+import i18n from "@/constants/translations";
+
 export const INVENTORY_ICONS = [
   "refrigerator",
   "archivebox.fill",
@@ -32,3 +34,11 @@ export const INVENTORY_ICONS = [
   "lightbulb.fill",
   "dog.fill",
 ];
+
+export const ROLES = ["USER", "EDITOR", "OWNER"];
+
+export const ROLE_LABEL_MAP = {
+  USER: i18n.t("user"),
+  EDITOR: i18n.t("editor"),
+  OWNER: i18n.t("owner"),
+};

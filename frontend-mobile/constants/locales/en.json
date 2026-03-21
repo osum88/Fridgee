@@ -254,6 +254,22 @@
   "editor": "Editor",
   "owner": "Owner",
   "userActions": "User actions",
+  "removeUserConfirmPart1": "Do you really want to remove",
+  "removeUserConfirmPart2": "from the inventory?",
+  "changeRole": "Change role",
+  "ownerTransferWarningTitle": "Transfer ownership",
+  "ownerTransferWarningDescription": "By transferring ownership, you will become an editor of this inventory. This action cannot be undone.",
+   "transferOwnership": "Transfer ownership",
+    "transfer": "Transfer",
+    "noCategoriesTitle": "No categories",
+"noCategoriesSubtitle": "Add your first category using the button above.",
+"leave": "Leave",
+"leaveInventoryConfirm": "Are you sure you want to leave the inventory",
+"foodConsumption": "Food consumption",
+"noVariant": "No variant",
+"noInstances": "No items",
+"productNotFoundTitle": "Product not found",
+"productNotFoundSubtitle": "This barcode is not in the inventory.",
 
   "historyAction": {
     "ADD": "Food added",
@@ -271,7 +287,9 @@
     "CATEGORY_CREATE": "Category created",
     "CATEGORY_REMOVE": "Category removed",
     "USER_JOINED": "User joined",
-    "MEMBER_LEFT": "Member left the inventory"
+    "MEMBER_LEFT": "User left the inventory",
+    "ROLE_CHANGE": "User role changed",
+    "MEMBER_REMOVED": "Member removed"
   },
   "historyActionChips": {
     "ADD": "Added",
@@ -289,7 +307,9 @@
     "CATEGORY_CREATE": "Created",
     "CATEGORY_REMOVE": "Removed",
     "USER_JOINED": "Joined",
-    "MEMBER_LEFT": "Left"
+    "MEMBER_LEFT": "Left",
+    "ROLE_CHANGE": "Role changed",
+    "MEMBER_REMOVED": "Removed"
   },
   "errors": {
     "bankNumber": {

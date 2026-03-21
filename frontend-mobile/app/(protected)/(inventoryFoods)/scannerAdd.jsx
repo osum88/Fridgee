@@ -19,7 +19,7 @@ import { IconSymbol } from "@/components/icons/IconSymbol";
 import { responsiveFont, responsiveSize } from "@/utils/scale";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScannerOverlay } from "@/components/scanner/ScannerOverlay";
-import { useNavigation, router } from "expo-router";
+import { useNavigation, router, useLocalSearchParams } from "expo-router";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { useGetFoodByBarcodeQuary } from "@/hooks/queries/food/useGetFoodQuary";
 import { ActivityIndicator } from "react-native-paper";
@@ -45,6 +45,7 @@ export default function ScannerAddScreen() {
   const currentColors = useThemeColor();
   const insets = useSafeAreaInsets();
   const activeInventory = useInventoryStore((state) => state.activeInventory);
+  const { type } = useLocalSearchParams();
 
   //vypne baterku pokud je zapla predni obrazovka
   useEffect(() => {
@@ -91,27 +92,37 @@ export default function ScannerAddScreen() {
     data: foodData,
     isFetching,
     isError,
-  } = useGetFoodByBarcodeQuary(lastBarcode, activeInventory.id, !!lastBarcode);
+  } = useGetFoodByBarcodeQuary(lastBarcode, activeInventory.id, !!lastBarcode && type === "add");
 
   useEffect(() => {
     // produkt nalezen v katalogu
     if (lastBarcode) {
-      if (foodData?.data && !isFetching) {
-        router.replace({
-          pathname: "../addFoodManually",
-          params: {
-            barcode: lastBarcode,
-            initialData: JSON.stringify(foodData?.data),
-          },
-        });
-        setLastBarcode(null);
-      }
+      if (type === "add") {
+        if (foodData?.data && !isFetching) {
+          router.replace({
+            pathname: "../addFoodManually",
+            params: {
+              barcode: lastBarcode,
+              initialData: JSON.stringify(foodData?.data),
+            },
+          });
+          setLastBarcode(null);
+        }
 
-      // produkt NENALEZEN
-      if ((!foodData?.data || isError) && !isFetching) {
-        console.log("Product don't finded");
+        // produkt NENALEZEN
+        if ((!foodData?.data || isError) && !isFetching) {
+          console.log("Product don't finded");
+          router.replace({
+            pathname: "../addFoodManually",
+            params: {
+              barcode: lastBarcode,
+            },
+          });
+          setLastBarcode(null);
+        }
+      } else if (type === "consume") {
         router.replace({
-          pathname: "../addFoodManually",
+          pathname: "../consumeBarcode",
           params: {
             barcode: lastBarcode,
           },
@@ -119,7 +130,7 @@ export default function ScannerAddScreen() {
         setLastBarcode(null);
       }
     }
-  }, [foodData, isFetching, isError, lastBarcode]);
+  }, [foodData, isFetching, isError, lastBarcode, type]);
 
   //overi ze naskenovany kod je spravne (3x zasebou stejny kod) a nastavi ji do inputu
   const handleCodeScanned = ({ type, data }) => {

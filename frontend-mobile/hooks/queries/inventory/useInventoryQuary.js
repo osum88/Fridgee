@@ -8,6 +8,7 @@ import {
   getUsersByInventoryIdApi,
   searchUsersForInventoryApi,
   getInventoryInvitationsByUserApi,
+  getFoodInstanceByBarcodeApi,
 } from "@/api/inventory";
 import { useIsFocused } from "@react-navigation/native";
 import { useEffect } from "react";
@@ -76,7 +77,7 @@ export const useInventoryDetail = (inventoryId, enabled = true) => {
     queryFn: ({ signal }) => getInventoryDetailsApi(inventoryId, signal),
     enabled: !!inventoryId && isFocused && !!enabled,
     staleTime: (query) => {
-      return query.state.data?.memberCount > 1 ? TWO_MIN : FIVE_MIN;
+      return query.state.data?.memberCount > 1 ? ONE_MIN : FIVE_MIN;
     },
     refetchOnReconnect: "always",
     refetchInterval: (query) => {
@@ -141,12 +142,18 @@ export const useGetUsersByInventoryId = (
   sortBy = "resultName",
   enabled = true,
 ) => {
+  const isFocused = useIsFocused();
+
   return useQuery({
-    queryKey: ["inventory-users", inventoryId],
+    queryKey: [`inventory-users-${sortBy}`, inventoryId],
     queryFn: ({ signal }) => getUsersByInventoryIdApi(inventoryId, signal, sortBy),
     enabled: !!inventoryId && !!enabled,
     staleTime: () => {
       return memberCount > 1 ? TWENTY_SEC : ONE_WEEK;
+    },
+    refetchInterval: () => {
+      const isShared = (memberCount ?? 0) > 1;
+      return isShared && isFocused ? ONE_MIN : false;
     },
     select: (data) => {
       if (!data) return [];
@@ -172,11 +179,36 @@ export const useSearchUsersForInventory = (inventoryId, username, limit = 10, en
 
 //vrati vsechny pozvanky pro usera
 export const useGetInventoryInvitations = (enabled = true) => {
+  const isFocused = useIsFocused();
+
   return useQuery({
     queryKey: ["inventory-invitations"],
     queryFn: ({ signal }) => getInventoryInvitationsByUserApi(signal),
     enabled: !!enabled,
-    staleTime: ONE_MIN,
+    staleTime: THIRTY_SEC,
+    refetchInterval: () => {
+      return isFocused ? ONE_MIN : false;
+    },
+    select: (data) => data?.data ?? [],
+  });
+};
+
+// vrati vsechny instance food podle barcodu
+export const useGetFoodInstanceByBarcode = (inventoryId, barcode, memberCount = 1, enabled = true) => {
+  const isFocused = useIsFocused();
+
+  return useQuery({
+    queryKey: ["food-instance-barcode", inventoryId, barcode],
+    queryFn: ({ signal }) => getFoodInstanceByBarcodeApi(inventoryId, barcode, signal),
+    enabled: !!inventoryId && !!barcode && !!enabled && isFocused,
+    staleTime: () => {
+      return memberCount > 1 ? TWENTY_SEC : ONE_HOUR;
+    },
+    refetchInterval: () => {
+      const isShared = (memberCount ?? 0) > 1;
+      return isShared && isFocused ? ONE_MIN : false;
+    },
+    gcTime: ONE_HOUR,
     select: (data) => data?.data ?? [],
   });
 };

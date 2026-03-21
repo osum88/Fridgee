@@ -146,6 +146,8 @@ model InventoryInvitation {
   updatedAt   DateTime         @updatedAt @map("updated_at")
 
   @@unique([senderId, receiverId, inventoryId])
+  @@index([receiverId, inventoryId])
+  @@index([inventoryId])
   @@map("inventory_invitations")
 }
 
@@ -328,9 +330,11 @@ enum FoodAction {
   CATEGORY_RENAME
   CATEGORY_CREATE
   CATEGORY_REMOVE
-  //TODO dat do frontendu
   MEMBER_LEFT
   USER_JOINED
+  ROLE_CHANGE
+  //TODO dat do frontendu
+  MEMBER_REMOVED
 }
 
 // pridava moznost prepsat nazev, popisek, obrazek v katalogu vlastnim

@@ -199,8 +199,8 @@ export const getFoodByBarcodeService = async (barcode, inventoryId, userId, isAd
   if (!foods || foods.length === 0) return { instances: [] };
 
   const finalBarcode = foods[0]?.catalog?.barcode;
-  const userLabelTitle = foods[0]?.catalog?.labels[0]?.title;
-  const activeLabelTitle = userLabelTitle || foods[0]?.label?.title || "unknown";
+  const userLabel = foods[0]?.catalog?.labels[0];
+  const activeLabel = userLabel || foods[0]?.label;
 
   // seskupovani podle variant
   const variantsMap = foods.reduce((vAcc, food) => {
@@ -231,11 +231,10 @@ export const getFoodByBarcodeService = async (barcode, inventoryId, userId, isAd
       if (!iAcc[groupKey]) {
         iAcc[groupKey] = {
           expirationDate: inst.expirationDate,
-          price: convertedPrice ? Number(convertedPrice.toFixed(2)) : null,
-
+          price: convertedPrice ? Number(convertedPrice.toFixed(2)) : 0,
           currency: currency,
           amount: inst.amount || 0,
-          unit: inst.amount > 0 ? inst.unit : null,
+          unit: inst.amount > 0 ? inst.unit : "",
           count: 0,
           instanceIds: [],
         };
@@ -259,8 +258,8 @@ export const getFoodByBarcodeService = async (barcode, inventoryId, userId, isAd
   const variantsArray = Object.values(variantsMap).map((v) => {
     // razeni instanci, bez expirace prvni, dalsi podle data
     v.instances.sort((a, b) => {
-      if (!a.expirationDate && b.expirationDate) return -1;
-      if (a.expirationDate && !b.expirationDate) return 1;
+      if (!a.expirationDate && b.expirationDate) return 1;
+      if (a.expirationDate && !b.expirationDate) return -1;
       if (!a.expirationDate && !b.expirationDate) return 0;
       return new Date(a.expirationDate) - new Date(b.expirationDate);
     });
@@ -272,12 +271,13 @@ export const getFoodByBarcodeService = async (barcode, inventoryId, userId, isAd
     if (!a.variantTitle && b.variantTitle) return -1;
     if (a.variantTitle && !b.variantTitle) return 1;
     if (!a.variantTitle && !b.variantTitle) return 0;
-
     return a.variantTitle.localeCompare(b.variantTitle, ["cs", "en"], { sensitivity: "base" });
   });
 
   return {
-    labelTitle: activeLabelTitle,
+    labelTitle: activeLabel?.title || "",
+    labelDescription: activeLabel?.description || "",
+    labelFoodImageUrl: activeLabel?.foodImageUrl || "",
     barcode: finalBarcode,
     variants: variantsArray,
   };
@@ -354,6 +354,13 @@ export const getFoodDetailService = async (inventoryId, foodId, userId, isAdmin)
     return iAcc;
   }, {});
 
+  const instanceArray = Object.values(aggregatedMap).sort((a, b) => {
+    if (!a.expirationDate && b.expirationDate) return 1;
+    if (a.expirationDate && !b.expirationDate) return -1;
+    if (!a.expirationDate && !b.expirationDate) return 0;
+    return new Date(a.expirationDate) - new Date(b.expirationDate);
+  });
+
   return {
     foodId: food.id,
     categoryId: food.categoryId || "no-category",
@@ -370,6 +377,6 @@ export const getFoodDetailService = async (inventoryId, foodId, userId, isAdmin)
     expiredCount,
     expiringSoonCount,
     validCount,
-    instances: Object.values(aggregatedMap),
+    instances: instanceArray,
   };
 };

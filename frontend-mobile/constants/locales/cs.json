@@ -252,6 +252,22 @@
   "editor": "Správce",
   "owner": "Vlastník",
   "userActions": "Akce uživatelů",
+  "removeUserConfirmPart1": "Opravdu chcete odebrat uživatele",
+  "removeUserConfirmPart2": "z inventáře?",
+  "changeRole": "Změna role",
+  "ownerTransferWarningTitle": "Převod vlastnictví",
+  "ownerTransferWarningDescription": "Předáním vlastnictví se z vás stane editor tohoto inventáře. Tato akce je nevratná.",
+"transferOwnership": "Předat vlastnictví",
+    "transfer": "Předat",
+"noCategoriesTitle": "Žádné kategorie",
+"noCategoriesSubtitle": "Přidejte svou první kategorii pomocí tlačítka výše.",
+"leave": "Opustit",
+"leaveInventoryConfirm": "Opravdu chcete opustit inventář",
+"foodConsumption": "Konzumace potraviny",
+"noVariant": "Bez varianty",
+"noInstances": "Žádné položky",
+"productNotFoundTitle": "Produkt nenalezen",
+"productNotFoundSubtitle": "Tento čárový kód není v inventáři.",
 
   "historyAction": {
     "ADD": "Přidání potraviny",
@@ -269,7 +285,9 @@
     "CATEGORY_CREATE": "Vytvoření kategorie",
     "CATEGORY_REMOVE": "Odstranění kategorie",
     "USER_JOINED": "Uživatel se připojil",
-    "MEMBER_LEFT": "Uživatel opustil inventář"
+    "MEMBER_LEFT": "Uživatel opustil inventář",
+    "ROLE_CHANGE": "Změna role uživatele",
+    "MEMBER_REMOVED": "Uživatel byl odebrán"
   },
 
   "historyActionChips": {
@@ -288,7 +306,9 @@
     "CATEGORY_CREATE": "Vytvoření",
     "CATEGORY_REMOVE": "Odstranění",
     "USER_JOINED": "Připojení",
-    "MEMBER_LEFT": "Odešel"
+    "MEMBER_LEFT": "Odešel",
+    "ROLE_CHANGE": "Změna role",
+    "MEMBER_REMOVED": "Odebrán"
   },
 
   "errors": {

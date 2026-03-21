@@ -217,6 +217,8 @@ const MAPPING = {
   "rectangle.portrait.and.arrow.right": { name: "exit-to-app", source: "MaterialCommunityIcons" },
   // pozvanky do invenatre
   "envelope.badge.fill": { name: "email-plus", source: "MaterialCommunityIcons" },
+  // pozvanky do invenatre
+  "smallcircle.fill.circle": { name: "circle-small", source: "MaterialCommunityIcons" },
 
   //coat.fill
 } as IconMapping;

@@ -7,10 +7,10 @@ export function useCameraNavigation() {
   const [permission, requestPermission] = useCameraPermissions();
   const router = useRouter();
 
-  const navigateToScanner = async (targetRoute = "../scannerAdd") => {
+  const navigateToScanner = async (type = "add", targetRoute = "../scannerAdd") => {
     // pokud ma povoleni pokracuje
     if (permission?.granted) {
-      router.push(targetRoute);
+      router.push({ pathname: targetRoute, params: { type } });
       return;
     }
 
@@ -18,7 +18,7 @@ export function useCameraNavigation() {
     if (permission?.canAskAgain) {
       const { status } = await requestPermission();
       if (status === "granted") {
-        router.push(targetRoute);
+        router.push({ pathname: targetRoute, params: { type } });
       }
       return;
     }

@@ -635,6 +635,8 @@ export const getFoodByBarcodeRepository = async (barcode, inventoryId, userId) =
               where: { userId: userId, isDeleted: false },
               select: {
                 title: true,
+                description: true,
+                foodImageUrl: true,
               },
             },
           },
@@ -652,10 +654,12 @@ export const getFoodByBarcodeRepository = async (barcode, inventoryId, userId) =
         label: {
           select: {
             title: true,
+            description: true,
+            foodImageUrl: true,
           },
         },
         instances: {
-          orderBy: { expirationDate: "asc" },
+          orderBy: [{ expirationDate: "asc" }, { amount: "desc" }, { createdAt: "asc" }],
           select: {
             id: true,
             expirationDate: true,
@@ -701,7 +705,7 @@ export const getFoodDetailRepository = async (foodId, userId) => {
         label: true,
         instances: {
           include: { price: true },
-          orderBy: { expirationDate: "asc" },
+          orderBy: [{ expirationDate: "asc" }, { amount: "desc" }, { createdAt: "asc" }],
         },
       },
     });

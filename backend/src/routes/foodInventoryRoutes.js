@@ -1,6 +1,6 @@
 import express from "express";
 import { authenticateToken, authorizeUser } from "../middlewares/authMiddleware.js";
-import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, deleteFoodInventoryUser, deleteOtherFoodInventoryUser, getAllFoodInventory, getInventoryContent, getInventoryDetailsWithUser, getUsersByInventoryId, getUsersByInventoryIdByRole, searchUsersForInventory, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
+import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, leaveInventory, deleteOtherFoodInventoryUser, getAllFoodInventory, getInventoryContent, getInventoryDetailsWithUser, getUsersByInventoryId, getUsersByInventoryIdByRole, searchUsersForInventory, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
 import { acceptInventoryInvitation, getInventoryInvitationsByUser, rejectInventoryInvitation, sendInventoryInvitation } from "../controllers/inventoryInvitationController.js";
 import validate from "../middlewares/validator.js";
 import { inventoryIdSchema, changeRoleSchema, changeSettingSchema, createFoodInventorySchema, deleteOtherSchema, deleteSchema, getInventoryUsersSchema, updateFoodInventorySchema, searchInventoryLabelSchema, getHistorySchema, inventoryIdBarcodeSchema, foodIdInventoryIdSchema, foodCatalogIdInventoryIdSchema, searchUsersForInventorySchema, gellAllUsersSchema } from "../validation/foodInventoryValidation.js";
@@ -43,7 +43,7 @@ router.patch("/:inventoryId/users/:targetUserId", validate(changeRoleSchema), ch
 router.delete("/:inventoryId/users/:targetUserId", validate(deleteOtherSchema), deleteOtherFoodInventoryUser);
 
 //smaze me z inventare
-router.delete("/:inventoryId/users", validate(deleteSchema), deleteFoodInventoryUser);
+router.delete("/:inventoryId/users", validate(deleteSchema), leaveInventory);
 
 //vrati vsechny uzivatele 
 router.get("/:inventoryId/users/all", validate(gellAllUsersSchema), getUsersByInventoryId);
