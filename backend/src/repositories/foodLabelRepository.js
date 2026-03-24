@@ -62,6 +62,13 @@ export const getFoodLabelByIdRepository = async (labelId, throwError = true, tx 
       where: {
         id: labelId,
       },
+      include: {
+        catalog: {
+          select: {
+            barcode: true,
+          },
+        },
+      },
     });
     if (!label && throwError) {
       throw new NotFoundError("Food label not found.");
@@ -309,40 +316,48 @@ export const isImageUsedElsewhereRepository = async (foodImageCloudId, tx = pris
 };
 
 //vrati vsechny userovi labely a vsechny co se pouzivaji v neajkem inventari
-export const getAvailableFoodLabelsRepository = async (userId, page = 0, limit = 200) => {
+export const getAvailableFoodLabelsRepository = async (
+  userId,
+  searchString = "",
+  source = "all",
+) => {
   try {
     return await prisma.$transaction(async (tx) => {
       // zjistime id vsech catalogu uzivatelovych labelu
       const userLabels = await tx.foodLabel.findMany({
-        where: {
-          userId: userId,
-          isDeleted: false,
-        },
+        where: { userId: userId, isDeleted: false },
         select: { catalogId: true },
       });
 
       const userCatalogIds = userLabels.map((l) => l.catalogId);
 
-      const labels = await tx.foodLabel.findMany({
-        where: {
-          OR: [
-            // vlastni labely
-            { userId: userId, isDeleted: false },
-            // defaultni labely k jidlu, ktere ma user v inventari
-            {
-              isDeleted: false,
-              catalogId: { notIn: userCatalogIds },
-              foods: {
-                some: {
-                  instances: { some: {} },
-                  inventory: {
-                    users: { some: { userId: userId } },
-                  },
-                },
-              },
-            },
-          ],
+      const searchCondition = searchString
+        ? { normalizedTitle: { contains: normalizeText(searchString), mode: "insensitive" } }
+        : {};
+
+      // vlastni labely
+      const userCondition = { userId: userId, isDeleted: false, ...searchCondition };
+
+      // defaultni labely k jidlu, ktere ma user v inventari
+      const inventoryCondition = {
+        catalogId: { notIn: userCatalogIds },
+        ...searchCondition,
+        foods: {
+          some: {
+            instances: { some: {} },
+            inventory: { users: { some: { userId: userId } } },
+          },
         },
+      };
+
+      const whereCondition = {
+        all: { OR: [userCondition, inventoryCondition] },
+        user: userCondition,
+        inventory: inventoryCondition,
+      }[source] ?? { OR: [userCondition, inventoryCondition] };
+
+      const labels = await tx.foodLabel.findMany({
+        where: whereCondition,
         select: {
           id: true,
           title: true,
@@ -354,15 +369,14 @@ export const getAvailableFoodLabelsRepository = async (userId, page = 0, limit =
           amount: true,
           userId: true,
           catalogId: true,
+          isDeleted: true,
           catalog: { select: { barcode: true } },
         },
-        orderBy: [{ title: "asc" }, { id: "asc" }],
-        skip: page * limit,
-        take: limit,
       });
-      return labels.map(({ catalog, ...label }) => ({
+      return labels.map(({ catalog, isDeleted, ...label }) => ({
         ...label,
         barcode: catalog?.barcode || null,
+        isInventoryLabel: label.userId !== userId || isDeleted,
       }));
     });
   } catch (error) {

@@ -268,7 +268,7 @@ export default function ScannerAddScreen() {
                 >
                   <IconSymbol
                     name="barcode"
-                    size={24}
+                    size={responsiveSize.moderate(22)}
                     color={currentColors.icon}
                     style={styles.barcodeIcon}
                   />

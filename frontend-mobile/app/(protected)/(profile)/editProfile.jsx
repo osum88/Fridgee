@@ -11,13 +11,12 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import i18n from "@/constants/translations";
 import { responsiveSize } from "@/utils/scale";
-import { TextInput, ActivityIndicator } from "react-native-paper";
+import { TextInput,  } from "react-native-paper";
 import { DateInput } from "@/components/input/DateInput";
 import { DropdownMenu } from "@/components/input/DropdownMenu";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { SecretInput } from "@/components/input/SecretInput";
 import { ibanToBban, validateDate, resetErrors } from "@/utils/stringUtils";
-import { ThemedText } from "@/components/themed/ThemedText";
 import useUpdateProfile from "@/hooks/queries/user/useUpdateProfile";
 import { DoubleInputRow } from "@/components/input/DoubleInputRow";
 import { GET_INPUT_THEME_NATIVE_PAPER } from "@/constants/colors";

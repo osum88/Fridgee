@@ -5,6 +5,7 @@ import { sanitize } from "../middlewares/sanitize.js";
 import {
   deleteFoodLabel,
   getAvailableFoodLabels,
+  getFoodLabel,
   updateFoodLabel,
 } from "../controllers/foodLabelController.js";
 import {
@@ -30,4 +31,9 @@ router.delete("/:foodLabelId", sanitize, validate(foodLabelIdSchema), deleteFood
 router.get("/available", sanitize, validate(availableFoodLabelsSchema), getAvailableFoodLabels);
 // /api/food-label/available?page=1&limit=50
 
+// vraci label
+router.get("/:foodLabelId", sanitize, validate(foodLabelIdSchema), getFoodLabel);
+
+
 export default router;
+

@@ -291,7 +291,7 @@ export default function InventoryScreen() {
         </ThemedView>
         {isLoadingFood ? (
           <ThemedView style={styles.center}>
-            <ActivityIndicator />
+            <ActivityIndicator size={"large"} />
           </ThemedView>
         ) : sections && sections.length === 0 ? (
           <EmptyState

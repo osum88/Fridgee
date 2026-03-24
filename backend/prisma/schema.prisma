@@ -333,7 +333,6 @@ enum FoodAction {
   MEMBER_LEFT
   USER_JOINED
   ROLE_CHANGE
-  //TODO dat do frontendu
   MEMBER_REMOVED
 }
 

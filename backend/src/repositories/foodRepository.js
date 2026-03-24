@@ -591,7 +591,13 @@ export const updateFoodRepository = async (
 
           await softDeleteOrphanedVariantRepository(variantData?.old?.variantId, tx);
         }
-        return { foodId: currentFoodId };
+
+        if (food?.id !== currentFoodId) {
+          return await tx.food.findUnique({
+            where: { id: currentFoodId },
+          });
+        }
+        return food;
       },
       {
         timeout: 10000,

@@ -20,7 +20,7 @@ export default function FriendsTab() {
 
   return (
     <TopTab.Navigator
-      // tabBar={(props) => <TopTabBar {...props} />}
+
       screenOptions={{
         swipeEnabled: true,
         tabBarActiveTintColor: colorScheme.tabsText,

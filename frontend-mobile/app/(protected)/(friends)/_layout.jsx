@@ -16,7 +16,7 @@ export default function Friends() {
       <Stack.Screen name="profile/[id]" options={{ title: "", headerShown: true }} />
       <Stack.Screen
         name="(friendsTabs)"
-        options={{ title: i18n.t("friends"), headerShown: true, headerShadowVisible: false }}
+        options={{ title: i18n.t("friends"), headerShown: true, headerShadowVisible: true }}
       />
     </Stack>
   );

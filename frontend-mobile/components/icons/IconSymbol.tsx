@@ -158,7 +158,6 @@ const MAPPING = {
   "basket.fill": { name: "basket", source: "MaterialCommunityIcons" },
   // kosik outline
   "basket": { name: "basket-outline", source: "MaterialCommunityIcons" },
-
   //postel
   "bed.double.fill": { name: "bed-double", source: "MaterialCommunityIcons" },
   //mrkev
@@ -219,6 +218,12 @@ const MAPPING = {
   "envelope.badge.fill": { name: "email-plus", source: "MaterialCommunityIcons" },
   // pozvanky do invenatre
   "smallcircle.fill.circle": { name: "circle-small", source: "MaterialCommunityIcons" },
+  // katalogy
+  "book.closed": { name: "book-open-variant", source: "MaterialCommunityIcons" },
+  // dollar
+  "dollarsign": { name: "attach-money", source: "MaterialIcons" },
+  // vaha
+  "scalemass": { name: "scale-balance", source: "MaterialCommunityIcons" },
 
   //coat.fill
 } as IconMapping;

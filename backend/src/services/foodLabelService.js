@@ -19,6 +19,7 @@ import {
   isImageUsedElsewhereRepository,
   updateFoodLabelWithHistoryRepository,
 } from "../repositories/foodLabelRepository.js";
+import { compareLocale, sortBy } from "../utils/sort.js";
 import { determineUpdateValue, isAnyValueDefined, normalizeText } from "../utils/stringUtils.js";
 import {
   deleteImageFromCloud,
@@ -230,7 +231,7 @@ export const getLabelSuggestionsService = async (
   }
 
   const result = await getLabelSuggestionsRepository(userId, inventoryId, searchString, limit);
-  
+
   if (!result || result.length === 0) return [];
 
   // serazeni labelu
@@ -281,7 +282,7 @@ export const getLabelSuggestionsService = async (
     }
 
     // 7. FALLBACK: Abeceda
-    return a.title.localeCompare(b.title, ["cs", "en"], { sensitivity: "base" });
+    return compareLocale(a.title, b.title);
   });
 
   const uniqueSuggestions = [];
@@ -330,10 +331,10 @@ export const getLabelSuggestionsService = async (
         ...(isAdmin
           ? {
               isUserLabel: item.userId === userId,
-              foodId: inventoryFoods[0]?.id || null, 
+              foodId: inventoryFoods[0]?.id || null,
               userId: item.userId,
               hasStock: inventoryFoods.some((f) => (f._count?.instances || 0) > 0) || false,
-              isInInventory: inventoryFoods.length > 0, 
+              isInInventory: inventoryFoods.length > 0,
             }
           : {}),
       });
@@ -411,17 +412,46 @@ export const uploadFoodLabelImageService = async (
 };
 
 //vrati vsechny userovi labely a vsechny co se pouzivaji v neajkem inventari
-export const getAvailableFoodLabelsService = async (userId, page = 1, limit = 20) => {
+export const getAvailableFoodLabelsService = async (
+  userId,
+  searchString,
+  page = 1,
+  limit = 100,
+  source,
+) => {
   const pageIndex = Math.max(0, page - 1);
   const safeLimit = Math.max(1, Math.min(limit, 300));
 
-  const labels = await getAvailableFoodLabelsRepository(userId, pageIndex, safeLimit);
+  const labels = await getAvailableFoodLabelsRepository(userId, searchString, source);
+
+  const sorted = sortBy(labels, "title");
+  const paginated = sorted.slice(pageIndex * safeLimit, (pageIndex + 1) * safeLimit);
 
   return {
-    items: labels,
+    items: paginated,
     page: page,
     limit: safeLimit,
-    count: labels.length,
-    hasNextPage: labels.length === safeLimit,
+    count: sorted.length,
+    hasNextPage: (pageIndex + 1) * safeLimit < sorted.length,
+  };
+};
+
+// vraci label
+export const getFoodLabelService = async (labelId, userId) => {
+  const label = await getFoodLabelByIdRepository(labelId);
+
+  return {
+    id: label?.id || null,
+    title: label?.title || "",
+    description: label?.description || "",
+    foodImageUrl: label?.foodImageUrl || "",
+    foodImageCloudId: label?.foodImageCloudId || null,
+    price: label?.price || 0,
+    unit: label?.unit || "",
+    amount: label?.amount || 0,
+    userId: label?.userId || null,
+    catalogId: label?.catalogId || null,
+    barcode: label?.catalog?.barcode || null,
+    isInventoryLabel: label?.userId !== userId || label?.isDeleted,
   };
 };

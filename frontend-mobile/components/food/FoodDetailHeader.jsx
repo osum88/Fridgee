@@ -49,7 +49,7 @@ const FoodDetailHeaderComponent = ({ food, colors, colorScheme, onAction, isLoad
         ) : null}
         {food?.barcode ? (
           <View style={styles.barcodeRow}>
-            <IconSymbol name="barcode" size={11} color={colors.text + "55"} />
+            <IconSymbol name="barcode" size={responsiveSize.moderate(12)} color={colors.text + "55"} />
             <ThemedText style={[styles.barcodeText, { color: colors.text + "55" }]}>
               {food.barcode}
             </ThemedText>

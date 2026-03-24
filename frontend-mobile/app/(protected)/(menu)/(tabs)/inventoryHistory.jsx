@@ -134,7 +134,7 @@ export default function InventoryHistoryScreen() {
       />
       {isLoading ? (
         <ThemedView style={styles.center}>
-          <ActivityIndicator />
+         <ActivityIndicator size={"large"} />
         </ThemedView>
       ) : items.length === 0 ? (
         <EmptyState

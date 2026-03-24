@@ -1,4 +1,4 @@
-export const buildFoodFormData = (foodData, imageFormData = null) => {
+export const buildFoodFormData = (data, imageFormData = null) => {
   const finalFormData = new FormData();
 
   // prekopiruje soubor z puvodnich formadata pokud existuje
@@ -9,8 +9,8 @@ export const buildFoodFormData = (foodData, imageFormData = null) => {
     }
   }
 
-  Object.keys(foodData).forEach((key) => {
-    const value = foodData[key];
+  Object.keys(data).forEach((key) => {
+    const value = data[key];
     if (value !== undefined) {
       let formattedValue;
       if (value instanceof Date) {
@@ -23,6 +23,5 @@ export const buildFoodFormData = (foodData, imageFormData = null) => {
       finalFormData.append(key, formattedValue);
     }
   });
-
   return finalFormData;
 };

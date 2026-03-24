@@ -1,6 +1,7 @@
 import {
   deleteFoodLabelService,
   getAvailableFoodLabelsService,
+  getFoodLabelService,
   getLabelSuggestionsService,
   updateFoodLabelService,
 } from "../services/foodLabelService.js";
@@ -64,8 +65,23 @@ export const getAvailableFoodLabels = async (req, res, next) => {
     const userId = req.userId;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 100;
+    const source = req.query.source || "all";
+    const searchString = req.query.searchString || "";
 
-    const result = await getAvailableFoodLabelsService(userId, page, limit);
+    const result = await getAvailableFoodLabelsService(userId, searchString, page, limit, source);
+    handleResponse(res, 200, "Food label fetched successfully", result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// vraci label
+export const getFoodLabel = async (req, res, next) => {
+  try {
+    const userId = req.userId;
+    const foodLabelId = parseInt(req.params.foodLabelId) || null;
+
+    const result = await getFoodLabelService(foodLabelId, userId);
     handleResponse(res, 200, "Food label fetched successfully", result);
   } catch (err) {
     next(err);

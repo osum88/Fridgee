@@ -1,5 +1,6 @@
 import { ConflictError, NotFoundError } from "../errors/errors.js";
 import prisma from "../utils/prisma.js";
+import { sortBy } from "../utils/sort.js";
 import { capitalizeFirst } from "../utils/stringUtils.js";
 
 //vytvari inventar jidla s prvnim jeho uzivatelem (owner)
@@ -627,7 +628,6 @@ export const searchUsersForInventoryRepository = async (userId, inventoryId, use
         },
       },
       take: limit,
-      orderBy: { username: "asc" },
       select: {
         id: true,
         username: true,
@@ -643,11 +643,12 @@ export const searchUsersForInventoryRepository = async (userId, inventoryId, use
         },
       },
     });
-    return users.map(({ receivedInventoryInvitations, ...user }) => ({
+    const mapped = users.map(({ receivedInventoryInvitations, ...user }) => ({
       ...user,
       hasPendingInvitation: receivedInventoryInvitations?.length > 0,
       invitationId: receivedInventoryInvitations?.[0]?.id ?? null,
     }));
+    return sortBy(mapped, "username");
   } catch (error) {
     console.error("Error searching users for inventory:", error);
     throw error;

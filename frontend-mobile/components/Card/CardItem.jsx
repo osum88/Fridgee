@@ -12,7 +12,7 @@ export function CardItem({
   iconSize = responsiveSize.moderate(19),
   label,
   value,
-  isLoading,
+  isLoading = false,
   isSecrete = false,
   styleOverrides = {},
   ...props

@@ -20,5 +20,7 @@ export const foodLabelIdSchema = Joi.object({
 
 export const availableFoodLabelsSchema = Joi.object({
   page: Joi.number().min(1).integer().default(1).optional(),
-  limit: Joi.number().min(1).integer().max(500).default(100).optional(),
+  limit: Joi.number().min(1).integer().max(300).default(100).optional(),
+  source: Joi.string().max(10).valid("all", "user", "inventory").optional(),
+  searchString: Joi.string().max(100).optional(),
 });

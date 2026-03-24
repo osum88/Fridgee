@@ -20,6 +20,7 @@ import {
   updateFoodRepository,
 } from "../repositories/foodRepository.js";
 import { cleanEmptyStrings } from "../utils/cleanEmptyStrings.js";
+import { sortBy } from "../utils/sort.js";
 import { determineUpdateValue, normalizeDate } from "../utils/stringUtils.js";
 import { resolveCategoryUpdateData } from "./foodCategoryService.js";
 import {
@@ -255,7 +256,7 @@ export const getFoodByBarcodeService = async (barcode, inventoryId, userId, isAd
     return vAcc;
   }, {});
 
-  const variantsArray = Object.values(variantsMap).map((v) => {
+  let variantsArray = Object.values(variantsMap).map((v) => {
     // razeni instanci, bez expirace prvni, dalsi podle data
     v.instances.sort((a, b) => {
       if (!a.expirationDate && b.expirationDate) return 1;
@@ -267,12 +268,7 @@ export const getFoodByBarcodeService = async (barcode, inventoryId, userId, isAd
   });
 
   // razeni variant, prazdne prvni, jinak abecedne
-  variantsArray.sort((a, b) => {
-    if (!a.variantTitle && b.variantTitle) return -1;
-    if (a.variantTitle && !b.variantTitle) return 1;
-    if (!a.variantTitle && !b.variantTitle) return 0;
-    return a.variantTitle.localeCompare(b.variantTitle, ["cs", "en"], { sensitivity: "base" });
-  });
+  variantsArray = sortBy(variantsArray, "variantTitle", { nullFirst: true });
 
   return {
     labelTitle: activeLabel?.title || "",

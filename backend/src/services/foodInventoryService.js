@@ -27,6 +27,7 @@ import {
   leaveInventoryRepository,
 } from "../repositories/foodInventoryRepository.js";
 import { getUserByIdRepository } from "../repositories/userRepository.js";
+import { compareLocale, sortBy } from "../utils/sort.js";
 import { capitalizeFirst } from "../utils/stringUtils.js";
 import { convertPrice, createBaseCurrency } from "./priceService.js";
 
@@ -197,7 +198,7 @@ export const getUsersByInventoryIdService = async (
   userId,
   inventoryId,
   isAdmin,
-  sortBy = "resultName",
+  sortByString = "resultName",
 ) => {
   await getFoodInventoryRepository(inventoryId);
 
@@ -210,23 +211,21 @@ export const getUsersByInventoryIdService = async (
   }
   // vrati uzivatele z inventare
   const result = await getUsersByInventoryIdByRoleRepository(inventoryId, null);
-  return result
-    .map((data) => ({
-      userId: data.user.id,
-      name: data.user?.name || "",
-      username: data.user?.username || "",
-      surname: data.user?.surname || "",
-      profilePictureUrl: data.user?.profilePictureUrl || "",
-      role: data?.role || "",
-      resultName:
-        data.user.name && data.user.surname
-          ? `${capitalizeFirst(data.user.name)} ${capitalizeFirst(data.user.surname)}`
-          : capitalizeFirst(data.user.username),
-    }))
-    .sort((a, b) => {
-      const key = sortBy === "username" ? "username" : "resultName";
-      return a[key].localeCompare(b[key], ["cs", "en"], { sensitivity: "base" });
-    });
+  const mapped = result.map((data) => ({
+    userId: data.user.id,
+    name: data.user?.name || "",
+    username: data.user?.username || "",
+    surname: data.user?.surname || "",
+    profilePictureUrl: data.user?.profilePictureUrl || "",
+    role: data?.role || "",
+    resultName:
+      data.user.name && data.user.surname
+        ? `${capitalizeFirst(data.user.name)} ${capitalizeFirst(data.user.surname)}`
+        : capitalizeFirst(data.user.username),
+  }));
+
+  const key = sortByString === "username" ? "username" : "resultName";
+  return sortBy(mapped, key);
 };
 
 //archivace inventare
@@ -468,9 +467,7 @@ export const getInventoryContentService = async (inventoryId, userId, isAdmin) =
   // seradi jidlo abecedne podle nazvu a podle varinaty uvnitr kazde kategorie
   categoriesArray.forEach((category) => {
     category.foods.sort((a, b) => {
-      const nameCompare = a.labelTitle.localeCompare(b.labelTitle, ["cs", "en"], {
-        sensitivity: "base",
-      });
+      const nameCompare = compareLocale(a.labelTitle, b.labelTitle);
       // pokud jsou nazvy ruzne tak vracime porovnani
       if (nameCompare !== 0) return nameCompare;
 
@@ -480,7 +477,7 @@ export const getInventoryContentService = async (inventoryId, userId, isAdmin) =
       if (!a.variantTitle && !b.variantTitle) return 0;
 
       // pokud jsou obe varianty vyplnené, seradi je abecedne
-      return a.variantTitle.localeCompare(b.variantTitle, ["cs", "en"], { sensitivity: "base" });
+      return compareLocale(a.variantTitle, b.variantTitle);
     });
   });
 
@@ -488,7 +485,7 @@ export const getInventoryContentService = async (inventoryId, userId, isAdmin) =
   return categoriesArray.sort((a, b) => {
     if (a.categoryTitle === "unknow") return -1;
     if (b.categoryTitle === "unknow") return 1;
-    return a.categoryTitle.localeCompare(b.categoryTitle, ["cs", "en"], { sensitivity: "base" });
+    return compareLocale(a.categoryTitle, b.categoryTitle);
   });
 };
 

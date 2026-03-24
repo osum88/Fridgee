@@ -217,6 +217,7 @@ export const updateFoodInstancesRepository = async (userId, updatePayload, foodI
         const food = await tx.food.findUnique({
           where: { id: foodId },
           select: {
+            id: true,
             inventoryId: true,
             catalogId: true,
             categoryId: true,
@@ -363,7 +364,12 @@ export const updateFoodInstancesRepository = async (userId, updatePayload, foodI
           await softDeleteOrphanedVariantRepository(variantData?.old?.variantId, tx);
         }
 
-        return results;
+        if (food?.id !== newFoodId) {
+          return await tx.food.findUnique({
+            where: { id: newFoodId },
+          });
+        }
+        return food;
       },
       {
         timeout: 10000,

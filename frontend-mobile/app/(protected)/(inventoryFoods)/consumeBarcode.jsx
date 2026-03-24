@@ -105,7 +105,7 @@ export default function ConsumeBarcodeScreen() {
     <ThemedView style={{ flex: 1 }}>
       {isLoading ? (
         <ThemedView style={styles.center}>
-          <ActivityIndicator />
+          <ActivityIndicator size={"large"} />
         </ThemedView>
       ) : barcodeData?.instances?.length === 0 ? (
         <EmptyState
@@ -139,7 +139,7 @@ export default function ConsumeBarcodeScreen() {
                 ) : null}
                 {barcode ? (
                   <View style={styles.barcodeRow}>
-                    <IconSymbol name="barcode" size={11} color={colors.text + "55"} />
+                    <IconSymbol name="barcode" size={responsiveSize.moderate(12)} color={colors.text + "55"} />
                     <ThemedText style={[styles.barcodeText, { color: colors.text + "55" }]}>
                       {barcode}
                     </ThemedText>

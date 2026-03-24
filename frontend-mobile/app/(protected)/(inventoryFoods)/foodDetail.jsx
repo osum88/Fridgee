@@ -23,6 +23,7 @@ import { RefreshableFlashList } from "@/components/common/RefreshableFlashList";
 import { CategoryModal } from "@/components/modals/CategoryModal";
 import { useGetInventoryCategoriesQuery } from "@/hooks/queries/inventory/useInventoryQuary";
 import { showGlobalError } from "@/utils/showGlobalError";
+import { ActivityIndicator } from "react-native-paper";
 
 const ITEM_HEIGHT = responsiveSize.vertical(60);
 
@@ -39,31 +40,31 @@ export default function FoodDetailScreen() {
   const activeInventory = useInventoryStore((state) => state.activeInventory);
   const INVENTORY_PERMISSION =
     activeInventory?.role === "OWNER" || activeInventory?.role === "EDITOR";
-
+  
   //vraci food detail
   const {
     data: foodData,
     isLoading,
     refetch,
-  } = useFoodDetail(activeInventory.id, catalogId, foodId, activeInventory.memberCount);
+  } = useFoodDetail(activeInventory.id, catalogId, foodId, activeInventory?.memberCount);
 
   //konzumace
-  const { consumeInstance } = useConsumeFoodInstanceMutation(activeInventory.id, catalogId, foodId);
+  const { consumeInstance } = useConsumeFoodInstanceMutation(activeInventory?.id, catalogId, foodId);
   //duplikace
   const { duplicateInstance } = useDuplicateFoodInstanceMutation(
-    activeInventory.id,
+    activeInventory?.id,
     catalogId,
     foodId,
   );
   //smaze instanci
-  const { deleteInstance } = useDeleteFoodInstanceMutation(activeInventory.id, catalogId, foodId);
+  const { deleteInstance } = useDeleteFoodInstanceMutation(activeInventory?.id, catalogId, foodId);
   //vrati kategorie
   const { data: inventoryCategories } = useGetInventoryCategoriesQuery(
-    activeInventory.id,
-    activeInventory.memberCount,
+    activeInventory?.id,
+    activeInventory?.memberCount,
     showCategoryModal,
   );
-
+  
   const handleItemPress = useCallback((item) => {
     setSelectedItem(item);
     setSheetVisible(true);
@@ -93,7 +94,7 @@ export default function FoodDetailScreen() {
             foodId: foodData?.foodId,
             variantId: foodData?.variantId,
             variantTitle: foodData?.variantTitle,
-            inventoryId: activeInventory.id,
+            inventoryId: activeInventory?.id,
           },
         });
       }
@@ -110,20 +111,21 @@ export default function FoodDetailScreen() {
           params: { catalogId: catalogId, foodId: foodData?.foodId },
         });
       } else if (action === "edit") {
+        if (!foodData) return;
         router.push({
           pathname: "../editFood",
           params: {
             initialData: JSON.stringify({
-              foodId: foodData.foodId,
-              catalogId: foodData.catalogId,
-              labelTitle: foodData.labelTitle,
-              description: foodData.labelDescription,
-              variantId: foodData.variantId,
-              variantTitle: foodData.variantTitle,
-              foodImageUrl: foodData.labelFoodImageUrl,
-              foodImageCloudId: foodData.foodImageCloudId,
-              minimalQuantity: foodData.minimalQuantity,
-              barcode: foodData.barcode,
+              foodId: foodData?.foodId,
+              catalogId: foodData?.catalogId,
+              labelTitle: foodData?.labelTitle,
+              description: foodData?.labelDescription,
+              variantId: foodData?.variantId,
+              variantTitle: foodData?.variantTitle,
+              foodImageUrl: foodData?.labelFoodImageUrl,
+              foodImageCloudId: foodData?.foodImageCloudId,
+              minimalQuantity: foodData?.minimalQuantity,
+              barcode: foodData?.barcode,
             }),
           },
         });
@@ -165,6 +167,14 @@ export default function FoodDetailScreen() {
     ),
     [colors.text, totalCount],
   );
+
+  if (isLoading) {
+    return (
+      <ThemedView style={styles.center}>
+        <ActivityIndicator size={"large"} />
+      </ThemedView>
+    );
+  }
 
   return (
     <ThemedView style={styles.container}>
@@ -216,8 +226,8 @@ export default function FoodDetailScreen() {
         currentCategoryId={foodData?.categoryId}
         colors={colors}
         inventoryId={activeInventory.id}
-        catalogId={foodData.catalogId}
-        foodId={foodData.foodId}
+        catalogId={foodData?.catalogId}
+        foodId={foodData?.foodId}
       />
       <InstanceBottomSheet
         visible={sheetVisible}
@@ -231,6 +241,11 @@ export default function FoodDetailScreen() {
 }
 
 const styles = StyleSheet.create({
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   container: {
     flex: 1,
   },

@@ -11,7 +11,7 @@ import {
   useUpdateFoodCategory,
   useDeleteFoodCategory,
   useCreateFoodCategory,
-} from "@/hooks/queries/food-category/useFoodCategoryMutation";
+} from "@/hooks/queries/foodCategory/useFoodCategoryMutation";
 import { DeleteAlert } from "@/components/modals/DeleteAlert";
 import { BaseBottomSheet } from "@/components/bottomSheet/BaseBottomSheet";
 import { UniversalTextInput } from "@/components/input/UniversalTextInput";
@@ -193,7 +193,7 @@ export default function InventoryCategoriesScreen() {
         colors={colors}
         styleSheet={{ paddingHorizontal: responsiveSize.horizontal(20) }}
       >
-        <ThemedText style={styles.sheetTitle}>{i18n.t("editingCategory")}</ThemedText>
+        <ThemedText style={styles.sheetTitle}>{i18n.t("editCategory")}</ThemedText>
         <UniversalTextInput
           value={editTitle}
           onChangeText={(text) => {

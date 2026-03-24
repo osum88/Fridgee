@@ -21,7 +21,7 @@ import {
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { useCallback, useState, useLayoutEffect, useMemo, useRef } from "react";
 import { HelperText } from "react-native-paper";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { GET_INPUT_THEME_NATIVE_PAPER } from "@/constants/colors";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { SearchableDropdown } from "@/components/input/SearchableDropdown";
@@ -189,23 +189,38 @@ export default function EditFoodScreen() {
     updateFood.mutate(
       { foodData, imageFormData: formData },
       {
-        onSuccess: async () => {
+        onSuccess: async (response) => {
+          const food = response?.data;
+          console.log("response", food);
           await queryClient.invalidateQueries({
             queryKey: ["inventory-content", parseInt(activeInventory.id)],
           });
-          queryClient.invalidateQueries({
-            queryKey: ["food-detail", parseInt(activeInventory.id), parseInt(catalogId)],
-          });
-          queryClient.refetchQueries({
-            queryKey: [
-              "food-detail",
-              parseInt(activeInventory.id),
-              parseInt(catalogId),
-              parseInt(foodId),
-            ],
-          });
+          if (parseInt(food?.id) !== parseInt(foodId)) {
+            queryClient.invalidateQueries({
+              queryKey: ["food-detail", parseInt(activeInventory.id), parseInt(food?.catalogId)],
+            });
+          } else {
+            queryClient.invalidateQueries({
+              queryKey: [
+                "food-detail",
+                parseInt(activeInventory.id),
+                parseInt(food?.catalogId),
+                parseInt(food?.id),
+              ],
+            });
+          }
+
           isUpdating.current = false;
-          navigation.goBack();
+
+          if (food?.id && food?.catalogId && parseInt(food?.id) !== parseInt(foodId)) {
+            router.dismiss(2);
+            router.replace({
+              pathname: "/(protected)/(inventoryFoods)/foodDetail",
+              params: { foodId: food.id, catalogId: food.catalogId },
+            });
+          } else {
+            router.back();
+          }
         },
         onError: (error) => {
           isUpdating.current = false;
@@ -219,9 +234,7 @@ export default function EditFoodScreen() {
     foodId,
     formData,
     updateFood,
-    navigation,
     queryClient,
-    catalogId,
     activeInventory.id,
     canEdit,
   ]);

@@ -17,13 +17,14 @@ import {
   validateNumericInput,
   updateFormValues,
   getVariant,
-  resetErrors,validateInstance
+  resetErrors,
+  validateInstance,
 } from "@/utils/stringUtils";
 import { useThemeColor } from "@/hooks/colors/useThemeColor";
 import { useCallback, useState, useLayoutEffect, useMemo, useRef } from "react";
 import { DateInput } from "@/components/input/DateInput";
 import { DropdownMenu } from "@/components/input/DropdownMenu";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { GET_INPUT_THEME_NATIVE_PAPER } from "@/constants/colors";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { SearchableDropdown } from "@/components/input/SearchableDropdown";
@@ -44,8 +45,6 @@ import { useGetFoodVariants } from "@/hooks/queries/food/useGetFoodQuary";
 import { useUpdateFoodInstanceMutation } from "@/hooks/queries/instance/useFoodInstanceMutation";
 import { handleApiError } from "@/utils/handleApiError";
 import { useQueryClient } from "@tanstack/react-query";
-
-
 
 export default function EditInstanceScreen() {
   const [scrollSpace, setScrollSpace] = useState(false);
@@ -132,23 +131,38 @@ export default function EditInstanceScreen() {
         ...getVariant(current.variantId, current.variantTitle),
       },
       {
-        onSuccess: async () => {
-          queryClient.invalidateQueries({
+        onSuccess: async (response) => {
+          const food = response?.data;
+          console.log("response", food);
+          await queryClient.invalidateQueries({
             queryKey: ["inventory-content", parseInt(activeInventory.id)],
           });
-          queryClient.invalidateQueries({
-            queryKey: ["food-detail", parseInt(activeInventory.id), parseInt(catalogId)],
-          });
-          queryClient.refetchQueries({
-            queryKey: [
-              "food-detail",
-              parseInt(activeInventory.id),
-              parseInt(catalogId),
-              parseInt(foodId),
-            ],
-          });
+          if (parseInt(food?.id) !== parseInt(foodId)) {
+            queryClient.invalidateQueries({
+              queryKey: ["food-detail", parseInt(activeInventory.id), parseInt(food?.catalogId)],
+            });
+          } else {
+            queryClient.invalidateQueries({
+              queryKey: [
+                "food-detail",
+                parseInt(activeInventory.id),
+                parseInt(food?.catalogId),
+                parseInt(food?.id),
+              ],
+            });
+          }
+
           updating.current = false;
-          navigation.goBack();
+
+          if (food?.id && food?.catalogId && parseInt(food?.id) !== parseInt(foodId)) {
+            router.dismiss(2);
+            router.replace({
+              pathname: "/(protected)/(inventoryFoods)/foodDetail",
+              params: { foodId: food.id, catalogId: food.catalogId },
+            });
+          } else {
+            router.back();
+          }
         },
         onError: (error) => {
           updating.current = false;
@@ -161,10 +175,8 @@ export default function EditInstanceScreen() {
     errors,
     parsedItem?.instanceIds,
     updateInstance,
-    navigation,
     activeInventory.id,
     queryClient,
-    catalogId,
     foodId,
   ]);
 
@@ -184,9 +196,8 @@ export default function EditInstanceScreen() {
   }, [navigation, colors, isSubmitting, handleSave]);
 
   const handleQuantityChange = useCallback((val) => {
-  updateFormValues(setInputText, "quantity", String(val));
-}, []);
-
+    updateFormValues(setInputText, "quantity", String(val));
+  }, []);
 
   return (
     <KeyboardAvoidingView
@@ -204,7 +215,7 @@ export default function EditInstanceScreen() {
           <Stepper
             label={i18n.t("foodPieceCount")}
             value={Number(inputText.quantity) || 1}
-             onChange={handleQuantityChange}
+            onChange={handleQuantityChange}
             min={1}
             max={parsedItem?.instanceIds.length}
             containerStyle={{ marginTop: responsiveSize.vertical(9) }}
@@ -243,7 +254,7 @@ export default function EditInstanceScreen() {
                       numericDays = numericDays.slice(0, maxLength);
                     }
                   }
-                  updateFormValues(setErrors, "expirationDate", "")
+                  updateFormValues(setErrors, "expirationDate", "");
                   updateFormValues(setInputText, {
                     days: numericDays,
                     expirationDate: getDateFromDays(numericDays),
@@ -373,8 +384,10 @@ export default function EditInstanceScreen() {
               value={inputText.variantId || ""}
               onChange={(variantId) => updateFormValues(setInputText, "variantId", variantId)}
               searchTerm={inputText.variantTitle || ""}
-              onChangeSearchTerm={(text) => {updateFormValues(setInputText, "variantTitle", text)
-              updateFormValues(setErrors, "variant", "");}}
+              onChangeSearchTerm={(text) => {
+                updateFormValues(setInputText, "variantTitle", text);
+                updateFormValues(setErrors, "variant", "");
+              }}
               label={i18n.t("variant")}
               isSubmitting={false}
               items={variantOptions}

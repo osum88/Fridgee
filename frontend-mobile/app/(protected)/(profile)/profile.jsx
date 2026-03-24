@@ -189,7 +189,7 @@ export default function Profile() {
               }}
               asChild
             >
-              <ThemedText>{i18n.t("edit")}</ThemedText>
+              <ThemedText >{i18n.t("edit")}</ThemedText>
             </Link>
           </ThemedView>
           <Card>
