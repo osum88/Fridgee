@@ -4,11 +4,12 @@ import { useRouter } from "expo-router";
 import { responsiveSize } from "@/utils/scale";
 import { useInventoryStore } from "@/hooks/store/useInventoryStore";
 import { MenuList } from "@/components/common/MenuItem";
-import { useLeaveInventory } from "../../../hooks/queries/inventory/useInventoryMutation";
+import { useLeaveInventory } from "@/hooks/queries/inventory/useInventoryMutation";
 import { useCallback, useState } from "react";
 import { useGetUsersByInventoryId } from "@/hooks/queries/inventory/useInventoryQuary";
 import { DeleteAlert } from "@/components/modals/DeleteAlert";
 import i18n from "@/constants/translations";
+import { ThemedActivityIndicator } from "@/components/themed/ThemedActivityIndicator";
 
 const MENU_ITEMS = [
   {
@@ -61,7 +62,7 @@ export default function InventorySettingsScreen() {
     router.push(`/(protected)/(inventory)/${route}`);
   };
 
-  const { mutate: leaveInventory } = useLeaveInventory();
+  const { mutate: leaveInventory, isPending } = useLeaveInventory();
   const { data: users } = useGetUsersByInventoryId(
     activeInventory?.id,
     activeInventory?.memberCount,
@@ -76,6 +77,11 @@ export default function InventorySettingsScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      {isPending && (
+        <ThemedView style={styles.overlay}>
+          <ThemedActivityIndicator size={"large"} />
+        </ThemedView>
+      )}
       <MenuList
         items={MENU_ITEMS}
         onPress={(item) => {
@@ -109,5 +115,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: responsiveSize.horizontal(24),
     paddingVertical: responsiveSize.vertical(12),
     flex: 1,
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
   },
 });

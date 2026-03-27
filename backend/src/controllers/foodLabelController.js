@@ -3,7 +3,7 @@ import {
   getAvailableFoodLabelsService,
   getFoodLabelService,
   getLabelSuggestionsService,
-  updateFoodLabelService,
+  updateOrCreateFoodLabelService,
 } from "../services/foodLabelService.js";
 import handleResponse from "../utils/responseHandler.js";
 
@@ -14,7 +14,7 @@ export const updateFoodLabel = async (req, res, next) => {
     const isAdmin = req.adminRoute;
     const image = req.file && req.file.size > 0 ? req.file : undefined;
 
-    const label = await updateFoodLabelService(userId, { ...req.body, image }, isAdmin);
+    const label = await updateOrCreateFoodLabelService(userId, { ...req.body, image }, isAdmin);
     handleResponse(res, 200, "Label updated successfully", label);
   } catch (err) {
     next(err);

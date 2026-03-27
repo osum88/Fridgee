@@ -167,3 +167,85 @@ export const searchUsersForInventorySchema = Joi.object({
   username: Joi.string().min(1).max(30).required(),
   limit: Joi.number().integer().min(1).max(100).optional(),
 });
+
+//                      SHOPPING LIST
+
+export const createShoppingListSchema = Joi.object({
+  inventoryId: Joi.number().integer().positive().required(),
+  title: Joi.string().max(50).required().label("shoppingListTitle"),
+});
+
+export const updateShoppingListSchema = Joi.object({
+  inventoryId: Joi.number().integer().positive().required(),
+  shoppingListId: Joi.number().integer().positive().required(),
+  title: Joi.string().max(50).optional().label("shoppingListTitle"),
+});
+
+export const getShoppingListByIdSchema = Joi.object({
+  inventoryId: Joi.number().integer().positive().required(),
+  shoppingListId: Joi.number().integer().positive().required(),
+});
+
+//                      SHOPPING LIST ITEM
+
+export const createShoppingListItemSchema = Joi.object({
+  inventoryId: Joi.number().integer().positive().required(),
+  shoppingListId: Joi.number().integer().positive().required(),
+  foodId: Joi.number().integer().positive().optional(),
+  itemId: Joi.number().integer().positive().optional(),
+  catalogId: Joi.number().integer().positive().optional(),
+  customTitle: Joi.string()
+    .max(100)
+    .label("labelTitle")
+    .when("foodId", {
+      is: Joi.exist(),
+      then: Joi.optional(),
+      otherwise: Joi.when("itemId", {
+        is: Joi.exist(),
+        then: Joi.optional(),
+        otherwise: Joi.when("catalogId", {
+          is: Joi.exist(),
+          then: Joi.optional(),
+          otherwise: Joi.required(),
+        }),
+      }),
+    }),
+  customDescription: Joi.string().allow("").max(250).optional().label("description"),
+  customVariantTitle: Joi.string().allow("").max(40).optional().label("variant"),
+  customBarcode: Joi.string().allow("").max(150).optional().label("barcode"),
+  quantity: Joi.number().integer().min(1).max(99).default(1),
+  amount: Joi.number().min(0).max(9999).precision(3).default(0).optional(),
+  unit: Joi.string()
+    .allow("")
+    .valid("MG", "G", "DG", "KG", "ML", "CL", "DL", "L", "MULTIPACK", "")
+    .optional(),
+  estimatedPrice: Joi.number().min(0).precision(2).max(999999).default(0),
+  currency: Joi.string().length(3).uppercase().valid("CZK", "EUR").optional(),
+});
+
+export const updateShoppingListItemSchema = Joi.object({
+  inventoryId: Joi.number().integer().positive().required(),
+  shoppingListId: Joi.number().integer().positive().required(),
+  itemId: Joi.number().integer().positive().optional(),
+  customTitle: Joi.string().max(100).label("labelTitle").optional(),
+  customDescription: Joi.string().allow("").max(250).optional().label("description"),
+  customVariantTitle: Joi.string().allow("").max(40).optional().label("variant"),
+  customBarcode: Joi.string().allow("").max(150).optional().label("barcode"),
+  quantity: Joi.number().integer().min(1).max(99).default(1),
+  amount: Joi.number().min(0).max(9999).precision(3).optional(),
+  unit: Joi.string()
+    .allow("")
+    .valid("MG", "G", "DG", "KG", "ML", "CL", "DL", "L", "MULTIPACK", "")
+    .optional(),
+  estimatedPrice: Joi.number().min(0).precision(2).max(999999),
+  currency: Joi.string().length(3).uppercase().valid("CZK", "EUR").optional(),
+
+  isChecked: Joi.boolean().optional(),
+});
+
+export const deleteShoppingListItemSchema = Joi.object({
+  inventoryId: Joi.number().integer().positive().required(),
+  shoppingListId: Joi.number().integer().positive().required(),
+  itemId: Joi.number().integer().positive().required(),
+  quantityToRemove: Joi.number().integer().positive().optional(),
+});

@@ -82,7 +82,7 @@ export const resolveFoodLabelUpdateData = async (userId, catalogId, data) => {
 };
 
 // updatuje uzivateluv label
-export const updateFoodLabelService = async (userId, data, isAdmin) => {
+export const updateOrCreateFoodLabelService = async (userId, data, isAdmin) => {
   let imageData = null;
   try {
     const { foodLabelId, ...updateData } = data;
@@ -328,10 +328,10 @@ export const getLabelSuggestionsService = async (
         amount: item?.amount || 0,
         existingItems,
         variants: variants,
+        foodId: inventoryFoods[0]?.id || null,
         ...(isAdmin
           ? {
               isUserLabel: item.userId === userId,
-              foodId: inventoryFoods[0]?.id || null,
               userId: item.userId,
               hasStock: inventoryFoods.some((f) => (f._count?.instances || 0) > 0) || false,
               isInInventory: inventoryFoods.length > 0,

@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useMemo } from "react";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import  { useState, useCallback, useMemo } from "react";
+import {  StyleSheet, View } from "react-native";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedLine } from "@/components/themed/ThemedLine";
@@ -21,6 +21,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { ITEM_TYPE_HEADER, ITEM_TYPE_INSTANCE } from "@/constants/general";
 import { EmptyState } from "@/components/common/EmptyState";
+import { ThemedActivityIndicator } from "../../../components/themed/ThemedActivityIndicator";
 
 const ITEM_HEIGHT = responsiveSize.vertical(60);
 
@@ -104,9 +105,7 @@ export default function ConsumeBarcodeScreen() {
   return (
     <ThemedView style={{ flex: 1 }}>
       {isLoading ? (
-        <ThemedView style={styles.center}>
-          <ActivityIndicator size={"large"} />
-        </ThemedView>
+        <ThemedActivityIndicator size={"large"} container={true}/>
       ) : barcodeData?.instances?.length === 0 ? (
         <EmptyState
           icon="barcode"
@@ -139,7 +138,11 @@ export default function ConsumeBarcodeScreen() {
                 ) : null}
                 {barcode ? (
                   <View style={styles.barcodeRow}>
-                    <IconSymbol name="barcode" size={responsiveSize.moderate(12)} color={colors.text + "55"} />
+                    <IconSymbol
+                      name="barcode"
+                      size={responsiveSize.moderate(12)}
+                      color={colors.text + "55"}
+                    />
                     <ThemedText style={[styles.barcodeText, { color: colors.text + "55" }]}>
                       {barcode}
                     </ThemedText>

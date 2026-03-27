@@ -2,7 +2,7 @@ import { getHistoryRepository } from "../repositories/foodHistoryRepository.js";
 import { getFoodInventoryUserRepository } from "../repositories/foodInventoryRepository.js";
 import { getPricesMapFromHistoryRepository } from "../repositories/priceRepository.js";
 import { getUsersMapFromHistoryRepository } from "../repositories/userRepository.js";
-import { capitalizeFirst } from "../utils/stringUtils.js";
+import {  formatTitleCase } from "../utils/stringUtils.js";
 import { convertPrice, createBaseCurrency } from "./priceService.js";
 
 // vraci historii
@@ -89,7 +89,7 @@ export const getHistoryService = async (inventoryId, data, userId, isAdmin) => {
       const userData = userMap.get(cleanMetadata.user.userId);
       const name =
         userData?.name && userData?.surname
-          ? `${capitalizeFirst(userData.name)} ${capitalizeFirst(userData.surname)}`
+          ? `${formatTitleCase(userData.name)} ${formatTitleCase(userData.surname)}`
           : (userData?.username ?? null);
 
       if (!name) continue;
@@ -158,7 +158,7 @@ export const getHistoryService = async (inventoryId, data, userId, isAdmin) => {
       const surname = log?.user?.surname;
       const user =
         name && surname
-          ? `${capitalizeFirst(name)} ${capitalizeFirst(surname)}`
+          ? `${formatTitleCase(name)} ${formatTitleCase(surname)}`
           : log?.user?.username;
 
       currentBatch = {

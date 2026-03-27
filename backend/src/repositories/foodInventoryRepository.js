@@ -1,14 +1,14 @@
 import { ConflictError, NotFoundError } from "../errors/errors.js";
 import prisma from "../utils/prisma.js";
 import { sortBy } from "../utils/sort.js";
-import { capitalizeFirst } from "../utils/stringUtils.js";
+import {  formatTitleCase } from "../utils/stringUtils.js";
 
 //vytvari inventar jidla s prvnim jeho uzivatelem (owner)
 export const createFoodInventoryRepository = async (userId, title, icon) => {
   try {
     return await prisma.foodInventory.create({
       data: {
-        title: capitalizeFirst(title),
+        title: formatTitleCase(title),
         icon: icon,
         memberCount: 1,
         users: {
@@ -480,7 +480,7 @@ export const updateFoodInventoryRepository = async (inventoryId, title, icon) =>
     return await prisma.foodInventory.update({
       where: { id: inventoryId },
       data: {
-        title: capitalizeFirst(title),
+        title: formatTitleCase(title),
         icon: icon,
       },
     });

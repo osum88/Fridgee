@@ -6,7 +6,7 @@ import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFrien
 import { createUser, deleteUser, deleteUserProfileImage, getAllUsersAdmin, getUserById, updateUser, updateUserProfileImage } from "../controllers/userController.js";
 import { createUserSchema, updateUserAdminSchema, userIdAdminSchema } from "../validation/userValidation.js";
 import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, leaveInventory, getAllFoodInventory, getInventoryContent, getInventoryDetailsWithUser, getUsersByInventoryId, getUsersByInventoryIdByRole, searchUsersForInventory, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
-import { inventoryIdAdminSchema, changeRoleAdminSchema, changeSettingAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema, inventoryIdSchema, searchInventoryLabelAdminSchema, getHistorySchema, inventoryIdBarcodeSchema, foodCatalogIdInventoryIdSchema, searchUsersForInventorySchema, gellAllUsersSchema, changeRoleSchema } from "../validation/foodInventoryValidation.js";
+import { inventoryIdAdminSchema, changeRoleAdminSchema, changeSettingAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema, inventoryIdSchema, searchInventoryLabelAdminSchema, getHistorySchema, inventoryIdBarcodeSchema, foodCatalogIdInventoryIdSchema, searchUsersForInventorySchema, gellAllUsersSchema, changeRoleSchema, createShoppingListSchema, updateShoppingListSchema, getShoppingListByIdSchema, createShoppingListItemSchema, updateShoppingListItemSchema, deleteShoppingListItemSchema } from "../validation/foodInventoryValidation.js";
 import { getFriendsAdminSchema } from "../validation/friendValidation.js";
 import { sanitize } from "../middlewares/sanitize.js";
 import { foodCatalogIdSchema, foodCatalogWithLabelByBarcodeSchema,  } from "../validation/foodCatalogValidation.js";
@@ -21,6 +21,8 @@ import { addFoodInstanceSchema, consumeFoodInstanceSchema, deleteFoodInstancesSc
 import { deleteFoodLabel, getLabelSuggestions, updateFoodLabel } from "../controllers/foodLabelController.js";
 import { foodLabelIdSchema, updateFoodLabelSchema } from "../validation/foodLabelValidation.js";
 import { getHistory } from "../controllers/foodHistoryController.js";
+import { createShoppingList, getShoppingListById, getShoppingLists, updateShoppingList } from "../controllers/shoppingListController.js";
+import { createShoppingListItem, deleteShoppingListItem, updateShoppingListItem } from "../controllers/shoppingListItemController.js";
 
 
 const router = express.Router();
@@ -51,19 +53,19 @@ router.get("/users/:id/friends", validate(getFriendsAdminSchema), authenticateTo
 
 //                               FOOD INVENTORY
 //vytvari inventar a inventory user nastaveny jako OWNER
-router.post("/users/:id/inventory", validate(createFoodInventoryAdminSchema), authenticateToken, sanitize, authorizeAdmin, createFoodInventory);
+router.post("/inventory/users/:id", validate(createFoodInventoryAdminSchema), authenticateToken, sanitize, authorizeAdmin, createFoodInventory);
 
 //vytvori inventory user nastaveny jako USER
-router.post("/users/:id/inventory/:inventoryId/users", validate(createInventoryUserAdminSchema),  authenticateToken, sanitize, authorizeAdmin, createInventoryUser);
+router.post("/inventory/:inventoryId/users/:id", validate(createInventoryUserAdminSchema),  authenticateToken, sanitize, authorizeAdmin, createInventoryUser);
 
 //zmena settings usera
-router.patch("/users/:id/inventory/:inventoryId/users/settings", validate(changeSettingAdminSchema), authenticateToken, sanitize, authorizeAdmin, changeSettingFoodInventoryUser);
+router.patch("/inventory/:inventoryId/users/:id/settings", validate(changeSettingAdminSchema), authenticateToken, sanitize, authorizeAdmin, changeSettingFoodInventoryUser);
 
 //meni roli user v inventari
 router.patch("/inventory/:inventoryId/users/:targetUserId", validate(changeRoleSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, changeRoleInventoryUser);
 
 //smaze uzivatele z inventare
-router.delete("/users/:id/inventory/:inventoryId/users/", validate(deleteAdminSchema), authenticateToken, authorizeAdmin, leaveInventory);
+router.delete("/inventory/:inventoryId/users/:id", validate(deleteAdminSchema), authenticateToken, authorizeAdmin, leaveInventory);
 
 //vrati vsechny uzivatele 
 router.get("/inventory/:inventoryId/users/all", validate(gellAllUsersSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getUsersByInventoryId);
@@ -96,7 +98,7 @@ router.get("/inventory/:inventoryId/catalog/:foodCatalogId", validate(foodCatalo
 router.get("/inventory/:inventoryId/barcode/:barcode", validate(inventoryIdBarcodeSchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getFoodByBarcode);
 
 //ziska detail inventare s opravnenim 
-router.get("/users/:id/inventory/:inventoryId", validate(inventoryIdAdminSchema), authenticateToken, sanitize, authorizeAdmin, getInventoryDetailsWithUser);
+router.get("/inventory/:inventoryId/users/:id", validate(inventoryIdAdminSchema), authenticateToken, sanitize, authorizeAdmin, getInventoryDetailsWithUser);
 
 //vrati vsechny inventare uzivatele
 router.get("/users/:id/inventory", authenticateToken, authorizeAdmin, getAllFoodInventory);
@@ -108,6 +110,31 @@ router.get("/users/:id/inventory/:inventoryId/suggestions", validate(searchInven
 //vraci historii
 router.get("/inventory/:inventoryId/history", validate(getHistorySchema), authenticateToken, sanitize, authorizeAdminWithoutUserId, getHistory);
 // api/admin/inventory/19/history?limit=20&cursor=64&type=ADD
+
+//                         FOOD SHOPPING LIST
+
+//vytvori nakupni seznam
+router.post("/inventory/:inventoryId/shopping-lists", authenticateToken, authorizeAdminWithoutUserId, sanitize, validate(createShoppingListSchema), createShoppingList);
+
+//updatuje nakupni seznam
+router.patch("/inventory/:inventoryId/shopping-lists/:shoppingListId", authenticateToken, authorizeAdminWithoutUserId, sanitize, validate(updateShoppingListSchema), updateShoppingList);
+
+//vraci nakupni seznam
+router.get("/inventory/:inventoryId/shopping-lists/:shoppingListId", authenticateToken, authorizeAdminWithoutUserId, sanitize, validate(getShoppingListByIdSchema), getShoppingListById);
+
+//vraci vsechny nakupni seznam
+router.get("/inventory/:inventoryId/shopping-lists", authenticateToken, authorizeAdminWithoutUserId, sanitize, validate(inventoryIdSchema), getShoppingLists);
+
+//                      FOOD SHOPPING ITEMS
+
+//vytvori item v nakupnim seznamu
+router.post("/inventory/:inventoryId/shopping-lists/:shoppingListId/items", authenticateToken, authorizeAdminWithoutUserId, sanitize, validate(createShoppingListItemSchema), createShoppingListItem);
+
+//upravi item v nakupnim seznamu
+router.patch("/inventory/:inventoryId/shopping-lists/:shoppingListId/items/:itemId", authenticateToken, authorizeAdminWithoutUserId, sanitize, validate(updateShoppingListItemSchema), updateShoppingListItem);
+
+//smaze item v nakupnim seznamu
+router.delete("/inventory/:inventoryId/shopping-lists/:shoppingListId/items/:itemId", authenticateToken, authorizeAdminWithoutUserId, sanitize, validate(deleteShoppingListItemSchema), deleteShoppingListItem);
 
 
 //                         FOOD CATALOG

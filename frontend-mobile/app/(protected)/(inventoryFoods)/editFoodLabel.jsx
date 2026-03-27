@@ -182,7 +182,11 @@ export default function EditFoodLabelScreen() {
           const updatedId = response?.data?.id;
           await queryClient.invalidateQueries({ queryKey: ["available-food-labels"] });
           queryClient.invalidateQueries({ queryKey: ["food-label", parseInt(foodLabelId)] });
-          if (title !== inputText?.title) {
+          if (
+            title !== current?.title ||
+            description !== current?.description ||
+            paramFoodImageUrl !== current?.foodImageUrl
+          ) {
             queryClient.invalidateQueries({ queryKey: ["inventory-content"] });
             queryClient.invalidateQueries({ queryKey: ["food-detail"] });
           }
@@ -201,7 +205,17 @@ export default function EditFoodLabelScreen() {
         },
       },
     );
-  }, [isSubmitting, errors, foodLabelId, formData, updateFoodLabel, , queryClient]);
+  }, [
+    isSubmitting,
+    errors,
+    foodLabelId,
+    formData,
+    updateFoodLabel,
+    description,
+    queryClient,
+    title,
+    paramFoodImageUrl,
+  ]);
 
   useLayoutEffect(() => {
     navigation.setOptions({

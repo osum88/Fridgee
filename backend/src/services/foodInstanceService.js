@@ -243,7 +243,7 @@ export const deleteFoodInstancesService = async (instanceIds, userId, isAdmin) =
 //prida instanci
 export const addFoodInstanceService = async (userId, data, isAdmin) => {
   // overi existenci foodu a ziska inventoryId
-  const food = await getFoodByIdRepository(data.foodId);
+  const food = await getFoodByIdRepository(data.foodId , userId);
 
   // overi ze uzivatel je v inventari
   if (!isAdmin) {

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef } from "react";
-import { StyleSheet, View, ActivityIndicator, Pressable } from "react-native";
+import { StyleSheet, View,  Pressable } from "react-native";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ImageViewer } from "@/components/image/ImageViewer";
@@ -20,6 +20,7 @@ import { useDebounce } from "@/hooks/debounce/useDebounce";
 import { useFoodLabelStore } from "@/hooks/store/useFoodLabelStore";
 import { EmptyState } from "@/components/common/EmptyState";
 import { FoodLabelSkeletonList } from "@/components/foodLabel/FoodLabelSkeleton";
+import { ThemedActivityIndicator } from "../themed/ThemedActivityIndicator";
 
 const LabelItemComponent = ({ item, colors, onPress }) => (
   <Pressable
@@ -68,7 +69,17 @@ const LabelItemComponent = ({ item, colors, onPress }) => (
   </Pressable>
 );
 
-const LabelItem = React.memo(LabelItemComponent);
+const LabelItem = React.memo(
+  LabelItemComponent,
+  (prev, next) =>
+    prev.item.id === next.item.id &&
+    prev.item.title === next.item.title &&
+    prev.item.description === next.item.description &&
+    prev.item.foodImageUrl === next.item.foodImageUrl &&
+    prev.item.barcode === next.item.barcode &&
+    prev.item.isInventoryLabel === next.item.isInventoryLabel &&
+    prev.colors === next.colors,
+);
 
 export default function FoodLabelsScreen({ source }) {
   const listRef = useRef(null);
@@ -154,7 +165,7 @@ export default function FoodLabelsScreen({ source }) {
             { paddingBottom: insets.bottom + responsiveSize.vertical(10) },
           ]}
           ListFooterComponent={
-            isFetchingNextPage ? <ActivityIndicator style={styles.footer} /> : null
+            isFetchingNextPage ? <ThemedActivityIndicator style={styles.footer} /> : null
           }
           ListEmptyComponent={
             <ThemedView style={styles.empty}>

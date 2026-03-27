@@ -128,6 +128,7 @@ export const useAcceptInventoryInvitation = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inventories"] });
+      queryClient.invalidateQueries({ queryKey: ["available-food-labels"] });
     },
     onError: (_, __, context) => {
       if (context?.previous) {

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { StyleSheet, ActivityIndicator, Pressable } from "react-native";
+import { StyleSheet,  Pressable } from "react-native";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { responsiveSize } from "@/utils/scale";
 import {
@@ -18,6 +18,7 @@ import { Search } from "@/components/input/Search";
 import { useDebounce } from "@/hooks/debounce/useDebounce";
 import { IconSymbol } from "@/components/icons/IconSymbol";
 import { HistoryFilterSheet } from "@/components/bottomSheet/HistoryFilterBottomSheet";
+import { ThemedActivityIndicator } from "../../../../components/themed/ThemedActivityIndicator";
 
 export default function InventoryHistoryScreen() {
   const [filters, setFilters] = useState({});
@@ -133,9 +134,7 @@ export default function InventoryHistoryScreen() {
         }}
       />
       {isLoading ? (
-        <ThemedView style={styles.center}>
-         <ActivityIndicator size={"large"} />
-        </ThemedView>
+        <ThemedActivityIndicator size={"large"} container={true} />
       ) : items.length === 0 ? (
         <EmptyState
           icon="clock.arrow.trianglehead.counterclockwise.rotate.90"
@@ -153,7 +152,7 @@ export default function InventoryHistoryScreen() {
           onEndReachedThreshold={0.3}
           contentContainerStyle={styles.content}
           ListFooterComponent={
-            isFetchingNextPage ? <ActivityIndicator style={styles.footer} /> : null
+            isFetchingNextPage ? <ThemedActivityIndicator style={styles.footer} /> : null
           }
         />
       )}

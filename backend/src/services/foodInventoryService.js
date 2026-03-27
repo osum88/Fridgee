@@ -28,7 +28,7 @@ import {
 } from "../repositories/foodInventoryRepository.js";
 import { getUserByIdRepository } from "../repositories/userRepository.js";
 import { compareLocale, sortBy } from "../utils/sort.js";
-import { capitalizeFirst } from "../utils/stringUtils.js";
+import {  formatTitleCase } from "../utils/stringUtils.js";
 import { convertPrice, createBaseCurrency } from "./priceService.js";
 
 // vytvari inventar s jidlem
@@ -121,7 +121,7 @@ export const changeRoleInventoryUserService = async (
 //smaze uzivatele inventare
 export const leaveInventoryService = async (userId, inventoryId, newOwnerId = null) => {
   // kontrola existence uzivatele v inventari
-  const userInventory = await getFoodInventoryUserRepository(userId, inventoryId);
+  const userInventory = await getFoodInventoryUserRepository(userId, inventoryId, false);
   if (!userInventory) {
     throw new NotFoundError("User is not a member of this inventory.");
   }
@@ -147,7 +147,7 @@ export const deleteOtherFoodInventoryUserService = async (removerId, inventoryId
     throw new BadRequestError("You cannot remove yourself. Please use the self-removal function.");
   }
   // kontrola existence odstranujiciho uzivatele v inventari
-  const removerInventoryUser = await getFoodInventoryUserRepository(removerId, inventoryId);
+  const removerInventoryUser = await getFoodInventoryUserRepository(removerId, inventoryId, false);
   if (!removerInventoryUser) {
     throw new ForbiddenError("You do not have permission to perform this action.");
   }
@@ -157,7 +157,7 @@ export const deleteOtherFoodInventoryUserService = async (removerId, inventoryId
     throw new ForbiddenError("Only the owner of the inventory can remove other users.");
   }
   // kontrola existence cilového uzivatele v inventari
-  const targetInventoryUser = await getFoodInventoryUserRepository(targetUserId, inventoryId);
+  const targetInventoryUser = await getFoodInventoryUserRepository(targetUserId, inventoryId, false);
   if (!targetInventoryUser) {
     throw new NotFoundError("Target user is not a member of this inventory.");
   }
@@ -183,7 +183,7 @@ export const getUsersByInventoryIdByRoleService = async (
 
   // kontrola existence uzivatele v inventari
   if (!isAdmin) {
-    const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId);
+    const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId, false);
     if (!inventoryUser) {
       throw new ForbiddenError("You do not have permission to view users in this inventory.");
     }
@@ -204,7 +204,7 @@ export const getUsersByInventoryIdService = async (
 
   // kontrola existence uzivatele v inventari
   if (!isAdmin) {
-    const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId);
+    const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId, false);
     if (!inventoryUser) {
       throw new ForbiddenError("You do not have permission to view users in this inventory.");
     }
@@ -220,8 +220,8 @@ export const getUsersByInventoryIdService = async (
     role: data?.role || "",
     resultName:
       data.user.name && data.user.surname
-        ? `${capitalizeFirst(data.user.name)} ${capitalizeFirst(data.user.surname)}`
-        : capitalizeFirst(data.user.username),
+        ? `${formatTitleCase(data.user.name)} ${formatTitleCase(data.user.surname)}`
+        : formatTitleCase(data.user.username),
   }));
 
   const key = sortByString === "username" ? "username" : "resultName";
@@ -237,7 +237,7 @@ export const archiveFoodInventoryService = async (userId, inventoryId, isArchive
 
   // kontrola existence cilového uzivatele v inventari
   if (!isAdmin) {
-    const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId);
+    const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId, false);
     if (!inventoryUser) {
       throw new NotFoundError("User is not a member of this inventory.");
     }
@@ -265,7 +265,7 @@ export const archiveFoodInventoryService = async (userId, inventoryId, isArchive
 export const updateFoodInventoryService = async (userId, inventoryId, title, icon, isAdmin) => {
   // kontrola existence uzivatele v inventari
   if (!isAdmin) {
-    const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId);
+    const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId, false);
     // pouze owner muze updatovat inventar
     if (!inventoryUser || inventoryUser.role !== "OWNER") {
       throw new ForbiddenError("Only the owner of the inventory can update inventory.");
@@ -306,7 +306,7 @@ export const getInventoryDetailsWithUserService = async (userId, inventoryId, is
   const inventory = await getFoodInventoryRepository(inventoryId);
 
   // kontrola existence uzivatele v inventari
-  const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId);
+  const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId, false);
   if (!inventoryUser) {
     throw new ForbiddenError("Only the member of the inventory can view it.");
   }
@@ -337,7 +337,7 @@ export const changeSettingFoodInventoryUserService = async (
   }
 
   // kontrola existence cilového uzivatele v inventari
-  const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId);
+  const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId, false);
   if (!inventoryUser) {
     throw new NotFoundError("You do not have permission to modify settings in this inventory.");
   }

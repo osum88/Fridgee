@@ -1,11 +1,4 @@
-import {
-  ActivityIndicator,
-  InteractionManager,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { InteractionManager, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { ThemedView } from "@/components/themed/ThemedView";
 import i18n from "@/constants/translations";
@@ -29,6 +22,7 @@ import { Search } from "@/components/input/Search";
 import { normalizeText } from "@/utils/stringUtils";
 import { LIST_ITEM_TYPE } from "@/constants/general";
 import { EmptyState } from "@/components/common/EmptyState";
+import { ThemedActivityIndicator } from "@/components/themed/ThemedActivityIndicator";
 
 //hlavni tlacitko (prida inventar nebo presmeruje na sken)
 const MainFab = ({ onPress, color, inventoryId }) => (
@@ -290,9 +284,7 @@ export default function InventoryScreen() {
           </Pressable>
         </ThemedView>
         {isLoadingFood ? (
-          <ThemedView style={styles.center}>
-            <ActivityIndicator size={"large"} />
-          </ThemedView>
+          <ThemedActivityIndicator size={"large"} container={true} />
         ) : sections && sections.length === 0 ? (
           <EmptyState
             icon={"basket"}

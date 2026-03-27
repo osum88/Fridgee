@@ -108,7 +108,7 @@ export const updateFoodService = async (userId, data, isAdmin) => {
   try {
     const { foodId, ...restData } = data;
 
-    const food = await getFoodByIdRepository(foodId);
+    const food = await getFoodByIdRepository(foodId, userId);
 
     //kontrola opravneni pro kazdou instanci jestli patri do userova inventare
     const inventoryUser = await getFoodInventoryUserRepository(userId, food.inventoryId, false);

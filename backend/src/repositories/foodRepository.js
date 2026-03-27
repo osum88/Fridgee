@@ -378,10 +378,21 @@ export const getCategoryAndFoodByIdRepository = async (foodId, throwError = true
 };
 
 // Vrátí čistá data o potravině bez relací
-export const getFoodByIdRepository = async (foodId, throwError = true) => {
+export const getFoodByIdRepository = async (foodId, userId, throwError = true) => {
   try {
     const food = await prisma.food.findUnique({
       where: { id: foodId },
+      include: {
+        catalog: {
+          include: {
+            labels: {
+              where: { userId: userId, isDeleted: false },
+            },
+          },
+        },
+        variant: true,
+        label: true,
+      },
     });
 
     if (!food) {

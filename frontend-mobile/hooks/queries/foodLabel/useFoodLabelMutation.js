@@ -5,9 +5,6 @@ import { deleteFoodLabelApi, updateFoodLabelApi } from "@/api/foodLabel";
 export const useDeleteFoodLabel = () => {
   return useMutation({
     mutationFn: ({ foodLabelId }) => deleteFoodLabelApi(foodLabelId),
-    // onSuccess: () => {
-    //   queryClient.invalidateQueries({ queryKey: ["available-food-labels"] });
-    // },
   });
 };
 

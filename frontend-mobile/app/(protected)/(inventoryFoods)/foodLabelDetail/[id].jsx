@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from "react";
-import { StyleSheet, View, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
+import { StyleSheet, View, ScrollView, TouchableOpacity,  } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemedView } from "@/components/themed/ThemedView";
@@ -20,12 +20,12 @@ import { useGetUserQuery } from "@/hooks/queries/user/useUserQuery";
 import { useDeleteFoodLabel } from "@/hooks/queries/foodLabel/useFoodLabelMutation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetFoodLabel } from "@/hooks/queries/foodLabel/useFoodLabelQuery";
+import { ThemedActivityIndicator } from "../../../../components/themed/ThemedActivityIndicator";
 
 export default function FoodLabelDetailScreen() {
   const [deleteVisible, setDeleteVisible] = useState(false);
 
   const { id } = useLocalSearchParams();
-  //   const foodLabel = JSON.parse(initialData);
   const colors = useThemeColor();
   const insets = useSafeAreaInsets();
   const { userId } = useUser();
@@ -39,6 +39,7 @@ export default function FoodLabelDetailScreen() {
     return getCurrency(userData.data.country);
   }, [userData?.data?.country]);
 
+  // potvrdi edit
   const handleEdit = useCallback(() => {
     router.push({
       pathname: "/(protected)/(inventoryFoods)/editFoodLabel",
@@ -46,6 +47,7 @@ export default function FoodLabelDetailScreen() {
     });
   }, [foodLabel]);
 
+  //potrvdi smazani
   const handleDeleteConfirm = useCallback(() => {
     deleteFoodLabel(
       { foodLabelId: parseInt(id) },
@@ -62,7 +64,7 @@ export default function FoodLabelDetailScreen() {
   if (isLoading) {
     return (
       <ThemedView style={styles.center}>
-        <ActivityIndicator size={"large"} />
+        <ThemedActivityIndicator size={"large"} />
       </ThemedView>
     );
   }

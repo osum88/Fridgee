@@ -79,12 +79,14 @@ export const normalizeText = (str) => {
     .toLowerCase();
 };
 
-//velke pismeno velkym a zbytek malym
-export const capitalizeFirst = (text) => {
-  if (!text || typeof text !== "string") return "";
-
-  const trimmed = text.trim();
-  if (trimmed.length === 0) return "";
-
-  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+//vytvori klic pro hledani stejneho jidla v nakupnim seznamu
+export const buildShoppingListItemKey = (data) => {
+  return [
+    data.customVariantTitle ?? "",
+    data.customBarcode ?? "",
+    data.amount ?? 0,
+    data.unit ?? "",
+    data.estimatedPrice ?? 0,
+    data.currency ?? "",
+  ].join("_");
 };

@@ -283,7 +283,7 @@
   "removeCatalogConfirm": "Are you sure you want to delete the catalog for",
   "deleteCatalog": "Delete catalog",
   "catalog": "Catalog",
-"editCatalog": "Edit catalog",
+  "editCatalog": "Edit catalog",
 
   "historyAction": {
     "ADD": "Food added",

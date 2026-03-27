@@ -154,3 +154,36 @@ export const validateCatalogOwnershipRepository = async (id, userId) => {
     throw error;
   }
 };
+
+// vraci food s labelem
+export const getFoodByCatalogIdRepository = async (catalogId, inventoryId, userId) => {
+  try {
+    return await prisma.foodCatalog.findFirst({
+      where: {
+        id: catalogId,
+      },
+      include: {
+        labels: {
+          where: {
+            userId: userId,
+            isDeleted: false,
+          },
+        },
+        ...(inventoryId && {
+          foods: {
+            where: {
+              inventoryId: inventoryId,
+            },
+            select: {
+              id: true,
+              label: true,
+            },
+          },
+        }),
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching food catalog by catalog id:", error);
+    throw error;
+  }
+};

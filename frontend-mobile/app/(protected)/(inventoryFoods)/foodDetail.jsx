@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { StyleSheet } from "react-native";
+import  { useCallback, useMemo, useState } from "react";
+import {  StyleSheet } from "react-native";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { responsiveSize } from "@/utils/scale";
@@ -23,7 +23,8 @@ import { RefreshableFlashList } from "@/components/common/RefreshableFlashList";
 import { CategoryModal } from "@/components/modals/CategoryModal";
 import { useGetInventoryCategoriesQuery } from "@/hooks/queries/inventory/useInventoryQuary";
 import { showGlobalError } from "@/utils/showGlobalError";
-import { ActivityIndicator } from "react-native-paper";
+import { ThemedActivityIndicator } from "../../../components/themed/ThemedActivityIndicator";
+
 
 const ITEM_HEIGHT = responsiveSize.vertical(60);
 
@@ -170,9 +171,7 @@ export default function FoodDetailScreen() {
 
   if (isLoading) {
     return (
-      <ThemedView style={styles.center}>
-        <ActivityIndicator size={"large"} />
-      </ThemedView>
+        <ThemedActivityIndicator size={"large"} container={true}/>
     );
   }
 

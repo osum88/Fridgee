@@ -281,7 +281,7 @@
   "removeCatalogConfirm": "Opravdu chcete odstranit katalog pro",
   "deleteCatalog": "Odstranit katalog",
   "catalog": "Katalog",
-"editCatalog": "Úprava katalogu",
+  "editCatalog": "Úprava katalogu",
 
   "historyAction": {
     "ADD": "Přidání potraviny",
