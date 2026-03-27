@@ -1,6 +1,7 @@
 import {
   createShoppingListItemService,
   deleteShoppingListItemService,
+  getShoppingListItemService,
   updateShoppingListItemService,
 } from "../services/shoppingListItemService.js";
 import handleResponse from "../utils/responseHandler.js";
@@ -63,6 +64,27 @@ export const deleteShoppingListItem = async (req, res, next) => {
       quantityToRemove ? parseInt(quantityToRemove, 10) : undefined,
     );
     handleResponse(res, 200, "Shopping list item deleted successfully", null);
+  } catch (err) {
+    next(err);
+  }
+};
+
+//vraci item v nakupnim seznamu
+export const getShoppingListItem = async (req, res, next) => {
+  try {
+    const { inventoryId, shoppingListId, itemId } = req.params;
+    const userId = req.userId;
+    const isAdmin = req.adminRoute;
+
+    const item = await getShoppingListItemService(
+      parseInt(inventoryId, 10),
+      parseInt(shoppingListId, 10),
+      parseInt(itemId, 10),
+      userId,
+      isAdmin,
+    );
+
+    handleResponse(res, 200, "Shopping list item fetched successfully", item);
   } catch (err) {
     next(err);
   }

@@ -249,3 +249,9 @@ export const deleteShoppingListItemSchema = Joi.object({
   itemId: Joi.number().integer().positive().required(),
   quantityToRemove: Joi.number().integer().positive().optional(),
 });
+
+export const getShoppingListItemSchema = Joi.object({
+  inventoryId: Joi.number().integer().positive().required(),
+  shoppingListId: Joi.number().integer().positive().required(),
+  itemId: Joi.number().integer().positive().required(),
+});

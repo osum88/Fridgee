@@ -1,5 +1,6 @@
 import { BadRequestError, ForbiddenError, NotFoundError } from "../errors/errors.js";
 import { getFoodInventoryUserRepository } from "../repositories/foodInventoryRepository.js";
+import { getActiveFoodVariantsRepository } from "../repositories/foodVariantRepository.js";
 import {
   createShoppingListRepository,
   getShoppingListByIdRepository,
@@ -79,14 +80,64 @@ export const getShoppingListsService = async (inventoryId, userId, isAdmin) => {
     }
   }
 
-  const lists = await getShoppingListsByInventoryRepository(inventoryId);
-  const sorted = sortBy(lists, "title");
-  return sorted.map((list) => ({
-    ...list,
-    // totalItems: list.items.length,
-    // checkedItems: list.items.filter((i) => i.isChecked).length,
-    // items: undefined,
-  }));
+  const lists = await getShoppingListsByInventoryRepository(inventoryId, userId);
+  if (!lists) {
+    return [];
+  }
+  const sortedLists = sortBy(lists, "title", { secondaryKey: "id" });
+
+  return sortedLists.map((list) => {
+    const mappedItems = list.items.map((item) => {
+      const barcode = item?.catalogId ? item?.catalog?.barcode : item?.customBarcode;
+      const activeLabel = item?.catalog?.labels[0] || item?.label || null;
+
+      const labelData = activeLabel
+        ? {
+            customTitle: activeLabel?.title || "",
+            customNormalizedTitle: activeLabel?.normalizedTitle || "",
+            foodImageUrl: activeLabel?.foodImageUrl || "",
+            foodImageCloudId: activeLabel?.foodImageCloudId || null,
+          }
+        : {
+            customTitle: item?.customTitle || "",
+            customNormalizedTitle: item?.customNormalizedTitle || "",
+            foodImageUrl: "",
+            foodImageCloudId: null,
+          };
+
+      return {
+        id: item.id,
+        shoppingListId: item.shoppingListId,
+        catalogId: item?.catalogId,
+        customBarcode: barcode || "",
+        ...labelData,
+        customVariantTitle: item?.customVariantTitle || "",
+        customeDescription: item?.customDescription || "",
+        price: item?.estimatedPrice || 0,
+        unit: item?.unit || "",
+        amount: item?.amount || 0,
+        quantity: item?.quantity || 0,
+        currency: item?.currency || "CZK",
+        isChecked: item?.isChecked,
+      };
+    });
+
+    const sortedItems = sortBy(mappedItems, "customTitle", {
+      secondaryKey: "customVariantTitle",
+      tertiaryKey: "id",
+    }).sort((a, b) => {
+      if (a.isChecked === b.isChecked) return 0;
+      return a.isChecked ? 1 : -1;
+    });
+
+    return {
+      id: list.id,
+      shoppingListTitle: list?.title,
+      status: list?.status,
+      inventoryId: inventoryId,
+      items: sortedItems,
+    };
+  });
 };
 
 //vraci nakupni seznam
@@ -101,9 +152,59 @@ export const getShoppingListByIdService = async (inventoryId, shoppingListId, us
     }
   }
 
-  const list = await getShoppingListByIdRepository(shoppingListId);
+  const list = await getShoppingListByIdRepository(shoppingListId, userId);
   if (!list || list.inventoryId !== inventoryId) {
     throw new NotFoundError("Shopping list not found");
   }
-  return list;
+
+  const mappedItems = list.items.map((item) => {
+    const barcode = item?.catalogId ? item?.catalog?.barcode : item?.customBarcode;
+    const activeLabel = item?.catalog?.labels[0] || item?.label || null;
+
+    const labelData = activeLabel
+      ? {
+          customTitle: activeLabel?.title || "",
+          customNormalizedTitle: activeLabel?.normalizedTitle || "",
+          foodImageUrl: activeLabel?.foodImageUrl || "",
+          foodImageCloudId: activeLabel?.foodImageCloudId || null,
+        }
+      : {
+          customTitle: item?.customTitle || "",
+          customNormalizedTitle: item?.customNormalizedTitle || "",
+          foodImageUrl: "",
+          foodImageCloudId: null,
+        };
+
+    return {
+      id: item.id,
+      shoppingListId: item.shoppingListId,
+      catalogId: item?.catalogId,
+      customBarcode: barcode || "",
+      ...labelData,
+      customVariantTitle: item?.customVariantTitle || "",
+      customeDescription: item?.customDescription || "",
+      price: item?.estimatedPrice || 0,
+      unit: item?.unit || "",
+      amount: item?.amount || 0,
+      quantity: item?.quantity || 0,
+      currency: item?.currency || "CZK",
+      isChecked: item?.isChecked,
+    };
+  });
+
+  const sortedItems = sortBy(mappedItems, "customTitle", {
+    secondaryKey: "customVariantTitle",
+    tertiaryKey: "id",
+  }).sort((a, b) => {
+    if (a.isChecked === b.isChecked) return 0;
+    return a.isChecked ? 1 : -1;
+  });
+
+  return {
+    id: list.id,
+    shoppingListTitle: list?.title,
+    status: list?.status,
+    inventoryId: inventoryId,
+    items: sortedItems,
+  };
 };

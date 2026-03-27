@@ -68,19 +68,49 @@ const getNestedValue = (obj, key) => {
 };
 
 //hleda klic v json
-export const sortBy = (arr, key, { nullFirst = false } = {}) => {
+export const sortBy = (
+  arr,
+  key,
+  { nullFirst = false, secondaryKey = null, tertiaryKey = null } = {},
+) => {
+  const prepareItem = (item, k) => {
+    const val = getNestedValue(item, k);
+    return {
+      lower: typeof val === "number" ? val : (val ?? "").toLowerCase(),
+      isNull: val == null,
+      isNumber: typeof val === "number",
+    };
+  };
+
   const prepared = arr.map((item) => ({
     item,
-    lower: (getNestedValue(item, key) ?? "").toLowerCase(),
-    isNull: !getNestedValue(item, key),
+    primary: prepareItem(item, key),
+    secondary: secondaryKey ? prepareItem(item, secondaryKey) : null,
+    tertiary: tertiaryKey ? prepareItem(item, tertiaryKey) : null,
   }));
 
   prepared.sort((a, b) => {
-    if (nullFirst) {
-      if (a.isNull && !b.isNull) return -1;
-      if (!a.isNull && b.isNull) return 1;
+    const compareWithNull = (aVal, bVal) => {
+      if (nullFirst) {
+        if (aVal.isNull && !bVal.isNull) return -1;
+        if (!aVal.isNull && bVal.isNull) return 1;
+      }
+      if (aVal.isNumber && bVal.isNumber) return aVal.lower - bVal.lower;
+      return compareStrings(aVal.lower, bVal.lower);
+    };
+
+    const primaryResult = compareWithNull(a.primary, b.primary);
+    if (primaryResult !== 0) return primaryResult;
+
+    if (a.secondary && b.secondary) {
+      const secondaryResult = compareWithNull(a.secondary, b.secondary);
+      if (secondaryResult !== 0) return secondaryResult;
     }
-    return compareStrings(a.lower, b.lower);
+
+    if (a.tertiary && b.tertiary) {
+      return compareWithNull(a.tertiary, b.tertiary);
+    }
+    return 0;
   });
   return prepared.map((p) => p.item);
 };

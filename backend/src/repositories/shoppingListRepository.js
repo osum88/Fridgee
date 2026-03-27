@@ -1,5 +1,5 @@
 import prisma from "../utils/prisma.js";
-import {  formatTitleCase } from "../utils/stringUtils.js";
+import { formatTitleCase } from "../utils/stringUtils.js";
 
 //vytvori nakupni seznam
 export const createShoppingListRepository = async (inventoryId, userId, title) => {
@@ -34,27 +34,14 @@ export const updateShoppingListRepository = async (shoppingListId, data) => {
 };
 
 //vraci vsechny nakupni seznam
-export const getShoppingListsByInventoryRepository = async (inventoryId) => {
+export const getShoppingListsByInventoryRepository = async (inventoryId, userId) => {
   try {
     return await prisma.shoppingList.findMany({
-      where: { inventoryId },
-      orderBy: { title: "asc" },
-      //   select: {
-      //     id: true,
-      //     title: true,
-      //     status: true,
-      //     createdAt: true,
-      //     updatedAt: true,
-      //     user: {
-      //       select: { id: true, username: true },
-      //     },
-      //     items: {
-      //       select: {
-      //         id: true,
-      //         isChecked: true,
-      //       },
-      //     },
-      //   },
+      where: {
+        inventoryId: inventoryId,
+        items: { some: {} },
+      },
+      select: shoppingListSelect(userId),
     });
   } catch (error) {
     console.error("Error fetching shopping lists:", error);
@@ -63,65 +50,55 @@ export const getShoppingListsByInventoryRepository = async (inventoryId) => {
 };
 
 //vraci nakupni seznam
-export const getShoppingListByIdRepository = async (shoppingListId) => {
+export const getShoppingListByIdRepository = async (shoppingListId, userId) => {
   try {
     return await prisma.shoppingList.findUnique({
       where: { id: shoppingListId },
-      //   select: {
-      //     id: true,
-      //     title: true,
-      //     status: true,
-      //     inventoryId: true,
-      //     createdAt: true,
-      //     updatedAt: true,
-      //     user: {
-      //       select: { id: true, username: true },
-      //     },
-      //     items: {
-      //       orderBy: { createdAt: "asc" },
-      //       select: {
-      //         id: true,
-      //         quantity: true,
-      //         amount: true,
-      //         unit: true,
-      //         isChecked: true,
-      //         checkedAt: true,
-      //         customTitle: true,
-      //         customDescription: true,
-      //         customVariantTitle: true,
-      //         customBarcode: true,
-      //         estimatedPrice: true,
-      //         actualPrice: true,
-      //         currency: true,
-      //         createdAt: true,
-      //         catalog: {
-      //           select: { id: true, barcode: true },
-      //         },
-      //         variant: {
-      //           select: { id: true, title: true },
-      //         },
-      //         label: {
-      //           select: {
-      //             id: true,
-      //             title: true,
-      //             description: true,
-      //             foodImageUrl: true,
-      //           },
-      //         },
-      //         addedByUser: {
-      //           select: { id: true, username: true },
-      //         },
-      //         checkedByUser: {
-      //           select: { id: true, username: true },
-      //         },
-      //       },
-      //     },
-      //   },
+      select: shoppingListSelect(userId),
     });
   } catch (error) {
     console.error("Error fetching shopping list by id:", error);
     throw error;
   }
+};
+
+const shoppingListSelect = (userId) => {
+  return {
+    id: true,
+    inventoryId: true,
+    title: true,
+    status: true,
+    items: {
+      select: {
+        id: true,
+        shoppingListId: true,
+        catalogId: true,
+        customTitle: true,
+        customNormalizedTitle: true,
+        customDescription: true,
+        customVariantTitle: true,
+        customBarcode: true,
+        quantity: true,
+        amount: true,
+        unit: true,
+        estimatedPrice: true,
+        currency: true,
+        isChecked: true,
+        catalog: {
+          select: {
+            barcode: true,
+            labels: {
+              where: { userId: userId, isDeleted: false },
+              select: { id: true, title: true, normalizedTitle: true, foodImageUrl: true },
+            },
+          },
+        },
+        label: {
+          select: { id: true, title: true, normalizedTitle: true, foodImageUrl: true },
+        },
+      },
+    },
+  };
 };
 
 //vraci nakupni seznam

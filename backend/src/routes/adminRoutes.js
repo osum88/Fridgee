@@ -6,7 +6,7 @@ import { acceptFriend, addFriend, cancelRequestFriend, deleteFriend, getAllFrien
 import { createUser, deleteUser, deleteUserProfileImage, getAllUsersAdmin, getUserById, updateUser, updateUserProfileImage } from "../controllers/userController.js";
 import { createUserSchema, updateUserAdminSchema, userIdAdminSchema } from "../validation/userValidation.js";
 import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, leaveInventory, getAllFoodInventory, getInventoryContent, getInventoryDetailsWithUser, getUsersByInventoryId, getUsersByInventoryIdByRole, searchUsersForInventory, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
-import { inventoryIdAdminSchema, changeRoleAdminSchema, changeSettingAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema, inventoryIdSchema, searchInventoryLabelAdminSchema, getHistorySchema, inventoryIdBarcodeSchema, foodCatalogIdInventoryIdSchema, searchUsersForInventorySchema, gellAllUsersSchema, changeRoleSchema, createShoppingListSchema, updateShoppingListSchema, getShoppingListByIdSchema, createShoppingListItemSchema, updateShoppingListItemSchema, deleteShoppingListItemSchema } from "../validation/foodInventoryValidation.js";
+import { inventoryIdAdminSchema, changeRoleAdminSchema, changeSettingAdminSchema, createFoodInventoryAdminSchema, createInventoryUserAdminSchema, deleteAdminSchema, getInventoryUsersSchema, updateFoodInventorySchema, inventoryIdSchema, searchInventoryLabelAdminSchema, getHistorySchema, inventoryIdBarcodeSchema, foodCatalogIdInventoryIdSchema, searchUsersForInventorySchema, gellAllUsersSchema, changeRoleSchema, createShoppingListSchema, updateShoppingListSchema, getShoppingListByIdSchema, createShoppingListItemSchema, updateShoppingListItemSchema, deleteShoppingListItemSchema, getShoppingListItemSchema } from "../validation/foodInventoryValidation.js";
 import { getFriendsAdminSchema } from "../validation/friendValidation.js";
 import { sanitize } from "../middlewares/sanitize.js";
 import { foodCatalogIdSchema, foodCatalogWithLabelByBarcodeSchema,  } from "../validation/foodCatalogValidation.js";
@@ -22,7 +22,7 @@ import { deleteFoodLabel, getLabelSuggestions, updateFoodLabel } from "../contro
 import { foodLabelIdSchema, updateFoodLabelSchema } from "../validation/foodLabelValidation.js";
 import { getHistory } from "../controllers/foodHistoryController.js";
 import { createShoppingList, getShoppingListById, getShoppingLists, updateShoppingList } from "../controllers/shoppingListController.js";
-import { createShoppingListItem, deleteShoppingListItem, updateShoppingListItem } from "../controllers/shoppingListItemController.js";
+import { createShoppingListItem, deleteShoppingListItem, getShoppingListItem, updateShoppingListItem } from "../controllers/shoppingListItemController.js";
 
 
 const router = express.Router();
@@ -136,6 +136,8 @@ router.patch("/inventory/:inventoryId/shopping-lists/:shoppingListId/items/:item
 //smaze item v nakupnim seznamu
 router.delete("/inventory/:inventoryId/shopping-lists/:shoppingListId/items/:itemId", authenticateToken, authorizeAdminWithoutUserId, sanitize, validate(deleteShoppingListItemSchema), deleteShoppingListItem);
 
+//vraci item v nakupnim seznamu
+router.get("/inventory/:inventoryId/shopping-lists/:shoppingListId/items/:itemId", authenticateToken, authorizeAdminWithoutUserId, sanitize, validate(getShoppingListItemSchema), getShoppingListItem);
 
 //                         FOOD CATALOG
 

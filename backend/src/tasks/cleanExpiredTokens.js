@@ -5,7 +5,7 @@ export const cleanExpiredRefreshTokens = async () => {
   try {
     const now = new Date();
     const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    const fiveDaysAgo = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000);
+    const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
 
     const deletedTokens = await prisma.refreshToken.deleteMany({
       where: {
@@ -17,7 +17,7 @@ export const cleanExpiredRefreshTokens = async () => {
           // smaze pokud token je nevalidni a od token je vytvoreny vic jak 5 dni
           {
             isValid: false,
-            createdAt: { lte: fiveDaysAgo },
+            createdAt: { lte: threeDaysAgo },
           },
         ],
       },
@@ -25,6 +25,5 @@ export const cleanExpiredRefreshTokens = async () => {
     console.log(`Cleaned up ${deletedTokens.count} expired/invalid refresh tokens.`);
   } catch (error) {
     console.error("Error during refresh token cleanup:", error);
-    throw error;
   }
 };

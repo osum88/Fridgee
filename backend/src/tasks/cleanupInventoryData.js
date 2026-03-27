@@ -80,7 +80,6 @@ export const cleanupInventoryData = async () => {
     );
   } catch (error) {
     console.error("Error during inventory data cleanup:", error);
-    throw error;
   }
 };
 

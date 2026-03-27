@@ -9,6 +9,7 @@ import {
 import { getFoodByCatalogIdRepository } from "../repositories/foodCatalogRepository.js";
 import { getFoodInventoryUserRepository } from "../repositories/foodInventoryRepository.js";
 import { getFoodByIdRepository } from "../repositories/foodRepository.js";
+import { getActiveFoodVariantsRepository } from "../repositories/foodVariantRepository.js";
 import {
   createShoppingListItemRepository,
   decrementShoppingListItemQuantity,
@@ -356,4 +357,77 @@ export const deleteShoppingListItemService = async (
     }
   }
   return await deleteShoppingListItemRepository(itemId);
+};
+
+//vraci item v nakupnim seznamu
+export const getShoppingListItemService = async (
+  inventoryId,
+  shoppingListId,
+  itemId,
+  userId,
+  isAdmin,
+) => {
+  if (!isAdmin) {
+    const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId, false);
+    if (!inventoryUser) {
+      throw new ForbiddenError("You do not have permission to view items from this shopping list.");
+    }
+  }
+
+  const shoppingList = await getShoppingListByIdRepository(shoppingListId);
+  if (!shoppingList || shoppingList.inventoryId !== inventoryId) {
+    throw new NotFoundError("Shopping list not found");
+  }
+
+  const item = await getShoppingListItemDetailByIdRepository(itemId, userId, inventoryId);
+  if (!item || item.shoppingListId !== shoppingListId) {
+    throw new NotFoundError("Shopping list item not found");
+  }
+
+  let activeVariants = [];
+  if (inventoryId && inventoryId !== "null" && item?.catalogId) {
+    activeVariants = await getActiveFoodVariantsRepository(item?.catalogId, inventoryId);
+  }
+
+  const barcode = item.catalogId ? item?.catalog?.barcode : item.customBarcode;
+  const activeLabel = item?.catalog?.labels[0] || item.label || null;
+
+  const labelData = activeLabel
+    ? {
+        title: activeLabel.title || "",
+        normalizedTitle: activeLabel.normalizedTitle || "",
+        foodImageUrl: activeLabel.foodImageUrl || "",
+        foodImageCloudId: activeLabel.foodImageCloudId || null,
+      }
+    : {
+        title: item.customTitle || "",
+        normalizedTitle: item.customNormalizedTitle || "",
+        foodImageUrl: "",
+        foodImageCloudId: null,
+      };
+
+  const existingItems =
+    item?.catalog?.foods?.map((f) => ({
+      variantId: f.variant?.id || null,
+      categoryId: f.category?.id || null,
+      categoryTitle: f.category?.title || "",
+    })) ?? [];
+
+  return {
+    id: item.id,
+    shoppingListId: item.shoppingListId,
+    catalogId: item?.catalogId || null,
+    customBarcode: barcode || "",
+    ...labelData,
+    variantTitle: item.customVariantTitle || "",
+    customDescription: item.customDescription || "",
+    price: item.estimatedPrice || 0,
+    unit: item.unit || "",
+    amount: item.amount || 0,
+    quantity: item.quantity || 0,
+    currency: item.currency || "CZK",
+    isChecked: item.isChecked,
+    existingItems: existingItems,
+    variants: activeVariants,
+  };
 };

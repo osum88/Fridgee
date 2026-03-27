@@ -309,6 +309,8 @@ export const getLabelSuggestionsService = async (
           variantTitle: f.variant.title,
         }));
 
+      const sortedVariants = sortBy(variants, "variantTitle");
+
       const existingItems = inventoryFoods.map((f) => ({
         variantId: f.variant?.id || null,
         categoryId: f.category?.id || null,
@@ -327,10 +329,10 @@ export const getLabelSuggestionsService = async (
         unit: item?.unit || "",
         amount: item?.amount || 0,
         existingItems,
-        variants: variants,
-        foodId: inventoryFoods[0]?.id || null,
+        variants: sortedVariants,
         ...(isAdmin
           ? {
+              foodId: inventoryFoods[0]?.id || null,
               isUserLabel: item.userId === userId,
               userId: item.userId,
               hasStock: inventoryFoods.some((f) => (f._count?.instances || 0) > 0) || false,

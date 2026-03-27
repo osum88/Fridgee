@@ -61,9 +61,9 @@ export const getFoodCatalogWithLabelByBarcodeService = async (
       categoryTitle: f.category?.title || "",
     })),
     variants: activeVariants,
-    foodId: catalogWithLabel.foods[0]?.id || null,
     ...(isAdmin
       ? {
+          foodId: catalogWithLabel.foods[0]?.id || null,
           userId: catalogWithLabel.addedBy,
           isUserLabel: catalogWithLabel.addedBy === userId,
           isInInventory: catalogWithLabel?.foods?.length > 0,

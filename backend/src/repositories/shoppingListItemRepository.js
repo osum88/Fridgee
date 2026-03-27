@@ -13,7 +13,6 @@ export const createShoppingListItemRepository = async (shoppingListId, data, tx 
         shoppingListId,
         ...data,
       },
-      select: shoppingListItemSelect,
     });
   } catch (error) {
     console.error("Error creating shopping list item:", error);
@@ -49,7 +48,6 @@ export const getShoppingListItemByIdRepository = async (itemId) => {
   try {
     return await prisma.shoppingListItem.findUnique({
       where: { id: itemId },
-      select: shoppingListItemSelect,
     });
   } catch (error) {
     console.error("Error fetching shopping list item:", error);
@@ -110,23 +108,30 @@ export const getShoppingListItemByUniqueKeyRepository = async (
 };
 
 //vraci item vcetne detailu
-export const getShoppingListItemDetailByIdRepository = async (itemId, userId) => {
+export const getShoppingListItemDetailByIdRepository = async (itemId, userId, inventoryId) => {
   try {
     return await prisma.shoppingListItem.findUnique({
       where: { id: itemId },
       include: {
         catalog: {
-          select: {
-            id: true,
-            barcode: true,
+          include: {
             labels: {
-              where: { userId: userId },
+              where: { userId: userId, isDeleted: false },
               select: {
                 id: true,
                 title: true,
                 normalizedTitle: true,
                 description: true,
                 foodImageUrl: true,
+              },
+            },
+            foods: {
+              where: {
+                inventoryId: inventoryId,
+              },
+              select: {
+                variant: { select: { id: true, title: true } },
+                category: { select: { id: true, title: true } },
               },
             },
           },
@@ -361,76 +366,4 @@ export const splitAndMergeOnUpdateRepository = async (
     console.error("Error splitting and merging on update shopping list item:", error);
     throw error;
   }
-};
-
-const shoppingListItemSelect = {
-  id: true,
-  shoppingListId: true,
-  uniqueKey: true,
-  catalogId: true,
-  defaultLabelId: true,
-  customTitle: true,
-  customNormalizedTitle: true,
-  customDescription: true,
-  customVariantTitle: true,
-  customBarcode: true,
-  quantity: true,
-  amount: true,
-  unit: true,
-  estimatedPrice: true,
-  currency: true,
-  isChecked: true,
-  checkedBy: true,
-  checkedAt: true,
-  addedBy: true,
-  createdAt: true,
-
-  catalog: { select: { id: true, barcode: true } },
-  label: {
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      foodImageUrl: true,
-    },
-  },
-
-  addedByUser: { select: { id: true, username: true } },
-  checkedByUser: { select: { id: true, username: true } },
-};
-
-const shoppingListItemDetailSelect = {
-  id: true,
-  shoppingListId: true,
-  uniqueKey: true,
-  catalogId: true,
-  defaultLabelId: true,
-  customTitle: true,
-  customNormalizedTitle: true,
-  customDescription: true,
-  customVariantTitle: true,
-  customBarcode: true,
-  quantity: true,
-  amount: true,
-  unit: true,
-  estimatedPrice: true,
-  currency: true,
-  isChecked: true,
-  checkedBy: true,
-  checkedAt: true,
-  addedBy: true,
-  createdAt: true,
-
-  catalog: { select: { id: true, barcode: true } },
-  label: {
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      foodImageUrl: true,
-    },
-  },
-
-  addedByUser: { select: { id: true, username: true } },
-  checkedByUser: { select: { id: true, username: true } },
 };

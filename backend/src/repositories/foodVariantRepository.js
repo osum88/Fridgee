@@ -1,5 +1,6 @@
 import { NotFoundError } from "../errors/errors.js";
 import prisma from "../utils/prisma.js";
+import { sortBy } from "../utils/sort.js";
 import { formatTitleCase } from "../utils/stringUtils.js";
 
 // vrati variantu podle id
@@ -323,10 +324,11 @@ export const getActiveFoodVariantsRepository = async (catalogId, inventoryId) =>
       select: { id: true, title: true },
     });
 
-    return variants.map((v) => ({
+    const resultVariants = variants.map((v) => ({
       variantId: v.id,
       variantTitle: v.title,
     }));
+    return sortBy(resultVariants, "variantTitle");
   } catch (error) {
     console.error("Error fetching active food variants:", error);
     throw error;
