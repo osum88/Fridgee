@@ -7,7 +7,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useCameraNavigation } from "@/hooks/image/useCameraNavigation";
 import { responsiveSize } from "@/utils/scale";
 import { IconSymbol } from "@/components/icons/IconSymbol";
-import { BadgedIcon } from "@/components/icons/BadgedIcon";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { InventoryCard } from "@/components/Card/InventoryCard";
 import {
@@ -23,39 +22,8 @@ import { normalizeText } from "@/utils/stringUtils";
 import { LIST_ITEM_TYPE } from "@/constants/general";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ThemedActivityIndicator } from "@/components/themed/ThemedActivityIndicator";
-
-//hlavni tlacitko (prida inventar nebo presmeruje na sken)
-const MainFab = ({ onPress, color, inventoryId }) => (
-  <Pressable onPress={onPress} style={[styles.fabMain, { backgroundColor: color.primary }]}>
-    {inventoryId ? (
-      <BadgedIcon
-        icons={["barcode.viewfinder", "plus"]}
-        size={responsiveSize.moderate(30)}
-        color={color.onPrimary}
-        lightColorBackground={color.primary}
-        darkColorBackground={color.primary}
-      />
-    ) : (
-      <IconSymbol name={"plus"} size={responsiveSize.moderate(38)} color={color.onPrimary} />
-    )}
-  </Pressable>
-);
-
-//mensi tlacitka
-const SecondaryFab = ({ onPress, color, badgeIcons, style }) => (
-  <Pressable
-    onPress={onPress}
-    style={[styles.fabSecondary, { backgroundColor: color.secondButton }, style]}
-  >
-    <BadgedIcon
-      icons={badgeIcons}
-      size={responsiveSize.moderate(22)}
-      color={color.onPrimary}
-      lightColorBackground={color.secondButton}
-      darkColorBackground={color.secondButton}
-    />
-  </Pressable>
-);
+import { MainFab } from "@/components/button/MainFab";
+import { SecondaryFab } from "@/components/button/SecondaryFab";
 
 export default function InventoryScreen() {
   const [expandedSections, setExpandedSections] = useState({});
@@ -151,7 +119,7 @@ export default function InventoryScreen() {
             <SecondaryFab
               onPress={handleScannerPress("consume")}
               color={colors}
-              badgeIcons={["barcode.viewfinder", "minus"]}
+              icons={["barcode.viewfinder", "minus"]}
               style={styles.fabMinusPosition}
             />
             <View style={styles.bottomRow}>
@@ -159,15 +127,11 @@ export default function InventoryScreen() {
               <SecondaryFab
                 onPress={handleAddManually}
                 color={colors}
-                badgeIcons={["pencil", "plus"]}
+                icons={["pencil", "plus"]}
                 style={styles.fabPlusManuallyPosition}
               />
               {/* tlacitko pro pridani food skenem */}
-              <MainFab
-                onPress={handleScannerPress("add")}
-                color={colors}
-                inventoryId={activeInventory.id}
-              />
+              <MainFab onPress={handleScannerPress("add")} color={colors} hasContent={true} />
             </View>
           </>
         ) : (
@@ -175,7 +139,7 @@ export default function InventoryScreen() {
             // tlacitko pro pridani invenatare
             onPress={handleNavigateAddInventory}
             color={colors}
-            inventoryId={activeInventory.id}
+            hasContent={false}
           />
         )}
       </View>
@@ -278,7 +242,7 @@ export default function InventoryScreen() {
           />
           <Pressable
             onPress={() => router.push("/(protected)/(inventory)/inventorySettings")}
-            style={[styles.filterBtn, { backgroundColor: colors.cardBackground }]}
+            style={[styles.settingButton, { backgroundColor: colors.cardBackground }]}
           >
             <IconSymbol name="gearshape" size={responsiveSize.moderate(26)} color={colors.icon} />
           </Pressable>
@@ -370,7 +334,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(0, 0, 0, 0.17)",
     marginHorizontal: 0,
   },
-  filterBtn: {
+  settingButton: {
     width: responsiveSize.vertical(44),
     height: responsiveSize.vertical(44),
     borderRadius: responsiveSize.moderate(6),

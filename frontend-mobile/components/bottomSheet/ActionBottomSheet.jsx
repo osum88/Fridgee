@@ -6,20 +6,13 @@ import { responsiveSize } from "@/utils/scale";
 import i18n from "@/constants/translations";
 import { BaseBottomSheet } from "./BaseBottomSheet";
 
-const ACTIONS = [
-  { key: "remove1", icon: "trash", color: "error" },
-  { key: "edit", icon: "pencil", color: "orange" },
-  { key: "consume", icon: "checkmark.circle", color: "primary" },
-  { key: "add", icon: "plus.circle", color: "validCount" },
-];
-
-const InstanceBottomSheetComponent = ({ visible, item, colors, onClose, onAction }) => {
+const ActionBottomSheetComponent = ({ visible, item, colors, onClose, onAction, action }) => {
   if (!item) return null;
 
   return (
     <BaseBottomSheet visible={visible} onClose={onClose} colors={colors}>
       <View style={styles.sheetActions}>
-        {ACTIONS.map((action) => (
+        {action?.map((action) => (
           <Pressable
             key={action.key}
             style={styles.sheetAction}
@@ -34,7 +27,12 @@ const InstanceBottomSheetComponent = ({ visible, item, colors, onClose, onAction
               size={responsiveSize.moderate(20)}
               color={colors[action.color]}
             />
-            <ThemedText style={[styles.sheetActionLabel, { color: colors.text + "99" }]}>
+            <ThemedText
+              style={[
+                styles.sheetActionLabel,
+                { color: colors.text + "99", fontSize: responsiveSize.moderate(action?.labelSize || 11) },
+              ]}
+            >
               {i18n.t(action.key)}
             </ThemedText>
           </Pressable>
@@ -44,7 +42,7 @@ const InstanceBottomSheetComponent = ({ visible, item, colors, onClose, onAction
   );
 };
 
-export const InstanceBottomSheet = React.memo(InstanceBottomSheetComponent);
+export const ActionBottomSheet = React.memo(ActionBottomSheetComponent);
 
 const styles = StyleSheet.create({
   sheetActions: {
@@ -58,7 +56,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sheetActionLabel: {
-    fontSize: responsiveSize.moderate(11),
     fontWeight: "500",
   },
 });

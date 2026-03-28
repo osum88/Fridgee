@@ -379,7 +379,7 @@ export const getUnitLabel = (unit, amount) => {
       return i18n.t("piecesPerPackage_other").toLowerCase();
     }
   }
-  return unit.toLowerCase();
+  return unit?.toLowerCase();
 };
 
 //vraci menu

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef } from "react";
-import { StyleSheet, View,  Pressable } from "react-native";
+import { StyleSheet, View, Pressable } from "react-native";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ImageViewer } from "@/components/image/ImageViewer";
@@ -189,9 +189,9 @@ const styles = StyleSheet.create({
     // paddingTop: responsiveSize.vertical(8),
   },
   itemContainer: {
+    paddingVertical: responsiveSize.vertical(12),
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: responsiveSize.vertical(12),
     gap: responsiveSize.horizontal(12),
   },
   image: {

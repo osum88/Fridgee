@@ -186,6 +186,11 @@ export const getShoppingListByIdSchema = Joi.object({
   shoppingListId: Joi.number().integer().positive().required(),
 });
 
+export const deleteShoppingListSchema = Joi.object({
+  inventoryId: Joi.number().integer().positive().required(),
+  shoppingListId: Joi.number().integer().positive().required(),
+});
+
 //                      SHOPPING LIST ITEM
 
 export const createShoppingListItemSchema = Joi.object({

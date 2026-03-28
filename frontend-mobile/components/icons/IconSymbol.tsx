@@ -34,7 +34,9 @@ const MAPPING = {
   // zvonek
   bell: { name: "notifications-none", source: "MaterialIcons" },
   // nakupni kosik
-  cart: { name: "shopping-cart", source: "MaterialIcons" },
+  "cart.fill": { name: "cart", source: "MaterialCommunityIcons" },
+  // nakupni kosik outline
+  "cart": { name: "cart-outline", source: "MaterialCommunityIcons" },
   // fajvka
   checkmark: { name: "check", source: "MaterialIcons" },
   // oko

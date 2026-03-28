@@ -3,7 +3,7 @@ import { authenticateToken, authorizeUser } from "../middlewares/authMiddleware.
 import { archiveFoodInventory, changeRoleInventoryUser, changeSettingFoodInventoryUser, createFoodInventory, createInventoryUser, leaveInventory, deleteOtherFoodInventoryUser, getAllFoodInventory, getInventoryContent, getInventoryDetailsWithUser, getUsersByInventoryId, getUsersByInventoryIdByRole, searchUsersForInventory, unarchiveFoodInventory, updateFoodInventory } from "../controllers/foodInventoryController.js";
 import { acceptInventoryInvitation, getInventoryInvitationsByUser, rejectInventoryInvitation, sendInventoryInvitation } from "../controllers/inventoryInvitationController.js";
 import validate from "../middlewares/validator.js";
-import { inventoryIdSchema, changeRoleSchema, changeSettingSchema, createFoodInventorySchema, deleteOtherSchema, deleteSchema, getInventoryUsersSchema, updateFoodInventorySchema, searchInventoryLabelSchema, getHistorySchema, inventoryIdBarcodeSchema, foodIdInventoryIdSchema, foodCatalogIdInventoryIdSchema, searchUsersForInventorySchema, gellAllUsersSchema, createShoppingListSchema, updateShoppingListSchema, getShoppingListByIdSchema, updateShoppingListItemSchema, createShoppingListItemSchema, deleteShoppingListItemSchema, getShoppingListItemSchema } from "../validation/foodInventoryValidation.js";
+import { inventoryIdSchema, changeRoleSchema, changeSettingSchema, createFoodInventorySchema, deleteOtherSchema, deleteSchema, getInventoryUsersSchema, updateFoodInventorySchema, searchInventoryLabelSchema, getHistorySchema, inventoryIdBarcodeSchema, foodIdInventoryIdSchema, foodCatalogIdInventoryIdSchema, searchUsersForInventorySchema, gellAllUsersSchema, createShoppingListSchema, updateShoppingListSchema, getShoppingListByIdSchema, updateShoppingListItemSchema, createShoppingListItemSchema, deleteShoppingListItemSchema, getShoppingListItemSchema, deleteShoppingListSchema } from "../validation/foodInventoryValidation.js";
 import { invitationIdSchema, sendInvitationSchema } from "../validation/inventoryInvitationValidation.js";
 import { sanitize } from "../middlewares/sanitize.js";
 import { getFoodCategoriesByInventory } from "../controllers/foodCategoryController.js";
@@ -11,7 +11,7 @@ import { getLabelSuggestions } from "../controllers/foodLabelController.js";
 import { getHistory } from "../controllers/foodHistoryController.js";
 import { getFoodByBarcode, getFoodDetail } from "../controllers/foodController.js";
 import { getActiveFoodVariants } from "../controllers/foodVariantController.js";
-import { createShoppingList, getShoppingListById, getShoppingLists, updateShoppingList } from "../controllers/shoppingListController.js";
+import { createShoppingList, deleteShoppingList, getShoppingListById, getShoppingLists, getShoppingListsContent, updateShoppingList } from "../controllers/shoppingListController.js";
 import { createShoppingListItem, deleteShoppingListItem, getShoppingListItem, updateShoppingListItem } from "../controllers/shoppingListItemController.js";
 
 const router = express.Router();
@@ -104,11 +104,17 @@ router.post("/:inventoryId/shopping-lists", validate(createShoppingListSchema), 
 //updatuje nakupni seznam
 router.patch("/:inventoryId/shopping-lists/:shoppingListId", validate(updateShoppingListSchema), updateShoppingList);
 
+//vraci vsechny nakupni seznam 
+router.get("/:inventoryId/shopping-lists/list", validate(inventoryIdSchema), getShoppingLists);
+
 //vraci nakupni seznam
 router.get("/:inventoryId/shopping-lists/:shoppingListId", validate(getShoppingListByIdSchema), getShoppingListById);
 
-//vraci vsechny nakupni seznam
-router.get("/:inventoryId/shopping-lists", validate(inventoryIdSchema), getShoppingLists);
+//vraci vsechny nakupni seznam s detailem
+router.get("/:inventoryId/shopping-lists", validate(inventoryIdSchema), getShoppingListsContent);
+
+//smaze nakupni seznam
+router.delete("/:inventoryId/shopping-lists/:shoppingListId", validate(deleteShoppingListSchema), deleteShoppingList);
 
 
 //                      FOOD SHOPPING ITEMS

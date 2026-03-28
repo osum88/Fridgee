@@ -282,6 +282,18 @@
   "deleteCatalog": "Odstranit katalog",
   "catalog": "Katalog",
   "editCatalog": "Úprava katalogu",
+  "shoppingList": "Nákupní seznam",
+  "noShoppingListTitle": "Žádný nákupní seznam",
+  "noShoppingListSubtitle": "Zatím nemáte vytvořený žádný nákupní seznam",
+  "check": "Odškrtnout",
+  "addToInventory": "Přidat do inventáře",
+  "shoppingLists": "Nákupní seznamy",
+  "editShoppingList": "Úprava nákupního seznamu",
+"shoppingListPlaceholder": "Zadejte název nákupního seznamu",
+"addShoppingList": "Přidání nákupního seznamu",
+"removeShoppingList": "Odstranit nákupní seznam",
+"removeShoppingListConfirm": "Opravdu chcete odstranit nákupní seznam",
+"noShoppingListItems": "Seznam je prázdný",
 
   "historyAction": {
     "ADD": "Přidání potraviny",
@@ -423,6 +435,13 @@
       "CATEGORY_ALREADY_EXISTS": "Kategorie s tímto názvem již existuje.",
       "STRING_EMPTY": "Název kategorie nemůže být prázdný.",
       "default": "Název kategorie nesmí být delší než 50 znaků."
+    },
+    "shoppingList": {
+      "LIST_CONTAINS_ITEMS": "Seznam s položkami nelze odstranit"
+    },
+    "shoppingListTitle": {
+      "STRING_EMPTY": "Název nákupního seznamu nemůže být prázdný.",
+      "default": "Název nákupního seznamu nesmí být delší než 50 znaků."
     }
   }
 }

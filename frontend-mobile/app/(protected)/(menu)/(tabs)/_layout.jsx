@@ -105,7 +105,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="inventoryHistory"
         options={{
-          headerTitle: i18n.t("history"),
+          headerTitle: activeInventory.title || i18n.t("history"),
           tabBarLabel: i18n.t("history"),
           headerShown: true,
           tabBarIcon: ({ color }) => (
@@ -114,6 +114,17 @@ export default function TabLayout() {
               name="clock.arrow.trianglehead.counterclockwise.rotate.90"
               color={color}
             />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="shoppingList"
+        options={{
+          headerTitle: activeInventory.title || i18n.t("shoppingList"),
+          tabBarLabel: i18n.t("shoppingList"),
+          headerShown: true,
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={responsiveSize.moderate(24)} name="cart.fill" color={color} />
           ),
         }}
       />

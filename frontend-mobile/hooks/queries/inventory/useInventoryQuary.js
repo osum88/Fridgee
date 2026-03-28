@@ -148,9 +148,7 @@ export const useGetUsersByInventoryId = (
     queryKey: [`inventory-users-${sortBy}`, inventoryId],
     queryFn: ({ signal }) => getUsersByInventoryIdApi(inventoryId, signal, sortBy),
     enabled: !!inventoryId && !!enabled,
-    staleTime: () => {
-      return memberCount > 1 ? TWENTY_SEC : ONE_WEEK;
-    },
+    staleTime: memberCount > 1 ? THIRTY_SEC : ONE_WEEK,
     refetchInterval: () => {
       const isShared = (memberCount ?? 0) > 1;
       return isShared && isFocused ? ONE_MIN : false;
@@ -194,7 +192,12 @@ export const useGetInventoryInvitations = (enabled = true) => {
 };
 
 // vrati vsechny instance food podle barcodu
-export const useGetFoodInstanceByBarcode = (inventoryId, barcode, memberCount = 1, enabled = true) => {
+export const useGetFoodInstanceByBarcode = (
+  inventoryId,
+  barcode,
+  memberCount = 1,
+  enabled = true,
+) => {
   const isFocused = useIsFocused();
 
   return useQuery({

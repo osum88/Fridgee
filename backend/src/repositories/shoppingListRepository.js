@@ -34,12 +34,11 @@ export const updateShoppingListRepository = async (shoppingListId, data) => {
 };
 
 //vraci vsechny nakupni seznam
-export const getShoppingListsByInventoryRepository = async (inventoryId, userId) => {
+export const getShoppingListsByInventoryContentRepository = async (inventoryId, userId) => {
   try {
     return await prisma.shoppingList.findMany({
       where: {
         inventoryId: inventoryId,
-        items: { some: {} },
       },
       select: shoppingListSelect(userId),
     });
@@ -89,12 +88,12 @@ const shoppingListSelect = (userId) => {
             barcode: true,
             labels: {
               where: { userId: userId, isDeleted: false },
-              select: { id: true, title: true, normalizedTitle: true, foodImageUrl: true },
+              select: { id: true, title: true },
             },
           },
         },
         label: {
-          select: { id: true, title: true, normalizedTitle: true, foodImageUrl: true },
+          select: { id: true, title: true },
         },
       },
     },
@@ -118,6 +117,39 @@ export const getShoppingListByTitleRepository = async (
     });
   } catch (error) {
     console.error("Error fetching shopping list by id:", error);
+    throw error;
+  }
+};
+
+//smaze nakupni seznam
+export const deleteShoppingListRepository = async (shoppingListId) => {
+  try {
+    return await prisma.shoppingList.delete({
+      where: { id: shoppingListId },
+    });
+  } catch (error) {
+    console.error("Error deleting shopping list:", error);
+    throw error;
+  }
+};
+
+//vraci nakupni seznamy
+export const getShoppingListsByInventoryRepository = async (inventoryId) => {
+  try {
+    return await prisma.shoppingList.findMany({
+      where: { inventoryId },
+      orderBy: { title: "asc" },
+      select: {
+        id: true,
+        title: true,
+        status: true,
+        _count: {
+          select: { items: true },
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching shopping lists light:", error);
     throw error;
   }
 };

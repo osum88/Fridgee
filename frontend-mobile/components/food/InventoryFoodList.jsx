@@ -89,9 +89,9 @@ const SectionHeader = React.memo(SectionHeaderComponent);
 
 //konec sekce
 const SectionEndComponent = ({ surface, borderColor }) => (
-  <Animated.View entering={FadeIn.duration(200)}>
+  // <Animated.View entering={FadeIn.duration(200)}>
     <ThemedView style={[styles.sectionEndCap, { borderColor }]} darkColor={surface} />
-  </Animated.View>
+  // </Animated.View>
 );
 const SectionEnd = React.memo(SectionEndComponent);
 
@@ -115,7 +115,7 @@ const FoodItemContentComponent = ({
   }, [item.foodId, item.catalogId]);
 
   return (
-    <Pressable onPress={handlePress}>
+    <Pressable onPress={handlePress}  style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}>
       <ThemedView style={styles.foodRow} darkColor={surfaceColor}>
         <View style={styles.foodInfo}>
           <ThemedText style={styles.foodTitle} numberOfLines={1} ellipsizeMode="tail">

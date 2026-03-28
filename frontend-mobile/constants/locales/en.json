@@ -284,6 +284,18 @@
   "deleteCatalog": "Delete catalog",
   "catalog": "Catalog",
   "editCatalog": "Edit catalog",
+  "shoppingList": "Shopping list",
+  "noShoppingListTitle": "No shopping list",
+  "noShoppingListSubtitle": "You don't have any shopping list yet",
+  "check": "Check",
+  "addToInventory": "Add to inventory",
+  "shoppingLists": "Shopping lists",
+  "editShoppingList": "Edit shopping list",
+  "shoppingListPlaceholder": "Enter shopping list name",
+  "addShoppingList": "Add shopping list",
+  "removeShoppingList": "Remove shopping list",
+"removeShoppingListConfirm": "Are you sure you want to remove the shopping list",
+"noShoppingListItems": "The list is empty",
 
   "historyAction": {
     "ADD": "Food added",
@@ -422,9 +434,16 @@
     },
     "category": {
       "OWNER_EDITOR_ONLY": "Only the inventory owner or editor can change the category.",
-      "CATEGORY_ALREADY_EXISTS": "Category with this name already exists.",
-      "STRING_EMPTY": "Category name cannot be empty.",
-      "default": "Category name cannot be longer than 50 characters."
+      "CATEGORY_ALREADY_EXISTS": "The category with this name already exists.",
+      "STRING_EMPTY": "The category name cannot be empty.",
+      "default": "The category name cannot be longer than 50 characters."
+    },
+    "shoppingList": {
+      "LIST_CONTAINS_ITEMS": "A shopping list with items cannot be deleted"
+    },
+    "shoppingListTitle": {
+      "STRING_EMPTY": "The shopping list name cannot be empty.",
+      "default": "The shopping list name cannot be longer than 50 characters."
     }
   }
 }

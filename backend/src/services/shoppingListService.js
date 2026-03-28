@@ -1,10 +1,13 @@
-import { BadRequestError, ForbiddenError, NotFoundError } from "../errors/errors.js";
+import { BadRequestError, ConflictError, ForbiddenError, NotFoundError } from "../errors/errors.js";
 import { getFoodInventoryUserRepository } from "../repositories/foodInventoryRepository.js";
 import { getActiveFoodVariantsRepository } from "../repositories/foodVariantRepository.js";
+import { countShoppingListItemsRepository } from "../repositories/shoppingListItemRepository.js";
 import {
   createShoppingListRepository,
+  deleteShoppingListRepository,
   getShoppingListByIdRepository,
   getShoppingListByTitleRepository,
+  getShoppingListsByInventoryContentRepository,
   getShoppingListsByInventoryRepository,
   updateShoppingListRepository,
 } from "../repositories/shoppingListRepository.js";
@@ -69,7 +72,7 @@ export const updateShoppingListService = async (
 };
 
 //vraci vsechny nakupni seznam
-export const getShoppingListsService = async (inventoryId, userId, isAdmin) => {
+export const getShoppingListsContentService = async (inventoryId, userId, isAdmin) => {
   // kontrola existence uzivatele v inventari
   if (!isAdmin) {
     const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId, false);
@@ -80,7 +83,7 @@ export const getShoppingListsService = async (inventoryId, userId, isAdmin) => {
     }
   }
 
-  const lists = await getShoppingListsByInventoryRepository(inventoryId, userId);
+  const lists = await getShoppingListsByInventoryContentRepository(inventoryId, userId);
   if (!lists) {
     return [];
   }
@@ -95,14 +98,10 @@ export const getShoppingListsService = async (inventoryId, userId, isAdmin) => {
         ? {
             customTitle: activeLabel?.title || "",
             customNormalizedTitle: activeLabel?.normalizedTitle || "",
-            foodImageUrl: activeLabel?.foodImageUrl || "",
-            foodImageCloudId: activeLabel?.foodImageCloudId || null,
           }
         : {
             customTitle: item?.customTitle || "",
             customNormalizedTitle: item?.customNormalizedTitle || "",
-            foodImageUrl: "",
-            foodImageCloudId: null,
           };
 
       return {
@@ -165,14 +164,10 @@ export const getShoppingListByIdService = async (inventoryId, shoppingListId, us
       ? {
           customTitle: activeLabel?.title || "",
           customNormalizedTitle: activeLabel?.normalizedTitle || "",
-          foodImageUrl: activeLabel?.foodImageUrl || "",
-          foodImageCloudId: activeLabel?.foodImageCloudId || null,
         }
       : {
           customTitle: item?.customTitle || "",
           customNormalizedTitle: item?.customNormalizedTitle || "",
-          foodImageUrl: "",
-          foodImageCloudId: null,
         };
 
     return {
@@ -207,4 +202,50 @@ export const getShoppingListByIdService = async (inventoryId, shoppingListId, us
     inventoryId: inventoryId,
     items: sortedItems,
   };
+};
+
+//smaze nakupni seznam
+export const deleteShoppingListService = async (inventoryId, shoppingListId, userId, isAdmin) => {
+  if (!isAdmin) {
+    const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId, false);
+    if (!inventoryUser) {
+      throw new ForbiddenError("You do not have permission to delete this shopping list.");
+    }
+  }
+
+  const shoppingList = await getShoppingListByIdRepository(shoppingListId);
+  if (!shoppingList || shoppingList.inventoryId !== inventoryId) {
+    throw new NotFoundError("Shopping list not found.");
+  }
+
+  const itemCount = await countShoppingListItemsRepository(shoppingListId);
+  if (itemCount > 0) {
+    throw new ConflictError("Shopping list contains items and cannot be deleted.", {
+      type: "shoppingList",
+      code: "LIST_CONTAINS_ITEMS",
+    });
+  }
+
+  return await deleteShoppingListRepository(shoppingListId);
+};
+
+//vraci seznamy nakupu
+export const getShoppingListsService = async (inventoryId, userId, isAdmin) => {
+  if (!isAdmin) {
+    const inventoryUser = await getFoodInventoryUserRepository(userId, inventoryId, false);
+    if (!inventoryUser) {
+      throw new ForbiddenError("You do not have permission to view this inventory.");
+    }
+  }
+
+  const lists = await getShoppingListsByInventoryRepository(inventoryId);
+  const sortedLists = sortBy(lists, "title");
+
+  return sortedLists.map((list) => ({
+    id: list.id,
+    title: list.title,
+    status: list.status,
+    hasItems: list._count.items > 0,
+    itemCount: list._count.items,
+  }));
 };

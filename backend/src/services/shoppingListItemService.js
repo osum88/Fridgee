@@ -431,3 +431,4 @@ export const getShoppingListItemService = async (
     variants: activeVariants,
   };
 };
+

@@ -367,3 +367,15 @@ export const splitAndMergeOnUpdateRepository = async (
     throw error;
   }
 };
+
+//vrati pocet items
+export const countShoppingListItemsRepository = async (shoppingListId) => {
+  try {
+    return await prisma.shoppingListItem.count({
+      where: { shoppingListId },
+    });
+  } catch (error) {
+    console.error("Error counting shopping list item:", error);
+    throw error;
+  }
+};

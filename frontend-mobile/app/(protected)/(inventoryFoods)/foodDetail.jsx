@@ -1,5 +1,5 @@
-import  { useCallback, useMemo, useState } from "react";
-import {  StyleSheet } from "react-native";
+import { useCallback, useMemo, useState } from "react";
+import { StyleSheet } from "react-native";
 import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { responsiveSize } from "@/utils/scale";
@@ -11,7 +11,7 @@ import { useFoodDetail } from "@/hooks/queries/food/useGetFoodQuary";
 import { useInventoryStore } from "@/hooks/store/useInventoryStore";
 import { FoodDetailHeader } from "@/components/food/FoodDetailHeader";
 import { InstanceItem } from "@/components/food/InstanceItem";
-import { InstanceBottomSheet } from "@/components/bottomSheet/InstanceBottomSheet";
+import { ActionBottomSheet } from "@/components/bottomSheet/ActionBottomSheet";
 import { CounterModal } from "@/components/bottomSheet/CounterBottomSheet";
 import { ConsumeModal } from "@/components/bottomSheet/ConsumeBottomSheet";
 import {
@@ -25,6 +25,12 @@ import { useGetInventoryCategoriesQuery } from "@/hooks/queries/inventory/useInv
 import { showGlobalError } from "@/utils/showGlobalError";
 import { ThemedActivityIndicator } from "../../../components/themed/ThemedActivityIndicator";
 
+const ACTIONS = [
+  { key: "remove1", icon: "trash", color: "error" },
+  { key: "edit", icon: "pencil", color: "orange" },
+  { key: "consume", icon: "checkmark.circle", color: "primary" },
+  { key: "add", icon: "plus.circle", color: "validCount" },
+];
 
 const ITEM_HEIGHT = responsiveSize.vertical(60);
 
@@ -41,7 +47,7 @@ export default function FoodDetailScreen() {
   const activeInventory = useInventoryStore((state) => state.activeInventory);
   const INVENTORY_PERMISSION =
     activeInventory?.role === "OWNER" || activeInventory?.role === "EDITOR";
-  
+
   //vraci food detail
   const {
     data: foodData,
@@ -50,7 +56,11 @@ export default function FoodDetailScreen() {
   } = useFoodDetail(activeInventory.id, catalogId, foodId, activeInventory?.memberCount);
 
   //konzumace
-  const { consumeInstance } = useConsumeFoodInstanceMutation(activeInventory?.id, catalogId, foodId);
+  const { consumeInstance } = useConsumeFoodInstanceMutation(
+    activeInventory?.id,
+    catalogId,
+    foodId,
+  );
   //duplikace
   const { duplicateInstance } = useDuplicateFoodInstanceMutation(
     activeInventory?.id,
@@ -65,7 +75,7 @@ export default function FoodDetailScreen() {
     activeInventory?.memberCount,
     showCategoryModal,
   );
-  
+
   const handleItemPress = useCallback((item) => {
     setSelectedItem(item);
     setSheetVisible(true);
@@ -170,9 +180,7 @@ export default function FoodDetailScreen() {
   );
 
   if (isLoading) {
-    return (
-        <ThemedActivityIndicator size={"large"} container={true}/>
-    );
+    return <ThemedActivityIndicator size={"large"} container={true} />;
   }
 
   return (
@@ -228,12 +236,13 @@ export default function FoodDetailScreen() {
         catalogId={foodData?.catalogId}
         foodId={foodData?.foodId}
       />
-      <InstanceBottomSheet
+      <ActionBottomSheet
         visible={sheetVisible}
         item={selectedItem}
         colors={colors}
         onClose={handleSheetClose}
         onAction={handleActionInstance}
+        action={ACTIONS}
       />
     </ThemedView>
   );
